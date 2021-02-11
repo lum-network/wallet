@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface CardProps {
-    children: JSX.Element;
+    children: JSX.Element | JSX.Element[];
     className?: string;
 }
 

@@ -1,9 +1,6 @@
 import React from 'react';
 import { Switch, Route, BrowserRouter } from 'react-router-dom';
-import Buy from 'screens/Buy';
-import Exchange from 'screens/Exchange';
-import Send from 'screens/Send';
-import Dashboard from '../screens/Dashboard';
+import { Dashboard, Message, Send, Transactions, TransactionDetails } from 'screens';
 import MainLayout from './Layout/MainLayout/MainLayout';
 
 const RootNavigator = (): JSX.Element => {
@@ -14,14 +11,17 @@ const RootNavigator = (): JSX.Element => {
                     <Route path="/home">
                         <Dashboard />
                     </Route>
-                    <Route path="/exchange">
-                        <Exchange />
-                    </Route>
-                    <Route path="/buy">
-                        <Buy />
+                    <Route path="/message">
+                        <Message />
                     </Route>
                     <Route path="/send">
                         <Send />
+                    </Route>
+                    <Route path="/transactions">
+                        <Transactions />
+                    </Route>
+                    <Route path="/transaction/:txId">
+                        <TransactionDetails />
                     </Route>
                 </Switch>
             </BrowserRouter>

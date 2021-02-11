@@ -3,9 +3,11 @@
     "version": "0.1.0",
     "private": true,
     "dependencies": {
+        "@popperjs/core": "^2.5.4",
         "@rematch/core": "^2.0.0",
         "@rematch/loading": "^2.0.0",
         "@rematch/persist": "^2.0.0",
+        "@rematch/select": "^3.0.0",
         "bootstrap": "^5.0.0-beta1",
         "node-sass": "^5.0.0",
         "qrcode.react": "^1.0.1",

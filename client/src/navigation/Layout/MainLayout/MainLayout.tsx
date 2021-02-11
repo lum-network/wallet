@@ -7,23 +7,23 @@ class MainLayout extends PureComponent {
         return (
             <div className="container-fluid">
                 <div className="row">
-                    <nav className="col-md-2 sidebar bg-secondary">
+                    <nav className="col-md-2 d-none d-md-block sidebar bg-secondary">
                         <ul className="list-unstyled">
                             <li>
-                                <a href="home">Dashboard</a>
+                                <a href="/home">Dashboard</a>
                             </li>
                             <li>
-                                <a href="send">Send</a>
+                                <a href="/transactions">Transactions</a>
                             </li>
                             <li>
-                                <a href="exchange">Exchange</a>
+                                <a href="/send">Send</a>
                             </li>
                             <li>
-                                <a href="buy">Buy</a>
+                                <a href="/message">Message</a>
                             </li>
                         </ul>
                     </nav>
-                    <div className="col-md-10">{children}</div>
+                    <div className="col-md-9 col-lg-10 ml-sm-auto px-4">{children}</div>
                 </div>
             </div>
         );
