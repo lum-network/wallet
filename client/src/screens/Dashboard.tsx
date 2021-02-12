@@ -1,9 +1,8 @@
 import { Card, TransactionsTable } from 'components';
 import React, { PureComponent } from 'react';
 import QRCode from 'qrcode.react';
-import { RootState } from 'redux/store';
+import { RootDispatch, RootState } from 'redux/store';
 import { connect } from 'react-redux';
-import { Dispatch } from 'redux';
 
 interface IProps {}
 
@@ -15,7 +14,7 @@ const mapState = (state: RootState) => ({
 });
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const mapDispatch = (_dispatch: Dispatch) => ({});
+const mapDispatch = (_dispatch: RootDispatch) => ({});
 
 type StateProps = ReturnType<typeof mapState>;
 type DispatchProps = ReturnType<typeof mapDispatch>;

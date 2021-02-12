@@ -1,13 +1,12 @@
-import React, { InputHTMLAttributes } from 'react';
+import React from 'react';
 
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+interface InputProps extends React.ComponentPropsWithRef<'input'> {
     label?: string;
     description?: string;
     inputClass?: string;
-    value: string;
 }
 
-const Input = (props: InputProps): JSX.Element => {
+const Input = React.forwardRef<HTMLInputElement, InputProps>((props, ref) => {
     const { className, inputClass, label, description, ...rest } = props;
 
     return (
@@ -17,10 +16,12 @@ const Input = (props: InputProps): JSX.Element => {
                     {label}
                 </label>
             )}
-            <input className={inputClass} {...rest} />
+            <input ref={ref} className={inputClass} {...rest} />
             {description && <div className="form-text">{description}</div>}
         </div>
     );
-};
+});
+
+Input.displayName = 'Input';
 
 export default Input;

@@ -3,16 +3,16 @@ import { Card } from 'components';
 import React from 'react';
 import { connect, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { Dispatch } from 'redux';
-import { RootState } from 'redux/store';
+import { RootDispatch, RootState } from 'redux/store';
 
 interface IProps {}
 
 const mapState = (state: RootState) => ({
-    loading: state.wallet,
+    loading: state.loading.models.wallet,
+    address: state.wallet.address,
 });
 
-const mapDispatch = (_dispatch: Dispatch) => ({});
+const mapDispatch = (_dispatch: RootDispatch) => ({});
 
 type StateProps = ReturnType<typeof mapState>;
 type DispatchProps = ReturnType<typeof mapDispatch>;

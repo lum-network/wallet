@@ -51,7 +51,7 @@ const TransactionsTable = (props: IProps): JSX.Element => {
 
         return (
             <div className="table-responsive">
-                <table className="table table-hover">
+                <table className="table table-hover table-borderless table-striped">
                     <thead>
                         <tr>
                             {headers.map((header, index) => {

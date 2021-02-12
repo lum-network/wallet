@@ -15,6 +15,11 @@ const persistConfig = {
 
 const store = init<RootModel, FullModel>({
     models: reduxModels,
+    redux: {
+        rootReducers: {
+            LOGOUT: () => undefined,
+        },
+    },
     plugins: [loadingPlugin(), persistPlugin(persistConfig), selectPlugin()],
 });
 
@@ -23,7 +28,7 @@ export const persistor = getPersistor();
 export const { select } = store;
 
 export type Store = typeof store;
-export type Dispatch = RematchDispatch<RootModel>;
+export type RootDispatch = RematchDispatch<RootModel>;
 export type RootState = RematchRootState<RootModel>;
 
 export default store;

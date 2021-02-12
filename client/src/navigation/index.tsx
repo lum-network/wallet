@@ -1,6 +1,18 @@
 import React from 'react';
-import { Switch, Route, BrowserRouter } from 'react-router-dom';
-import { Dashboard, Message, Send, Transactions, TransactionDetails } from 'screens';
+import { useSelector } from 'react-redux';
+import { Switch, Route, BrowserRouter, Redirect } from 'react-router-dom';
+import { RootState } from 'redux/store';
+import {
+    CreateWallet,
+    Dashboard,
+    ImportWallet,
+    Message,
+    Send,
+    Transactions,
+    TransactionDetails,
+    Welcome,
+    Error404,
+} from 'screens';
 import MainLayout from './Layout/MainLayout/MainLayout';
 
 const RootNavigator = (): JSX.Element => {
@@ -8,24 +20,54 @@ const RootNavigator = (): JSX.Element => {
         <MainLayout>
             <BrowserRouter>
                 <Switch>
-                    <Route path="/home">
+                    <Route path="/welcome">
+                        <Welcome />
+                    </Route>
+                    <Route path="/create">
+                        <CreateWallet />
+                    </Route>
+                    <Route path="/import">
+                        <ImportWallet />
+                    </Route>
+                    <PrivateRoute exact path={['/home', '/']}>
                         <Dashboard />
-                    </Route>
-                    <Route path="/message">
+                    </PrivateRoute>
+                    <PrivateRoute path="/message">
                         <Message />
-                    </Route>
-                    <Route path="/send">
+                    </PrivateRoute>
+                    <PrivateRoute path="/send">
                         <Send />
-                    </Route>
-                    <Route path="/transactions">
+                    </PrivateRoute>
+                    <PrivateRoute path="/transactions">
                         <Transactions />
-                    </Route>
-                    <Route path="/transaction/:txId">
+                    </PrivateRoute>
+                    <PrivateRoute path="/transaction/:txId">
                         <TransactionDetails />
+                    </PrivateRoute>
+                    <Route path="*">
+                        <Error404 />
                     </Route>
                 </Switch>
             </BrowserRouter>
         </MainLayout>
+    );
+};
+
+const PrivateRoute = ({
+    children,
+    path,
+    exact,
+}: {
+    children: JSX.Element;
+    exact?: boolean;
+    path: string | string[];
+}): JSX.Element => {
+    const address = useSelector((state: RootState) => state.wallet.address);
+
+    return (
+        <Route exact={exact} path={path}>
+            {address ? children : <Redirect to="/welcome" />}
+        </Route>
     );
 };
 

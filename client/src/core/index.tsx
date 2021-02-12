@@ -1,18 +1,18 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
-import { Dispatch } from 'redux';
 import RootNavigator from '../navigation';
-import { RootState } from '../redux/store';
+import { RootDispatch, RootState } from '../redux/store';
 
 interface IProps {}
 
 const mapState = (state: RootState) => ({
     loading: state.loading.global,
     transactions: state.wallet.transactions,
+    address: state.wallet.address,
 });
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const mapDispatch = (_dispatch: Dispatch) => ({});
+const mapDispatch = (_dispatch: RootDispatch) => ({});
 
 type StateProps = ReturnType<typeof mapState>;
 type DispatchProps = ReturnType<typeof mapDispatch>;

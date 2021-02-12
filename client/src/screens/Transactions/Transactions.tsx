@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
-import { Dispatch } from 'redux';
-import { RootState } from 'redux/store';
+import { RootDispatch, RootState } from 'redux/store';
 import { Card, TransactionsTable } from 'components';
 
 interface IProps {}
@@ -12,7 +11,7 @@ const mapState = (state: RootState) => ({
 });
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const mapDispatch = (_dispatch: Dispatch) => ({});
+const mapDispatch = (_dispatch: RootDispatch) => ({});
 
 type StateProps = ReturnType<typeof mapState>;
 type DispatchProps = ReturnType<typeof mapDispatch>;
