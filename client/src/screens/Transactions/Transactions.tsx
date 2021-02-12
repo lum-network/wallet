@@ -1,32 +1,16 @@
-import React, { PureComponent } from 'react';
-import { connect } from 'react-redux';
-import { RootDispatch, RootState } from 'redux/store';
+import React from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from 'redux/store';
 import { Card, TransactionsTable } from 'components';
 
-interface IProps {}
+const Transactions = (): JSX.Element => {
+    const transactions = useSelector((state: RootState) => state.wallet.transactions);
+    return (
+        <Card className="col mt-4">
+            <h5 className="p-2">Latest Transactions</h5>
+            <TransactionsTable transactions={transactions} />
+        </Card>
+    );
+};
 
-const mapState = (state: RootState) => ({
-    loading: state.loading.global,
-    transactions: state.wallet.transactions,
-});
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const mapDispatch = (_dispatch: RootDispatch) => ({});
-
-type StateProps = ReturnType<typeof mapState>;
-type DispatchProps = ReturnType<typeof mapDispatch>;
-
-type Props = IProps & StateProps & DispatchProps;
-
-class Transactions extends PureComponent<Props> {
-    render(): JSX.Element {
-        return (
-            <Card className="col">
-                <h5 className="p-2">Latest Transactions</h5>
-                <TransactionsTable transactions={this.props.transactions} />
-            </Card>
-        );
-    }
-}
-
-export default connect(mapState, mapDispatch)(Transactions);
+export default Transactions;

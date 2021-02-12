@@ -1,7 +1,9 @@
 import { Card, Input } from 'components';
 import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { useSelector } from 'react-redux';
-import { RootState } from 'redux/store';
+import { useRematchDispatch } from 'redux/hooks';
+import { RootDispatch, RootState } from 'redux/store';
 
 const Send = (): JSX.Element => {
     const address = useSelector((state: RootState) => state.wallet.address);
@@ -10,13 +12,29 @@ const Send = (): JSX.Element => {
     const [amount, setAmount] = useState('');
     const [fees, setFees] = useState('');
 
+    const { sendTx } = useRematchDispatch((dispatch: RootDispatch) => ({
+        sendTx: dispatch.wallet.sendTx,
+    }));
+    const { register, handleSubmit } = useForm();
+
+    const onSend = (data: { to: string; amount: number }) => {
+        sendTx({
+            ...data,
+            from: senderAddress,
+            amount: Number(amount),
+            ticker: 'LUM',
+        });
+    };
+
     return (
         <div className="pt-4">
             <Card className="px-3 py-2">
                 <h4>Send transaction</h4>
-                <form className="row">
+                <form onSubmit={handleSubmit(onSend)} className="row">
                     <div className="col-6">
                         <Input
+                            ref={register}
+                            name="from"
                             disabled
                             className="mb-4"
                             value={senderAddress}
@@ -28,6 +46,8 @@ const Send = (): JSX.Element => {
                     </div>
                     <div className="col-6">
                         <Input
+                            ref={register}
+                            name="to"
                             required
                             className="mb-4"
                             onChange={(event) => setRecipientAddress(event.target.value)}
@@ -39,6 +59,8 @@ const Send = (): JSX.Element => {
                     </div>
                     <div className="col-6">
                         <Input
+                            ref={register}
+                            name="amount"
                             required
                             className="mb-4"
                             inputClass="form-control"
