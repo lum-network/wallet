@@ -14,26 +14,30 @@ const Welcome = (): JSX.Element => {
     }
 
     return (
-        <div className="container h-100">
-            <div className="row h-100 justify-content-center align-items-center">
+        <div className="container d-flex h-100 justify-content-center align-items-center">
+            <div className="row gy-4">
                 <div className="col-md">
-                    <a href="/create" className="h-100">
-                        <Card className="scale-btn">
-                            <h3>Create a new Wallet</h3>
-                            <p>
-                                Create your own LUM wallet and generate a private key. This private key is on your own
-                                responsability
-                            </p>
-                        </Card>
-                    </a>
+                    <div className="h-100">
+                        <a href="/create">
+                            <Card className="scale-btn">
+                                <h3>Create a new Wallet</h3>
+                                <p>
+                                    Create your own LUM wallet and generate a private key. This private key is on your
+                                    own responsability
+                                </p>
+                            </Card>
+                        </a>
+                    </div>
                 </div>
                 <div className="col-md">
-                    <a href="/import" className="h-100">
-                        <Card className="scale-btn">
-                            <h3>Import an existing Wallet</h3>
-                            <p>Import your existing LUM Wallet to send tokens, view your rewards and more.</p>
-                        </Card>
-                    </a>
+                    <div className="h-100">
+                        <a href="/import">
+                            <Card className="scale-btn">
+                                <h3>Import an existing Wallet</h3>
+                                <p>Import your existing LUM Wallet to send tokens, view your rewards and more.</p>
+                            </Card>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
