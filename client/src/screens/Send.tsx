@@ -27,9 +27,9 @@ const Send = (): JSX.Element => {
     };
 
     return (
-        <div className="pt-4">
+        <div className="p-4">
+            <h3>Send transaction</h3>
             <Card className="px-3 py-2">
-                <h4>Send transaction</h4>
                 <form onSubmit={handleSubmit(onSend)} className="row">
                     <div className="col-6">
                         <Input

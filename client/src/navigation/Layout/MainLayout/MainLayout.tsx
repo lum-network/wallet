@@ -24,7 +24,7 @@ class MainLayout extends PureComponent<Props> {
         return address ? (
             <div className="container-fluid">
                 <div className="row">
-                    <nav className="col-md-2 d-none d-md-flex flex-column sidebar bg-secondary justify-content-between">
+                    <nav className="col-0 col-sm-2 col-xl-1 px-0 d-none d-md-flex flex-column sidebar bg-secondary justify-content-between">
                         <ul className="list-unstyled">
                             <li>
                                 <a href="/home">Dashboard</a>
@@ -47,7 +47,7 @@ class MainLayout extends PureComponent<Props> {
                             </li>
                         </ul>
                     </nav>
-                    <div className="col-md-9 col-lg-10 ml-sm-auto px-4">{children}</div>
+                    <div className="col-12 col-sm-10 col-xl-11">{children}</div>
                 </div>
             </div>
         ) : (

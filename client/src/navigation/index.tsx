@@ -5,7 +5,8 @@ import { RootState } from 'redux/store';
 import {
     CreateWallet,
     Dashboard,
-    ImportWallet,
+    ImportHardwareWallet,
+    ImportSoftwareWallet,
     Message,
     Send,
     Transactions,
@@ -26,8 +27,11 @@ const RootNavigator = (): JSX.Element => {
                     <Route path="/create">
                         <CreateWallet />
                     </Route>
-                    <Route path="/import">
-                        <ImportWallet />
+                    <Route path="/import/software">
+                        <ImportSoftwareWallet />
+                    </Route>
+                    <Route path="/import/hardware">
+                        <ImportHardwareWallet />
                     </Route>
                     <PrivateRoute exact path={['/home', '/']}>
                         <Dashboard />

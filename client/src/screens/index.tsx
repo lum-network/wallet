@@ -9,4 +9,5 @@ export { default as TransactionDetails } from './Transactions/TransactionDetails
 
 export { default as Welcome } from './Auth/Welcome';
 export { default as CreateWallet } from './Auth/CreateWallet';
-export { default as ImportWallet } from './Auth/ImportWallet';
+export { default as ImportHardwareWallet } from './Auth/ImportHardwareWallet';
+export { default as ImportSoftwareWallet } from './Auth/ImportSoftwareWallet';
