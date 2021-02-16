@@ -5,6 +5,8 @@ import { PersistGate } from 'redux-persist/lib/integration/react';
 import Core from './core';
 import store, { persistor } from './redux/store';
 
+import './App.css';
+
 const App = (): JSX.Element => (
     <Provider store={store}>
         <PersistGate persistor={persistor}>

@@ -6,7 +6,7 @@ interface CardProps {
 }
 
 const Card = (props: CardProps): JSX.Element => {
-    return <div className={`shadow-sm rounded bg-white ${props.className}`}>{props.children}</div>;
+    return <div className={`shadow-sm h-100 p-4 rounded bg-white ${props.className}`}>{props.children}</div>;
 };
 
 export default Card;

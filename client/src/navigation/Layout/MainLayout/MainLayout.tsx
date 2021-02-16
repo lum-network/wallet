@@ -51,7 +51,7 @@ class MainLayout extends PureComponent<Props> {
                 </div>
             </div>
         ) : (
-            <div>{children}</div>
+            <div className="vh-100">{children}</div>
         );
     }
 }
