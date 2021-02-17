@@ -4,13 +4,15 @@ import './Modals.scss';
 
 interface Props {
     id: string;
-    children?: JSX.Element | JSX.Element[];
+    children?: React.ReactNode;
     withCloseButton?: boolean;
     contentClassName?: string;
     bodyClassName?: string;
 }
 
-const Modal = ({ id, children, bodyClassName, contentClassName, withCloseButton = true }: Props): JSX.Element => {
+const Modal = (props: Props): JSX.Element => {
+    const { id, children, bodyClassName, contentClassName, withCloseButton = true } = props;
+
     return (
         <div tabIndex={-1} id={id} className="modal fade" aria-labelledby={`${id}Label`} aria-hidden="true">
             <div className="modal-dialog modal-dialog-centered">

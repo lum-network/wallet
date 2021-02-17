@@ -1,8 +1,11 @@
-import { Card, Modal, TransactionsTable } from 'components';
 import React, { PureComponent } from 'react';
 import QRCode from 'qrcode.react';
-import { RootDispatch, RootState } from 'redux/store';
 import { connect } from 'react-redux';
+import ClipboardJS from 'clipboard';
+import { Tooltip } from 'bootstrap';
+
+import { Card, Modal, TransactionsTable } from 'components';
+import { RootDispatch, RootState } from 'redux/store';
 
 interface IProps {}
 
@@ -22,6 +25,29 @@ type DispatchProps = ReturnType<typeof mapDispatch>;
 type Props = IProps & StateProps & DispatchProps;
 
 class Dashboard extends PureComponent<Props> {
+    clipboard: ClipboardJS | null = null;
+
+    componentDidMount() {
+        this.clipboard = new ClipboardJS('#copy-btn');
+
+        this.clipboard.on('success', () => {
+            const btnEl = document.getElementById('copy-btn');
+            if (btnEl) {
+                const tooltip = new Tooltip(btnEl, { placement: 'bottom', title: 'Copied!' });
+                tooltip.show();
+            }
+        });
+
+        this.clipboard.on('error', (e) => {
+            console.log(e);
+        });
+    }
+
+    componentWillUnmount() {
+        if (this.clipboard) {
+            this.clipboard.destroy();
+        }
+    }
     render(): JSX.Element {
         return (
             <>
@@ -44,6 +70,16 @@ class Dashboard extends PureComponent<Props> {
                                             >
                                                 QR
                                             </button>
+                                            {ClipboardJS.isSupported() && (
+                                                <button
+                                                    type="button"
+                                                    id="copy-btn"
+                                                    className="btn btn-primary"
+                                                    data-clipboard-text={this.props.address}
+                                                >
+                                                    Copy
+                                                </button>
+                                            )}
                                         </Card>
                                     </div>
                                 </div>

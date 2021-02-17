@@ -62,7 +62,7 @@ const PrivateRoute = ({
     path,
     exact,
 }: {
-    children: JSX.Element;
+    children: React.ReactNode;
     exact?: boolean;
     path: string | string[];
 }): JSX.Element => {
