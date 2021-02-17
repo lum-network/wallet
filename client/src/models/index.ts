@@ -1,5 +1,5 @@
 import { Models } from '@rematch/core';
-import { wallet } from '../redux/wallet';
+import { wallet } from '../redux/models/wallet';
 
 export interface RootModel extends Models<RootModel> {
     wallet: typeof wallet;

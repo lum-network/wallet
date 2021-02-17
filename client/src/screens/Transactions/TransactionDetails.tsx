@@ -16,8 +16,8 @@ const TransactionDetails = (): JSX.Element => {
                     <Card className="col">
                         <h4>Transaction</h4>
                         <p>{transaction.id}</p>
-                        <p>{transaction.from}</p>
-                        <p>{transaction.to}</p>
+                        <p className="text-truncate">{transaction.from}</p>
+                        <p className="text-truncate">{transaction.to}</p>
                         <p>
                             {transaction.amount + ' '}
                             <span>{transaction.ticker}</span>

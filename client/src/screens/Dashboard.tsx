@@ -1,10 +1,8 @@
-import { Card, TransactionsTable } from 'components';
+import { Card, Modal, TransactionsTable } from 'components';
 import React, { PureComponent } from 'react';
 import QRCode from 'qrcode.react';
 import { RootDispatch, RootState } from 'redux/store';
 import { connect } from 'react-redux';
-
-import { Modal } from 'bootstrap';
 
 interface IProps {}
 
@@ -24,15 +22,6 @@ type DispatchProps = ReturnType<typeof mapDispatch>;
 type Props = IProps & StateProps & DispatchProps;
 
 class Dashboard extends PureComponent<Props> {
-    toggleQrModal = () => {
-        const documentModal = document.getElementById('qrModal');
-
-        if (documentModal) {
-            const qrModal = new Modal(documentModal);
-            qrModal.toggle();
-        }
-    };
-
     render(): JSX.Element {
         return (
             <>
@@ -42,15 +31,16 @@ class Dashboard extends PureComponent<Props> {
                         <div>
                             <div className="row gy-4">
                                 <div className="col-lg-6 col-12">
-                                    <div className="h-100">
+                                    <div className="h-100 w-100">
                                         <Card>
                                             <h5 className="pt-2">Wallet informations</h5>
                                             <h6>Address</h6>
-                                            <p className="text-wrap">{this.props.address}</p>
+                                            <p className="text-truncate">{this.props.address}</p>
                                             <button
                                                 type="button"
                                                 className="btn btn-primary"
-                                                onClick={this.toggleQrModal}
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#qrModal"
                                             >
                                                 QR
                                             </button>
@@ -58,7 +48,7 @@ class Dashboard extends PureComponent<Props> {
                                     </div>
                                 </div>
                                 <div className="col-lg-6 col-12">
-                                    <div className="h-100">
+                                    <div className="h-100 w-100">
                                         <Card>
                                             <h5 className="pt-2">Current balance</h5>
                                             <div className="d-flex justify-content-center align-items-center">
@@ -68,7 +58,7 @@ class Dashboard extends PureComponent<Props> {
                                     </div>
                                 </div>
                                 <div className="col-12">
-                                    <div className="h-100">
+                                    <div className="h-100 w-100">
                                         <Card>
                                             <h5 className="pt-2">Latest Transactions</h5>
                                             <TransactionsTable transactions={this.props.transactions.slice(0, 5)} />
@@ -79,21 +69,9 @@ class Dashboard extends PureComponent<Props> {
                         </div>
                     </div>
                 </div>
-                <div
-                    tabIndex={-1}
-                    id="qrModal"
-                    className="modal fade"
-                    aria-labelledby="qrModalLabel"
-                    aria-hidden="true"
-                >
-                    <div className="modal-dialog modal-dialog-centered">
-                        <div className="modal-content">
-                            <div className="modal-body mx-auto">
-                                <QRCode value="https://surprise.io" size={256} />
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <Modal id="qrModal">
+                    <QRCode value="https://surprise.io" size={256} />
+                </Modal>
             </>
         );
     }

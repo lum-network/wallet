@@ -1,5 +1,5 @@
 import { createModel } from '@rematch/core';
-import { RootModel, Transaction } from '../models';
+import { RootModel, Transaction } from '../../models';
 
 interface SendPayload {
     to: string;

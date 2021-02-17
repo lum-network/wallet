@@ -27,7 +27,7 @@ const RootNavigator = (): JSX.Element => {
                     <Route path="/create">
                         <CreateWallet />
                     </Route>
-                    <Route path="/import/software">
+                    <Route path="/import/software/:type">
                         <ImportSoftwareWallet />
                     </Route>
                     <Route path="/import/hardware">

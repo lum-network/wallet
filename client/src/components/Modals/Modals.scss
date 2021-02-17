@@ -1,0 +1,27 @@
+.close-btn {
+    align-self: center;
+    margin-top: -25px;
+    width: 50px;
+    height: 50px;
+    background-color: white;
+    box-shadow: 0px 3.32571px 14.9657px rgba(0, 0, 0, 0.1);
+    border-radius: 50px;
+    opacity: 1 !important;
+}
+
+.modal-content {
+    border-radius: 15px !important;
+}
+
+.form-check-input {
+    background-color: #939393;
+    &:checked {
+        background-color: #2c2c2c;
+    }
+}
+
+.mnemonic-input {
+    &:focus {
+        outline: thin dotted;
+    }
+}

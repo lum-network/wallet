@@ -49,6 +49,9 @@ button:focus {
     &:active {
         background-color: black;
     }
+    &:disabled {
+        background-color: #676767;
+    }
 }
 
 .not-recommanded {

@@ -1,80 +1,96 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Redirect } from 'react-router-dom';
 import { RootState } from 'redux/store';
-import { Modal } from 'bootstrap';
+import { Modal as BSModal } from 'bootstrap';
 
-import { Card } from 'components';
+import { Card, KeystoreModal, MnemonicModal, Modal, PrivateKeyModal } from 'components';
 
 import './Welcome.scss';
 
-const Welcome = (): JSX.Element => {
-    const [selectedMethod, setSelectedMethod] = useState('');
+type MethodModalType = 'mnemonic' | 'privateKey' | 'keystore';
 
+const Welcome = (): JSX.Element => {
     const address = useSelector((state: RootState) => state.wallet.address);
 
     if (address) {
         return <Redirect to="/home" />;
     }
 
-    const toggleModal = () => {
-        const documentModal = document.getElementById('importSoftwareModal');
+    const [selectedMethod, setSelectedMethod] = useState<MethodModalType | null>(null);
+    const [selectedMethodTemp, setSelectedMethodTemp] = useState<MethodModalType | null>(null);
 
-        if (documentModal) {
-            const qrModal = new Modal(documentModal);
-            qrModal.toggle();
+    // UPDATE MODAL LISTENER
+    useEffect(() => {
+        const importSoftwareDocumentModal = document.getElementById('importSoftwareModal');
+
+        if (importSoftwareDocumentModal) {
+            importSoftwareDocumentModal.addEventListener(
+                'hidden.bs.modal',
+                () => {
+                    if (selectedMethod) {
+                        toggleMethodModal(selectedMethod);
+                    }
+                    setSelectedMethod(null);
+                    setSelectedMethodTemp(null);
+                },
+                { once: true },
+            );
+        }
+    }, [selectedMethod, selectedMethodTemp]);
+
+    const toggleMethodModal = (id: MethodModalType) => {
+        const documentElement = document.getElementById(`${id}Modal`);
+        if (documentElement) {
+            const modalRef = new BSModal(documentElement, { backdrop: 'static' });
+            modalRef.toggle();
         }
     };
 
+    // SOFTWARE IMPORT MODALS
     const importSoftwareModal = (
-        <div
-            tabIndex={-1}
-            id="importSoftwareModal"
-            className="modal fade"
-            aria-labelledby="softwareModalLabel"
-            aria-hidden="true"
-        >
-            <div className="modal-dialog modal-dialog-centered">
-                <div className="modal-content border-0 rounded-3">
-                    <div className="modal-body mx-auto text-center">
-                        <p className="not-recommanded">NOT RECOMMANDED</p>
-                        <h4>Access by Software</h4>
-                        <p>
-                            This is not a recommended way to access your wallet, due to the sensitivity of the
-                            information involved. These options should only be used in offline settings by experienced
-                            users.
-                        </p>
-                        <div className="d-flex flex-column mb-4">
-                            <button
-                                type="button"
-                                onClick={() => setSelectedMethod('keystore')}
-                                className={`import-software-btn ${selectedMethod === 'keystore' && 'selected'}`}
-                            >
-                                Keystore File
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setSelectedMethod('mnemonic')}
-                                className={`import-software-btn my-4 ${selectedMethod === 'mnemonic' && 'selected'}`}
-                            >
-                                Mnemonic phrase
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setSelectedMethod('private-key')}
-                                className={`import-software-btn ${selectedMethod === 'private-key' && 'selected'}`}
-                            >
-                                Private Key
-                            </button>
-                        </div>
-                        <p>Purchase a hardware wallet for the highest security when accessing your crypto.</p>
-                        <button type="button" className="continue-btn w-100 py-3 rounded-pill">
-                            Continue
-                        </button>
-                    </div>
-                </div>
+        <Modal id="importSoftwareModal" bodyClassName="px-4" contentClassName="software-modal">
+            <p className="not-recommanded">NOT RECOMMANDED</p>
+            <h4>Access by Software</h4>
+            <p>
+                This is not a recommended way to access your wallet, due to the sensitivity of the information involved.
+                These options should only be used in offline settings by experienced users.
+            </p>
+            <div className="d-flex flex-column mb-4">
+                <button
+                    type="button"
+                    onClick={() => setSelectedMethodTemp('keystore')}
+                    className={`import-software-btn ${selectedMethodTemp === 'keystore' && 'selected'}`}
+                >
+                    Keystore File
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setSelectedMethodTemp('mnemonic')}
+                    className={`import-software-btn my-4 ${selectedMethodTemp === 'mnemonic' && 'selected'}`}
+                >
+                    Mnemonic phrase
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setSelectedMethodTemp('privateKey')}
+                    className={`import-software-btn ${selectedMethodTemp === 'privateKey' && 'selected'}`}
+                >
+                    Private Key
+                </button>
             </div>
-        </div>
+            <p>Purchase a hardware wallet for the highest security when accessing your crypto.</p>
+            <button
+                type="button"
+                disabled={!selectedMethodTemp}
+                onClick={() => setSelectedMethod(selectedMethodTemp)}
+                data-bs-dismiss="modal"
+                data-bs-target="#importSoftwareModal"
+                className="continue-btn w-100 py-3 rounded-pill"
+            >
+                Continue
+            </button>
+        </Modal>
     );
 
     return (
@@ -95,7 +111,12 @@ const Welcome = (): JSX.Element => {
                                 </div>
                             </div>
                             <div className="col-md">
-                                <button type="button" className="h-100 w-100" onClick={toggleModal}>
+                                <button
+                                    type="button"
+                                    className="h-100 w-100"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#importSoftwareModal"
+                                >
                                     <Card className="scale-btn">
                                         <h3>Software</h3>
                                         <p>Keystore file, Private key, Mnemonic phrase</p>
@@ -120,6 +141,9 @@ const Welcome = (): JSX.Element => {
                 </div>
             </div>
             {importSoftwareModal}
+            <MnemonicModal />
+            <KeystoreModal />
+            <PrivateKeyModal />
         </>
     );
 };
