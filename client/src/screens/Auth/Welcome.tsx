@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from 'react';
+import { Modal as BSModal } from 'bootstrap';
 import { useSelector } from 'react-redux';
 import { Redirect } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+
 import { RootState } from 'redux/store';
-import { Modal as BSModal } from 'bootstrap';
 
 import { Card, KeystoreModal, MnemonicModal, Modal, PrivateKeyModal } from 'components';
+import Assets from 'assets';
 
 import './Welcome.scss';
+import Footer from './Footer';
+import Header from './Header';
 
 type MethodModalType = 'mnemonic' | 'privateKey' | 'keystore';
 
@@ -16,6 +21,8 @@ const Welcome = (): JSX.Element => {
     if (address) {
         return <Redirect to="/home" />;
     }
+
+    const { t } = useTranslation();
 
     const [selectedMethod, setSelectedMethod] = useState<MethodModalType | null>(null);
     const [selectedMethodTemp, setSelectedMethodTemp] = useState<MethodModalType | null>(null);
@@ -50,36 +57,33 @@ const Welcome = (): JSX.Element => {
     // SOFTWARE IMPORT MODALS
     const importSoftwareModal = (
         <Modal id="importSoftwareModal" bodyClassName="px-4" contentClassName="software-modal">
-            <p className="not-recommanded">NOT RECOMMANDED</p>
-            <h4>Access by Software</h4>
-            <p>
-                This is not a recommended way to access your wallet, due to the sensitivity of the information involved.
-                These options should only be used in offline settings by experienced users.
-            </p>
+            <p className="not-recommanded">{t('welcome.softwareModal.notRecommanded')}</p>
+            <h4>{t('welcome.softwareModal.title')}</h4>
+            <p>{t('welcome.softwareModal.notRecommandedDescription')}</p>
             <div className="d-flex flex-column mb-4">
                 <button
                     type="button"
                     onClick={() => setSelectedMethodTemp('keystore')}
                     className={`import-software-btn ${selectedMethodTemp === 'keystore' && 'selected'}`}
                 >
-                    Keystore File
+                    {t('welcome.softwareModal.types.keystore')}
                 </button>
                 <button
                     type="button"
                     onClick={() => setSelectedMethodTemp('mnemonic')}
                     className={`import-software-btn my-4 ${selectedMethodTemp === 'mnemonic' && 'selected'}`}
                 >
-                    Mnemonic phrase
+                    {t('welcome.softwareModal.types.mnemonic')}
                 </button>
                 <button
                     type="button"
                     onClick={() => setSelectedMethodTemp('privateKey')}
                     className={`import-software-btn ${selectedMethodTemp === 'privateKey' && 'selected'}`}
                 >
-                    Private Key
+                    {t('welcome.softwareModal.types.privateKey')}
                 </button>
             </div>
-            <p>Purchase a hardware wallet for the highest security when accessing your crypto.</p>
+            <p>{t('welcome.softwareModal.description')}</p>
             <button
                 type="button"
                 disabled={!selectedMethodTemp}
@@ -88,57 +92,78 @@ const Welcome = (): JSX.Element => {
                 data-bs-target="#importSoftwareModal"
                 className="continue-btn w-100 py-3 rounded-pill"
             >
-                Continue
+                {t('common.continue')}
             </button>
         </Modal>
     );
 
     return (
         <>
-            <div className="container h-100 d-flex align-items-center justify-content-center">
-                <div className="row">
-                    <h2 className="text-center mb-4">Access My Wallet</h2>
-                    <div>
-                        <div className="row gy-4">
-                            <div className="col-md">
-                                <div className="h-100">
+            <div className="h-100 d-flex flex-column align-items-center justify-content-between px-4">
+                <Header />
+                <div className="container mb-4">
+                    <div className="row">
+                        <h1 className="text-center display-5">{t('welcome.title')}</h1>
+                        <div>
+                            <div className="row gy-4 justify-content-center">
+                                <div className="col-12 col-lg-3">
                                     <a href="/import/hardware">
-                                        <Card className="text-center scale-btn">
-                                            <h3>Hardware</h3>
-                                            <p>Ledger, FINNEY, Trezor, Bitbox, Secalot, Keepkey, XWallet</p>
+                                        <Card className="text-center scale-btn h-100 w-100">
+                                            <img
+                                                src={Assets.images.hardwareIcon}
+                                                className="img-fluid mb-3"
+                                                alt="Harware Icon"
+                                                width="90"
+                                                height="90"
+                                            />
+                                            <h3 className="mt-4">{t('welcome.hardware.title')}</h3>
+                                            <p>{t('welcome.hardware.description')}</p>
                                         </Card>
                                     </a>
                                 </div>
-                            </div>
-                            <div className="col-md">
-                                <button
-                                    type="button"
-                                    className="h-100 w-100"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#importSoftwareModal"
-                                >
-                                    <Card className="scale-btn">
-                                        <h3>Software</h3>
-                                        <p>Keystore file, Private key, Mnemonic phrase</p>
-                                    </Card>
-                                </button>
-                            </div>
-                            <div className="col-md">
-                                <div className="h-100">
-                                    <a href="/create">
-                                        <Card className="text-center scale-btn">
-                                            <h3>Create a new Wallet</h3>
-                                            <p>
-                                                Create your own LUM wallet and generate a private key. This private key
-                                                is on your own responsability
+                                <div className="col-12 col-lg-3">
+                                    <a
+                                        role="button"
+                                        className="h-100 w-100"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#importSoftwareModal"
+                                    >
+                                        <Card className="text-center scale-btn h-100 w-100">
+                                            <img
+                                                src={Assets.images.softwareIcon}
+                                                className="img-fluid mb-4"
+                                                alt="Software Icon"
+                                                width="57"
+                                                height="76"
+                                            />
+                                            <h3 className="mt-4">{t('welcome.software.title')}</h3>
+                                            <p>{t('welcome.software.description')}</p>
+                                            <p className="not-recommanded">
+                                                {t('welcome.softwareModal.notRecommanded')}
                                             </p>
                                         </Card>
+                                    </a>
+                                </div>
+                                <div className="col-12 col-lg-3">
+                                    <a href="/create">
+                                        <div className="scale-btn h-100 w-100 text-center d-flex align-items-center flex-column justify-content-evenly">
+                                            <div className="create-btn rounded-circle mb-4 mb-lg-0 d-flex justify-content-center align-items-center">
+                                                <img
+                                                    className="img-fluid"
+                                                    src={Assets.images.addIcon}
+                                                    width="27"
+                                                    height="27"
+                                                />
+                                            </div>
+                                            <h3>{t('welcome.createWallet')}</h3>
+                                        </div>
                                     </a>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <Footer />
             </div>
             {importSoftwareModal}
             <MnemonicModal />

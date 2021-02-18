@@ -1,6 +1,7 @@
 import { Card, Input } from 'components';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useRematchDispatch } from 'redux/hooks';
 import { RootDispatch, RootState } from 'redux/store';
@@ -16,6 +17,7 @@ const Send = (): JSX.Element => {
         sendTx: dispatch.wallet.sendTx,
     }));
     const { register, handleSubmit } = useForm();
+    const { t } = useTranslation();
 
     const onSend = (data: { to: string; amount: number }) => {
         sendTx({
@@ -28,7 +30,7 @@ const Send = (): JSX.Element => {
 
     return (
         <div className="p-4">
-            <h3>Send transaction</h3>
+            <h3>{t('navbar.send')}</h3>
             <Card className="px-3 py-2">
                 <form onSubmit={handleSubmit(onSend)} className="row">
                     <div className="col-6">

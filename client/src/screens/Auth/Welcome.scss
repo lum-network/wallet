@@ -25,11 +25,22 @@ button:focus {
 
 /* END Reset button default styling */
 
+p {
+    color: #b5b5b5;
+}
+
+h1.display-5 {
+    margin-bottom: 4rem;
+    font-weight: 400;
+}
+
 .scale-btn {
     transition: all 0.2s ease-in-out;
     &:hover {
         transform: scale(1.025);
     }
+    padding-left: 3rem !important;
+    padding-right: 3rem !important;
 }
 
 .import-software-btn {
@@ -56,4 +67,12 @@ button:focus {
 
 .not-recommanded {
     color: #ff7676;
+}
+
+.create-btn {
+    background-color: white;
+    width: 96px;
+    height: 96px;
+    box-shadow: 0px 3.32571px 14.9657px rgba(0, 0, 0, 0.1);
+    opacity: 1 !important;
 }

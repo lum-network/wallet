@@ -1,0 +1,35 @@
+{
+    "common": {
+        "continue": "Continuer"
+    },
+    "welcome": {
+        "title": "Accède à ton Wallet",
+        "hardware": {
+            "title": "Physique",
+            "description": "Ledger, FINNEY, Trezor, Bitbox, Secalot, Keepkey, XWallet"
+        },
+        "software": {
+            "title": "Digital",
+            "description": "Fichier Keystore, Clé privée, Phrase mnémonique"
+        },
+        "createWallet": "Crée ton Wallet",
+        "softwareModal": {
+            "title": "Access by Software",
+            "description": "Purchase a hardware wallet for the highest security when accessing your crypto.",
+            "notRecommanded": "NON RECOMMANDÉ",
+            "notRecommandedDescription": "This is not a recommended way to access your wallet, due to the sensitivity of the information involved.\nThese options should only be used in offline settings by experienced users.",
+            "types": {
+                "mnemonic": "Phrase mnémonique",
+                "keystore": "Fichier Keystore",
+                "privateKey": "Clé privée"
+            }
+        }
+    },
+    "navbar": {
+        "dashboard": "Tableau de bord",
+        "transactions": "Transactions",
+        "send": "Envoyer",
+        "message": "Message",
+        "logout": "Déconnexion"
+    }
+}

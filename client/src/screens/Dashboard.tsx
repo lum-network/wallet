@@ -6,8 +6,9 @@ import { Tooltip } from 'bootstrap';
 
 import { Card, Modal, TransactionsTable } from 'components';
 import { RootDispatch, RootState } from 'redux/store';
+import { withTranslation, WithTranslation } from 'react-i18next';
 
-interface IProps {}
+interface IProps extends WithTranslation {}
 
 const mapState = (state: RootState) => ({
     loading: state.loading.global,
@@ -49,11 +50,12 @@ class Dashboard extends PureComponent<Props> {
         }
     }
     render(): JSX.Element {
+        const { t } = this.props;
         return (
             <>
                 <div className="container-fluid">
                     <div className="row">
-                        <h3 className="mt-4">Dashboard</h3>
+                        <h3 className="mt-4">{t('navbar.dashboard')}</h3>
                         <div>
                             <div className="row gy-4">
                                 <div className="col-lg-6 col-12">
@@ -113,4 +115,4 @@ class Dashboard extends PureComponent<Props> {
     }
 }
 
-export default connect(mapState, mapDispatch)(Dashboard);
+export default connect(mapState, mapDispatch)(withTranslation()(Dashboard));
