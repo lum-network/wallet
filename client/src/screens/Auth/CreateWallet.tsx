@@ -15,7 +15,7 @@ const CreateWallet = (): JSX.Element => {
     // State values
     const [currentSlide, setCurrentSlide] = useState(0);
     const [addressInput, setAddressInput] = useState('');
-    const [introDone, setIntroDone] = useState(false);
+    const [introDone, setIntroDone] = useState(true);
 
     // Redux hooks
     const address = useSelector((state: RootState) => state.wallet.address);

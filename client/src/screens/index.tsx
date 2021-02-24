@@ -10,4 +10,6 @@ export { default as TransactionDetails } from './Transactions/TransactionDetails
 export { default as Welcome } from './Auth/Welcome';
 export { default as CreateWallet } from './Auth/CreateWallet';
 export { default as ImportHardwareWallet } from './Auth/ImportHardwareWallet';
-export { default as ImportSoftwareWallet } from './Auth/ImportSoftwareWallet';
+export { default as ImportMnemonic } from './Auth/ImportMnemonic';
+export { default as ImportKeystore } from './Auth/ImportKeystore';
+export { default as ImportPrivateKey } from './Auth/ImportPrivateKey';

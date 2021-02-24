@@ -16,11 +16,11 @@ const Modal = (props: Props): JSX.Element => {
     return (
         <div tabIndex={-1} id={id} className="modal fade" aria-labelledby={`${id}Label`} aria-hidden="true">
             <div className="modal-dialog modal-dialog-centered">
-                <div className={`modal-content border-0 rounded-3 text-center ${contentClassName}`}>
+                <div className={`border-0 text-center modal-content ${contentClassName}`}>
                     {withCloseButton && (
                         <button
                             type="button"
-                            className="btn-close close-btn"
+                            className="close-btn btn-close bg-white rounded-circle align-self-center"
                             data-bs-dismiss="modal"
                             data-bs-target={id}
                             aria-label="Close"

@@ -1,0 +1,35 @@
+.normal-input {
+    background-color: #f9f9f9;
+    &:focus {
+        outline: thin dotted;
+        outline: 0;
+    }
+}
+
+.form-switch {
+    .form-check-input {
+        width: 3em !important;
+        height: 1.75em !important;
+        border-radius: 2.5em;
+        border-width: 0px;
+        border-color: transparent;
+        background-color: #eacee3 !important;
+        &:focus {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23321C3B'/%3e%3c/svg%3e") !important;
+        }
+        &:checked {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23321C3B'/%3e%3c/svg%3e") !important;
+        }
+    }
+}
+
+input[type='checkbox'] {
+    &:focus {
+        box-shadow: none;
+        outline: 0;
+        border-color: transparent;
+    }
+    &:active {
+        filter: none;
+    }
+}

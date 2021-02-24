@@ -1,0 +1,90 @@
+@import 'src/styles/main';
+
+a {
+    color: $color-primary !important;
+}
+
+p {
+    color: #b5b5b5;
+    padding-top: 1rem;
+    padding-top: 1rem;
+}
+
+h1.display-5 {
+    font-weight: 400;
+}
+
+.mb-4rem {
+    margin-bottom: 4rem;
+}
+
+.btn-padding {
+    padding-left: 3rem !important;
+    padding-right: 3rem !important;
+}
+
+.scale-anim {
+    transition: all 0.2s ease-in-out;
+    &:hover {
+        transform: scale(1.025);
+    }
+}
+
+.import-software-btn {
+    background: #f7faff;
+    border-radius: 15px;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+.selected {
+    background-color: #ff7676;
+    color: white;
+}
+
+.not-recommanded {
+    color: #ff7676;
+}
+
+.create-btn {
+    background-color: white;
+    width: 96px;
+    height: 96px;
+    box-shadow: 0px 3.32571px 14.9657px rgba(0, 0, 0, 0.1);
+    opacity: 1 !important;
+}
+
+.mnemonic-card {
+    padding-left: 8rem !important;
+    padding-right: 8rem !important;
+    width: 80%;
+}
+@include media-breakpoint-up(lg) {
+    .mnemonic-card {
+        width: 75%;
+    }
+}
+@include media-breakpoint-up(xl) {
+    .mnemonic-card {
+        width: 50%;
+    }
+}
+
+.auth-header {
+    margin-bottom: 93px;
+}
+
+.separator {
+    height: 1px;
+    background-color: $color-grey;
+    opacity: 0.2;
+}
+
+.import-card {
+    width: 100%;
+}
+
+@include media-breakpoint-up(lg) {
+    .import-card {
+        width: 65%;
+    }
+}

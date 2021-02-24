@@ -6,7 +6,7 @@ import Core from './core';
 import store, { persistor } from './redux/store';
 
 import './locales';
-import './App.css';
+import 'styles/_main.scss';
 
 const App = (): JSX.Element => (
     <Provider store={store}>

@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import { WithTranslation, withTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
 import store, { RootDispatch, RootState } from 'redux/store';
+
 import './MainLayout.scss';
 
 interface IProps {}

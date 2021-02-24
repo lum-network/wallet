@@ -14,7 +14,7 @@
         },
         "createWallet": "Crée ton Wallet",
         "softwareModal": {
-            "title": "Access by Software",
+            "title": "Accède à ton Wallet",
             "description": "Purchase a hardware wallet for the highest security when accessing your crypto.",
             "notRecommanded": "NON RECOMMANDÉ",
             "notRecommandedDescription": "This is not a recommended way to access your wallet, due to the sensitivity of the information involved.\nThese options should only be used in offline settings by experienced users.",

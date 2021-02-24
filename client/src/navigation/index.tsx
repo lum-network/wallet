@@ -6,13 +6,15 @@ import {
     CreateWallet,
     Dashboard,
     ImportHardwareWallet,
-    ImportSoftwareWallet,
+    ImportMnemonic,
     Message,
     Send,
     Transactions,
     TransactionDetails,
     Welcome,
     Error404,
+    ImportPrivateKey,
+    ImportKeystore,
 } from 'screens';
 import MainLayout from './Layout/MainLayout/MainLayout';
 
@@ -27,8 +29,14 @@ const RootNavigator = (): JSX.Element => {
                     <Route path="/create">
                         <CreateWallet />
                     </Route>
-                    <Route path="/import/software/:type">
-                        <ImportSoftwareWallet />
+                    <Route path="/import/software/mnemonic">
+                        <ImportMnemonic />
+                    </Route>
+                    <Route path="/import/software/privateKey">
+                        <ImportPrivateKey />
+                    </Route>
+                    <Route path="/import/software/keystore">
+                        <ImportKeystore />
                     </Route>
                     <Route path="/import/hardware">
                         <ImportHardwareWallet />
