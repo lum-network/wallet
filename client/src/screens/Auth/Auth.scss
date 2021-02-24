@@ -53,19 +53,19 @@ h1.display-5 {
     opacity: 1 !important;
 }
 
-.mnemonic-card {
+.access-card {
     padding-left: 8rem !important;
     padding-right: 8rem !important;
-    width: 80%;
+    width: 80% !important;
 }
 @include media-breakpoint-up(lg) {
-    .mnemonic-card {
-        width: 75%;
+    .access-card {
+        width: 75% !important;
     }
 }
 @include media-breakpoint-up(xl) {
-    .mnemonic-card {
-        width: 50%;
+    .access-card {
+        width: 50% !important;
     }
 }
 
@@ -80,11 +80,18 @@ h1.display-5 {
 }
 
 .import-card {
-    width: 100%;
+    width: 100% !important;
 }
 
 @include media-breakpoint-up(lg) {
     .import-card {
-        width: 65%;
+        width: 65% !important;
     }
+}
+
+// Create  Wallet
+.tabs-container {
+}
+
+.mnemonic-container {
 }

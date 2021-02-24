@@ -58,7 +58,7 @@ const ImportMnemonic = (): JSX.Element => {
                 <div className="mb-4rem">
                     <h1 className="text-center display-5">Import by Mnemonic</h1>
                 </div>
-                <Card className="d-flex flex-column align-self-center text-center align-items-center mnemonic-card">
+                <Card className="d-flex flex-column align-self-center text-center align-items-center access-card">
                     <div className="import-card py-4">
                         <p className="not-recommanded">{t('welcome.softwareModal.notRecommanded')}</p>
                         <p>{t('welcome.softwareModal.notRecommandedDescription')}</p>
