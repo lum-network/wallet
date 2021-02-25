@@ -4,37 +4,26 @@ import { useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import { Carousel } from 'react-responsive-carousel';
 import { useRematchDispatch } from 'redux/hooks';
-import { LumUtils } from '@lum-network/sdk-javascript';
-
-import { Card, Input, SwitchInput } from 'components';
-import { RootDispatch, RootState } from 'redux/store';
-import AuthLayout from './AuthLayout';
-
-import 'react-responsive-carousel/lib/styles/carousel.min.css';
-import Button from 'components/Buttons/Button';
 import { useTranslation } from 'react-i18next';
 
+import 'react-responsive-carousel/lib/styles/carousel.min.css';
+
+import Assets from 'assets';
+import { Card, Input, SwitchInput, Button } from 'components';
+import { RootDispatch, RootState } from 'redux/store';
+import { WalletUtils } from 'utils';
+
+import AuthLayout from './AuthLayout';
+
 const LAST = 3;
-type MnemonicLength = 12 | 24;
 type CreationType = 'mnemonic' | 'keystore' | 'privateKey';
-
-const fillNewMnemonicKeys = (mnemonicLength: MnemonicLength) => {
-    const inputs: string[] = [];
-    const mnemonicKeys = LumUtils.generateMnemonic(mnemonicLength).split(' ');
-
-    for (let i = 0; i < mnemonicLength; i++) {
-        inputs.push(mnemonicKeys[i]);
-    }
-
-    return inputs;
-};
 
 const CreateWallet = (): JSX.Element => {
     // State values
     const [currentSlide, setCurrentSlide] = useState(0);
     const [creationType, setCreationType] = useState<CreationType>('mnemonic');
     const [privateKey, setPrivateKey] = useState('');
-    const [mnemonicLength, setMnemonicLength] = useState<MnemonicLength>(12);
+    const [mnemonicLength, setMnemonicLength] = useState<WalletUtils.MnemonicLength>(12);
     const [introDone, setIntroDone] = useState(true);
     const [isExtraWord, setIsExtraWord] = useState(false);
     const [extraWord, setExtraWord] = useState('');
@@ -61,13 +50,17 @@ const CreateWallet = (): JSX.Element => {
 
     useEffect(() => {
         if (creationType === 'mnemonic') {
-            setInputsValues(fillNewMnemonicKeys(mnemonicLength));
+            setInputsValues(WalletUtils.generateMnemonic(mnemonicLength));
         }
     }, [creationType]);
 
     useEffect(() => {
-        setInputsValues(fillNewMnemonicKeys(mnemonicLength));
+        setInputsValues(WalletUtils.generateMnemonic(mnemonicLength));
     }, [mnemonicLength]);
+
+    const generateNewMnemonic = () => {
+        setInputsValues(WalletUtils.generateMnemonic(mnemonicLength));
+    };
 
     const onSlideChange = (index: number) => {
         if (currentSlide !== index) {
@@ -84,11 +77,32 @@ const CreateWallet = (): JSX.Element => {
     };
 
     const mnemonicContent = (
-        <div className="d-flex flex-column align-self-center text-center align-items-center import-card py-4">
-            <p className="not-recommanded">{t('welcome.softwareModal.notRecommanded')}</p>
+        <div className="d-flex flex-column align-self-center text-center align-items-center import-card py-4 px-md-4">
+            <p className="danger-text">{t('welcome.softwareModal.notRecommanded')}</p>
             <p>{t('welcome.softwareModal.notRecommandedDescription')}</p>
-            <SwitchInput id="mnemonicLength" onChange={(event) => setMnemonicLength(event.target.checked ? 24 : 12)} />
-            <div className="container-fluid mb-4 py-4">
+            <h3 className="mt-4rem">Your mnemonic phrase</h3>
+            <div className="d-flex flex-row align-self-stretch align-items-center justify-content-between mt-4rem">
+                <div className="d-flex flex-row align-items-center">
+                    <SwitchInput
+                        id="mnemonicLength"
+                        offLabel="12"
+                        onLabel="24"
+                        checked={mnemonicLength === 24}
+                        onChange={(event) => setMnemonicLength(event.target.checked ? 24 : 12)}
+                    />
+                    <h6>Values</h6>
+                </div>
+                <Button
+                    buttonType="custom"
+                    className="d-flex flex-row align-items-center"
+                    type="button"
+                    onClick={generateNewMnemonic}
+                >
+                    <img src={Assets.images.syncIcon} height="16" width="16" className="me-2" />
+                    <h5>Random</h5>
+                </Button>
+            </div>
+            <div className="container-fluid py-4">
                 <div className="row gy-4">
                     {inputsValues.map((input, index) => (
                         <div className="col-4" key={index}>
@@ -108,13 +122,13 @@ const CreateWallet = (): JSX.Element => {
                     ))}
                 </div>
             </div>
-            <div className="separator" />
+            <div className="separator my-4 w-100"></div>
             <div className="d-flex flex-row justify-content-between align-self-stretch align-items-center my-4">
                 <h5 className="p-0 m-0">Extra word</h5>
                 <SwitchInput id="isExtraWord" onChange={(event) => setIsExtraWord(event.target.checked)} />
             </div>
             {isExtraWord && (
-                <div className="mb-3">
+                <div className="mb-4rem">
                     <Input
                         value={extraWord}
                         name="extraWord"
@@ -134,17 +148,20 @@ const CreateWallet = (): JSX.Element => {
                 data-bs-dismiss="modal"
                 data-bs-target="mnemonicModal"
                 disabled={isEmptyField()}
-                className="mt-4"
             >
                 {t('common.continue')}
             </Button>
+            <div className="mt-4rem">
+                <span className="fw-bold danger-text">DO NOT FORGET</span> to save your mnemonic phrase. <br />
+                You will need this to access your wallet.
+            </div>
         </div>
     );
 
     const keystoreContent = (
-        <div className="import-card py-4">
+        <div className="import-card py-4 px-md-4">
             <div className="mb-4rem">
-                <p className="not-recommanded">{t('welcome.softwareModal.notRecommanded')}</p>
+                <p className="danger-text">{t('welcome.softwareModal.notRecommanded')}</p>
                 <p>{t('welcome.softwareModal.notRecommandedDescription')}</p>
             </div>
             <div className="mb-4rem">
@@ -152,15 +169,24 @@ const CreateWallet = (): JSX.Element => {
                 <Input
                     value={privateKey}
                     ref={privateKeyFormRegister}
+                    name="privateKey"
                     onChange={(event) => setPrivateKey(event.target.value)}
                     description="Please enter at least 9 characters"
                     required
-                    className="text-start my-4"
+                    className="text-start mt-4"
                 />
+                <p className="text-start">
+                    Password strength: <span className="fw-bold danger-text">Very Weak</span>
+                </p>
             </div>
             <Button disabled={!privateKey} type="submit" onClick={privateKeyFormSubmit(onSubmit)} className="mt-4">
                 Continue
             </Button>
+            <div className="mt-4rem">
+                <span className="fw-bold danger-text">DO NOT FORGET</span> to save your password. <br />
+                You will need this <span className="fw-bold danger-text">Password + Keystore</span> file to access your
+                wallet.
+            </div>
         </div>
     );
 
@@ -172,15 +198,17 @@ const CreateWallet = (): JSX.Element => {
                 </div>
                 {introDone ? (
                     <Card className="container import-card" custom>
-                        <ul className="row nav nav-tabs">
-                            <li className="col-6 nav-item">
-                                <a className="nav-link" href="#keystore" onClick={() => setCreationType('keystore')}>
-                                    Keystore File
+                        <ul className="row nav nav-tabs border-0 text-center">
+                            <li className={`col-6 nav-item pt-4 pb-2 ${creationType === 'keystore' ? 'active' : ''}`}>
+                                <a className="nav-link fs-5 border-0" onClick={() => setCreationType('keystore')}>
+                                    <img src={Assets.images.fileIcon} width="25" height="34" className="me-4" />
+                                    <span>Keystore File</span>
                                 </a>
                             </li>
-                            <li className="col-6 nav-item">
-                                <a className="nav-link" href="#mnemonic" onClick={() => setCreationType('mnemonic')}>
-                                    Mnemonic phrase
+                            <li className={`col-6 nav-item pt-4 pb-2 ${creationType === 'mnemonic' ? 'active' : ''}`}>
+                                <a className="nav-link fs-5 border-0" onClick={() => setCreationType('mnemonic')}>
+                                    <img src={Assets.images.bubbleIcon} width="39" height="34" className="me-4" />
+                                    <span>Mnemonic phrase</span>
                                 </a>
                             </li>
                         </ul>

@@ -5,11 +5,10 @@ import { useForm } from 'react-hook-form';
 import { useRematchDispatch } from 'redux/hooks';
 import { RootDispatch } from 'redux/store';
 
-import { Card, Input, SwitchInput } from 'components';
+import { Card, Input, SwitchInput, Button } from 'components';
 
 import AuthLayout from './AuthLayout';
 import './Auth.scss';
-import Button from 'components/Buttons/Button';
 
 type MnemonicLength = 12 | 24;
 
@@ -59,24 +58,33 @@ const ImportMnemonic = (): JSX.Element => {
                     <h1 className="text-center display-5">Import by Mnemonic</h1>
                 </div>
                 <Card className="d-flex flex-column align-self-center text-center align-items-center access-card">
-                    <div className="import-card py-4">
-                        <p className="not-recommanded">{t('welcome.softwareModal.notRecommanded')}</p>
+                    <div className="d-flex flex-column align-self-center text-center align-items-center import-card py-4 px-md-4">
+                        <p className="danger-text">{t('welcome.softwareModal.notRecommanded')}</p>
                         <p>{t('welcome.softwareModal.notRecommandedDescription')}</p>
-                        <SwitchInput
-                            id="mnemonicLength"
-                            onChange={(event) => setMnemonicLength(event.target.checked ? 24 : 12)}
-                        />
-                        <div className="container-fluid mb-4 py-4">
+                        <h3 className="mt-4rem">Your mnemonic phrase</h3>
+                        <div className="d-flex flex-row align-self-stretch align-items-center justify-content-between mt-4rem">
+                            <div className="d-flex flex-row align-items-center">
+                                <SwitchInput
+                                    id="mnemonicLength"
+                                    offLabel="12"
+                                    onLabel="24"
+                                    checked={mnemonicLength === 24}
+                                    onChange={(event) => setMnemonicLength(event.target.checked ? 24 : 12)}
+                                />
+                                <h6>Values</h6>
+                            </div>
+                        </div>
+                        <div className="container-fluid py-4">
                             <div className="row gy-4">
                                 {inputsValues.map((input, index) => (
                                     <div className="col-4" key={index}>
                                         <Input
                                             ref={register}
                                             value={input}
+                                            onChange={(event) => onInputChange(event.target.value, index)}
                                             inputStyle="custom"
                                             name={`mnemonicInput${index}`}
                                             id={`mnemonicInput${index}`}
-                                            onChange={(event) => onInputChange(event.target.value, index)}
                                             type="form"
                                             label={`${(index + 1).toString()}.`}
                                             inputClass="border-0 mnemonic-input"
@@ -86,13 +94,13 @@ const ImportMnemonic = (): JSX.Element => {
                                 ))}
                             </div>
                         </div>
-                        <div className="separator" />
+                        <div className="separator my-4 w-100"></div>
                         <div className="d-flex flex-row justify-content-between align-self-stretch align-items-center my-4">
                             <h5 className="p-0 m-0">Extra word</h5>
                             <SwitchInput id="isExtraWord" onChange={(event) => setIsExtraWord(event.target.checked)} />
                         </div>
                         {isExtraWord && (
-                            <div className="mb-3">
+                            <div className="mb-4rem">
                                 <Input
                                     value={extraWord}
                                     name="extraWord"

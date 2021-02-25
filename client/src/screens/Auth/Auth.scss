@@ -18,6 +18,10 @@ h1.display-5 {
     margin-bottom: 4rem;
 }
 
+.mt-4rem {
+    margin-top: 4rem;
+}
+
 .btn-padding {
     padding-left: 3rem !important;
     padding-right: 3rem !important;
@@ -41,7 +45,7 @@ h1.display-5 {
     color: white;
 }
 
-.not-recommanded {
+.danger-text {
     color: #ff7676;
 }
 
@@ -93,5 +97,37 @@ h1.display-5 {
 .tabs-container {
 }
 
-.mnemonic-container {
+.mnemonic-input {
+    border-bottom-color: #999999;
+    &:disabled {
+        background-color: white !important;
+    }
+}
+
+.nav-item {
+    border-bottom: 2px solid $color-grey;
+    &:hover {
+        cursor: pointer;
+    }
+}
+
+.nav-item > a {
+    color: $color-grey !important;
+}
+
+.nav-item > a > img {
+    opacity: 20%;
+}
+
+.nav-item.active {
+    border-bottom: 2px solid $color-primary;
+}
+
+.nav-item.active > a {
+    font-weight: bold;
+    color: $color-primary !important;
+}
+
+.nav-item.active > a > img {
+    opacity: 100%;
 }

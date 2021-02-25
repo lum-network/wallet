@@ -50,7 +50,7 @@ const Welcome = (): JSX.Element => {
     // SOFTWARE IMPORT MODALS
     const importSoftwareModal = (
         <Modal id="importSoftwareModal" bodyClassName="px-4" contentClassName="px-3">
-            <p className="not-recommanded">{t('welcome.softwareModal.notRecommanded')}</p>
+            <p className="danger-text">{t('welcome.softwareModal.notRecommanded')}</p>
             <h3 className="mt-4">{t('welcome.softwareModal.title')}</h3>
             <p>{t('welcome.softwareModal.notRecommandedDescription')}</p>
             <div className="d-flex flex-column my-4">
@@ -130,7 +130,7 @@ const Welcome = (): JSX.Element => {
                                     />
                                     <h3 className="mt-4">{t('welcome.software.title')}</h3>
                                     <p>{t('welcome.software.description')}</p>
-                                    <p className="not-recommanded">{t('welcome.softwareModal.notRecommanded')}</p>
+                                    <p className="danger-text">{t('welcome.softwareModal.notRecommanded')}</p>
                                 </Card>
                             </a>
                         </div>

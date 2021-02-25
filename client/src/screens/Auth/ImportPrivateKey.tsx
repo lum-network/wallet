@@ -19,7 +19,7 @@ const ImportPrivateKey = (): JSX.Element => {
                 <Card className="import-card d-flex flex-column text-center align-items-center">
                     <div className="import-card py-4">
                         <div className="mb-4rem">
-                            <p className="not-recommanded">{t('welcome.softwareModal.notRecommanded')}</p>
+                            <p className="danger-text">{t('welcome.softwareModal.notRecommanded')}</p>
                             <p>{t('welcome.softwareModal.notRecommandedDescription')}</p>
                         </div>
                         <div className="mb-4rem">

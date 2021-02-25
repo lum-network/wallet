@@ -5,6 +5,9 @@ import githubIcon from './images/github.png';
 import emailIcon from './images/email.png';
 import telegramIcon from './images/telegram.png';
 import lumWallet from './images/lum_wallet.png';
+import syncIcon from './images/sync.png';
+import fileIcon from './images/file.png';
+import bubbleIcon from './images/bubble.png';
 
 export default {
     images: {
@@ -15,5 +18,8 @@ export default {
         telegramIcon,
         emailIcon,
         lumWallet,
+        syncIcon,
+        fileIcon,
+        bubbleIcon,
     },
 };
