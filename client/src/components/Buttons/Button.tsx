@@ -12,7 +12,11 @@ const Button = (props: ButtonProps): JSX.Element => {
     return (
         <button
             {...rest}
-            className={`${buttonType === 'normal' ? 'normal-btn scale-anim w-100 py-3 rounded-pill' : ''} ${className}`}
+            className={`${
+                buttonType === 'normal'
+                    ? 'normal-btn scale-anim d-flex justify-content-center px-5 py-3 rounded-pill'
+                    : ''
+            } ${className}`}
         >
             {children}
         </button>

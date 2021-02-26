@@ -7,7 +7,7 @@ import { RootDispatch } from 'redux/store';
 
 import { Card, Input, SwitchInput, Button } from 'components';
 
-import AuthLayout from './AuthLayout';
+import AuthLayout from './components/AuthLayout';
 import './Auth.scss';
 
 type MnemonicLength = 12 | 24;

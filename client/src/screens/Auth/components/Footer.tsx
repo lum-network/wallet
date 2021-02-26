@@ -1,5 +1,6 @@
 import React from 'react';
 import Assets from 'assets';
+import { LUM_GITHUB, LUM_MAIL, LUM_TELEGRAM } from 'constant';
 
 const Footer = (): JSX.Element => {
     return (
@@ -9,9 +10,15 @@ const Footer = (): JSX.Element => {
                 <p className="ms-lg-4 me-3 mb-sm-0">LUM Wallet 2021</p>
             </div>
             <div>
-                <img src={Assets.images.githubIcon} />
-                <img src={Assets.images.emailIcon} className="mx-4" />
-                <img src={Assets.images.telegramIcon} />
+                <a href={LUM_GITHUB}>
+                    <img src={Assets.images.githubIcon} />
+                </a>
+                <a href={LUM_MAIL} className="mx-4">
+                    <img src={Assets.images.emailIcon} />
+                </a>
+                <a href={LUM_TELEGRAM}>
+                    <img src={Assets.images.telegramIcon} />
+                </a>
             </div>
         </div>
     );

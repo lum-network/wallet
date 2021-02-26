@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, Input } from 'components';
 
-import AuthLayout from './AuthLayout';
+import AuthLayout from './components/AuthLayout';
 import { useTranslation } from 'react-i18next';
 import Button from 'components/Buttons/Button';
 

@@ -10,7 +10,7 @@ import Assets from 'assets';
 
 import './Auth.scss';
 
-import AuthLayout from './AuthLayout';
+import AuthLayout from './components/AuthLayout';
 import Button from 'components/Buttons/Button';
 
 type MethodModalType = 'mnemonic' | 'privateKey' | 'keystore';
@@ -83,7 +83,7 @@ const Welcome = (): JSX.Element => {
                 onClick={() => setSelectedMethod(selectedMethodTemp)}
                 data-bs-dismiss="modal"
                 data-bs-target="#importSoftwareModal"
-                className="my-4"
+                className="my-4 w-100"
             >
                 {t('common.continue')}
             </Button>

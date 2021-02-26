@@ -49,6 +49,14 @@ h1.display-5 {
     color: #ff7676;
 }
 
+.warning-text {
+    color: $color-orange;
+}
+
+.success-text {
+    color: $color-green;
+}
+
 .create-btn {
     background-color: white;
     width: 96px;
@@ -94,8 +102,6 @@ h1.display-5 {
 }
 
 // Create  Wallet
-.tabs-container {
-}
 
 .mnemonic-input {
     border-bottom-color: #999999;
@@ -130,4 +136,20 @@ h1.display-5 {
 
 .nav-item.active > a > img {
     opacity: 100%;
+}
+
+.keystore-step-container {
+    background-color: $color-light-grey;
+    padding: 2rem;
+    border-radius: 15px;
+}
+
+.keystore-step-container > img {
+    object-fit: contain;
+    margin-right: 2rem;
+}
+
+.keyboard-step-title {
+    font-size: $font-md;
+    font-weight: $medium;
 }

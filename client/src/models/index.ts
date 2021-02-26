@@ -16,3 +16,11 @@ export interface Transaction {
     date: Date;
     [key: string]: string | number | Date;
 }
+
+export enum PasswordStrengthType {
+    Strong = 'strong',
+    Medium = 'medium',
+    Weak = 'weak',
+}
+
+export type PasswordStrength = PasswordStrengthType.Weak | PasswordStrengthType.Medium | PasswordStrengthType.Strong;

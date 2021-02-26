@@ -1,45 +1,61 @@
 import React, { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
-import { useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
-import { Carousel } from 'react-responsive-carousel';
-import { useRematchDispatch } from 'redux/hooks';
 import { useTranslation } from 'react-i18next';
-
-import 'react-responsive-carousel/lib/styles/carousel.min.css';
+import { useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
+import { useRematchDispatch } from 'redux/hooks';
+import { RootDispatch, RootState } from 'redux/store';
+import { joiResolver } from '@hookform/resolvers/joi';
+import joi from 'joi';
 
 import Assets from 'assets';
-import { Card, Input, SwitchInput, Button } from 'components';
-import { RootDispatch, RootState } from 'redux/store';
+import { Button, Card, Input, SwitchInput } from 'components';
+import { PasswordStrength, PasswordStrengthType } from 'models';
 import { WalletUtils } from 'utils';
+import { checkPwdStrength, generateKeystoreFile } from 'utils/wallet';
+import AuthLayout from './components/AuthLayout';
+import WelcomeCarousel from './components/WelcomeCarousel';
+import { LumUtils } from '@lum-network/sdk-javascript';
+import KeystoreFileSave from './components/KeystoreFileSave';
 
-import AuthLayout from './AuthLayout';
-
-const LAST = 3;
 type CreationType = 'mnemonic' | 'keystore' | 'privateKey';
+
+const validationSchema = joi.object({
+    privateKey: joi.string().required().min(9).messages({
+        'string.min': 'Please enter at least 9 characters',
+        'string.empty': 'Please enter at least 9 characters',
+    }),
+});
 
 const CreateWallet = (): JSX.Element => {
     // State values
-    const [currentSlide, setCurrentSlide] = useState(0);
-    const [creationType, setCreationType] = useState<CreationType>('mnemonic');
-    const [privateKey, setPrivateKey] = useState('');
-    const [mnemonicLength, setMnemonicLength] = useState<WalletUtils.MnemonicLength>(12);
     const [introDone, setIntroDone] = useState(true);
+    const [creationType, setCreationType] = useState<CreationType>('mnemonic');
+    const [mnemonicLength, setMnemonicLength] = useState<WalletUtils.MnemonicLength>(12);
     const [isExtraWord, setIsExtraWord] = useState(false);
     const [extraWord, setExtraWord] = useState('');
     const [inputsValues, setInputsValues] = useState<string[]>([]);
+    const [passwordStrength, setPasswordStrength] = useState<PasswordStrength>(PasswordStrengthType.Weak);
+    const [keystoreFileData, setKeystoreFileData] = useState<LumUtils.KeyStore | null>(null);
+    const [keystoreFilePassword, setKeystoreFilePassword] = useState('');
 
     // Redux hooks
     const address = useSelector((state: RootState) => state.wallet.address);
-    const { signIn } = useRematchDispatch((dispatch: RootDispatch) => ({
-        signIn: dispatch.wallet.signInAsync,
+    const { signInWithMnemonic } = useRematchDispatch((dispatch: RootDispatch) => ({
+        signInWithMnemonic: dispatch.wallet.signInWithMnemonicAsync,
     }));
 
-    // Other hooks
+    // Utils hooks
     const history = useHistory();
-    const { register: mnemonicFormRegister, handleSubmit: mnemonicFormSubmit } = useForm();
-    const { register: privateKeyFormRegister, handleSubmit: privateKeyFormSubmit } = useForm();
     const { t } = useTranslation();
+
+    // Form hook
+    const {
+        register: privateKeyFormRegister,
+        handleSubmit: privateKeyFormSubmit,
+        setValue: setPrivateKeyPassword,
+        formState: privateKeyPasswordFormState,
+    } = useForm<{ privateKey: string }>({ defaultValues: { privateKey: '' }, resolver: joiResolver(validationSchema) });
 
     // Effects
     useEffect(() => {
@@ -50,32 +66,31 @@ const CreateWallet = (): JSX.Element => {
 
     useEffect(() => {
         if (creationType === 'mnemonic') {
-            setInputsValues(WalletUtils.generateMnemonic(mnemonicLength));
+            generateNewMnemonic();
         }
     }, [creationType]);
 
     useEffect(() => {
-        setInputsValues(WalletUtils.generateMnemonic(mnemonicLength));
+        generateNewMnemonic();
     }, [mnemonicLength]);
 
+    // Methods
     const generateNewMnemonic = () => {
         setInputsValues(WalletUtils.generateMnemonic(mnemonicLength));
     };
 
-    const onSlideChange = (index: number) => {
-        if (currentSlide !== index) {
-            setCurrentSlide(index);
-        }
+    const onSubmitPassword = (data: { privateKey: string }) => {
+        setKeystoreFilePassword(data.privateKey);
+        setKeystoreFileData(generateKeystoreFile(data.privateKey));
     };
 
-    const onSubmit = (data: { address: string }) => {
-        signIn(data.address);
+    const continueWithMnemonic = () => {
+        const mnemonic = inputsValues.join(' ');
+
+        signInWithMnemonic(mnemonic);
     };
 
-    const isEmptyField = () => {
-        return inputsValues.findIndex((input) => input.length === 0) !== -1;
-    };
-
+    // Render content
     const mnemonicContent = (
         <div className="d-flex flex-column align-self-center text-center align-items-center import-card py-4 px-md-4">
             <p className="danger-text">{t('welcome.softwareModal.notRecommanded')}</p>
@@ -107,7 +122,6 @@ const CreateWallet = (): JSX.Element => {
                     {inputsValues.map((input, index) => (
                         <div className="col-4" key={index}>
                             <Input
-                                ref={mnemonicFormRegister}
                                 value={input}
                                 disabled
                                 inputStyle="custom"
@@ -142,15 +156,14 @@ const CreateWallet = (): JSX.Element => {
                     </p>
                 </div>
             )}
-            <Button
-                type="submit"
-                onClick={mnemonicFormSubmit(onSubmit)}
-                data-bs-dismiss="modal"
-                data-bs-target="mnemonicModal"
-                disabled={isEmptyField()}
-            >
-                {t('common.continue')}
-            </Button>
+            <div className="d-flex align-items-center">
+                <Button type="button" className="justify-self-stretch me-4" onClick={continueWithMnemonic}>
+                    I wrote down my mnemonic phrase
+                </Button>
+                <Button buttonType="custom" className="scale-anim">
+                    <img src={Assets.images.printIcon} height="34" width="34" />
+                </Button>
+            </div>
             <div className="mt-4rem">
                 <span className="fw-bold danger-text">DO NOT FORGET</span> to save your mnemonic phrase. <br />
                 You will need this to access your wallet.
@@ -164,22 +177,38 @@ const CreateWallet = (): JSX.Element => {
                 <p className="danger-text">{t('welcome.softwareModal.notRecommanded')}</p>
                 <p>{t('welcome.softwareModal.notRecommandedDescription')}</p>
             </div>
-            <div className="mb-4rem">
-                <h3>Your Private key</h3>
+            <div className="mb-4rem text-start">
+                <h3 className="text-center">Your Password</h3>
                 <Input
-                    value={privateKey}
                     ref={privateKeyFormRegister}
                     name="privateKey"
-                    onChange={(event) => setPrivateKey(event.target.value)}
-                    description="Please enter at least 9 characters"
-                    required
-                    className="text-start mt-4"
+                    onChange={(event) => {
+                        const newValue = event.target.value;
+                        setPrivateKeyPassword('privateKey', newValue, { shouldValidate: true });
+                        setPasswordStrength(checkPwdStrength(newValue));
+                    }}
+                    placeholder="•••••••••"
+                    className="mt-4"
                 />
-                <p className="text-start">
-                    Password strength: <span className="fw-bold danger-text">Very Weak</span>
+                <p>
+                    Password strength:{' '}
+                    <span
+                        className={`text-capitalize fw-bold ${
+                            passwordStrength === PasswordStrengthType.Strong
+                                ? 'success'
+                                : passwordStrength === PasswordStrengthType.Medium
+                                ? 'warning'
+                                : 'danger'
+                        }-text`}
+                    >
+                        {passwordStrength}
+                    </span>
                 </p>
+                {privateKeyPasswordFormState.errors.privateKey?.message && (
+                    <p>{privateKeyPasswordFormState.errors.privateKey.message}</p>
+                )}
             </div>
-            <Button disabled={!privateKey} type="submit" onClick={privateKeyFormSubmit(onSubmit)} className="mt-4">
+            <Button type="submit" onClick={privateKeyFormSubmit(onSubmitPassword)} className="mt-4">
                 Continue
             </Button>
             <div className="mt-4rem">
@@ -197,55 +226,40 @@ const CreateWallet = (): JSX.Element => {
                     <h1 className="text-center display-5">Get a new Wallet</h1>
                 </div>
                 {introDone ? (
-                    <Card className="container import-card" custom>
-                        <ul className="row nav nav-tabs border-0 text-center">
-                            <li className={`col-6 nav-item pt-4 pb-2 ${creationType === 'keystore' ? 'active' : ''}`}>
-                                <a className="nav-link fs-5 border-0" onClick={() => setCreationType('keystore')}>
-                                    <img src={Assets.images.fileIcon} width="25" height="34" className="me-4" />
-                                    <span>Keystore File</span>
-                                </a>
-                            </li>
-                            <li className={`col-6 nav-item pt-4 pb-2 ${creationType === 'mnemonic' ? 'active' : ''}`}>
-                                <a className="nav-link fs-5 border-0" onClick={() => setCreationType('mnemonic')}>
-                                    <img src={Assets.images.bubbleIcon} width="39" height="34" className="me-4" />
-                                    <span>Mnemonic phrase</span>
-                                </a>
-                            </li>
-                        </ul>
-                        <div className="d-flex flex-column align-self-center text-center align-items-center py-4">
-                            {creationType === 'mnemonic' && mnemonicContent}
-                            {creationType === 'keystore' && keystoreContent}
-                        </div>
-                    </Card>
+                    keystoreFileData ? (
+                        <KeystoreFileSave data={keystoreFileData} password={keystoreFilePassword} />
+                    ) : (
+                        <Card className="container import-card" custom>
+                            <ul className="row nav nav-tabs border-0 text-center">
+                                <li
+                                    className={`col-6 nav-item pt-4 pb-2 ${
+                                        creationType === 'keystore' ? 'active' : ''
+                                    }`}
+                                >
+                                    <a className="nav-link fs-5 border-0" onClick={() => setCreationType('keystore')}>
+                                        <img src={Assets.images.fileIcon} width="25" height="34" className="me-4" />
+                                        <span>Keystore File</span>
+                                    </a>
+                                </li>
+                                <li
+                                    className={`col-6 nav-item pt-4 pb-2 ${
+                                        creationType === 'mnemonic' ? 'active' : ''
+                                    }`}
+                                >
+                                    <a className="nav-link fs-5 border-0" onClick={() => setCreationType('mnemonic')}>
+                                        <img src={Assets.images.bubbleIcon} width="39" height="34" className="me-4" />
+                                        <span>Mnemonic phrase</span>
+                                    </a>
+                                </li>
+                            </ul>
+                            <div className="d-flex flex-column align-self-center text-center align-items-center py-4">
+                                {creationType === 'mnemonic' && mnemonicContent}
+                                {creationType === 'keystore' && keystoreContent}
+                            </div>
+                        </Card>
+                    )
                 ) : (
-                    <div>
-                        <Carousel
-                            renderArrowPrev={() => null}
-                            renderArrowNext={() => null}
-                            selectedItem={currentSlide}
-                            onChange={onSlideChange}
-                        >
-                            <div>Slide 1</div>
-                            <div>Slide 2</div>
-                            <div>Slide 3</div>
-                            <div>Slide 4</div>
-                        </Carousel>
-                        <div>
-                            {currentSlide > 0 && (
-                                <button onClick={() => setCurrentSlide(currentSlide - 1)}>Back</button>
-                            )}
-                            <button
-                                onClick={() => {
-                                    if (currentSlide === LAST) {
-                                        setIntroDone(true);
-                                    }
-                                    setCurrentSlide(currentSlide + 1);
-                                }}
-                            >
-                                {currentSlide === LAST ? 'Start' : 'Next'}
-                            </button>
-                        </div>
-                    </div>
+                    <WelcomeCarousel onCarouselEnd={() => setIntroDone(true)} />
                 )}
             </div>
         </AuthLayout>
