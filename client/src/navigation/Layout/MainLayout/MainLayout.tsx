@@ -1,3 +1,4 @@
+import assets from 'assets';
 import React, { PureComponent } from 'react';
 import { WithTranslation, withTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
@@ -25,8 +26,11 @@ class MainLayout extends PureComponent<Props> {
         const { children, address, t } = this.props;
         return address ? (
             <div className="container-fluid">
+                <div>
+                    <img src={assets.images.lumWalletMauve} />
+                </div>
                 <div className="row">
-                    <nav className="col-0 col-md-2 col-xl-1 px-0 d-none d-md-flex flex-column sidebar bg-secondary justify-content-between">
+                    <nav className="col-0 col-md-2 col-xl-1 px-0 d-none d-md-flex flex-column sidebar bg-white justify-content-between">
                         <ul className="list-unstyled">
                             <li>
                                 <a href="/home">{t('navbar.dashboard')}</a>

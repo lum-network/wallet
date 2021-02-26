@@ -59,21 +59,30 @@ const Welcome = (): JSX.Element => {
                     onClick={() => setSelectedMethodTemp('keystore')}
                     className={`import-software-btn ${selectedMethodTemp === 'keystore' && 'selected'}`}
                 >
-                    {t('welcome.softwareModal.types.keystore')}
+                    <div className="d-flex align-items-center justify-content-center">
+                        <img src={Assets.images.softwareIcon} height="28" className="me-3" />
+                        {t('welcome.softwareModal.types.keystore')}
+                    </div>
                 </button>
                 <button
                     type="button"
                     onClick={() => setSelectedMethodTemp('mnemonic')}
                     className={`import-software-btn my-4 ${selectedMethodTemp === 'mnemonic' && 'selected'}`}
                 >
-                    {t('welcome.softwareModal.types.mnemonic')}
+                    <div className="d-flex align-items-center justify-content-center">
+                        <img src={Assets.images.bubbleIcon} height="28" className="me-3" />
+                        {t('welcome.softwareModal.types.mnemonic')}
+                    </div>
                 </button>
                 <button
                     type="button"
                     onClick={() => setSelectedMethodTemp('privateKey')}
                     className={`import-software-btn ${selectedMethodTemp === 'privateKey' && 'selected'}`}
                 >
-                    {t('welcome.softwareModal.types.privateKey')}
+                    <div className="d-flex align-items-center justify-content-center">
+                        <img src={Assets.images.keyIcon} height="28" className="me-3" />
+                        {t('welcome.softwareModal.types.privateKey')}
+                    </div>
                 </button>
             </div>
             <p>{t('welcome.softwareModal.description')}</p>
