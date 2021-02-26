@@ -3,12 +3,14 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 
 import { useRematchDispatch } from 'redux/hooks';
-import { RootDispatch } from 'redux/store';
+import { RootDispatch, RootState } from 'redux/store';
 
 import { Card, Input, SwitchInput, Button } from 'components';
 
 import AuthLayout from './components/AuthLayout';
 import './Auth.scss';
+import { useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 
 type MnemonicLength = 12 | 24;
 
@@ -20,10 +22,18 @@ const ImportMnemonic = (): JSX.Element => {
 
     const { register, handleSubmit } = useForm();
     const { t } = useTranslation();
+    const history = useHistory();
 
-    const { signIn } = useRematchDispatch((dispatch: RootDispatch) => ({
-        signIn: dispatch.wallet.signInAsync,
+    const address = useSelector((state: RootState) => state.wallet.address);
+    const { signInWithMnemonic } = useRematchDispatch((dispatch: RootDispatch) => ({
+        signInWithMnemonic: dispatch.wallet.signInWithMnemonicAsync,
     }));
+
+    useEffect(() => {
+        if (address) {
+            history.push('/home');
+        }
+    }, [address]);
 
     useEffect(() => {
         const inputs: string[] = [];
@@ -44,7 +54,13 @@ const ImportMnemonic = (): JSX.Element => {
     };
 
     const onSubmit = () => {
-        signIn(inputsValues.reduce((acc, val) => val + acc));
+        let mnemonic = inputsValues.join(' ');
+
+        if (extraWord) {
+            mnemonic += ' ' + extraWord;
+        }
+
+        signInWithMnemonic(mnemonic);
     };
 
     const isEmptyField = () => {
@@ -81,6 +97,7 @@ const ImportMnemonic = (): JSX.Element => {
                                         <Input
                                             ref={register}
                                             value={input}
+                                            required
                                             onChange={(event) => onInputChange(event.target.value, index)}
                                             inputStyle="custom"
                                             name={`mnemonicInput${index}`}
@@ -102,8 +119,10 @@ const ImportMnemonic = (): JSX.Element => {
                         {isExtraWord && (
                             <div className="mb-4rem">
                                 <Input
+                                    ref={register}
                                     value={extraWord}
                                     name="extraWord"
+                                    required
                                     onChange={(event) => setExtraWord(event.target.value)}
                                     placeholder="Please enter at least 9 characters"
                                     className="mb-3"
