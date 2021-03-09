@@ -27,6 +27,7 @@ const Welcome = (): JSX.Element => {
 
     const [selectedMethod, setSelectedMethod] = useState<MethodModalType | null>(null);
     const [selectedMethodTemp, setSelectedMethodTemp] = useState<MethodModalType | null>(null);
+    const [keystoreFile, setKeystoreFile] = useState<File | null>(null);
 
     // UPDATE MODAL LISTENER
     useEffect(() => {
@@ -37,7 +38,13 @@ const Welcome = (): JSX.Element => {
                 'hidden.bs.modal',
                 () => {
                     if (selectedMethod) {
-                        history.push(`/import/software/${selectedMethod}`);
+                        if (keystoreFile) {
+                            keystoreFile.text().then((fileData) => {
+                                history.push(`/import/software/${selectedMethod}`, { fileData });
+                            });
+                        } else {
+                            history.push(`/import/software/${selectedMethod}`);
+                        }
                     }
                     setSelectedMethod(null);
                     setSelectedMethodTemp(null);
@@ -45,7 +52,7 @@ const Welcome = (): JSX.Element => {
                 { once: true },
             );
         }
-    }, [selectedMethod, selectedMethodTemp]);
+    }, [selectedMethod, selectedMethodTemp, keystoreFile]);
 
     // SOFTWARE IMPORT MODALS
     const importSoftwareModal = (
@@ -89,13 +96,43 @@ const Welcome = (): JSX.Element => {
             <Button
                 type="button"
                 disabled={!selectedMethodTemp}
-                onClick={() => setSelectedMethod(selectedMethodTemp)}
-                data-bs-dismiss="modal"
-                data-bs-target="#importSoftwareModal"
+                onClick={() => {
+                    if (selectedMethodTemp === 'keystore') {
+                        const keystoreInputElement = document.getElementById('keystore-input');
+
+                        if (keystoreInputElement) {
+                            keystoreInputElement.click();
+                        }
+                    } else {
+                        setSelectedMethod(selectedMethodTemp);
+                    }
+                }}
+                {...(selectedMethodTemp !== 'keystore' && {
+                    'data-bs-dismiss': 'modal',
+                    'data-bs-target': '#importSoftwareModal',
+                })}
                 className="my-4 w-100"
             >
                 {t('common.continue')}
             </Button>
+            {selectedMethodTemp === 'keystore' && (
+                <input
+                    id="keystore-input"
+                    type="file"
+                    hidden
+                    accept=".json"
+                    onChange={(event) => {
+                        if (event.target.files && event.target.files.length > 0) {
+                            const importSoftwareDocumentModal = document.getElementById('importSoftwareModal');
+
+                            if (importSoftwareDocumentModal) {
+                                importSoftwareDocumentModal.click();
+                            }
+                            setSelectedMethod(selectedMethodTemp), setKeystoreFile(event.target.files[0]);
+                        }
+                    }}
+                />
+            )}
         </Modal>
     );
 
