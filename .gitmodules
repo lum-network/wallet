@@ -1,0 +1,3 @@
+[submodule "src/frontend-elements"]
+	path = src/frontend-elements
+	url = git@github.com:lum-network/frontend-elements.git
