@@ -1,6 +1,7 @@
 import { LumUtils, LumWallet } from '@lum-network/sdk-javascript';
 import { createModel } from '@rematch/core';
 import { RootModel, Transaction } from '../../models';
+import { showErrorToast } from 'utils';
 
 interface SendPayload {
     to: string;
@@ -10,7 +11,7 @@ interface SendPayload {
 }
 
 interface SignInKeystorePayload {
-    data: LumUtils.KeyStore;
+    data: LumUtils.KeyStore | string;
     password: string;
 }
 
@@ -55,15 +56,32 @@ export const wallet = createModel<RootModel>()({
             dispatch.wallet.signIn(payload);
         },
         async signInWithMnemonicAsync(payload: string) {
-            const wallet = await LumWallet.fromMnemonic(payload);
+            try {
+                const wallet = await LumWallet.fromMnemonic(payload);
 
-            dispatch.wallet.signIn(wallet.address);
+                dispatch.wallet.signIn(wallet.address);
+            } catch (e) {
+                showErrorToast(e.message);
+            }
+        },
+        async signInWithPrivateKeyAsync(payload: string) {
+            try {
+                const wallet = await LumWallet.fromPrivateKey(LumUtils.keyFromHex(payload));
+
+                dispatch.wallet.signIn(wallet.address);
+            } catch (e) {
+                showErrorToast(e.message);
+            }
         },
         async signInWithKeystoreAsync(payload: SignInKeystorePayload) {
             const { data, password } = payload;
-            const wallet = await LumWallet.fromKeyStore(data, password);
+            try {
+                const wallet = await LumWallet.fromKeyStore(data, password);
 
-            dispatch.wallet.signIn(wallet.address);
+                dispatch.wallet.signIn(wallet.address);
+            } catch (e) {
+                showErrorToast(e.message);
+            }
         },
         sendTx(payload: SendPayload, state) {
             const tx = { id: `tx-${state.wallet.transactions.length}`, ...payload, date: new Date() };

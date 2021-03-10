@@ -7,15 +7,17 @@ import { useRematchDispatch } from 'redux/hooks';
 import { RootDispatch, RootState } from 'redux/store';
 import { joiResolver } from '@hookform/resolvers/joi';
 import joi from 'joi';
+import { LumUtils } from '@lum-network/sdk-javascript';
 
+import { Card, Button } from 'frontend-elements';
 import Assets from 'assets';
-import { Button, Card, Input, SwitchInput } from 'components';
+import { Input, SwitchInput } from 'components';
 import { PasswordStrength, PasswordStrengthType } from 'models';
 import { WalletUtils } from 'utils';
 import { checkPwdStrength, generateKeystoreFile } from 'utils/wallet';
+
 import AuthLayout from './components/AuthLayout';
 import WelcomeCarousel from './components/WelcomeCarousel';
-import { LumUtils } from '@lum-network/sdk-javascript';
 import KeystoreFileSave from './components/KeystoreFileSave';
 
 type CreationType = 'mnemonic' | 'keystore' | 'privateKey';
@@ -32,8 +34,8 @@ const CreateWallet = (): JSX.Element => {
     const [introDone, setIntroDone] = useState(true);
     const [creationType, setCreationType] = useState<CreationType>('mnemonic');
     const [mnemonicLength, setMnemonicLength] = useState<WalletUtils.MnemonicLength>(12);
-    const [isExtraWord, setIsExtraWord] = useState(false);
-    const [extraWord, setExtraWord] = useState('');
+    //const [isExtraWord, setIsExtraWord] = useState(false);
+    //const [extraWord, setExtraWord] = useState('');
     const [inputsValues, setInputsValues] = useState<string[]>([]);
     const [passwordStrength, setPasswordStrength] = useState<PasswordStrength>(PasswordStrengthType.Weak);
     const [keystoreFileData, setKeystoreFileData] = useState<LumUtils.KeyStore | null>(null);
@@ -107,17 +109,12 @@ const CreateWallet = (): JSX.Element => {
                     />
                     <h6>Values</h6>
                 </div>
-                <Button
-                    buttonType="custom"
-                    className="d-flex flex-row align-items-center"
-                    type="button"
-                    onClick={generateNewMnemonic}
-                >
+                <Button className="d-flex flex-row align-items-center" onPress={generateNewMnemonic}>
                     <img src={Assets.images.syncIcon} height="16" width="16" className="me-2" />
                     <h5>Random</h5>
                 </Button>
             </div>
-            <div className="container-fluid py-4">
+            <div className="container-fluid py-4 mb-4">
                 <div className="row gy-4">
                     {inputsValues.map((input, index) => (
                         <div className="col-4" key={index}>
@@ -136,7 +133,7 @@ const CreateWallet = (): JSX.Element => {
                     ))}
                 </div>
             </div>
-            <div className="separator my-4 w-100"></div>
+            {/* <div className="separator mb-4 w-100"></div>
             <div className="d-flex flex-row justify-content-between align-self-stretch align-items-center my-4">
                 <h5 className="p-0 m-0">Extra word</h5>
                 <SwitchInput id="isExtraWord" onChange={(event) => setIsExtraWord(event.target.checked)} />
@@ -155,12 +152,12 @@ const CreateWallet = (): JSX.Element => {
                         your mnemonic phrase. You can not change it. It becomes a permanent part of your phrase.
                     </p>
                 </div>
-            )}
+            )} */}
             <div className="d-flex align-items-center">
-                <Button type="button" className="justify-self-stretch me-4" onClick={continueWithMnemonic}>
+                <Button className="justify-self-stretch me-4 py-4 rounded-pill" onPress={continueWithMnemonic}>
                     I wrote down my mnemonic phrase
                 </Button>
-                <Button buttonType="custom" className="scale-anim">
+                <Button onPress={continueWithMnemonic} className="scale-anim">
                     <img src={Assets.images.printIcon} height="34" width="34" />
                 </Button>
             </div>
@@ -181,6 +178,7 @@ const CreateWallet = (): JSX.Element => {
                 <h3 className="text-center">Your Password</h3>
                 <Input
                     ref={privateKeyFormRegister}
+                    type="password"
                     name="privateKey"
                     onChange={(event) => {
                         const newValue = event.target.value;
@@ -208,7 +206,7 @@ const CreateWallet = (): JSX.Element => {
                     <p>{privateKeyPasswordFormState.errors.privateKey.message}</p>
                 )}
             </div>
-            <Button type="submit" onClick={privateKeyFormSubmit(onSubmitPassword)} className="mt-4">
+            <Button onPress={privateKeyFormSubmit(onSubmitPassword)} className="mt-4 py-4 rounded-pill">
                 Continue
             </Button>
             <div className="mt-4rem">
@@ -229,7 +227,7 @@ const CreateWallet = (): JSX.Element => {
                     keystoreFileData ? (
                         <KeystoreFileSave data={keystoreFileData} password={keystoreFilePassword} />
                     ) : (
-                        <Card className="container import-card" custom>
+                        <Card className="container import-card" withoutPadding>
                             <ul className="row nav nav-tabs border-0 text-center">
                                 <li
                                     className={`col-6 nav-item pt-4 pb-2 ${

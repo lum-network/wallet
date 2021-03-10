@@ -16,8 +16,8 @@ type MnemonicLength = 12 | 24;
 
 const ImportMnemonic = (): JSX.Element => {
     const [mnemonicLength, setMnemonicLength] = useState<MnemonicLength>(12);
-    const [isExtraWord, setIsExtraWord] = useState(false);
-    const [extraWord, setExtraWord] = useState('');
+    /* const [isExtraWord, setIsExtraWord] = useState(false);
+    const [extraWord, setExtraWord] = useState(''); */
     const [inputsValues, setInputsValues] = useState<string[]>([]);
 
     const { register, handleSubmit } = useForm();
@@ -54,11 +54,11 @@ const ImportMnemonic = (): JSX.Element => {
     };
 
     const onSubmit = () => {
-        let mnemonic = inputsValues.join(' ');
+        const mnemonic = inputsValues.join(' ');
 
-        if (extraWord) {
+        /* if (extraWord) {
             mnemonic += ' ' + extraWord;
-        }
+        } */
 
         signInWithMnemonic(mnemonic);
     };
@@ -111,7 +111,7 @@ const ImportMnemonic = (): JSX.Element => {
                                 ))}
                             </div>
                         </div>
-                        <div className="separator my-4 w-100"></div>
+                        {/* <div className="separator my-4 w-100"></div>
                         <div className="d-flex flex-row justify-content-between align-self-stretch align-items-center my-4">
                             <h5 className="p-0 m-0">Extra word</h5>
                             <SwitchInput id="isExtraWord" onChange={(event) => setIsExtraWord(event.target.checked)} />
@@ -133,7 +133,7 @@ const ImportMnemonic = (): JSX.Element => {
                                     of your phrase.
                                 </p>
                             </div>
-                        )}
+                        )} */}
                         <Button
                             type="submit"
                             onClick={handleSubmit(onSubmit)}
