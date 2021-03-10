@@ -1,0 +1,36 @@
+@import 'src/styles/main';
+
+.dashboard-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.dashboard-card button img {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+}
+
+.account-card {
+    background-color: #5d9aff;
+}
+
+.balance-card {
+    background: linear-gradient(33.31deg, #b18045 -8.93%, #f3cb7c 62.32%);
+}
+
+.tint-white {
+    filter: brightness(0) invert(1);
+}
+
+.twitter {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    background-color: #e8f6fe;
+    background-image: url('../../assets/images/twitter.svg');
+    background-position: center;
+    background-repeat: no-repeat;
+}

@@ -2,6 +2,11 @@
     "common": {
         "continue": "Continuer"
     },
+    "dashboard": {
+        "latestTx": "Dernières Transactions",
+        "currentBalance": "Balance",
+        "followTwitter": "Suivez nous sur Twitter"
+    },
     "welcome": {
         "title": "Accède à ton Wallet",
         "hardware": {
@@ -29,7 +34,7 @@
         "dashboard": "Tableau de bord",
         "transactions": "Transactions",
         "send": "Envoyer",
-        "message": "Message",
+        "message": "Messages",
         "logout": "Déconnexion"
     }
 }

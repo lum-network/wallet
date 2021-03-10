@@ -1,71 +1,52 @@
-import { Transaction } from 'models';
 import React from 'react';
+import { Link } from 'react-router-dom';
 
-interface IProps {
+import { Table } from 'frontend-elements';
+import { Transaction } from 'models';
+import { toLocaleDateFormat } from 'utils';
+
+interface TransactionsTableProps {
     transactions: Transaction[];
 }
 
 interface RowProps {
-    rows: Transaction[];
-    headers: string[];
+    row: Transaction;
 }
 
-const TransactionsRows = (props: RowProps): JSX.Element => {
-    const { rows, headers } = props;
-
-    const renderRow = (row: Transaction, headers: string[]) => {
-        return (
-            <tr key={row.id}>
-                {headers.map((header, index) => {
-                    if (header === 'id') {
-                        return (
-                            <td key={index}>
-                                <a className="link-primary" href={`/transaction/${row.id}`}>
-                                    {row[header]}
-                                </a>
-                            </td>
-                        );
-                    }
-                    return (
-                        <td key={index}>
-                            <div className="text-truncate">{row[header]}</div>
-                        </td>
-                    );
-                })}
-            </tr>
-        );
-    };
-
+const TransactionRow = (props: RowProps): JSX.Element => {
+    const { row } = props;
     return (
-        <tbody>
-            {rows.map((value) => {
-                return renderRow(value, headers);
-            })}
-        </tbody>
+        <tr>
+            <td data-label="id">
+                <Link to={`/transaction/${row.id}`}>{row.id}</Link>
+            </td>
+            <td data-label="date">
+                <div className="text-truncate">{toLocaleDateFormat(row.date)}</div>
+            </td>
+            <td data-label="to">
+                <div className="text-truncate">{row.to}</div>
+            </td>
+            <td data-label="from" className="text-end">
+                <div className="text-truncate">{row.from}</div>
+            </td>
+            <td data-label="amount" className="text-end">
+                <div className="text-truncate">{row.amount}</div>
+            </td>
+        </tr>
     );
 };
 
-const TransactionsTable = (props: IProps): JSX.Element => {
+const TransactionsTable = (props: TransactionsTableProps): JSX.Element => {
     if (props.transactions.length > 0) {
-        const headers = Object.keys(props.transactions[0]);
+        const { transactions } = props;
+        const headers = ['id', 'date', 'to', 'from', 'amount'];
 
         return (
-            <div className="table-responsive">
-                <table className="table table-hover table-borderless table-striped">
-                    <thead>
-                        <tr>
-                            {headers.map((header, index) => {
-                                return (
-                                    <th scope="col" key={index}>
-                                        {header}
-                                    </th>
-                                );
-                            })}
-                        </tr>
-                    </thead>
-                    <TransactionsRows rows={props.transactions} headers={headers} />
-                </table>
-            </div>
+            <Table head={headers}>
+                {transactions.map((tx, index) => (
+                    <TransactionRow key={index} row={tx} />
+                ))}
+            </Table>
         );
     }
     return <div />;

@@ -1,12 +1,25 @@
-.sidebar {
+@import 'src/frontend-elements/styles/main';
+
+.main-layout {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
     min-height: 100vh;
-    box-shadow: 0px 4px 64px rgba(232, 232, 232, 0.25);
 }
 
-.sidebar ul li a {
-    padding: 10px;
-    font-size: 1.1em;
-    display: block;
+.navbar {
+    box-shadow: 0px 4px 10px rgba(205, 205, 205, 0.25);
+}
+
+.bottom-navbar {
+    display: flex;
+    background-color: $color-primary;
+    flex-shrink: 0;
+    min-height: 100px;
+}
+
+.main-layout nav.bottom-navbar {
+    display: none;
 }
 
 a,
@@ -14,4 +27,89 @@ a:hover,
 a:focus {
     color: inherit;
     text-decoration: none;
+}
+
+.lum-logo {
+    object-fit: contain;
+}
+
+.navbar-item {
+    color: #321c3b !important;
+    opacity: 0.3;
+}
+
+.navbar-item > div > img {
+    object-fit: contain;
+}
+
+.selected {
+    color: #321c3b !important;
+    opacity: 1;
+    background-color: transparent;
+}
+
+.logout {
+    border: solid #321c3b;
+    border-radius: 50%;
+    border-width: 2.5px;
+    height: 50px;
+    width: 50px;
+}
+
+@include media-breakpoint-down(lg) {
+    .navbar {
+        box-shadow: 0px -4px 10px rgba(205, 205, 205, 0.25);
+    }
+
+    .main-layout  {
+        padding-bottom: 100px;
+    }
+    .main-layout nav {
+        display: none;
+    }
+    .main-layout nav.bottom-navbar {
+        position: absolute;
+        display: flex;
+        flex-direction: row;
+        height: 100px;
+        width: 100vw;
+        bottom: 0;
+        top: unset;
+        justify-content: space-around;
+        align-items: center;
+        padding-top: 16px;
+    }
+    .main-layout nav.bottom-navbar ul.navbar-nav {
+        flex-direction: row;
+        flex: 1;
+        align-items: center;
+        justify-content: space-evenly;
+    }
+    .main-layout nav.bottom-navbar ul.navbar-nav li .navbar-item {
+        font-size: $primary-fs;
+    }
+    .main-layout nav.bottom-navbar ul.navbar-nav li img.nav-icon {
+        width: 25px;
+        height: 25px;
+        margin-bottom: 3px;
+    }
+}
+
+@include media-breakpoint-down(sm) {
+    .main-layout {
+        padding-bottom: 90px;
+    }
+
+    .main-layout nav.bottom-navbar {
+        height: 90px;
+    }
+
+    .main-layout nav.bottom-navbar ul.navbar-nav li img.nav-icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    .main-layout nav.bottom-navbar ul.navbar-nav li .navbar-item {
+        font-size: $font-xs;
+    }
 }

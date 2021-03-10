@@ -14,6 +14,14 @@ import shieldIcon from './images/shield.png';
 import anonymousIcon from './images/anonymous.png';
 import printIcon from './images/print.png';
 import keyIcon from './images/key.png';
+import profileIcon from './images/profile.png';
+import sendIcon from './images/send.png';
+import stakeIcon from './images/stake.png';
+import messageMauveIcon from './images/message_mauve.png';
+import dashboardIcon from './images/dashboard.png';
+import copyIcon from './images/copy.png';
+import qrIcon from './images/qr.png';
+import lumTicker from './images/lum_ticker.png';
 
 export default {
     images: {
@@ -33,5 +41,13 @@ export default {
         anonymousIcon,
         printIcon,
         keyIcon,
+        profileIcon,
+        dashboardIcon,
+        sendIcon,
+        stakeIcon,
+        messageMauveIcon,
+        copyIcon,
+        qrIcon,
+        lumTicker,
     },
 };

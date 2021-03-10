@@ -20,8 +20,8 @@ import MainLayout from './Layout/MainLayout/MainLayout';
 
 const RootNavigator = (): JSX.Element => {
     return (
-        <MainLayout>
-            <BrowserRouter>
+        <BrowserRouter>
+            <MainLayout>
                 <Switch>
                     <Route path="/welcome">
                         <Welcome />
@@ -44,13 +44,13 @@ const RootNavigator = (): JSX.Element => {
                     <PrivateRoute exact path={['/home', '/']}>
                         <Dashboard />
                     </PrivateRoute>
-                    <PrivateRoute path="/message">
+                    <PrivateRoute exact path="/message">
                         <Message />
                     </PrivateRoute>
-                    <PrivateRoute path="/send">
+                    <PrivateRoute exact path="/send">
                         <Send />
                     </PrivateRoute>
-                    <PrivateRoute path="/transactions">
+                    <PrivateRoute exact path="/transactions">
                         <Transactions />
                     </PrivateRoute>
                     <PrivateRoute path="/transaction/:txId">
@@ -60,8 +60,8 @@ const RootNavigator = (): JSX.Element => {
                         <Error404 />
                     </Route>
                 </Switch>
-            </BrowserRouter>
-        </MainLayout>
+            </MainLayout>
+        </BrowserRouter>
     );
 };
 
