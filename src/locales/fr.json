@@ -1,6 +1,8 @@
 {
     "common": {
-        "continue": "Continuer"
+        "continue": "Continuer",
+        "address": "Adresse",
+        "send": "Envoyer"
     },
     "dashboard": {
         "latestTx": "Dernières Transactions",
@@ -28,6 +30,13 @@
                 "keystore": "Fichier Keystore",
                 "privateKey": "Clé privée"
             }
+        }
+    },
+    "transactions": {
+        "table": {
+            "to": "Destinataire",
+            "from": "Expéditeur",
+            "amount": "Montant"
         }
     },
     "navbar": {

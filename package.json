@@ -19,6 +19,7 @@
         "immer": "^8.0.1",
         "joi": "^17.4.0",
         "node-sass": "^5.0.0",
+        "print-js": "^1.6.0",
         "qrcode.react": "^1.0.1",
         "react": "^17.0.1",
         "react-dom": "^17.0.1",

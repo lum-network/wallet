@@ -6,10 +6,19 @@ import { useRematchDispatch } from 'redux/hooks';
 import { RootDispatch, RootState } from 'redux/store';
 
 import { Card } from 'frontend-elements';
-import { Input } from 'components';
+import { AddressCard, BalanceCard, Input } from 'components';
+import { Redirect } from 'react-router';
 
 const Send = (): JSX.Element => {
-    const address = useSelector((state: RootState) => state.wallet.address);
+    const { address, currentBalance } = useSelector((state: RootState) => ({
+        address: state.wallet.address,
+        currentBalance: state.wallet.currentBalance,
+    }));
+
+    if (!address) {
+        return <Redirect to="/welcome" />;
+    }
+
     const [senderAddress, setSenderAddress] = useState(address || '');
     const [recipientAddress, setRecipientAddress] = useState('');
     const [amount, setAmount] = useState('');
@@ -31,10 +40,16 @@ const Send = (): JSX.Element => {
     };
 
     return (
-        <>
-            <div className="mt-4">
-                <div className="container">
-                    <div className="row">
+        <div className="mt-4">
+            <div className="container">
+                <div className="row gy-4">
+                    <div className="col-6">
+                        <AddressCard address={address} />
+                    </div>
+                    <div className="col-6">
+                        <BalanceCard balance={currentBalance} />
+                    </div>
+                    <div className="col">
                         <Card className="px-3 py-2">
                             <form onSubmit={handleSubmit(onSend)} className="row">
                                 <div className="col-6">
@@ -85,7 +100,7 @@ const Send = (): JSX.Element => {
                                 </div>
                                 <div className="col">
                                     <button className="btn btn-primary" type="submit">
-                                        Send
+                                        {t('common.send')}
                                     </button>
                                 </div>
                             </form>
@@ -93,7 +108,7 @@ const Send = (): JSX.Element => {
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     );
 };
 

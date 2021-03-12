@@ -1,7 +1,7 @@
 @import 'frontend-elements/styles/main.scss';
 
 #root {
-    height: 100vh;
+    overflow-x: hidden;
 }
 
 .Toastify__toast {

@@ -3,12 +3,19 @@
 .main-layout {
     display: flex;
     flex-direction: column;
+    //justify-content: space-between;
     flex: 1;
     min-height: 100vh;
 }
 
+.main-layout footer {
+    bottom: 0;
+}
+
 .navbar {
     box-shadow: 0px 4px 10px rgba(205, 205, 205, 0.25);
+    z-index: 1000;
+    height: 82px;
 }
 
 .bottom-navbar {
@@ -36,6 +43,10 @@ a:focus {
 .navbar-item {
     color: #321c3b !important;
     opacity: 0.3;
+    transition: all linear 150ms;
+    &:hover {
+        opacity: 0.6;
+    }
 }
 
 .navbar-item > div > img {
@@ -46,6 +57,9 @@ a:focus {
     color: #321c3b !important;
     opacity: 1;
     background-color: transparent;
+    &:hover {
+        opacity: 1;
+    }
 }
 
 .logout {
@@ -56,19 +70,26 @@ a:focus {
     width: 50px;
 }
 
+.content {
+    padding-top: 82px;
+}
+
 @include media-breakpoint-down(lg) {
     .navbar {
-        box-shadow: 0px -4px 10px rgba(205, 205, 205, 0.25);
+        height: 60px;
     }
 
-    .main-layout  {
+    .content {
+        padding-top: 60px;
+    }
+
+    .main-layout {
         padding-bottom: 100px;
     }
-    .main-layout nav {
+    .main-layout nav ul {
         display: none;
     }
     .main-layout nav.bottom-navbar {
-        position: absolute;
         display: flex;
         flex-direction: row;
         height: 100px;
@@ -78,8 +99,10 @@ a:focus {
         justify-content: space-around;
         align-items: center;
         padding-top: 16px;
+        box-shadow: 0px -4px 10px rgba(205, 205, 205, 0.25);
     }
     .main-layout nav.bottom-navbar ul.navbar-nav {
+        display: flex;
         flex-direction: row;
         flex: 1;
         align-items: center;
@@ -96,10 +119,6 @@ a:focus {
 }
 
 @include media-breakpoint-down(sm) {
-    .main-layout {
-        padding-bottom: 90px;
-    }
-
     .main-layout nav.bottom-navbar {
         height: 90px;
     }

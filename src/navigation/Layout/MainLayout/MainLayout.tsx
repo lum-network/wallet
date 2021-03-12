@@ -1,33 +1,36 @@
 import assets from 'assets';
 import React, { PureComponent } from 'react';
-import { WithTranslation, withTranslation } from 'react-i18next';
+import { withTranslation, WithTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
 import { NavLink } from 'react-router-dom';
-import store, { RootDispatch, RootState } from 'redux/store';
+import store, { RootState } from 'redux/store';
+import { Footer } from 'components';
 
 import './MainLayout.scss';
 
-interface IProps {}
+interface IProps {
+    children: React.ReactNode;
+}
 
 const mapState = (state: RootState) => ({
     loading: state.loading.models.wallet,
     address: state.wallet.address,
 });
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const mapDispatch = (_dispatch: RootDispatch) => ({});
-
 type StateProps = ReturnType<typeof mapState>;
-type DispatchProps = ReturnType<typeof mapDispatch>;
 
-type Props = IProps & StateProps & DispatchProps & WithTranslation;
+type Props = IProps & StateProps & WithTranslation;
 
 class MainLayout extends PureComponent<Props> {
     renderNavbar(bottom?: boolean) {
         const { t } = this.props;
 
         return (
-            <nav className={`ps-md-2 pe-md-4 py-3 bg-white navbar navbar-expand-lg ${bottom ? 'bottom-navbar' : ''}`}>
+            <nav
+                className={`ps-md-2 pe-md-4 py-3 bg-white position-fixed w-100 justify-content-center justify-content-lg-between navbar navbar-expand-lg ${
+                    bottom ? 'bottom-navbar' : ''
+                }`}
+            >
                 {!bottom && (
                     <img src={assets.images.lumWallet} width="107" height="28" className="lum-logo me-5 ms-4" />
                 )}
@@ -84,16 +87,20 @@ class MainLayout extends PureComponent<Props> {
                     </li>
                 </ul>
                 {!bottom && (
-                    <NavLink
-                        to="/welcome"
-                        className="navbar-item logout d-flex align-items-center justify-content-center"
-                        activeClassName="selected"
-                        // react-router-dom prop workaround to logout button always seen as active
-                        isActive={() => true}
-                        onClick={() => store.dispatch({ type: 'LOGOUT' })}
-                    >
-                        <img src={assets.images.profileIcon} width="22" height="17.5" className="nav-icon" />
-                    </NavLink>
+                    <ul className="navbar-nav">
+                        <li>
+                            <NavLink
+                                to="/welcome"
+                                className="navbar-item logout d-flex align-items-center justify-content-center"
+                                activeClassName="selected"
+                                // NavLink prop workaround to always apply selected style
+                                isActive={() => true}
+                                onClick={() => store.dispatch({ type: 'LOGOUT' })}
+                            >
+                                <img src={assets.images.profileIcon} width="22" height="17.5" className="nav-icon" />
+                            </NavLink>
+                        </li>
+                    </ul>
                 )}
             </nav>
         );
@@ -102,8 +109,13 @@ class MainLayout extends PureComponent<Props> {
         const { children, address } = this.props;
         return address ? (
             <div className="main-layout">
-                {this.renderNavbar()}
-                {children}
+                <div className="d-flex flex-column">
+                    {this.renderNavbar()}
+                    <div className="content">{children}</div>
+                </div>
+                <footer className="mt-auto">
+                    <Footer />
+                </footer>
                 {this.renderNavbar(true)}
             </div>
         ) : (
@@ -112,4 +124,5 @@ class MainLayout extends PureComponent<Props> {
     }
 }
 
-export default connect(mapState, mapDispatch)(withTranslation()(MainLayout));
+const LayoutWithTranslation = withTranslation()(MainLayout);
+export default connect(mapState)(LayoutWithTranslation);
