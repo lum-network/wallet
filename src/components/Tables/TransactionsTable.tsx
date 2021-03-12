@@ -5,6 +5,7 @@ import { Table } from 'frontend-elements';
 import { Transaction } from 'models';
 import { toLocaleDateFormat, trunc } from 'utils';
 import { Namespace, Resources, TFunction, useTranslation } from 'react-i18next';
+import { LUM_EXPLORER } from 'constant';
 
 interface TransactionsTableProps {
     transactions: Transaction[];
@@ -20,7 +21,7 @@ const TransactionRow = (props: RowProps): JSX.Element => {
     return (
         <tr>
             <td data-label="Id">
-                <Link to={`/transaction/${row.id}`}>{row.id}</Link>
+                <a href={`${LUM_EXPLORER}/txs/${row.id}`}>{row.id}</a>
             </td>
             <td data-label="Date">
                 <div className="text-truncate">{toLocaleDateFormat(row.date)}</div>
