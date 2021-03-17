@@ -18,6 +18,7 @@ import AuthLayout from './components/AuthLayout';
 import WelcomeCarousel from './components/WelcomeCarousel';
 import KeystoreFileSave from './components/KeystoreFileSave';
 import { MnemonicLength, WalletUtils } from 'utils';
+import printJS from 'print-js';
 
 type CreationType = 'mnemonic' | 'keystore' | 'privateKey';
 
@@ -91,6 +92,14 @@ const CreateWallet = (): JSX.Element => {
         signInWithMnemonic(mnemonic);
     };
 
+    const printMnemonic = () => {
+        printJS({
+            printable: [{ mnemonic: inputsValues }],
+            properties: ['mnemonic'],
+            type: 'json',
+        });
+    };
+
     // Render content
     const mnemonicContent = (
         <div className="d-flex flex-column align-self-center text-center align-items-center import-card py-4 px-md-4">
@@ -109,7 +118,7 @@ const CreateWallet = (): JSX.Element => {
                     <h6>Values</h6>
                 </div>
                 <Button
-                    className="d-flex flex-row align-items-center bg-transparent text-dark"
+                    className="d-flex flex-row align-items-center bg-transparent text-btn"
                     onPress={generateNewMnemonic}
                 >
                     <img src={Assets.images.syncIcon} height="16" width="16" className="me-2" />
@@ -117,7 +126,7 @@ const CreateWallet = (): JSX.Element => {
                 </Button>
             </div>
             <div className="container-fluid py-4 mb-4">
-                <div className="row gy-4">
+                <div className="row gy-4" id="mnemonicInputsToPrint">
                     {inputsValues.map((input, index) => (
                         <div className="col-4" key={index}>
                             <Input
@@ -159,7 +168,7 @@ const CreateWallet = (): JSX.Element => {
                 <Button className="justify-self-stretch me-4 py-4 rounded-pill" onPress={continueWithMnemonic}>
                     I wrote down my mnemonic phrase
                 </Button>
-                <Button onPress={continueWithMnemonic} className="scale-anim bg-transparent">
+                <Button onPress={printMnemonic} className="scale-anim bg-transparent">
                     <img src={Assets.images.printIcon} height="34" width="34" />
                 </Button>
             </div>

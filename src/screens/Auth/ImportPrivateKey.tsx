@@ -44,40 +44,38 @@ const ImportPrivateKey = (): JSX.Element => {
 
     return (
         <AuthLayout>
-            <div className="d-flex flex-column align-items-center mb-4">
-                <div className="mb-4rem">
-                    <h1 className="text-center display-5">Import by Private Key</h1>
-                </div>
-                <Card className="import-card d-flex flex-column text-center align-items-center">
-                    <div className="import-card py-4">
-                        <div className="mb-4rem">
-                            <p className="danger-text">{t('welcome.softwareModal.notRecommanded')}</p>
-                            <p>{t('welcome.softwareModal.notRecommandedDescription')}</p>
-                        </div>
-                        <div className="text-start mb-4rem">
-                            <h3 className="text-center">Your Private key</h3>
-                            <Input
-                                type="password"
-                                placeholder="••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••"
-                                ref={register}
-                                onChange={(event) => {
-                                    const newValue = event.target.value;
-                                    setValue('privateKey', newValue, { shouldValidate: true });
-                                }}
-                                name="privateKey"
-                                required
-                                className="text-start my-4"
-                            />
-                            {privateKeyPasswordFormState.errors.privateKey?.message && (
-                                <p>{privateKeyPasswordFormState.errors.privateKey.message}</p>
-                            )}
-                        </div>
-                        <Button onPress={handleSubmit(onSubmitPassword)} className="mt-4">
-                            Continue
-                        </Button>
-                    </div>
-                </Card>
+            <div className="mb-4rem">
+                <h1 className="text-center display-5">Import by Private Key</h1>
             </div>
+            <Card className="d-flex flex-column align-self-center text-center align-items-center access-card">
+                <div className="import-card py-4">
+                    <div className="mb-4rem">
+                        <p className="danger-text">{t('welcome.softwareModal.notRecommanded')}</p>
+                        <p>{t('welcome.softwareModal.notRecommandedDescription')}</p>
+                    </div>
+                    <div className="text-start mb-4rem">
+                        <h3 className="text-center">Your Private key</h3>
+                        <Input
+                            type="password"
+                            placeholder="••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••"
+                            ref={register}
+                            onChange={(event) => {
+                                const newValue = event.target.value;
+                                setValue('privateKey', newValue, { shouldValidate: true });
+                            }}
+                            name="privateKey"
+                            required
+                            className="text-start my-4"
+                        />
+                        {privateKeyPasswordFormState.errors.privateKey?.message && (
+                            <p>{privateKeyPasswordFormState.errors.privateKey.message}</p>
+                        )}
+                    </div>
+                    <Button onPress={handleSubmit(onSubmitPassword)} className="mt-4">
+                        Continue
+                    </Button>
+                </div>
+            </Card>
         </AuthLayout>
     );
 };

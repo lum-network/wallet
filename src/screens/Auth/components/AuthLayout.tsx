@@ -7,13 +7,15 @@ interface Props {
 }
 
 const AuthLayout = ({ children }: Props): JSX.Element => (
-    <div className="container-fluid h-100 d-flex flex-column align-items-center justify-content-between px-4">
-        <div className="d-flex flex-column align-items-center">
+    <>
+        <div className="h-100 d-flex flex-column align-items-center justify-content-between px-4">
             <Header />
             {children}
         </div>
-        <Footer />
-    </div>
+        <footer className="mt-auto">
+            <Footer />
+        </footer>
+    </>
 );
 
 export default AuthLayout;

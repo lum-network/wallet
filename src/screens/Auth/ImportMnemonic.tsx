@@ -124,7 +124,10 @@ const ImportMnemonic = (): JSX.Element => {
                                 ))}
                             </div>
                         </div>
-                        {/* <div className="separator my-4 w-100"></div>
+                        {/* 
+                            // EXTRA WORD PART COMMENTED FOR NOW
+                            
+                        <div className="separator my-4 w-100"></div>
                         <div className="d-flex flex-row justify-content-between align-self-stretch align-items-center my-4">
                             <h5 className="p-0 m-0">Extra word</h5>
                             <SwitchInput id="isExtraWord" onChange={(event) => setIsExtraWord(event.target.checked)} />

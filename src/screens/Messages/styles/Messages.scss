@@ -1,0 +1,28 @@
+@import 'src/frontend-elements/styles/main';
+
+textarea {
+    // Remove outline on focus
+    border: none;
+    overflow: auto;
+    outline: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+
+    background-color: #f9f9f9;
+    border-radius: 16px;
+    height: 195px;
+}
+
+.text-btn {
+    color: $color-primary;
+    &:hover {
+        color: $color-primary;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .text-btn {
+        color: white !important;
+    }
+}
