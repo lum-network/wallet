@@ -1,0 +1,25 @@
+@import "src/frontend-elements/styles/main";
+
+.message-button-container {
+    transition: all linear 150ms;
+    cursor: pointer;
+}
+
+.message-button-container:hover {
+    transform: scale(1.050);
+}
+
+.message-circle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 120px;
+    width: 120px;
+    border-radius: 60px;
+    background-color: #EEF4FF;
+}
+
+.button-title {
+    font-weight: $medium;
+    font-size: $font-lg;
+}

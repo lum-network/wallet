@@ -1,6 +1,6 @@
 export { default as Dashboard } from './Dashboard/Dashboard';
 export { default as Message } from './Message';
-export { default as Send } from './Send';
+export { default as Send } from './Send/Send';
 
 export { Error404 } from './Error404';
 
