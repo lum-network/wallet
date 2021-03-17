@@ -16,10 +16,10 @@ import Button from 'components/Buttons/Button';
 type MethodModalType = 'mnemonic' | 'privateKey' | 'keystore';
 
 const Welcome = (): JSX.Element => {
-    const address = useSelector((state: RootState) => state.wallet.address);
+    const wallet = useSelector((state: RootState) => state.wallet.currentWallet);
     const history = useHistory();
 
-    if (address) {
+    if (wallet) {
         return <Redirect to="/home" />;
     }
 
@@ -145,7 +145,7 @@ const Welcome = (): JSX.Element => {
                     </div>
                     <div className="row justify-content-center gy-4">
                         <div className="col-12 col-lg-3">
-                            <a href="/import/hardware">
+                            <a href="/import/hardware" className="text-reset text-decoration-none">
                                 <Card className="scale-anim text-center btn-padding h-100 w-100">
                                     <img
                                         src={Assets.images.hardwareIcon}
@@ -162,7 +162,7 @@ const Welcome = (): JSX.Element => {
                         <div className="col-12 col-lg-3">
                             <a
                                 role="button"
-                                className="h-100 w-100"
+                                className="h-100 w-100 text-reset text-decoration-none"
                                 data-bs-toggle="modal"
                                 data-bs-target="#importSoftwareModal"
                             >
@@ -181,7 +181,7 @@ const Welcome = (): JSX.Element => {
                             </a>
                         </div>
                         <div className="col-12 col-lg-3">
-                            <a href="/create">
+                            <a href="/create" className="text-reset text-decoration-none">
                                 <div className="scale-anim btn-padding h-100 w-100 text-center d-flex align-items-center flex-column justify-content-evenly">
                                     <div className="create-btn rounded-circle mb-4 mb-lg-0 d-flex justify-content-center align-items-center">
                                         <img className="img-fluid" src={Assets.images.addIcon} width="27" height="27" />

@@ -1588,7 +1588,7 @@
     schema-utils "^2.6.5"
     source-map "^0.7.3"
 
-"@popperjs/core@^2.5.4", "@popperjs/core@^2.6.0":
+"@popperjs/core@^2.6.0":
   version "2.6.0"
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.6.0.tgz#f022195afdfc942e088ee2101285a1d31c7d727f"
   integrity sha512-cPqjjzuFWNK3BSKLm0abspP0sp/IGOli4p5I5fKFAzdS8fvjdOwDCfZqAaIiXd9lPkOWi3SUUfZof3hEb7J/uw==
@@ -1660,13 +1660,6 @@
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@rematch/loading/-/loading-2.0.0.tgz#7bf6f087c16bd3d614d68de89348756c60986dfb"
   integrity sha512-rWy0vTR5vMmUIjSMjWg7esmB/1eSqU8cJQM5EWgqcUxQXyStby7a1BXcycf5q7nqlsaCoeMQPRlpVN6BedJxSw==
-
-"@rematch/persist@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@rematch/persist/-/persist-2.0.0.tgz#c92cad7c02d7a94172879e9e68d32cc1d2738bfe"
-  integrity sha512-pIGDBYwFtis9TTbvaZj8FpD2K2623J8i6SsPnuyASTmrHEFjoAjbqojXQj8JFwyl24rY2jOJ56aC0mWjh5ZIXw==
-  dependencies:
-    redux-persist "^6.0.0"
 
 "@rematch/select@^3.0.0":
   version "3.0.0"
@@ -10228,11 +10221,6 @@ redent@^3.0.0:
   dependencies:
     indent-string "^4.0.0"
     strip-indent "^3.0.0"
-
-redux-persist@^6.0.0:
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/redux-persist/-/redux-persist-6.0.0.tgz#b4d2972f9859597c130d40d4b146fecdab51b3a8"
-  integrity sha512-71LLMbUq2r02ng2We9S215LtPu3fY0KgaGE0k8WRgl6RkqxtGfl7HUozz1Dftwsb0D/5mZ8dwAaPbtnzfvbEwQ==
 
 redux@^4.0.0, redux@^4.0.5:
   version "4.0.5"

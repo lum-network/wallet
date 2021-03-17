@@ -14,7 +14,7 @@ interface IProps {
 
 const mapState = (state: RootState) => ({
     loading: state.loading.models.wallet,
-    address: state.wallet.address,
+    wallet: state.wallet.currentWallet,
 });
 
 type StateProps = ReturnType<typeof mapState>;
@@ -39,7 +39,7 @@ class MainLayout extends PureComponent<Props> {
                         <NavLink
                             to="/home"
                             className="navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4"
-                            activeClassName="selected"
+                            activeClassName="selected-navbar-item"
                         >
                             <img
                                 src={assets.images.dashboardIcon}
@@ -54,7 +54,7 @@ class MainLayout extends PureComponent<Props> {
                         <NavLink
                             to="/transactions"
                             className="navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4"
-                            activeClassName="selected"
+                            activeClassName="selected-navbar-item"
                         >
                             <img src={assets.images.stakeIcon} width="20" height="20" className="me-md-2 nav-icon" />
                             {t('navbar.transactions')}
@@ -64,7 +64,7 @@ class MainLayout extends PureComponent<Props> {
                         <NavLink
                             to="/send"
                             className="navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4"
-                            activeClassName="selected"
+                            activeClassName="selected-navbar-item"
                         >
                             <img src={assets.images.sendIcon} width="20" height="20" className="me-md-2 nav-icon" />
                             {t('navbar.send')}
@@ -74,7 +74,7 @@ class MainLayout extends PureComponent<Props> {
                         <NavLink
                             to="/message"
                             className="navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4"
-                            activeClassName="selected"
+                            activeClassName="selected-navbar-item"
                         >
                             <img
                                 src={assets.images.messageMauveIcon}
@@ -88,17 +88,41 @@ class MainLayout extends PureComponent<Props> {
                 </ul>
                 {!bottom && (
                     <ul className="navbar-nav">
-                        <li>
-                            <NavLink
-                                to="/welcome"
-                                className="navbar-item logout d-flex align-items-center justify-content-center"
-                                activeClassName="selected"
-                                // NavLink prop workaround to always apply selected style
-                                isActive={() => true}
-                                onClick={() => store.dispatch({ type: 'LOGOUT' })}
+                        <li className="dropdown navbar-item selected-navbar-item">
+                            <a
+                                role="button"
+                                href="#"
+                                id="profileDropdownButton"
+                                data-bs-toggle="dropdown"
+                                data-bs-target="#profileDropdownButton"
+                                aria-expanded="false"
                             >
-                                <img src={assets.images.profileIcon} width="22" height="17.5" className="nav-icon" />
-                            </NavLink>
+                                <div className="logout d-flex align-items-center justify-content-center">
+                                    <img
+                                        src={assets.images.profileIcon}
+                                        width="22"
+                                        height="17.5"
+                                        className="nav-icon"
+                                    />
+                                </div>
+                            </a>
+                            <ul
+                                className="dropdown-menu dropdown-menu-end"
+                                aria-labelledby="profileDropdownButton"
+                                id="profileDropdownButton"
+                            >
+                                <li className="dropdown-item">
+                                    <NavLink
+                                        to="/welcome"
+                                        activeClassName="selected-navbar-item"
+                                        // NavLink prop workaround to always apply selected-navbar-item style
+                                        isActive={() => true}
+                                        onClick={() => store.dispatch({ type: 'LOGOUT' })}
+                                    >
+                                        Logout
+                                    </NavLink>
+                                </li>
+                            </ul>
                         </li>
                     </ul>
                 )}
@@ -106,8 +130,8 @@ class MainLayout extends PureComponent<Props> {
         );
     }
     render(): JSX.Element {
-        const { children, address } = this.props;
-        return address ? (
+        const { children, wallet } = this.props;
+        return wallet ? (
             <div className="main-layout">
                 <div className="d-flex flex-column">
                     {this.renderNavbar()}

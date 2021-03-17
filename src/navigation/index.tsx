@@ -74,11 +74,11 @@ const PrivateRoute = ({
     exact?: boolean;
     path: string | string[];
 }): JSX.Element => {
-    const address = useSelector((state: RootState) => state.wallet.address);
+    const wallet = useSelector((state: RootState) => state.wallet.currentWallet);
 
     return (
         <Route exact={exact} path={path}>
-            {address ? children : <Redirect to="/welcome" />}
+            {wallet ? children : <Redirect to="/welcome" />}
         </Route>
     );
 };

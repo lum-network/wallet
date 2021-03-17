@@ -25,14 +25,14 @@ const ImportPrivateKey = (): JSX.Element => {
         privateKey: string;
     }>({ defaultValues: { privateKey: '' }, resolver: joiResolver(validationSchema) });
 
-    const address = useSelector((state: RootState) => state.wallet.address);
+    const wallet = useSelector((state: RootState) => state.wallet.currentWallet);
     const { t } = useTranslation();
     const history = useHistory();
     useEffect(() => {
-        if (address) {
+        if (wallet) {
             history.push('/home');
         }
-    }, [address]);
+    }, [wallet]);
 
     const { signInWithPrivateKey } = useRematchDispatch((dispatch: RootDispatch) => ({
         signInWithPrivateKey: dispatch.wallet.signInWithPrivateKeyAsync,

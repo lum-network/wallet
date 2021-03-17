@@ -13,14 +13,14 @@ import { LUM_TWITTER } from 'constant';
 const Dashboard = (): JSX.Element => {
     const { t } = useTranslation();
 
-    const { transactions, balance, address } = useSelector((state: RootState) => ({
+    const { transactions, balance, wallet } = useSelector((state: RootState) => ({
         loading: state.loading.global,
         transactions: state.wallet.transactions,
         balance: state.wallet.currentBalance,
-        address: state.wallet.address,
+        wallet: state.wallet.currentWallet,
     }));
 
-    if (!address) {
+    if (!wallet) {
         return <Redirect to="/welcome" />;
     }
 
@@ -29,7 +29,7 @@ const Dashboard = (): JSX.Element => {
             <div className="container">
                 <div className="row gy-4">
                     <div className="col-lg-5 col-12">
-                        <AddressCard address={address} />
+                        <AddressCard address={wallet.address} />
                     </div>
                     <div className="col-lg-5 col-12">
                         <BalanceCard balance={balance} />

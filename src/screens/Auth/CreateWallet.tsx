@@ -13,12 +13,11 @@ import { Card, Button } from 'frontend-elements';
 import Assets from 'assets';
 import { Input, SwitchInput } from 'components';
 import { PasswordStrength, PasswordStrengthType } from 'models';
-import { WalletUtils } from 'utils';
-import { checkPwdStrength, generateKeystoreFile } from 'utils/wallet';
 
 import AuthLayout from './components/AuthLayout';
 import WelcomeCarousel from './components/WelcomeCarousel';
 import KeystoreFileSave from './components/KeystoreFileSave';
+import { MnemonicLength, WalletUtils } from 'utils';
 
 type CreationType = 'mnemonic' | 'keystore' | 'privateKey';
 
@@ -33,7 +32,7 @@ const CreateWallet = (): JSX.Element => {
     // State values
     const [introDone, setIntroDone] = useState(true);
     const [creationType, setCreationType] = useState<CreationType>('mnemonic');
-    const [mnemonicLength, setMnemonicLength] = useState<WalletUtils.MnemonicLength>(12);
+    const [mnemonicLength, setMnemonicLength] = useState<MnemonicLength>(12);
     //const [isExtraWord, setIsExtraWord] = useState(false);
     //const [extraWord, setExtraWord] = useState('');
     const [inputsValues, setInputsValues] = useState<string[]>([]);
@@ -42,7 +41,7 @@ const CreateWallet = (): JSX.Element => {
     const [keystoreFilePassword, setKeystoreFilePassword] = useState('');
 
     // Redux hooks
-    const address = useSelector((state: RootState) => state.wallet.address);
+    const wallet = useSelector((state: RootState) => state.wallet.currentWallet);
     const { signInWithMnemonic } = useRematchDispatch((dispatch: RootDispatch) => ({
         signInWithMnemonic: dispatch.wallet.signInWithMnemonicAsync,
     }));
@@ -61,10 +60,10 @@ const CreateWallet = (): JSX.Element => {
 
     // Effects
     useEffect(() => {
-        if (address) {
+        if (wallet) {
             history.push('/home');
         }
-    }, [address]);
+    }, [wallet]);
 
     useEffect(() => {
         if (creationType === 'mnemonic') {
@@ -83,7 +82,7 @@ const CreateWallet = (): JSX.Element => {
 
     const onSubmitPassword = (data: { privateKey: string }) => {
         setKeystoreFilePassword(data.privateKey);
-        setKeystoreFileData(generateKeystoreFile(data.privateKey));
+        setKeystoreFileData(WalletUtils.generateKeystoreFile(data.privateKey));
     };
 
     const continueWithMnemonic = () => {
@@ -109,7 +108,10 @@ const CreateWallet = (): JSX.Element => {
                     />
                     <h6>Values</h6>
                 </div>
-                <Button className="d-flex flex-row align-items-center" onPress={generateNewMnemonic}>
+                <Button
+                    className="d-flex flex-row align-items-center bg-transparent text-dark"
+                    onPress={generateNewMnemonic}
+                >
                     <img src={Assets.images.syncIcon} height="16" width="16" className="me-2" />
                     <h5>Random</h5>
                 </Button>
@@ -157,7 +159,7 @@ const CreateWallet = (): JSX.Element => {
                 <Button className="justify-self-stretch me-4 py-4 rounded-pill" onPress={continueWithMnemonic}>
                     I wrote down my mnemonic phrase
                 </Button>
-                <Button onPress={continueWithMnemonic} className="scale-anim">
+                <Button onPress={continueWithMnemonic} className="scale-anim bg-transparent">
                     <img src={Assets.images.printIcon} height="34" width="34" />
                 </Button>
             </div>
@@ -183,7 +185,7 @@ const CreateWallet = (): JSX.Element => {
                     onChange={(event) => {
                         const newValue = event.target.value;
                         setPrivateKeyPassword('privateKey', newValue, { shouldValidate: true });
-                        setPasswordStrength(checkPwdStrength(newValue));
+                        setPasswordStrength(WalletUtils.checkPwdStrength(newValue));
                     }}
                     placeholder="•••••••••"
                     className="mt-4"

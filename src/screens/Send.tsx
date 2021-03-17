@@ -10,16 +10,15 @@ import { AddressCard, BalanceCard, Input } from 'components';
 import { Redirect } from 'react-router';
 
 const Send = (): JSX.Element => {
-    const { address, currentBalance } = useSelector((state: RootState) => ({
-        address: state.wallet.address,
+    const { wallet, currentBalance } = useSelector((state: RootState) => ({
+        wallet: state.wallet.currentWallet,
         currentBalance: state.wallet.currentBalance,
     }));
 
-    if (!address) {
+    if (!wallet) {
         return <Redirect to="/welcome" />;
     }
 
-    const [senderAddress, setSenderAddress] = useState(address || '');
     const [recipientAddress, setRecipientAddress] = useState('');
     const [amount, setAmount] = useState('');
     const [fees, setFees] = useState('');
@@ -33,8 +32,8 @@ const Send = (): JSX.Element => {
     const onSend = (data: { to: string; amount: string }) => {
         sendTx({
             to: data.to,
-            from: senderAddress,
-            amount: Number(amount),
+            from: wallet,
+            amount: amount,
             ticker: 'LUM',
         });
     };
@@ -44,7 +43,7 @@ const Send = (): JSX.Element => {
             <div className="container">
                 <div className="row gy-4">
                     <div className="col-6">
-                        <AddressCard address={address} />
+                        <AddressCard address={wallet.address} />
                     </div>
                     <div className="col-6">
                         <BalanceCard balance={currentBalance} />
@@ -58,9 +57,8 @@ const Send = (): JSX.Element => {
                                         name="from"
                                         disabled
                                         className="mb-4"
-                                        value={senderAddress}
+                                        value={wallet.address}
                                         inputClass="form-control"
-                                        onChange={(event) => setSenderAddress(event.target.value)}
                                         label="Sender"
                                         id="senderInput"
                                     />

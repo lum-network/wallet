@@ -11,60 +11,70 @@ import AuthLayout from './components/AuthLayout';
 import './Auth.scss';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-
-type MnemonicLength = 12 | 24;
+import { MnemonicLength, checkMnemonicLength } from 'utils';
 
 const ImportMnemonic = (): JSX.Element => {
-    const [mnemonicLength, setMnemonicLength] = useState<MnemonicLength>(12);
+    const [mnemonic, setMnemonic] = useState({ length: 12 as MnemonicLength, values: [] as string[] });
     /* const [isExtraWord, setIsExtraWord] = useState(false);
     const [extraWord, setExtraWord] = useState(''); */
-    const [inputsValues, setInputsValues] = useState<string[]>([]);
 
     const { register, handleSubmit } = useForm();
     const { t } = useTranslation();
     const history = useHistory();
 
-    const address = useSelector((state: RootState) => state.wallet.address);
+    const wallet = useSelector((state: RootState) => state.wallet.currentWallet);
     const { signInWithMnemonic } = useRematchDispatch((dispatch: RootDispatch) => ({
         signInWithMnemonic: dispatch.wallet.signInWithMnemonicAsync,
     }));
 
     useEffect(() => {
-        if (address) {
+        if (wallet) {
             history.push('/home');
         }
-    }, [address]);
+    }, [wallet]);
 
     useEffect(() => {
         const inputs: string[] = [];
 
-        for (let i = 0; i < mnemonicLength; i++) {
-            inputs.push(inputsValues[i] || '');
+        for (let i = 0; i < mnemonic.length; i++) {
+            inputs.push(mnemonic.values[i] || '');
         }
 
-        setInputsValues(inputs);
-    }, [mnemonicLength]);
+        setMnemonic({ values: inputs, length: mnemonic.length });
+    }, [mnemonic.length]);
+
+    const handlePaste: React.ClipboardEventHandler<HTMLInputElement> = (event) => {
+        event.clipboardData.items[0].getAsString((text) => {
+            const inputValues = text.split(' ');
+            const valuesLength = inputValues.length;
+
+            if (checkMnemonicLength(valuesLength)) {
+                setMnemonic({ length: valuesLength, values: inputValues });
+            }
+        });
+    };
 
     const onInputChange = (value: string, index: number) => {
-        const newValues = [...inputsValues];
+        const newValues = [...mnemonic.values];
 
         newValues[index] = value;
 
-        setInputsValues(newValues);
+        setMnemonic({ values: newValues, length: mnemonic.length });
     };
 
     const onSubmit = () => {
-        const mnemonic = inputsValues.join(' ');
+        let mnemonicString = mnemonic.values.join(' ');
+        mnemonicString = mnemonicString.trim();
 
         /* if (extraWord) {
             mnemonic += ' ' + extraWord;
         } */
 
-        signInWithMnemonic(mnemonic);
+        signInWithMnemonic(mnemonicString);
     };
 
     const isEmptyField = () => {
-        return inputsValues.findIndex((input) => input.length === 0) !== -1;
+        return mnemonic.values.findIndex((input) => input.length === 0) !== -1;
     };
 
     return (
@@ -84,20 +94,23 @@ const ImportMnemonic = (): JSX.Element => {
                                     id="mnemonicLength"
                                     offLabel="12"
                                     onLabel="24"
-                                    checked={mnemonicLength === 24}
-                                    onChange={(event) => setMnemonicLength(event.target.checked ? 24 : 12)}
+                                    checked={mnemonic.length === 24}
+                                    onChange={(event) =>
+                                        setMnemonic({ length: event.target.checked ? 24 : 12, values: mnemonic.values })
+                                    }
                                 />
                                 <h6>Values</h6>
                             </div>
                         </div>
                         <div className="container-fluid py-4">
                             <div className="row gy-4">
-                                {inputsValues.map((input, index) => (
+                                {mnemonic.values.map((input, index) => (
                                     <div className="col-4" key={index}>
                                         <Input
                                             ref={register}
                                             value={input}
                                             required
+                                            onPaste={handlePaste}
                                             onChange={(event) => onInputChange(event.target.value, index)}
                                             inputStyle="custom"
                                             name={`mnemonicInput${index}`}
