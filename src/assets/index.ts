@@ -22,6 +22,13 @@ import dashboardIcon from './images/dashboard.png';
 import copyIcon from './images/copy.png';
 import qrIcon from './images/qr.png';
 import lumTicker from './images/lum_ticker.png';
+import messageDelegate from './images/messageDelegate.svg';
+import messageCreateValidator from './images/messageCreateValidator.svg';
+import messageEditValidator from './images/messageEditValidator.svg';
+import messageGetReward from './images/messageGetReward.svg';
+import messageMultiSend from './images/messageMultiSend.svg';
+import messageSend from './images/messageSend.svg';
+import messageUndelegate from './images/messageUndelegate.svg';
 
 export default {
     images: {
@@ -49,5 +56,12 @@ export default {
         copyIcon,
         qrIcon,
         lumTicker,
+        messageCreateValidator,
+        messageDelegate,
+        messageEditValidator,
+        messageGetReward,
+        messageSend,
+        messageUndelegate,
+        messageMultiSend,
     },
 };
