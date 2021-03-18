@@ -24,7 +24,7 @@ const Modal = (props: Props): JSX.Element => {
                             data-bs-dismiss="modal"
                             data-bs-target={id}
                             aria-label="Close"
-                        ></button>
+                        />
                     )}
                     <div className={`modal-body mx-auto ${bodyClassName}`}>{children}</div>
                 </div>
