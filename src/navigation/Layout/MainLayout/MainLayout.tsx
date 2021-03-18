@@ -28,12 +28,12 @@ class MainLayout extends PureComponent<Props> {
 
         return (
             <nav
-                className={`ps-md-2 pe-md-4 py-3 position-fixed w-100 justify-content-center justify-content-lg-between navbar navbar-expand-lg ${
+                className={`ps-lg-2 pe-lg-4 py-3 position-fixed w-100 justify-content-center justify-content-lg-between navbar navbar-expand-lg ${
                     bottom ? 'bottom-navbar' : ''
                 }`}
             >
                 {!bottom && (
-                    <img src={assets.images.lumWallet} width="107" height="28" className="lum-logo me-5 ms-4" />
+                    <img src={assets.images.lumWallet} width="107" height="28" className="lum-logo me-lg-5 ms-lg-4" />
                 )}
                 <ul className="navbar-nav me-md-auto">
                     <li>

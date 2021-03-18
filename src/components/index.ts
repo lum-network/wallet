@@ -8,3 +8,4 @@ export { default as Button } from './Buttons/Button';
 export { default as ToastCloseButton } from './Buttons/ToastCloseButton';
 export { default as Modal } from './Modals/Modal';
 export { default as Footer } from './Footer/Footer';
+export { default as Tooltip } from './Tooltip/Tooltip';
