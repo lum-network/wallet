@@ -45,33 +45,34 @@ class WalletUtils {
     };
 
     getWalletInformations = async (address: string) => {
-        if (this.lumClient) {
-            try {
-                const account = await this.lumClient.getAccountUnverified(address);
-                return account;
-            } catch (e) {
-                console.log(e);
-            }
+        if (this.lumClient === null) {
+            return null;
         }
-        return null;
+
+        try {
+            const account = await this.lumClient.getAccountUnverified(address);
+            return account;
+        } catch (e) {
+            console.log(e);
+        }
     };
 
     sendTx = async (fromWallet: LumWallet, to: string, amount: string) => {
-        if (this.lumClient) {
-            const sendMsg = LumMessages.BuildMsgSend(fromWallet.address, to, [
-                { denom: LumConstants.LumDenom, amount },
-            ]);
-
-            const fee = {
-                amount: [{ denom: LumConstants.LumDenom, amount: '1' }],
-                gas: '100000',
-            };
-
-            // Sign and broadcast the transaction using the client
-            const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, [sendMsg], fee, 'hello memo!');
-            // Verify the transaction was succesfully broadcasted and made it into a block
-            console.log(`Broadcast success: ${LumUtils.broadcastTxCommitSuccess(broadcastResult)}`);
+        if (this.lumClient === null) {
+            return;
         }
+
+        const sendMsg = LumMessages.BuildMsgSend(fromWallet.address, to, [{ denom: LumConstants.LumDenom, amount }]);
+
+        const fee = {
+            amount: [{ denom: LumConstants.LumDenom, amount: '1' }],
+            gas: '100000',
+        };
+
+        // Sign and broadcast the transaction using the client
+        const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, [sendMsg], fee, 'hello memo!');
+        // Verify the transaction was succesfully broadcasted and made it into a block
+        console.log(`Broadcast success: ${LumUtils.broadcastTxCommitSuccess(broadcastResult)}`);
     };
 }
 

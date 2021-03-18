@@ -16,20 +16,23 @@ import Button from 'components/Buttons/Button';
 type MethodModalType = 'mnemonic' | 'privateKey' | 'keystore';
 
 const Welcome = (): JSX.Element => {
+    // State
+    const [selectedMethod, setSelectedMethod] = useState<MethodModalType | null>(null);
+    const [selectedMethodTemp, setSelectedMethodTemp] = useState<MethodModalType | null>(null);
+    const [keystoreFile, setKeystoreFile] = useState<File | null>(null);
+
+    // Redux hooks
     const wallet = useSelector((state: RootState) => state.wallet.currentWallet);
-    const history = useHistory();
 
     if (wallet) {
         return <Redirect to="/home" />;
     }
 
+    // Utils hooks
+    const history = useHistory();
     const { t } = useTranslation();
 
-    const [selectedMethod, setSelectedMethod] = useState<MethodModalType | null>(null);
-    const [selectedMethodTemp, setSelectedMethodTemp] = useState<MethodModalType | null>(null);
-    const [keystoreFile, setKeystoreFile] = useState<File | null>(null);
-
-    // UPDATE MODAL LISTENER
+    // Effects
     useEffect(() => {
         const importSoftwareDocumentModal = document.getElementById('importSoftwareModal');
 
@@ -54,9 +57,9 @@ const Welcome = (): JSX.Element => {
         }
     }, [selectedMethod, selectedMethodTemp, keystoreFile]);
 
-    // SOFTWARE IMPORT MODALS
+    // SOFTWARE IMPORT MODAL
     const importSoftwareModal = (
-        <Modal id="importSoftwareModal" bodyClassName="px-4" contentClassName="px-3">
+        <Modal id="importSoftwareModal" bodyClassName="px-4" contentClassName="px-3 import-modal-content">
             <p className="danger-text">{t('welcome.softwareModal.notRecommanded')}</p>
             <h3 className="mt-4">{t('welcome.softwareModal.title')}</h3>
             <p>{t('welcome.softwareModal.notRecommandedDescription')}</p>
@@ -146,7 +149,7 @@ const Welcome = (): JSX.Element => {
                     <div className="row justify-content-center gy-4">
                         <div className="col-12 col-lg-3">
                             <a href="/import/hardware" className="text-reset text-decoration-none">
-                                <Card className="scale-anim text-center btn-padding h-100 w-100">
+                                <Card className="auth-card scale-anim text-center btn-padding h-100 w-100">
                                     <img
                                         src={Assets.images.hardwareIcon}
                                         className="img-fluid mb-3"
@@ -166,7 +169,7 @@ const Welcome = (): JSX.Element => {
                                 data-bs-toggle="modal"
                                 data-bs-target="#importSoftwareModal"
                             >
-                                <Card className="scale-anim text-center btn-padding h-100 w-100">
+                                <Card className="auth-card scale-anim text-center btn-padding h-100 w-100">
                                     <img
                                         src={Assets.images.softwareIcon}
                                         className="img-fluid mb-4"

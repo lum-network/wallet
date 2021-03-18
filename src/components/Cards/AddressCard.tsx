@@ -11,7 +11,8 @@ import { useTranslation } from 'react-i18next';
 const AddressCard = ({ address }: { address: string }): JSX.Element => {
     useEffect(() => {
         const clipboard = new ClipboardJS('#copy-btn');
-        clipboard.on('success', () => {
+        clipboard.on('success', (e) => {
+            e.clearSelection();
             const btnEl = document.getElementById('copy-btn');
             if (btnEl) {
                 const tooltip = new Tooltip(btnEl, { placement: 'bottom', title: 'Copied!', trigger: 'manual' });
@@ -28,7 +29,7 @@ const AddressCard = ({ address }: { address: string }): JSX.Element => {
         return () => {
             clipboard.destroy();
         };
-    }, []);
+    });
 
     const { t } = useTranslation();
 
