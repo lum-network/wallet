@@ -4,6 +4,7 @@ import { withTranslation, WithTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
 import { NavLink } from 'react-router-dom';
 import store, { RootState } from 'redux/store';
+import { LOGOUT } from 'redux/constants';
 import { Footer } from 'components';
 
 import './MainLayout.scss';
@@ -117,7 +118,7 @@ class MainLayout extends PureComponent<Props> {
                                         activeClassName="selected-navbar-item"
                                         // NavLink prop workaround to always apply selected-navbar-item style
                                         isActive={() => true}
-                                        onClick={() => store.dispatch({ type: 'LOGOUT' })}
+                                        onClick={() => store.dispatch({ type: LOGOUT })}
                                     >
                                         Logout
                                     </NavLink>
