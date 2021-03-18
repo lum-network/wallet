@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useForm } from 'react-hook-form';
 
 import { useRematchDispatch } from 'redux/hooks';
 import { RootDispatch, RootState } from 'redux/store';
@@ -14,19 +13,22 @@ import { useHistory } from 'react-router-dom';
 import { MnemonicLength, checkMnemonicLength } from 'utils';
 
 const ImportMnemonic = (): JSX.Element => {
+    // State
     const [mnemonic, setMnemonic] = useState({ length: 12 as MnemonicLength, values: [] as string[] });
     /* const [isExtraWord, setIsExtraWord] = useState(false);
     const [extraWord, setExtraWord] = useState(''); */
 
-    const { register, handleSubmit } = useForm();
-    const { t } = useTranslation();
-    const history = useHistory();
-
+    // Redux hooks
     const wallet = useSelector((state: RootState) => state.wallet.currentWallet);
     const { signInWithMnemonic } = useRematchDispatch((dispatch: RootDispatch) => ({
         signInWithMnemonic: dispatch.wallet.signInWithMnemonicAsync,
     }));
 
+    // Utils hooks
+    const { t } = useTranslation();
+    const history = useHistory();
+
+    // Effects
     useEffect(() => {
         if (wallet) {
             history.push('/home');
@@ -43,6 +45,7 @@ const ImportMnemonic = (): JSX.Element => {
         setMnemonic({ values: inputs, length: mnemonic.length });
     }, [mnemonic.length]);
 
+    // Methods
     const handlePaste: React.ClipboardEventHandler<HTMLInputElement> = (event) => {
         event.clipboardData.items[0].getAsString((text) => {
             const inputValues = text.split(' ');
@@ -107,7 +110,6 @@ const ImportMnemonic = (): JSX.Element => {
                                 {mnemonic.values.map((input, index) => (
                                     <div className="col-4" key={index}>
                                         <Input
-                                            ref={register}
                                             value={input}
                                             required
                                             onPaste={handlePaste}
@@ -152,7 +154,7 @@ const ImportMnemonic = (): JSX.Element => {
                         )} */}
                         <Button
                             type="submit"
-                            onClick={handleSubmit(onSubmit)}
+                            onClick={onSubmit}
                             data-bs-dismiss="modal"
                             data-bs-target="mnemonicModal"
                             disabled={isEmptyField()}

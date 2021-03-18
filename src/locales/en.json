@@ -2,7 +2,8 @@
     "common": {
         "continue": "Continue",
         "address": "Address",
-        "send": "Send"
+        "send": "Send",
+        "required": "Required"
     },
     "dashboard": {
         "latestTx": "Latest Transactions",

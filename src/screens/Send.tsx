@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import React from 'react';
+import { useFormik } from 'formik';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useRematchDispatch } from 'redux/hooks';
@@ -10,30 +10,39 @@ import { AddressCard, BalanceCard, Input } from 'components';
 import { Redirect } from 'react-router';
 
 const Send = (): JSX.Element => {
+    // Redux hooks
     const { wallet, currentBalance } = useSelector((state: RootState) => ({
         wallet: state.wallet.currentWallet,
         currentBalance: state.wallet.currentBalance,
+    }));
+    const { sendTx } = useRematchDispatch((dispatch: RootDispatch) => ({
+        sendTx: dispatch.wallet.sendTx,
     }));
 
     if (!wallet) {
         return <Redirect to="/welcome" />;
     }
 
-    const [recipientAddress, setRecipientAddress] = useState('');
-    const [amount, setAmount] = useState('');
-    const [fees, setFees] = useState('');
+    // Form hook
+    const formik = useFormik({
+        initialValues: {
+            from: wallet.address,
+            to: '',
+            amount: '',
+            fees: '',
+        },
+        onSubmit: (values) => onSend(values.to, values.amount),
+    });
 
-    const { sendTx } = useRematchDispatch((dispatch: RootDispatch) => ({
-        sendTx: dispatch.wallet.sendTx,
-    }));
-    const { register, handleSubmit } = useForm();
+    // Utils hooks
     const { t } = useTranslation();
 
-    const onSend = (data: { to: string; amount: string }) => {
+    // Methods
+    const onSend = (to: string, amount: string) => {
         sendTx({
-            to: data.to,
+            to,
             from: wallet,
-            amount: amount,
+            amount,
             ticker: 'LUM',
         });
     };
@@ -50,14 +59,12 @@ const Send = (): JSX.Element => {
                     </div>
                     <div className="col">
                         <Card className="px-3 py-2">
-                            <form onSubmit={handleSubmit(onSend)} className="row">
+                            <form onSubmit={formik.handleSubmit} className="row">
                                 <div className="col-6">
                                     <Input
-                                        ref={register}
-                                        name="from"
+                                        {...formik.getFieldProps('from')}
                                         disabled
                                         className="mb-4"
-                                        value={wallet.address}
                                         inputClass="form-control"
                                         label="Sender"
                                         id="senderInput"
@@ -65,36 +72,39 @@ const Send = (): JSX.Element => {
                                 </div>
                                 <div className="col-6">
                                     <Input
-                                        ref={register}
-                                        name="to"
+                                        {...formik.getFieldProps('to')}
                                         required
                                         className="mb-4"
-                                        onChange={(event) => setRecipientAddress(event.target.value)}
                                         inputClass="form-control"
-                                        value={recipientAddress}
                                         label="Recipient"
                                         id="recipientInput"
                                     />
                                 </div>
                                 <div className="col-6">
                                     <Input
-                                        ref={register}
-                                        name="amount"
+                                        {...formik.getFieldProps('amount')}
                                         required
                                         className="mb-4"
                                         inputClass="form-control"
                                         onChange={(event) => {
-                                            setAmount(event.target.value);
-                                            setFees((parseFloat(event.target.value) / 10).toFixed(5));
+                                            formik.handleChange(event);
+                                            formik.setFieldValue(
+                                                'fees',
+                                                (parseFloat(event.target.value) / 10).toFixed(5),
+                                            );
                                         }}
-                                        value={amount}
                                         type="number"
                                         label="Amount"
                                         id="amountInput"
                                     />
                                 </div>
                                 <div className="col-6">
-                                    <Input inputClass="form-control" value={fees} disabled label="Transaction Fees" />
+                                    <Input
+                                        {...formik.getFieldProps('fees')}
+                                        inputClass="form-control"
+                                        disabled
+                                        label="Transaction Fees"
+                                    />
                                 </div>
                                 <div className="col">
                                     <button className="btn btn-primary" type="submit">

@@ -16,20 +16,23 @@ import Button from 'components/Buttons/Button';
 type MethodModalType = 'mnemonic' | 'privateKey' | 'keystore';
 
 const Welcome = (): JSX.Element => {
+    // State
+    const [selectedMethod, setSelectedMethod] = useState<MethodModalType | null>(null);
+    const [selectedMethodTemp, setSelectedMethodTemp] = useState<MethodModalType | null>(null);
+    const [keystoreFile, setKeystoreFile] = useState<File | null>(null);
+
+    // Redux hooks
     const wallet = useSelector((state: RootState) => state.wallet.currentWallet);
-    const history = useHistory();
 
     if (wallet) {
         return <Redirect to="/home" />;
     }
 
+    // Utils hooks
+    const history = useHistory();
     const { t } = useTranslation();
 
-    const [selectedMethod, setSelectedMethod] = useState<MethodModalType | null>(null);
-    const [selectedMethodTemp, setSelectedMethodTemp] = useState<MethodModalType | null>(null);
-    const [keystoreFile, setKeystoreFile] = useState<File | null>(null);
-
-    // UPDATE MODAL LISTENER
+    // Effects
     useEffect(() => {
         const importSoftwareDocumentModal = document.getElementById('importSoftwareModal');
 
@@ -54,7 +57,7 @@ const Welcome = (): JSX.Element => {
         }
     }, [selectedMethod, selectedMethodTemp, keystoreFile]);
 
-    // SOFTWARE IMPORT MODALS
+    // SOFTWARE IMPORT MODAL
     const importSoftwareModal = (
         <Modal id="importSoftwareModal" bodyClassName="px-4" contentClassName="px-3 import-modal-content">
             <p className="danger-text">{t('welcome.softwareModal.notRecommanded')}</p>

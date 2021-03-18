@@ -28,7 +28,7 @@ const AddressCard = ({ address }: { address: string }): JSX.Element => {
         return () => {
             clipboard.destroy();
         };
-    }, []);
+    });
 
     const { t } = useTranslation();
 

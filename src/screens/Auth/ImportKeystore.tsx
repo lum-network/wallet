@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react';
 import { Redirect, useHistory, useLocation } from 'react-router';
-import { useForm } from 'react-hook-form';
-import { joiResolver } from '@hookform/resolvers/joi';
-import joi from 'joi';
+import { useFormik } from 'formik';
+import * as yup from 'yup';
 import { Button, Card } from 'frontend-elements';
 
 import AuthLayout from './components/AuthLayout';
@@ -12,49 +11,50 @@ import { useRematchDispatch } from 'redux/hooks';
 import { RootDispatch, RootState } from 'redux/store';
 import { useSelector } from 'react-redux';
 
-const validationSchema = joi.object({
-    privateKey: joi.string().required().min(9).messages({
-        'string.min': 'Please enter at least 9 characters',
-        'string.empty': 'Please enter at least 9 characters',
-    }),
-});
-
 interface ImportKeystoreLocationState {
     fileData: string;
 }
 
 const ImportKeystore = (): JSX.Element => {
+    // Redux hooks
+    const { signInWithKeystoreFile } = useRematchDispatch((dispatch: RootDispatch) => ({
+        signInWithKeystoreFile: dispatch.wallet.signInWithKeystoreAsync,
+    }));
+    const wallet = useSelector((state: RootState) => state.wallet.currentWallet);
+
+    // Utils hooks
+    const { t } = useTranslation();
+    const history = useHistory();
     const location = useLocation<ImportKeystoreLocationState>();
 
-    if (!location.state) {
+    // If keystore file data is missing, redirect the user to welcom page
+    if (!location.state || !location.state.fileData) {
         return <Redirect to="/welcome" />;
     }
 
     const { fileData } = location.state;
 
     // Form hook
-    const {
-        register: privateKeyFormRegister,
-        handleSubmit: privateKeyFormSubmit,
-        setValue: setPrivateKeyPassword,
-        formState: privateKeyPasswordFormState,
-    } = useForm<{ privateKey: string }>({ defaultValues: { privateKey: '' }, resolver: joiResolver(validationSchema) });
+    const formik = useFormik({
+        initialValues: {
+            password: '',
+        },
+        validationSchema: yup.object().shape({
+            password: yup.string().min(9, 'Please enter at least 9 characters').required(t('common.required')),
+        }),
+        onSubmit: (values) => onSubmitPassword(values.password),
+    });
 
-    const wallet = useSelector((state: RootState) => state.wallet.currentWallet);
-    const { t } = useTranslation();
-    const history = useHistory();
+    // Effects
     useEffect(() => {
         if (wallet) {
             history.push('/home');
         }
     }, [wallet]);
 
-    const { signInWithKeystoreFile } = useRematchDispatch((dispatch: RootDispatch) => ({
-        signInWithKeystoreFile: dispatch.wallet.signInWithKeystoreAsync,
-    }));
-
-    const onSubmitPassword = (data: { privateKey: string }) => {
-        signInWithKeystoreFile({ data: fileData, password: data.privateKey });
+    // Methods
+    const onSubmitPassword = (password: string) => {
+        signInWithKeystoreFile({ data: fileData, password });
     };
 
     return (
@@ -71,21 +71,14 @@ const ImportKeystore = (): JSX.Element => {
                     <div className="mb-4rem text-start">
                         <h3 className="text-center">Your Password</h3>
                         <Input
-                            ref={privateKeyFormRegister}
+                            {...formik.getFieldProps('password')}
                             type="password"
-                            name="privateKey"
-                            onChange={(event) => {
-                                const newValue = event.target.value;
-                                setPrivateKeyPassword('privateKey', newValue, { shouldValidate: true });
-                            }}
                             placeholder="•••••••••"
                             className="mt-4"
                         />
-                        {privateKeyPasswordFormState.errors.privateKey?.message && (
-                            <p>{privateKeyPasswordFormState.errors.privateKey.message}</p>
-                        )}
+                        {formik.touched.password && formik.errors.password && <p>{formik.errors.password}</p>}
                     </div>
-                    <Button onPress={privateKeyFormSubmit(onSubmitPassword)} className="mt-4 py-4 rounded-pill">
+                    <Button onPress={formik.handleSubmit} className="mt-4 py-4 rounded-pill">
                         Continue
                     </Button>
                     <div className="mt-4rem">

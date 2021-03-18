@@ -59,8 +59,7 @@ export const wallet = createModel<RootModel>()({
             try {
                 const wallet = await LumWallet.fromMnemonic(payload);
 
-                const accountInfos = await WalletUtils.getWalletInformations(wallet.address);
-                console.log(accountInfos);
+                //const accountInfos = await WalletUtils.getWalletInformations(wallet.address);
                 dispatch.wallet.signIn(wallet);
             } catch (e) {
                 showErrorToast(e.message);
@@ -70,8 +69,7 @@ export const wallet = createModel<RootModel>()({
             try {
                 const wallet = await LumWallet.fromPrivateKey(LumUtils.keyFromHex(payload));
 
-                const accountInfos = await WalletUtils.getWalletInformations(wallet.address);
-                console.log(accountInfos);
+                //const accountInfos = await WalletUtils.getWalletInformations(wallet.address);
                 dispatch.wallet.signIn(wallet);
             } catch (e) {
                 showErrorToast(e.message);
@@ -82,6 +80,7 @@ export const wallet = createModel<RootModel>()({
             try {
                 const wallet = await LumWallet.fromKeyStore(data, password);
 
+                //const accountInfos = await WalletUtils.getWalletInformations(wallet.address);
                 dispatch.wallet.signIn(wallet);
             } catch (e) {
                 showErrorToast(e.message);

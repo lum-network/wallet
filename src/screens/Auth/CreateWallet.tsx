@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-import { useRematchDispatch } from 'redux/hooks';
-import { RootDispatch, RootState } from 'redux/store';
-import { joiResolver } from '@hookform/resolvers/joi';
-import joi from 'joi';
+import { useFormik } from 'formik';
+import * as yup from 'yup';
 import { LumUtils } from '@lum-network/sdk-javascript';
 
 import { Card, Button } from 'frontend-elements';
 import Assets from 'assets';
 import { Input, SwitchInput } from 'components';
 import { PasswordStrength, PasswordStrengthType } from 'models';
+import { useRematchDispatch } from 'redux/hooks';
+import { RootDispatch, RootState } from 'redux/store';
 
 import AuthLayout from './components/AuthLayout';
 import WelcomeCarousel from './components/WelcomeCarousel';
@@ -21,13 +20,6 @@ import { MnemonicLength, WalletUtils } from 'utils';
 import printJS from 'print-js';
 
 type CreationType = 'mnemonic' | 'keystore' | 'privateKey';
-
-const validationSchema = joi.object({
-    privateKey: joi.string().required().min(9).messages({
-        'string.min': 'Please enter at least 9 characters',
-        'string.empty': 'Please enter at least 9 characters',
-    }),
-});
 
 const CreateWallet = (): JSX.Element => {
     // State values
@@ -52,12 +44,15 @@ const CreateWallet = (): JSX.Element => {
     const { t } = useTranslation();
 
     // Form hook
-    const {
-        register: privateKeyFormRegister,
-        handleSubmit: privateKeyFormSubmit,
-        setValue: setPrivateKeyPassword,
-        formState: privateKeyPasswordFormState,
-    } = useForm<{ privateKey: string }>({ defaultValues: { privateKey: '' }, resolver: joiResolver(validationSchema) });
+    const formik = useFormik({
+        initialValues: {
+            password: '',
+        },
+        validationSchema: yup.object().shape({
+            password: yup.string().min(9, 'Please enter at least 9 characters').required(t('common.required')),
+        }),
+        onSubmit: (values) => onSubmitPassword(values.password),
+    });
 
     // Effects
     useEffect(() => {
@@ -81,9 +76,9 @@ const CreateWallet = (): JSX.Element => {
         setInputsValues(WalletUtils.generateMnemonic(mnemonicLength));
     };
 
-    const onSubmitPassword = (data: { privateKey: string }) => {
-        setKeystoreFilePassword(data.privateKey);
-        setKeystoreFileData(WalletUtils.generateKeystoreFile(data.privateKey));
+    const onSubmitPassword = (password: string) => {
+        setKeystoreFilePassword(password);
+        setKeystoreFileData(WalletUtils.generateKeystoreFile(password));
     };
 
     const continueWithMnemonic = () => {
@@ -188,12 +183,11 @@ const CreateWallet = (): JSX.Element => {
             <div className="mb-4rem text-start">
                 <h3 className="text-center">Your Password</h3>
                 <Input
-                    ref={privateKeyFormRegister}
+                    {...formik.getFieldProps('password')}
                     type="password"
-                    name="privateKey"
                     onChange={(event) => {
                         const newValue = event.target.value;
-                        setPrivateKeyPassword('privateKey', newValue, { shouldValidate: true });
+                        formik.handleChange(event);
                         setPasswordStrength(WalletUtils.checkPwdStrength(newValue));
                     }}
                     placeholder="•••••••••"
@@ -213,11 +207,9 @@ const CreateWallet = (): JSX.Element => {
                         {passwordStrength}
                     </span>
                 </p>
-                {privateKeyPasswordFormState.errors.privateKey?.message && (
-                    <p>{privateKeyPasswordFormState.errors.privateKey.message}</p>
-                )}
+                {formik.touched.password && formik.errors.password && <p>{formik.errors.password}</p>}
             </div>
-            <Button onPress={privateKeyFormSubmit(onSubmitPassword)} className="mt-4 py-4 rounded-pill">
+            <Button onPress={formik.handleSubmit} className="mt-4 py-4 rounded-pill">
                 Continue
             </Button>
             <div className="mt-4rem">

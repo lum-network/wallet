@@ -11,14 +11,16 @@ import './styles/Dashboard.scss';
 import { LUM_TWITTER } from 'constant';
 
 const Dashboard = (): JSX.Element => {
-    const { t } = useTranslation();
-
+    // Redux hooks
     const { transactions, balance, wallet } = useSelector((state: RootState) => ({
         loading: state.loading.global,
         transactions: state.wallet.transactions,
         balance: state.wallet.currentBalance,
         wallet: state.wallet.currentWallet,
     }));
+
+    // Utils hooks
+    const { t } = useTranslation();
 
     if (!wallet) {
         return <Redirect to="/welcome" />;

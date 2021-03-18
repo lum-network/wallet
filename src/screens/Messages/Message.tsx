@@ -9,16 +9,21 @@ import { Button, Card } from 'frontend-elements';
 import './styles/Messages.scss';
 
 const Message = (): JSX.Element => {
-    const wallet = useSelector((state: RootState) => state.wallet.currentWallet);
+    // State
+    const [message, setMessage] = useState('');
+    const [messageToVerify, setMessageToVerify] = useState('');
+
+    // Redux hooks
+    const { wallet, currentBalance } = useSelector((state: RootState) => ({
+        wallet: state.wallet.currentWallet,
+        currentBalance: state.wallet.currentBalance,
+    }));
 
     if (!wallet) {
         return <Redirect to="/welcome" />;
     }
 
-    const currentBalance = useSelector((state: RootState) => state.wallet.currentBalance);
-    const [message, setMessage] = useState('');
-    const [messageToVerify, setMessageToVerify] = useState('');
-
+    // Methods
     const handleSign = () => {
         // Sign message
     };
