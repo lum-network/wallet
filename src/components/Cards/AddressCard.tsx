@@ -1,26 +1,23 @@
-import React, { useEffect } from 'react';
-import { Tooltip } from 'bootstrap';
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import ClipboardJS from 'clipboard';
 import printJS from 'print-js';
 
 import assets from 'assets';
+import { Tooltip } from 'components';
 import { Card, CodeQr } from 'frontend-elements';
+
 import Modal from '../Modals/Modal';
-import { useTranslation } from 'react-i18next';
 
 const AddressCard = ({ address }: { address: string }): JSX.Element => {
+    const [showTooltip, setShowTooltip] = useState(false);
+
     useEffect(() => {
         const clipboard = new ClipboardJS('#copy-btn');
         clipboard.on('success', (e) => {
             e.clearSelection();
-            const btnEl = document.getElementById('copy-btn');
-            if (btnEl) {
-                const tooltip = new Tooltip(btnEl, { placement: 'bottom', title: 'Copied!', trigger: 'manual' });
-                tooltip.show();
-                setTimeout(() => {
-                    tooltip.hide();
-                }, 1500);
-            }
+            setShowTooltip(true);
+            setTimeout(() => setShowTooltip(false), 1000);
         });
         clipboard.on('error', (e) => {
             console.log(e);
@@ -51,9 +48,11 @@ const AddressCard = ({ address }: { address: string }): JSX.Element => {
                         <img src={assets.images.qrIcon} />
                     </button>
                     {ClipboardJS.isSupported() && (
-                        <button type="button" id="copy-btn" data-clipboard-text={address} className="me-2">
-                            <img src={assets.images.copyIcon} />
-                        </button>
+                        <Tooltip show={showTooltip} content="Copied!" className="me-2" direction="bottom">
+                            <button type="button" id="copy-btn" data-clipboard-text={address}>
+                                <img src={assets.images.copyIcon} />
+                            </button>
+                        </Tooltip>
                     )}
                     <button type="button" className="tint-white" onClick={printAddress}>
                         <img src={assets.images.printIcon} />
