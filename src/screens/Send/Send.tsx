@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
+import { useFormik } from 'formik';
+import * as yup from 'yup';
 
 import { AddressCard, BalanceCard, Input, Modal } from 'components';
 import { Redirect } from 'react-router';
@@ -9,12 +11,17 @@ import assets from 'assets';
 import { LumMessages } from '@lum-network/sdk-javascript';
 import { WalletUtils } from 'utils';
 import { Button } from 'frontend-elements';
+import { useTranslation } from 'react-i18next';
+
+import './Send.scss';
 
 type MsgType = { name: string; icon: string; id: string };
 
 const Send = (): JSX.Element => {
     const wallet = useSelector((state: RootState) => state.wallet.currentWallet);
     const balance = useSelector((state: RootState) => state.wallet.currentBalance);
+
+    const { t } = useTranslation();
 
     const [modal, setModal] = useState<MsgType | null>(null);
 
@@ -32,10 +39,19 @@ const Send = (): JSX.Element => {
         return <Redirect to="/welcome" />;
     }
 
-    const onClickSendTx = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
+    const sendForm = useFormik({
+        initialValues: { address: '', amount: '', memo: '' },
+        validationSchema: yup.object().shape({
+            address: yup.string().required(t('common.required')),
+            amount: yup.string().required(t('common.required')),
+            memo: yup.string(),
+        }),
+        onSubmit: (values) => onSubmitSend(values.address, values.amount, values.memo),
+    });
 
-        WalletUtils.sendTx(wallet, 'lum1raaxnchq5v6ykpksla4wudsn6u39u8dlcacyzd', '15', 'Test');
+    const onSubmitSend = (address: string, amount: string, memo: string) => {
+        console.log('hello');
+        WalletUtils.sendTx(wallet, address, amount, memo).then(() => null);
     };
 
     const onClickButton = (msg: MsgType) => {
@@ -43,15 +59,27 @@ const Send = (): JSX.Element => {
     };
 
     const renderSend = (
-        <form className="row w-100 align-items-start text-start mt-3" onSubmit={onClickSendTx}>
+        <form className="row w-100 align-items-start text-start mt-3">
             <div className="col-12">
-                <Input placeholder="Amount" label="Amount" />
+                <Input {...sendForm.getFieldProps('amount')} placeholder="Amount" label="Amount" />
+                {sendForm.touched.amount && sendForm.errors.amount && (
+                    <p className="ms-2 color-error">{sendForm.errors.amount}</p>
+                )}
             </div>
-            <div className="col-12 mt-3">
-                <Input placeholder="To address" label="To Address" />
+            <div className="col-12 mt-4">
+                <Input {...sendForm.getFieldProps('address')} placeholder="To address" label="To Address" />
+                {sendForm.touched.address && sendForm.errors.address && (
+                    <p className="ms-2 color-error">{sendForm.errors.address}</p>
+                )}
             </div>
-            <div className="justify-content-center mt-3 col-10 offset-1 col-sm-6 offset-sm-3">
-                <Button onPress={() => null}>Send</Button>
+            <div className="col-12 mt-4">
+                <Input {...sendForm.getFieldProps('memo')} placeholder="Memo" label="Memo" />
+                {sendForm.touched.memo && sendForm.errors.memo && (
+                    <p className="ms-2 color-error">{sendForm.errors.memo}</p>
+                )}
+            </div>
+            <div className="justify-content-center mt-4 col-10 offset-1 col-sm-6 offset-sm-3">
+                <Button onPress={sendForm.handleSubmit}>Send</Button>
             </div>
         </form>
     );
