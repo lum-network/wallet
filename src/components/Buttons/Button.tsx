@@ -15,7 +15,7 @@ const Button = (props: ButtonProps): JSX.Element => {
             className={`${
                 buttonType === 'normal'
                     ? 'normal-btn scale-anim d-flex justify-content-center px-5 py-3 rounded-pill'
-                    : ''
+                    : 'scale-anim'
             } ${className}`}
         >
             {children}

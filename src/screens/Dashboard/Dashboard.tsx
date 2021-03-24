@@ -31,7 +31,7 @@ const Dashboard = (): JSX.Element => {
             <div className="container">
                 <div className="row gy-4">
                     <div className="col-lg-5 col-12">
-                        <AddressCard address={wallet.address} />
+                        <AddressCard address={wallet.getAddress()} />
                     </div>
                     <div className="col-lg-5 col-12">
                         <BalanceCard balance={balance} />

@@ -1,4 +1,4 @@
-import { LumUtils, LumWallet } from '@lum-network/sdk-javascript';
+import { LumUtils, LumWalletFactory, LumWallet } from '@lum-network/sdk-javascript';
 import { createModel } from '@rematch/core';
 import { RootModel, Transaction } from '../../models';
 import { showErrorToast, WalletUtils } from 'utils';
@@ -57,20 +57,32 @@ export const wallet = createModel<RootModel>()({
         },
         async signInWithMnemonicAsync(payload: string) {
             try {
-                const wallet = await LumWallet.fromMnemonic(payload);
-
-                //const accountInfos = await WalletUtils.getWalletInformations(wallet.address);
+                const wallet = await LumWalletFactory.fromMnemonic(payload);
                 dispatch.wallet.signIn(wallet);
+
+                const accountInfos = await WalletUtils.getWalletInformations(wallet.getAddress());
+                if (accountInfos) {
+                    dispatch.wallet.setWalletData({
+                        currentBalance: accountInfos.currentBalance ? Number(accountInfos.currentBalance) : undefined,
+                        //transactions: accountInfos.transactions,
+                    });
+                }
             } catch (e) {
                 showErrorToast(e.message);
             }
         },
         async signInWithPrivateKeyAsync(payload: string) {
             try {
-                const wallet = await LumWallet.fromPrivateKey(LumUtils.keyFromHex(payload));
-
-                //const accountInfos = await WalletUtils.getWalletInformations(wallet.address);
+                const wallet = await LumWalletFactory.fromPrivateKey(LumUtils.keyFromHex(payload));
                 dispatch.wallet.signIn(wallet);
+
+                const accountInfos = await WalletUtils.getWalletInformations(wallet.getAddress());
+                if (accountInfos) {
+                    dispatch.wallet.setWalletData({
+                        currentBalance: accountInfos.currentBalance ? Number(accountInfos.currentBalance) : undefined,
+                        //transactions: accountInfos.transactions,
+                    });
+                }
             } catch (e) {
                 showErrorToast(e.message);
             }
@@ -78,10 +90,16 @@ export const wallet = createModel<RootModel>()({
         async signInWithKeystoreAsync(payload: SignInKeystorePayload) {
             const { data, password } = payload;
             try {
-                const wallet = await LumWallet.fromKeyStore(data, password);
-
-                //const accountInfos = await WalletUtils.getWalletInformations(wallet.address);
+                const wallet = await LumWalletFactory.fromKeyStore(data, password);
                 dispatch.wallet.signIn(wallet);
+
+                const accountInfos = await WalletUtils.getWalletInformations(wallet.getAddress());
+                if (accountInfos) {
+                    dispatch.wallet.setWalletData({
+                        currentBalance: accountInfos.currentBalance ? Number(accountInfos.currentBalance) : undefined,
+                        //transactions: accountInfos.transactions,
+                    });
+                }
             } catch (e) {
                 showErrorToast(e.message);
             }
@@ -91,7 +109,7 @@ export const wallet = createModel<RootModel>()({
                 ...payload,
                 id: `tx-${state.wallet.transactions.length}`,
                 amount: Number(payload.amount),
-                from: payload.from.address,
+                from: payload.from.getAddress(),
                 date: new Date(),
             };
 
