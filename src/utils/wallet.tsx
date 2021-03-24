@@ -72,13 +72,13 @@ class WalletUtils {
             return;
         }
 
-        // Build transaction message (Send 100 LUM)
+        // Build transaction message
         const sendMsg = LumMessages.BuildMsgSend(fromWallet.getAddress(), toAddress, [
             { denom: LumConstants.LumDenom, amount },
         ]);
-        // Define fees (1 LUM)
+        // Define fees (0 LUM)
         const fee = {
-            amount: [{ denom: LumConstants.LumDenom, amount: '1' }],
+            amount: [{ denom: LumConstants.LumDenom, amount: '0' }],
             gas: '100000',
         };
         // Fetch account number and sequence and chain id
@@ -102,7 +102,7 @@ class WalletUtils {
         };
         // Sign and broadcast the transaction using the client
         const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, doc);
-        // Verify the transaction was succesfully broadcasted and made it into a block
+        // Verify the transaction was successfully broadcasted and made it into a block
         console.log(`Broadcast success: ${LumUtils.broadcastTxCommitSuccess(broadcastResult)}`);
     };
 

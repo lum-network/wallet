@@ -47,8 +47,7 @@ export const wallet = createModel<RootModel>()({
         },
         addTransaction(state, tx: Transaction) {
             state.transactions.unshift(tx);
-            // TODO: Add Fees
-            state.currentBalance -= tx.amount + 1;
+            state.currentBalance -= tx.amount;
 
             return state;
         },
