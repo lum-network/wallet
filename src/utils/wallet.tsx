@@ -1,7 +1,6 @@
 import { LumUtils, LumClient, LumMessages, LumConstants, LumWallet } from '@lum-network/sdk-javascript';
-//import Crypto from 'crypto';
 import { LUM_TESTNET } from 'constant';
-import { PasswordStrengthType, PasswordStrength, SignMessageObject } from 'models';
+import { PasswordStrengthType, PasswordStrength } from 'models';
 
 export type MnemonicLength = 12 | 24;
 
@@ -68,15 +67,43 @@ class WalletUtils {
         }
     };
 
-    sendTx = async (fromWallet: LumWallet, to: string, amount: string) => {
+    sendTx = async (fromWallet: LumWallet, toAddress: string, amount: string, memo = '') => {
         if (this.lumClient === null) {
             return;
         }
 
+        // Build transaction message (Send 100 LUM)
+        const sendMsg = LumMessages.BuildMsgSend(fromWallet.getAddress(), toAddress, [
+            { denom: LumConstants.LumDenom, amount },
+        ]);
+        // Define fees (1 LUM)
+        const fee = {
+            amount: [{ denom: LumConstants.LumDenom, amount: '1' }],
+            gas: '100000',
+        };
+        // Fetch account number and sequence and chain id
+        const [account, chainId] = await Promise.all([
+            this.lumClient.getAccount(fromWallet.getAddress()),
+            this.lumClient.getChainId(),
+        ]);
+
+        if (!account || !chainId) {
+            return;
+        }
+
+        // Create the transaction document
+        const doc = {
+            accountNumber: account.accountNumber,
+            chainId,
+            fee,
+            memo,
+            messages: [sendMsg],
+            sequence: account.sequence,
+        };
         // Sign and broadcast the transaction using the client
-        //const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, [sendMsg], fee, 'hello memo!');
+        const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, doc);
         // Verify the transaction was succesfully broadcasted and made it into a block
-        //console.log(`Broadcast success: ${LumUtils.broadcastTxCommitSuccess(broadcastResult)}`);
+        console.log(`Broadcast success: ${LumUtils.broadcastTxCommitSuccess(broadcastResult)}`);
     };
 
     /* generateSignedMessage = async (wallet: LumWallet, message: string): Promise<SignMessageObject | null> => {

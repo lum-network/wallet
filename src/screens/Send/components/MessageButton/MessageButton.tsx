@@ -1,17 +1,19 @@
 import React from 'react';
-import './Button.scss';
+import './MessageButton.scss';
 import { Card } from 'frontend-elements';
 
 interface IProps {
     name: string;
     icon: string;
+    'data-bs-target': string;
+    'data-bs-toggle': string;
 }
 
-const Button = (props: IProps): JSX.Element => {
-    const { icon, name } = props;
+const MessageButton = (props: IProps): JSX.Element => {
+    const { icon, name, ...rest } = props;
 
     return (
-        <div className="message-button-container">
+        <div className="message-button-container" {...rest}>
             <Card className="d-flex align-items-center flex-column">
                 <div className="message-circle">
                     <img alt="image" src={icon} />
@@ -22,4 +24,4 @@ const Button = (props: IProps): JSX.Element => {
     );
 };
 
-export default Button;
+export default MessageButton;
