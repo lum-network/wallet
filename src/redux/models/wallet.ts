@@ -116,7 +116,7 @@ export const wallet = createModel<RootModel>()({
             };
 
             try {
-                await WalletUtils.sendTx(payload.from, payload.to, payload.amount);
+                await WalletUtils.sendTx(payload.from, payload.to, payload.amount, payload.memo);
             } catch (e) {
                 console.log(e);
                 return;
