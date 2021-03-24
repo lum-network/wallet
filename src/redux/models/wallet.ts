@@ -11,6 +11,13 @@ interface SendPayload {
     memo: string;
 }
 
+interface DelegatePayload {
+    validatorAddress: string;
+    from: LumWallet;
+    amount: string;
+    memo: string;
+}
+
 interface SignInKeystorePayload {
     data: LumUtils.KeyStore | string;
     password: string;
@@ -117,10 +124,19 @@ export const wallet = createModel<RootModel>()({
             try {
                 await WalletUtils.sendTx(payload.from, payload.to, payload.amount, payload.memo);
             } catch (e) {
-                console.log(e);
+                console.error(e);
                 return;
             }
             dispatch.wallet.addTransaction(tx);
+        },
+        async delegate(payload: DelegatePayload) {
+            try {
+                await WalletUtils.delegate(payload.from, payload.validatorAddress, payload.amount, payload.memo);
+            } catch (e) {
+                console.error(e);
+                return;
+            }
+            //TODO: Dispatch action
         },
     }),
 });

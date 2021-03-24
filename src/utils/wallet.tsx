@@ -106,6 +106,46 @@ class WalletUtils {
         console.log(`Broadcast success: ${LumUtils.broadcastTxCommitSuccess(broadcastResult)}`);
     };
 
+    delegate = async (fromWallet: LumWallet, validatorAddress: string, amount: string, memo: string) => {
+        if (this.lumClient === null) {
+            return;
+        }
+
+        const delegateMsg = LumMessages.BuildMsgDelegate(fromWallet.getAddress(), validatorAddress, {
+            denom: LumConstants.LumDenom,
+            amount,
+        });
+
+        // Define fees (0 LUM)
+        const fee = {
+            amount: [{ denom: LumConstants.LumDenom, amount: '0' }],
+            gas: '100000',
+        };
+
+        // Fetch account number and sequence and chain id
+        const [account, chainId] = await Promise.all([
+            this.lumClient.getAccount(fromWallet.getAddress()),
+            this.lumClient.getChainId(),
+        ]);
+
+        if (!account || !chainId) {
+            return;
+        }
+
+        const doc = {
+            accountNumber: account.accountNumber,
+            chainId,
+            fee,
+            memo,
+            messages: [delegateMsg],
+            sequence: account.sequence,
+        };
+
+        const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, doc);
+        // Verify the transaction was successfully broadcasted and made it into a block
+        console.log(`Broadcast success: ${LumUtils.broadcastTxCommitSuccess(broadcastResult)}`);
+    };
+
     /* generateSignedMessage = async (wallet: LumWallet, message: string): Promise<SignMessageObject | null> => {
         if (this.lumClient) {
             const account = this.getWalletInformations(wallet.getAddress());

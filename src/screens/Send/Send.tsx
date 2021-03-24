@@ -23,8 +23,9 @@ const Send = (): JSX.Element => {
 
     // Loaders
     const loadingSend = useSelector((state: RootState) => state.loading.effects.wallet.sendTx);
+    const loadingDelegate = useSelector((state: RootState) => state.loading.effects.wallet.delegate);
 
-    const loadingAll = loadingSend;
+    const loadingAll = loadingSend | loadingDelegate;
 
     const { t } = useTranslation();
 
@@ -32,8 +33,8 @@ const Send = (): JSX.Element => {
 
     const buttons: MsgType[] = [
         { id: LumMessages.MsgSendUrl, name: 'Send', icon: assets.images.messageSend },
-        { id: '', name: 'Delegate', icon: assets.images.messageDelegate },
-        { id: '', name: 'Undelegate', icon: assets.images.messageUndelegate },
+        { id: LumMessages.MsgDelegateUrl, name: 'Delegate', icon: assets.images.messageDelegate },
+        { id: LumMessages.MsgUndelegateUrl, name: 'Undelegate', icon: assets.images.messageUndelegate },
         { id: '', name: 'Multi Send', icon: assets.images.messageMultiSend },
         { id: '', name: 'Get rewards', icon: assets.images.messageGetReward },
         { id: '', name: 'Create Validator', icon: assets.images.messageCreateValidator },
@@ -47,15 +48,35 @@ const Send = (): JSX.Element => {
     const sendForm = useFormik({
         initialValues: { address: '', amount: '', memo: '' },
         validationSchema: yup.object().shape({
-            address: yup.string().required(t('common.required')),
+            address: yup
+                .string()
+                .required(t('common.required'))
+                .matches(new RegExp(`^${LumConstants.LumBech32PrefixAccAddr}`), { message: 'Check address' }),
             amount: yup.string().required(t('common.required')),
             memo: yup.string(),
         }),
         onSubmit: (values) => onSubmitSend(values.address, values.amount, values.memo),
     });
 
+    const delegateForm = useFormik({
+        initialValues: { address: '', amount: '', memo: 'Delegated' },
+        validationSchema: yup.object().shape({
+            address: yup
+                .string()
+                .required(t('common.required'))
+                .matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`), { message: 'Check validator address' }),
+            amount: yup.string().required(t('common.required')),
+            memo: yup.string(),
+        }),
+        onSubmit: (values) => onSubmitDelegate(values.address, values.amount, values.memo),
+    });
+
     const onSubmitSend = (toAddress: string, amount: string, memo: string) => {
         dispatch.wallet.sendTx({ from: wallet, to: toAddress, amount, memo, ticker: LumConstants.LumDenom });
+    };
+
+    const onSubmitDelegate = (validatorAddress: string, amount: string, memo: string) => {
+        dispatch.wallet.delegate({ validatorAddress, amount, memo, from: wallet });
     };
 
     const onClickButton = (msg: MsgType) => {
@@ -90,6 +111,38 @@ const Send = (): JSX.Element => {
         </form>
     );
 
+    const renderDelegate = (
+        <form className="row w-100 align-items-start text-start mt-3">
+            <div className="col-12">
+                <Input {...delegateForm.getFieldProps('amount')} placeholder="Amount" label="Amount" />
+                {delegateForm.touched.amount && delegateForm.errors.amount && (
+                    <p className="ms-2 color-error">{delegateForm.errors.amount}</p>
+                )}
+            </div>
+            <div className="col-12 mt-4">
+                <Input
+                    {...delegateForm.getFieldProps('address')}
+                    placeholder="Validator address"
+                    label="Validator Address"
+                />
+                {delegateForm.touched.address && delegateForm.errors.address && (
+                    <p className="ms-2 color-error">{delegateForm.errors.address}</p>
+                )}
+            </div>
+            <div className="col-12 mt-4">
+                <Input {...delegateForm.getFieldProps('memo')} placeholder="Memo" label="Memo" />
+                {delegateForm.touched.memo && delegateForm.errors.memo && (
+                    <p className="ms-2 color-error">{delegateForm.errors.memo}</p>
+                )}
+            </div>
+            <div className="justify-content-center mt-4 col-10 offset-1 col-sm-6 offset-sm-3">
+                <Button loading={loadingDelegate} onPress={delegateForm.handleSubmit}>
+                    Delegate
+                </Button>
+            </div>
+        </form>
+    );
+
     const renderModal = (): JSX.Element | null => {
         if (!modal) {
             return null;
@@ -98,6 +151,9 @@ const Send = (): JSX.Element => {
         switch (modal.id) {
             case LumMessages.MsgSendUrl:
                 return renderSend;
+
+            case LumMessages.MsgDelegateUrl:
+                return renderDelegate;
 
             default:
                 return <div>Soon</div>;
