@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 
 import { AddressCard, BalanceCard, Input, Modal } from 'components';
 import { Redirect } from 'react-router';
-import { RootState } from 'redux/store';
+import { RootDispatch, RootState } from 'redux/store';
 import MessageButton from './components/MessageButton/MessageButton';
 import assets from 'assets';
-import { LumMessages } from '@lum-network/sdk-javascript';
-import { WalletUtils } from 'utils';
+import { LumConstants, LumMessages } from '@lum-network/sdk-javascript';
 import { Button } from 'frontend-elements';
 import { useTranslation } from 'react-i18next';
 
@@ -18,8 +17,14 @@ import './Send.scss';
 type MsgType = { name: string; icon: string; id: string };
 
 const Send = (): JSX.Element => {
+    const dispatch = useDispatch<RootDispatch>();
     const wallet = useSelector((state: RootState) => state.wallet.currentWallet);
     const balance = useSelector((state: RootState) => state.wallet.currentBalance);
+
+    // Loaders
+    const loadingSend = useSelector((state: RootState) => state.loading.effects.wallet.sendTx);
+
+    const loadingAll = loadingSend;
 
     const { t } = useTranslation();
 
@@ -49,9 +54,8 @@ const Send = (): JSX.Element => {
         onSubmit: (values) => onSubmitSend(values.address, values.amount, values.memo),
     });
 
-    const onSubmitSend = (address: string, amount: string, memo: string) => {
-        console.log('hello');
-        WalletUtils.sendTx(wallet, address, amount, memo).then(() => null);
+    const onSubmitSend = (toAddress: string, amount: string, memo: string) => {
+        dispatch.wallet.sendTx({ from: wallet, to: toAddress, amount, memo, ticker: LumConstants.LumDenom });
     };
 
     const onClickButton = (msg: MsgType) => {
@@ -79,7 +83,9 @@ const Send = (): JSX.Element => {
                 )}
             </div>
             <div className="justify-content-center mt-4 col-10 offset-1 col-sm-6 offset-sm-3">
-                <Button onPress={sendForm.handleSubmit}>Send</Button>
+                <Button loading={loadingSend} onPress={sendForm.handleSubmit}>
+                    Send
+                </Button>
             </div>
         </form>
     );
@@ -128,7 +134,7 @@ const Send = (): JSX.Element => {
                     {renderButtons}
                 </div>
             </div>
-            <Modal id="modalSendTxs" bodyClassName="w-100">
+            <Modal id="modalSendTxs" withCloseButton={!loadingAll} dataBsBackdrop={'static'} bodyClassName="w-100">
                 {modal && (
                     <div className="d-flex flex-column align-items-center">
                         <h2 className="text-center">{modal.name}</h2>

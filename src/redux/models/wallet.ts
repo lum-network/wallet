@@ -8,6 +8,7 @@ interface SendPayload {
     from: LumWallet;
     amount: string;
     ticker: string;
+    memo: string;
 }
 
 interface SignInKeystorePayload {
@@ -46,7 +47,8 @@ export const wallet = createModel<RootModel>()({
         },
         addTransaction(state, tx: Transaction) {
             state.transactions.unshift(tx);
-            state.currentBalance += tx.amount;
+            // TODO: Add Fees
+            state.currentBalance -= tx.amount + 1;
 
             return state;
         },
@@ -117,6 +119,7 @@ export const wallet = createModel<RootModel>()({
                 await WalletUtils.sendTx(payload.from, payload.to, payload.amount);
             } catch (e) {
                 console.log(e);
+                return;
             }
             dispatch.wallet.addTransaction(tx);
         },

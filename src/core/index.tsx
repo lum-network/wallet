@@ -34,11 +34,7 @@ class Core extends PureComponent<Props> {
     }
 
     render(): JSX.Element {
-        const { loading, wallet, transactions } = this.props;
-
-        return (!wallet || !transactions || !transactions.length) && loading
-            ? this.renderLoading()
-            : this.renderContent();
+        return this.renderContent();
     }
 }
 

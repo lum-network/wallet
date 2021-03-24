@@ -13,6 +13,7 @@ export interface Transaction {
     from: string;
     amount: number;
     ticker: string;
+    memo: string;
     date: Date;
     [key: string]: string | number | Date;
 }
