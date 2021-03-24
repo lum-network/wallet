@@ -1,6 +1,7 @@
 import { LumUtils, LumClient, LumMessages, LumConstants, LumWallet } from '@lum-network/sdk-javascript';
+//import Crypto from 'crypto';
 import { LUM_TESTNET } from 'constant';
-import { PasswordStrengthType, PasswordStrength } from 'models';
+import { PasswordStrengthType, PasswordStrength, SignMessageObject } from 'models';
 
 export type MnemonicLength = 12 | 24;
 
@@ -51,7 +52,17 @@ class WalletUtils {
 
         try {
             const account = await this.lumClient.getAccountUnverified(address);
-            return account;
+            if (account === null) {
+                return null;
+            }
+            const balance = await this.lumClient.getBalanceUnverified(address, 'lum');
+
+            /* const transactions = await this.lumClient.searchTx([
+                LumUtils.searchTxFrom(address),
+                LumUtils.searchTxTo(address),
+            ]); */
+
+            return { ...account, ...(balance && { currentBalance: balance.amount }) };
         } catch (e) {
             console.log(e);
         }
@@ -62,18 +73,58 @@ class WalletUtils {
             return;
         }
 
-        const sendMsg = LumMessages.BuildMsgSend(fromWallet.address, to, [{ denom: LumConstants.LumDenom, amount }]);
-
-        const fee = {
-            amount: [{ denom: LumConstants.LumDenom, amount: '1' }],
-            gas: '100000',
-        };
-
         // Sign and broadcast the transaction using the client
-        const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, [sendMsg], fee, 'hello memo!');
+        //const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, [sendMsg], fee, 'hello memo!');
         // Verify the transaction was succesfully broadcasted and made it into a block
-        console.log(`Broadcast success: ${LumUtils.broadcastTxCommitSuccess(broadcastResult)}`);
+        //console.log(`Broadcast success: ${LumUtils.broadcastTxCommitSuccess(broadcastResult)}`);
     };
+
+    /* generateSignedMessage = async (wallet: LumWallet, message: string): Promise<SignMessageObject | null> => {
+        if (this.lumClient) {
+            const account = this.getWalletInformations(wallet.getAddress());
+            const hashedMessage = Crypto.createHash('sha256').update(message).digest('hex');
+            const chainId = await this.lumClient.getChainId();
+            const { accountNumber, sequence, address } = wallet.account;
+            const doc: LumTypes.Doc = {
+                accountNumber,
+                sequence,
+                fee: { amount: [{ denom: LumConstants.LumDenom, amount: '0' }], gas: '10000' },
+                messages: [{ value: message, typeUrl: LumMessages.MsgSendUrl }],
+                chainId,
+            };
+            const signDoc = LumUtils.generateSignDoc(doc, wallet.getPublicKey(), wallet.signingMode());
+            const signedDoc = LumUtils.generateSignDocBytes(signDoc);
+            const signature = await wallet.signTransaction(doc);
+
+            const verifiedSig = await LumUtils.verifySignature(signature, signedDoc, wallet.getPublicKey());
+            console.log(verifiedSig);
+            const sig = LumUtils.keyToHex(signedDoc);
+            const siBytes = LumUtils.keyToHex(signedDoc);
+            console.log(sig);
+
+            return {
+                address,
+                msg: message,
+                sig,
+                version: '1',
+                signer: 'LUM Wallet',
+            };
+        }
+
+        return null;
+    };
+
+    validateSignMessage = async (wallet: LumWallet, signedMessage: string) => {
+        const account = this.getWalletInformations(wallet.getAddress());
+        const json: SignMessageObject = JSON.parse(signedMessage);
+        const sig = Buffer.from(json.sig.replace('0x', ''), 'hex');
+        const { r, v, s } = fromRpcSig(json.sig);
+        console.log(json);
+        const pubKey = ecrecover(toBuffer(json.msg), v, r, s);
+        console.log(LumUtils.getAddressFromPublicKey(pubKey));
+        const decodedPubKey = LumTypes.PubKey.decode(LumUtils.keyFromHex(json.sig));
+        console.log(decodedPubKey);
+    }; */
 }
 
 export default new WalletUtils();
