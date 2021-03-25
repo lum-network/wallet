@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
-import { WalletUtils } from 'utils';
+import { WalletClient } from 'utils';
 import RootNavigator from '../navigation';
 import { RootState } from '../redux/store';
 
@@ -18,7 +18,7 @@ type Props = IProps & StateProps;
 
 class Core extends PureComponent<Props> {
     async componentDidMount() {
-        await WalletUtils.init();
+        await WalletClient.init();
     }
 
     renderContent(): JSX.Element {

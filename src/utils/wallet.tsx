@@ -1,4 +1,5 @@
-import { LumUtils, LumClient, LumMessages, LumConstants, LumWallet } from '@lum-network/sdk-javascript';
+import { LumUtils, LumClient, LumMessages, LumWallet, LumRegistry, LumTypes } from '@lum-network/sdk-javascript';
+import { TxResponse } from '@cosmjs/tendermint-rpc';
 import { LUM_TESTNET } from 'constant';
 import { PasswordStrengthType, PasswordStrength } from 'models';
 
@@ -8,40 +9,68 @@ export const checkMnemonicLength = (length: number): length is MnemonicLength =>
     return length === 12 || length === 24;
 };
 
-class WalletUtils {
+export const generateMnemonic = (mnemonicLength: MnemonicLength): string[] => {
+    const inputs: string[] = [];
+    const mnemonicKeys = LumUtils.generateMnemonic(mnemonicLength).split(' ');
+
+    for (let i = 0; i < mnemonicLength; i++) {
+        inputs.push(mnemonicKeys[i]);
+    }
+
+    return inputs;
+};
+
+export const generateKeystoreFile = (password: string): LumUtils.KeyStore => {
+    const privateKey = LumUtils.generatePrivateKey();
+
+    return LumUtils.generateKeyStore(privateKey, password);
+};
+
+export const checkPwdStrength = (password: string): PasswordStrength => {
+    const strongPassword = new RegExp('(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{9,})');
+    const mediumPassword = new RegExp('(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{9,})');
+
+    if (strongPassword.test(password)) {
+        return PasswordStrengthType.Strong;
+    } else if (mediumPassword.test(password)) {
+        return PasswordStrengthType.Medium;
+    }
+    return PasswordStrengthType.Weak;
+};
+
+export const formatTxs = (rawTxs: TxResponse[]): unknown[] => {
+    const formattedTxs: unknown[] = [];
+
+    rawTxs.forEach((rawTx) => {
+        // Decode TX to human readable format
+        const txData = LumRegistry.decodeTx(rawTx.tx);
+
+        txData.body?.messages?.forEach((msg) => {
+            if (msg.typeUrl === LumMessages.MsgSendUrl) {
+                formattedTxs.push({
+                    hash: LumUtils.toHex(rawTx.hash).toUpperCase(),
+                    ...Object.assign({}, LumUtils.toJSON(LumRegistry.decode(msg))),
+                });
+            }
+        });
+    });
+
+    return formattedTxs;
+};
+
+export const generateSignedMessage = async (wallet: LumWallet, message: string): Promise<LumTypes.SignMsg> => {
+    return await wallet.signMessage(message);
+};
+
+export const validateSignMessage = async (msg: LumTypes.SignMsg): Promise<boolean> => {
+    return await LumUtils.verifySignMsg(msg);
+};
+
+class WalletClient {
     lumClient: LumClient | null = null;
 
     init = async (): Promise<void> => {
         this.lumClient = await LumClient.connect(LUM_TESTNET);
-    };
-
-    generateMnemonic = (mnemonicLength: MnemonicLength): string[] => {
-        const inputs: string[] = [];
-        const mnemonicKeys = LumUtils.generateMnemonic(mnemonicLength).split(' ');
-
-        for (let i = 0; i < mnemonicLength; i++) {
-            inputs.push(mnemonicKeys[i]);
-        }
-
-        return inputs;
-    };
-
-    generateKeystoreFile = (password: string): LumUtils.KeyStore => {
-        const privateKey = LumUtils.generatePrivateKey();
-
-        return LumUtils.generateKeyStore(privateKey, password);
-    };
-
-    checkPwdStrength = (password: string): PasswordStrength => {
-        const strongPassword = new RegExp('(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{9,})');
-        const mediumPassword = new RegExp('(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{9,})');
-
-        if (strongPassword.test(password)) {
-            return PasswordStrengthType.Strong;
-        } else if (mediumPassword.test(password)) {
-            return PasswordStrengthType.Medium;
-        }
-        return PasswordStrengthType.Weak;
     };
 
     getWalletInformations = async (address: string) => {
@@ -56,18 +85,21 @@ class WalletUtils {
             }
             const balance = await this.lumClient.getBalanceUnverified(address, 'lum');
 
-            /* const transactions = await this.lumClient.searchTx([
+            const transactions = await this.lumClient.searchTx([
                 LumUtils.searchTxFrom(address),
                 LumUtils.searchTxTo(address),
-            ]); */
+            ]);
 
-            return { ...account, ...(balance && { currentBalance: balance.amount }) };
+            const formattedTxs = formatTxs(transactions);
+
+            return { ...account, ...(balance && { currentBalance: balance.amount }), transactions: formattedTxs };
         } catch (e) {
             console.log(e);
         }
     };
 
-    sendTx = async (fromWallet: LumWallet, to: string, amount: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    sendTx = async (_fromWallet: LumWallet, _to: string, _amount: string) => {
         if (this.lumClient === null) {
             return;
         }
@@ -77,53 +109,6 @@ class WalletUtils {
         // Verify the transaction was succesfully broadcasted and made it into a block
         //console.log(`Broadcast success: ${LumUtils.broadcastTxCommitSuccess(broadcastResult)}`);
     };
-
-    /* generateSignedMessage = async (wallet: LumWallet, message: string): Promise<SignMessageObject | null> => {
-        if (this.lumClient) {
-            const account = this.getWalletInformations(wallet.getAddress());
-            const hashedMessage = Crypto.createHash('sha256').update(message).digest('hex');
-            const chainId = await this.lumClient.getChainId();
-            const { accountNumber, sequence, address } = wallet.account;
-            const doc: LumTypes.Doc = {
-                accountNumber,
-                sequence,
-                fee: { amount: [{ denom: LumConstants.LumDenom, amount: '0' }], gas: '10000' },
-                messages: [{ value: message, typeUrl: LumMessages.MsgSendUrl }],
-                chainId,
-            };
-            const signDoc = LumUtils.generateSignDoc(doc, wallet.getPublicKey(), wallet.signingMode());
-            const signedDoc = LumUtils.generateSignDocBytes(signDoc);
-            const signature = await wallet.signTransaction(doc);
-
-            const verifiedSig = await LumUtils.verifySignature(signature, signedDoc, wallet.getPublicKey());
-            console.log(verifiedSig);
-            const sig = LumUtils.keyToHex(signedDoc);
-            const siBytes = LumUtils.keyToHex(signedDoc);
-            console.log(sig);
-
-            return {
-                address,
-                msg: message,
-                sig,
-                version: '1',
-                signer: 'LUM Wallet',
-            };
-        }
-
-        return null;
-    };
-
-    validateSignMessage = async (wallet: LumWallet, signedMessage: string) => {
-        const account = this.getWalletInformations(wallet.getAddress());
-        const json: SignMessageObject = JSON.parse(signedMessage);
-        const sig = Buffer.from(json.sig.replace('0x', ''), 'hex');
-        const { r, v, s } = fromRpcSig(json.sig);
-        console.log(json);
-        const pubKey = ecrecover(toBuffer(json.msg), v, r, s);
-        console.log(LumUtils.getAddressFromPublicKey(pubKey));
-        const decodedPubKey = LumTypes.PubKey.decode(LumUtils.keyFromHex(json.sig));
-        console.log(decodedPubKey);
-    }; */
 }
 
-export default new WalletUtils();
+export default new WalletClient();

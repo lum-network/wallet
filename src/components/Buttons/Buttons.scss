@@ -57,3 +57,10 @@ button:focus {
     width: 20px;
     height: 20px;
 }
+
+@media (prefers-color-scheme: dark) {
+    .normal-btn {
+        background-color: $color-white;
+        color: $color-primary;
+    }
+}

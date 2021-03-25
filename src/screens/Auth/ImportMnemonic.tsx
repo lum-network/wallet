@@ -10,7 +10,7 @@ import AuthLayout from './components/AuthLayout';
 import './Auth.scss';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-import { MnemonicLength, checkMnemonicLength } from 'utils';
+import { MnemonicLength, WalletUtils } from 'utils';
 
 const ImportMnemonic = (): JSX.Element => {
     // State
@@ -51,7 +51,7 @@ const ImportMnemonic = (): JSX.Element => {
             const inputValues = text.split(' ');
             const valuesLength = inputValues.length;
 
-            if (checkMnemonicLength(valuesLength)) {
+            if (WalletUtils.checkMnemonicLength(valuesLength)) {
                 setMnemonic({ length: valuesLength, values: inputValues });
             }
         });

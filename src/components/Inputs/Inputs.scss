@@ -6,6 +6,7 @@
     }
     &:disabled {
         background-color: #f9f9f9;
+        color: #555555;
     }
 }
 
@@ -56,5 +57,11 @@ input[type='checkbox'] {
     }
     &:active {
         filter: none;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    label.form-label {
+        color: white;
     }
 }

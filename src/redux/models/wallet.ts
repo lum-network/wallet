@@ -1,7 +1,7 @@
 import { LumUtils, LumWalletFactory, LumWallet } from '@lum-network/sdk-javascript';
 import { createModel } from '@rematch/core';
 import { RootModel, Transaction } from '../../models';
-import { showErrorToast, WalletUtils } from 'utils';
+import { showErrorToast, WalletClient } from 'utils';
 
 interface SendPayload {
     to: string;
@@ -44,12 +44,12 @@ export const wallet = createModel<RootModel>()({
 
             return state;
         },
-        addTransaction(state, tx: Transaction) {
+        /* addTransaction(state, tx: Transaction) {
             state.transactions.unshift(tx);
             state.currentBalance += tx.amount;
 
             return state;
-        },
+        }, */
     },
     effects: (dispatch) => ({
         signInAsync(payload: LumWallet) {
@@ -60,7 +60,7 @@ export const wallet = createModel<RootModel>()({
                 const wallet = await LumWalletFactory.fromMnemonic(payload);
                 dispatch.wallet.signIn(wallet);
 
-                const accountInfos = await WalletUtils.getWalletInformations(wallet.getAddress());
+                const accountInfos = await WalletClient.getWalletInformations(wallet.getAddress());
                 if (accountInfos) {
                     dispatch.wallet.setWalletData({
                         currentBalance: accountInfos.currentBalance ? Number(accountInfos.currentBalance) : undefined,
@@ -76,7 +76,7 @@ export const wallet = createModel<RootModel>()({
                 const wallet = await LumWalletFactory.fromPrivateKey(LumUtils.keyFromHex(payload));
                 dispatch.wallet.signIn(wallet);
 
-                const accountInfos = await WalletUtils.getWalletInformations(wallet.getAddress());
+                const accountInfos = await WalletClient.getWalletInformations(wallet.getAddress());
                 if (accountInfos) {
                     dispatch.wallet.setWalletData({
                         currentBalance: accountInfos.currentBalance ? Number(accountInfos.currentBalance) : undefined,
@@ -93,7 +93,7 @@ export const wallet = createModel<RootModel>()({
                 const wallet = await LumWalletFactory.fromKeyStore(data, password);
                 dispatch.wallet.signIn(wallet);
 
-                const accountInfos = await WalletUtils.getWalletInformations(wallet.getAddress());
+                const accountInfos = await WalletClient.getWalletInformations(wallet.getAddress());
                 if (accountInfos) {
                     dispatch.wallet.setWalletData({
                         currentBalance: accountInfos.currentBalance ? Number(accountInfos.currentBalance) : undefined,
@@ -104,21 +104,13 @@ export const wallet = createModel<RootModel>()({
                 showErrorToast(e.message);
             }
         },
-        async sendTx(payload: SendPayload, state) {
-            const tx = {
-                ...payload,
-                id: `tx-${state.wallet.transactions.length}`,
-                amount: Number(payload.amount),
-                from: payload.from.getAddress(),
-                date: new Date(),
-            };
-
+        async sendTx(payload: SendPayload) {
             try {
-                await WalletUtils.sendTx(payload.from, payload.to, payload.amount);
+                await WalletClient.sendTx(payload.from, payload.to, payload.amount);
             } catch (e) {
                 console.log(e);
             }
-            dispatch.wallet.addTransaction(tx);
+            //dispatch.wallet.addTransaction(tx);
         },
     }),
 });
