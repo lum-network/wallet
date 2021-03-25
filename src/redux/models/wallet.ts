@@ -138,5 +138,14 @@ export const wallet = createModel<RootModel>()({
             }
             //TODO: Dispatch action
         },
+        async undelegate(payload: DelegatePayload) {
+            try {
+                await WalletUtils.undelegate(payload.from, payload.validatorAddress, payload.amount, payload.memo);
+            } catch (e) {
+                console.error(e);
+                return;
+            }
+            //TODO: Dispatch action
+        },
     }),
 });

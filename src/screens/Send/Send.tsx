@@ -24,8 +24,9 @@ const Send = (): JSX.Element => {
     // Loaders
     const loadingSend = useSelector((state: RootState) => state.loading.effects.wallet.sendTx);
     const loadingDelegate = useSelector((state: RootState) => state.loading.effects.wallet.delegate);
+    const loadingUndelegate = useSelector((state: RootState) => state.loading.effects.wallet.undelegate);
 
-    const loadingAll = loadingSend | loadingDelegate;
+    const loadingAll = loadingSend | loadingDelegate | loadingUndelegate;
 
     const { t } = useTranslation();
 
@@ -71,12 +72,29 @@ const Send = (): JSX.Element => {
         onSubmit: (values) => onSubmitDelegate(values.address, values.amount, values.memo),
     });
 
+    const undelegateForm = useFormik({
+        initialValues: { address: '', amount: '', memo: 'Undelegated' },
+        validationSchema: yup.object().shape({
+            address: yup
+                .string()
+                .required(t('common.required'))
+                .matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`), { message: 'Check validator address' }),
+            amount: yup.string().required(t('common.required')),
+            memo: yup.string(),
+        }),
+        onSubmit: (values) => onSubmitUndelegate(values.address, values.amount, values.memo),
+    });
+
     const onSubmitSend = (toAddress: string, amount: string, memo: string) => {
         dispatch.wallet.sendTx({ from: wallet, to: toAddress, amount, memo, ticker: LumConstants.LumDenom });
     };
 
     const onSubmitDelegate = (validatorAddress: string, amount: string, memo: string) => {
         dispatch.wallet.delegate({ validatorAddress, amount, memo, from: wallet });
+    };
+
+    const onSubmitUndelegate = (validatorAddress: string, amount: string, memo: string) => {
+        dispatch.wallet.undelegate({ validatorAddress, amount, memo, from: wallet });
     };
 
     const onClickButton = (msg: MsgType) => {
@@ -143,6 +161,38 @@ const Send = (): JSX.Element => {
         </form>
     );
 
+    const renderUndelegate = (
+        <form className="row w-100 align-items-start text-start mt-3">
+            <div className="col-12">
+                <Input {...undelegateForm.getFieldProps('amount')} placeholder="Amount" label="Amount" />
+                {undelegateForm.touched.amount && undelegateForm.errors.amount && (
+                    <p className="ms-2 color-error">{undelegateForm.errors.amount}</p>
+                )}
+            </div>
+            <div className="col-12 mt-4">
+                <Input
+                    {...undelegateForm.getFieldProps('address')}
+                    placeholder="Validator address"
+                    label="Validator Address"
+                />
+                {undelegateForm.touched.address && undelegateForm.errors.address && (
+                    <p className="ms-2 color-error">{undelegateForm.errors.address}</p>
+                )}
+            </div>
+            <div className="col-12 mt-4">
+                <Input {...undelegateForm.getFieldProps('memo')} placeholder="Memo" label="Memo" />
+                {undelegateForm.touched.memo && undelegateForm.errors.memo && (
+                    <p className="ms-2 color-error">{undelegateForm.errors.memo}</p>
+                )}
+            </div>
+            <div className="justify-content-center mt-4 col-10 offset-1 col-sm-6 offset-sm-3">
+                <Button loading={loadingUndelegate} onPress={undelegateForm.handleSubmit}>
+                    Undelegate
+                </Button>
+            </div>
+        </form>
+    );
+
     const renderModal = (): JSX.Element | null => {
         if (!modal) {
             return null;
@@ -154,6 +204,9 @@ const Send = (): JSX.Element => {
 
             case LumMessages.MsgDelegateUrl:
                 return renderDelegate;
+
+            case LumMessages.MsgUndelegateUrl:
+                return renderUndelegate;
 
             default:
                 return <div>Soon</div>;
