@@ -1,7 +1,7 @@
 import { LumUtils, LumWalletFactory, LumWallet } from '@lum-network/sdk-javascript';
 import { createModel } from '@rematch/core';
 import { RootModel, Transaction } from '../../models';
-import { showErrorToast, WalletUtils } from 'utils';
+import { showErrorToast, WalletClient } from 'utils';
 
 interface SendPayload {
     to: string;
@@ -58,12 +58,12 @@ export const wallet = createModel<RootModel>()({
 
             return state;
         },
-        addTransaction(state, tx: Transaction) {
+        /* addTransaction(state, tx: Transaction) {
             state.transactions.unshift(tx);
-            state.currentBalance -= tx.amount;
+            state.currentBalance += tx.amount;
 
             return state;
-        },
+        }, */
     },
     effects: (dispatch) => ({
         signInAsync(payload: LumWallet) {
@@ -74,7 +74,7 @@ export const wallet = createModel<RootModel>()({
                 const wallet = await LumWalletFactory.fromMnemonic(payload);
                 dispatch.wallet.signIn(wallet);
 
-                const accountInfos = await WalletUtils.getWalletInformations(wallet.getAddress());
+                const accountInfos = await WalletClient.getWalletInformations(wallet.getAddress());
                 if (accountInfos) {
                     dispatch.wallet.setWalletData({
                         currentBalance: accountInfos.currentBalance ? Number(accountInfos.currentBalance) : undefined,
@@ -90,7 +90,7 @@ export const wallet = createModel<RootModel>()({
                 const wallet = await LumWalletFactory.fromPrivateKey(LumUtils.keyFromHex(payload));
                 dispatch.wallet.signIn(wallet);
 
-                const accountInfos = await WalletUtils.getWalletInformations(wallet.getAddress());
+                const accountInfos = await WalletClient.getWalletInformations(wallet.getAddress());
                 if (accountInfos) {
                     dispatch.wallet.setWalletData({
                         currentBalance: accountInfos.currentBalance ? Number(accountInfos.currentBalance) : undefined,
@@ -107,7 +107,7 @@ export const wallet = createModel<RootModel>()({
                 const wallet = await LumWalletFactory.fromKeyStore(data, password);
                 dispatch.wallet.signIn(wallet);
 
-                const accountInfos = await WalletUtils.getWalletInformations(wallet.getAddress());
+                const accountInfos = await WalletClient.getWalletInformations(wallet.getAddress());
                 if (accountInfos) {
                     dispatch.wallet.setWalletData({
                         currentBalance: accountInfos.currentBalance ? Number(accountInfos.currentBalance) : undefined,
@@ -128,16 +128,17 @@ export const wallet = createModel<RootModel>()({
             };
 
             try {
-                await WalletUtils.sendTx(payload.from, payload.to, payload.amount, payload.memo);
+                await WalletClient.sendTx(payload.from, payload.to, payload.amount, payload.memo);
             } catch (e) {
                 console.error(e);
                 return;
             }
-            dispatch.wallet.addTransaction(tx);
+            //TODO: dispatch action
+            //dispatch.wallet.addTransaction(tx);
         },
         async delegate(payload: DelegatePayload) {
             try {
-                await WalletUtils.delegate(payload.from, payload.validatorAddress, payload.amount, payload.memo);
+                await WalletClient.delegate(payload.from, payload.validatorAddress, payload.amount, payload.memo);
             } catch (e) {
                 console.error(e);
                 return;
@@ -146,7 +147,7 @@ export const wallet = createModel<RootModel>()({
         },
         async undelegate(payload: DelegatePayload) {
             try {
-                await WalletUtils.undelegate(payload.from, payload.validatorAddress, payload.amount, payload.memo);
+                await WalletClient.undelegate(payload.from, payload.validatorAddress, payload.amount, payload.memo);
             } catch (e) {
                 console.error(e);
                 return;
@@ -155,7 +156,7 @@ export const wallet = createModel<RootModel>()({
         },
         async getReward(payload: GetRewardPayload) {
             try {
-                await WalletUtils.getReward(payload.from, payload.validatorAddress, payload.memo);
+                await WalletClient.getReward(payload.from, payload.validatorAddress, payload.memo);
             } catch (e) {
                 console.error(e);
                 return;

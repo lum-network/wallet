@@ -20,19 +20,19 @@ const TransactionRow = (props: RowProps): JSX.Element => {
     return (
         <tr>
             <td data-label="Id">
-                <a href={`${LUM_EXPLORER}/txs/${row.id}`}>{row.id}</a>
+                <a href={`${LUM_EXPLORER}/txs/${row.hash}`}>{trunc(row.hash)}</a>
             </td>
             <td data-label="Date">
-                <div className="text-truncate">{toLocaleDateFormat(row.date)}</div>
+                <div className="text-truncate">{toLocaleDateFormat(new Date(row.time))}</div>
             </td>
             <td data-label={t('transactions.table.to')}>
-                <div className="text-truncate">{trunc(row.to)}</div>
+                <div className="text-truncate">{trunc(row.addresses[0])}</div>
             </td>
             <td data-label={t('transactions.table.from')} className="text-end">
-                <div className="text-truncate">{trunc(row.from)}</div>
+                <div className="text-truncate">{trunc(row.addresses[1])}</div>
             </td>
             <td data-label={t('transactions.table.amount')} className="text-end">
-                <div className="text-truncate">{row.amount}</div>
+                <div className="text-truncate">{row.amount?.amount}</div>
             </td>
         </tr>
     );

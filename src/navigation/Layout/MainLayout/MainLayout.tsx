@@ -28,7 +28,7 @@ class MainLayout extends PureComponent<Props> {
 
         return (
             <nav
-                className={`ps-lg-2 pe-lg-4 py-3 position-fixed w-100 justify-content-center justify-content-lg-between navbar navbar-expand-lg ${
+                className={`ps-md-2 pe-md-4 py-3 position-fixed w-100 justify-content-center justify-content-lg-between navbar navbar-expand-lg ${
                     bottom ? 'bottom-navbar' : ''
                 }`}
             >

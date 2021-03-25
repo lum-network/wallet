@@ -11,7 +11,7 @@ interface Props {
     dataBsBackdrop?: 'static' | 'true';
 }
 
-const Modal = (props: Props): JSX.Element => {
+const Modal = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
     const { id, children, bodyClassName, contentClassName, withCloseButton = true, dataBsBackdrop = 'true' } = props;
 
     return (
@@ -28,17 +28,21 @@ const Modal = (props: Props): JSX.Element => {
                     {withCloseButton && (
                         <button
                             type="button"
-                            className="close-btn btn-close bg-white rounded-circle align-self-center"
+                            className="close-btn bg-white rounded-circle align-self-center"
                             data-bs-dismiss="modal"
                             data-bs-target={id}
                             aria-label="Close"
-                        />
+                        >
+                            <div className="btn-close mx-auto" />
+                        </button>
                     )}
                     <div className={`modal-body mx-auto ${bodyClassName}`}>{children}</div>
                 </div>
             </div>
         </div>
     );
-};
+});
+
+Modal.displayName = 'Modal';
 
 export default Modal;

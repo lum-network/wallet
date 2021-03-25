@@ -1,11 +1,22 @@
+@import 'src/styles/main';
+
 .close-btn {
     margin-top: -25px;
-    width: 50px !important;
-    height: 50px !important;
+    width: 50px;
+    height: 50px;
     box-shadow: 0px 3.32571px 14.9657px rgba(0, 0, 0, 0.1);
+}
+
+.btn-close {
     opacity: 1 !important;
 }
 
 .modal-content {
     border-radius: 15px !important;
+}
+
+@media (prefers-color-scheme: dark) {
+    .modal-content {
+        background: $color-primary !important;
+    }
 }
