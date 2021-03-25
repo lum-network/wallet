@@ -76,9 +76,9 @@ class WalletUtils {
         const sendMsg = LumMessages.BuildMsgSend(fromWallet.getAddress(), toAddress, [
             { denom: LumConstants.LumDenom, amount },
         ]);
-        // Define fees (0 LUM)
+        // Define fees (5 LUM)
         const fee = {
-            amount: [{ denom: LumConstants.LumDenom, amount: '0' }],
+            amount: [{ denom: LumConstants.LumDenom, amount: '5' }],
             gas: '100000',
         };
         // Fetch account number and sequence and chain id
@@ -116,9 +116,9 @@ class WalletUtils {
             amount,
         });
 
-        // Define fees (0 LUM)
+        // Define fees (5 LUM)
         const fee = {
-            amount: [{ denom: LumConstants.LumDenom, amount: '0' }],
+            amount: [{ denom: LumConstants.LumDenom, amount: '5' }],
             gas: '200000',
         };
 
@@ -156,9 +156,9 @@ class WalletUtils {
             amount,
         });
 
-        // Define fees (0 LUM)
+        // Define fees (5 LUM)
         const fee = {
-            amount: [{ denom: LumConstants.LumDenom, amount: '0' }],
+            amount: [{ denom: LumConstants.LumDenom, amount: '5' }],
             gas: '200000',
         };
 
