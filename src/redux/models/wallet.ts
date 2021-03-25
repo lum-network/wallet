@@ -18,6 +18,12 @@ interface DelegatePayload {
     memo: string;
 }
 
+interface GetRewardPayload {
+    validatorAddress: string;
+    from: LumWallet;
+    memo: string;
+}
+
 interface SignInKeystorePayload {
     data: LumUtils.KeyStore | string;
     password: string;
@@ -141,6 +147,15 @@ export const wallet = createModel<RootModel>()({
         async undelegate(payload: DelegatePayload) {
             try {
                 await WalletUtils.undelegate(payload.from, payload.validatorAddress, payload.amount, payload.memo);
+            } catch (e) {
+                console.error(e);
+                return;
+            }
+            //TODO: Dispatch action
+        },
+        async getReward(payload: GetRewardPayload) {
+            try {
+                await WalletUtils.getReward(payload.from, payload.validatorAddress, payload.memo);
             } catch (e) {
                 console.error(e);
                 return;

@@ -78,7 +78,7 @@ class WalletUtils {
         ]);
         // Define fees (5 LUM)
         const fee = {
-            amount: [{ denom: LumConstants.LumDenom, amount: '5' }],
+            amount: [{ denom: LumConstants.LumDenom, amount: '100' }],
             gas: '100000',
         };
         // Fetch account number and sequence and chain id
@@ -178,6 +178,43 @@ class WalletUtils {
             fee,
             memo,
             messages: [undelegateMsg],
+            sequence: account.sequence,
+        };
+
+        const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, doc);
+        // Verify the transaction was successfully broadcasted and made it into a block
+        console.log(`Broadcast success: ${LumUtils.broadcastTxCommitSuccess(broadcastResult)}`);
+    };
+
+    getReward = async (fromWallet: LumWallet, validatorAddress: string, memo: string) => {
+        if (this.lumClient === null) {
+            return;
+        }
+
+        const getRewardMsg = LumMessages.BuildMsgWithdrawDelegatorReward(fromWallet.getAddress(), validatorAddress);
+
+        // Define fees (5 LUM)
+        const fee = {
+            amount: [{ denom: LumConstants.LumDenom, amount: '1' }],
+            gas: '140000',
+        };
+
+        // Fetch account number and sequence and chain id
+        const [account, chainId] = await Promise.all([
+            this.lumClient.getAccount(fromWallet.getAddress()),
+            this.lumClient.getChainId(),
+        ]);
+
+        if (!account || !chainId) {
+            return;
+        }
+
+        const doc = {
+            accountNumber: account.accountNumber,
+            chainId,
+            fee,
+            memo,
+            messages: [getRewardMsg],
             sequence: account.sequence,
         };
 
