@@ -1,7 +1,6 @@
 import { LumUtils, LumClient, LumMessages, LumConstants, LumWallet } from '@lum-network/sdk-javascript';
-//import Crypto from 'crypto';
 import { LUM_TESTNET } from 'constant';
-import { PasswordStrengthType, PasswordStrength, SignMessageObject } from 'models';
+import { PasswordStrengthType, PasswordStrength } from 'models';
 
 export type MnemonicLength = 12 | 24;
 

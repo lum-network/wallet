@@ -1,15 +1,13 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+import { ToastCloseButton } from './components';
 import Core from './core';
 import store from './redux/store';
 
 import './locales';
-import 'styles/_main.scss';
-import { ToastCloseButton } from 'components';
 
 const App = (): JSX.Element => (
     <Provider store={store}>

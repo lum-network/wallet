@@ -45,7 +45,7 @@ const Message = (): JSX.Element => {
             <div className="container">
                 <div className="row gy-4">
                     <div className="col-6">
-                        <AddressCard address={wallet.address} />
+                        <AddressCard address={wallet.getAddress()} />
                     </div>
                     <div className="col-6">
                         <BalanceCard balance={currentBalance} />

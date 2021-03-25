@@ -90,12 +90,11 @@ class MainLayout extends PureComponent<Props> {
                 {!bottom && (
                     <ul className="navbar-nav">
                         <li className="dropdown navbar-item selected-navbar-item">
-                            <a
-                                role="button"
-                                href="#"
+                            <button
+                                type="button"
                                 id="profileDropdownButton"
                                 data-bs-toggle="dropdown"
-                                data-bs-target="#profileDropdownButton"
+                                data-bs-target="profileDropdownButton"
                                 aria-expanded="false"
                             >
                                 <div className="logout d-flex align-items-center justify-content-center">
@@ -106,23 +105,21 @@ class MainLayout extends PureComponent<Props> {
                                         className="nav-icon"
                                     />
                                 </div>
-                            </a>
+                            </button>
                             <ul
                                 className="dropdown-menu dropdown-menu-end"
                                 aria-labelledby="profileDropdownButton"
                                 id="profileDropdownButton"
                             >
-                                <li className="dropdown-item">
-                                    <NavLink
-                                        to="/welcome"
-                                        activeClassName="selected-navbar-item"
-                                        // NavLink prop workaround to always apply selected-navbar-item style
-                                        isActive={() => true}
-                                        onClick={() => store.dispatch({ type: LOGOUT })}
-                                    >
-                                        Logout
-                                    </NavLink>
-                                </li>
+                                <NavLink
+                                    to="/welcome"
+                                    activeClassName="selected-navbar-item dropdown-item"
+                                    // NavLink prop workaround to always apply selected-navbar-item style
+                                    isActive={() => true}
+                                    onClick={() => store.dispatch({ type: LOGOUT })}
+                                >
+                                    <li>Logout</li>
+                                </NavLink>
                             </ul>
                         </li>
                     </ul>
