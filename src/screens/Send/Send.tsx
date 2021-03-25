@@ -37,10 +37,7 @@ const Send = (): JSX.Element => {
         { id: LumMessages.MsgSendUrl, name: 'Send', icon: assets.images.messageSend },
         { id: LumMessages.MsgDelegateUrl, name: 'Delegate', icon: assets.images.messageDelegate },
         { id: LumMessages.MsgUndelegateUrl, name: 'Undelegate', icon: assets.images.messageUndelegate },
-        { id: '', name: 'Multi Send', icon: assets.images.messageMultiSend },
         { id: LumMessages.MsgWithdrawDelegatorRewardUrl, name: 'Get rewards', icon: assets.images.messageGetReward },
-        { id: '', name: 'Create Validator', icon: assets.images.messageCreateValidator },
-        { id: '', name: 'Edit Validator', icon: assets.images.messageEditValidator },
     ];
 
     if (!wallet) {
