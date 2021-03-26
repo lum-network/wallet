@@ -22,6 +22,7 @@ const Modal = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
             aria-labelledby={`${id}Label`}
             aria-hidden="true"
             data-bs-backdrop={dataBsBackdrop}
+            ref={ref}
         >
             <div className="modal-dialog modal-dialog-centered">
                 <div className={`border-0 text-center modal-content ${contentClassName}`}>
