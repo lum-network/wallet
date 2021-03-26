@@ -38,6 +38,12 @@ const Send = (): JSX.Element => {
         { id: LumMessages.MsgDelegateUrl, name: 'Delegate', icon: assets.images.messageDelegate },
         { id: LumMessages.MsgUndelegateUrl, name: 'Undelegate', icon: assets.images.messageUndelegate },
         { id: LumMessages.MsgWithdrawDelegatorRewardUrl, name: 'Get rewards', icon: assets.images.messageGetReward },
+        {
+            id: LumMessages.MsgSetWithdrawAddressUrl,
+            name: 'Rewards wallet',
+            icon: assets.images.messageWithdrawAddress,
+        },
+        { id: LumMessages.MsgBeginRedelegateUrl, name: 'Redelegate', icon: assets.images.messageRedelegate },
     ];
 
     if (!wallet) {
@@ -96,7 +102,7 @@ const Send = (): JSX.Element => {
     });
 
     const onSubmitSend = (toAddress: string, amount: string, memo: string) => {
-        dispatch.wallet.sendTx({ from: wallet, to: toAddress, amount, memo, ticker: LumConstants.LumDenom });
+        dispatch.wallet.sendTx({ from: wallet, to: toAddress, amount, memo });
     };
 
     const onSubmitDelegate = (validatorAddress: string, amount: string, memo: string) => {

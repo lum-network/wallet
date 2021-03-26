@@ -29,6 +29,8 @@ import messageGetReward from './images/messageGetReward.svg';
 import messageMultiSend from './images/messageMultiSend.svg';
 import messageSend from './images/messageSend.svg';
 import messageUndelegate from './images/messageUndelegate.svg';
+import messageWithdrawAddress from './images/messageWithdrawAddress.svg';
+import messageRedelegate from './images/messageRedelegate.svg';
 
 export default {
     images: {
@@ -63,5 +65,7 @@ export default {
         messageSend,
         messageUndelegate,
         messageMultiSend,
+        messageWithdrawAddress,
+        messageRedelegate,
     },
 };

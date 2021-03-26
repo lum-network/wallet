@@ -1,15 +1,15 @@
 import {
-    LumUtils,
     LumClient,
+    LumConstants,
     LumMessages,
-    LumWallet,
     LumRegistry,
     LumTypes,
-    LumConstants,
+    LumUtils,
+    LumWallet,
 } from '@lum-network/sdk-javascript';
 import { TxResponse } from '@cosmjs/tendermint-rpc';
 import { LUM_TESTNET } from 'constant';
-import { PasswordStrengthType, PasswordStrength } from 'models';
+import { PasswordStrength, PasswordStrengthType } from 'models';
 
 export type MnemonicLength = 12 | 24;
 
@@ -81,6 +81,14 @@ class WalletClient {
         this.lumClient = await LumClient.connect(LUM_TESTNET);
     };
 
+    private getAccountAndChainId = (fromWallet: LumWallet) => {
+        if (this.lumClient === null) {
+            return;
+        }
+
+        return Promise.all([this.lumClient.getAccount(fromWallet.getAddress()), this.lumClient.getChainId()]);
+    };
+
     getWalletInformations = async (address: string) => {
         if (this.lumClient === null) {
             return null;
@@ -121,10 +129,13 @@ class WalletClient {
             gas: '100000',
         };
         // Fetch account number and sequence and chain id
-        const [account, chainId] = await Promise.all([
-            this.lumClient.getAccount(fromWallet.getAddress()),
-            this.lumClient.getChainId(),
-        ]);
+        const result = await this.getAccountAndChainId(fromWallet);
+
+        if (!result) {
+            return;
+        }
+
+        const [account, chainId] = result;
 
         if (!account || !chainId) {
             return;
@@ -162,10 +173,13 @@ class WalletClient {
         };
 
         // Fetch account number and sequence and chain id
-        const [account, chainId] = await Promise.all([
-            this.lumClient.getAccount(fromWallet.getAddress()),
-            this.lumClient.getChainId(),
-        ]);
+        const result = await this.getAccountAndChainId(fromWallet);
+
+        if (!result) {
+            return;
+        }
+
+        const [account, chainId] = result;
 
         if (!account || !chainId) {
             return;
@@ -202,10 +216,13 @@ class WalletClient {
         };
 
         // Fetch account number and sequence and chain id
-        const [account, chainId] = await Promise.all([
-            this.lumClient.getAccount(fromWallet.getAddress()),
-            this.lumClient.getChainId(),
-        ]);
+        const result = await this.getAccountAndChainId(fromWallet);
+
+        if (!result) {
+            return;
+        }
+
+        const [account, chainId] = result;
 
         if (!account || !chainId) {
             return;
@@ -239,10 +256,13 @@ class WalletClient {
         };
 
         // Fetch account number and sequence and chain id
-        const [account, chainId] = await Promise.all([
-            this.lumClient.getAccount(fromWallet.getAddress()),
-            this.lumClient.getChainId(),
-        ]);
+        const result = await this.getAccountAndChainId(fromWallet);
+
+        if (!result) {
+            return;
+        }
+
+        const [account, chainId] = result;
 
         if (!account || !chainId) {
             return;
@@ -254,6 +274,60 @@ class WalletClient {
             fee,
             memo,
             messages: [getRewardMsg],
+            sequence: account.sequence,
+        };
+
+        const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, doc);
+        // Verify the transaction was successfully broadcasted and made it into a block
+        console.log(`Broadcast success: ${LumUtils.broadcastTxCommitSuccess(broadcastResult)}`);
+    };
+
+    redelegate = async (
+        fromWallet: LumWallet,
+        validatorScrAddress: string,
+        validatorDestAddress: string,
+        amount: string,
+        memo: string,
+    ) => {
+        if (this.lumClient === null) {
+            return;
+        }
+
+        const redelegateMsg = LumMessages.BuildMsgBeginRedelegate(
+            fromWallet.getAddress(),
+            validatorScrAddress,
+            validatorDestAddress,
+            {
+                amount,
+                denom: LumConstants.LumDenom,
+            },
+        );
+
+        // Define fees (5 LUM)
+        const fee = {
+            amount: [{ denom: LumConstants.LumDenom, amount: '1' }],
+            gas: '300000',
+        };
+
+        // Fetch account number and sequence and chain id
+        const result = await this.getAccountAndChainId(fromWallet);
+
+        if (!result) {
+            return;
+        }
+
+        const [account, chainId] = result;
+
+        if (!account || !chainId) {
+            return;
+        }
+
+        const doc = {
+            accountNumber: account.accountNumber,
+            chainId,
+            fee,
+            memo,
+            messages: [redelegateMsg],
             sequence: account.sequence,
         };
 

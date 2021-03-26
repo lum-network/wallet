@@ -7,7 +7,6 @@ interface SendPayload {
     to: string;
     from: LumWallet;
     amount: string;
-    ticker: string;
     memo: string;
 }
 
@@ -22,6 +21,14 @@ interface GetRewardPayload {
     validatorAddress: string;
     from: LumWallet;
     memo: string;
+}
+
+interface RedelegatePayload {
+    from: LumWallet;
+    memo: string;
+    validatorSrcAddress: string;
+    validatorDestAddress: string;
+    amount: string;
 }
 
 interface SignInKeystorePayload {
@@ -118,14 +125,14 @@ export const wallet = createModel<RootModel>()({
                 showErrorToast(e.message);
             }
         },
-        async sendTx(payload: SendPayload, state) {
-            const tx = {
-                ...payload,
-                id: `tx-${state.wallet.transactions.length}`,
-                amount: Number(payload.amount),
-                from: payload.from.getAddress(),
-                date: new Date(),
-            };
+        async sendTx(payload: SendPayload) {
+            // const tx = {
+            //     ...payload,
+            //     id: `tx-${state.wallet.transactions.length}`,
+            //     amount: Number(payload.amount),
+            //     from: payload.from.getAddress(),
+            //     date: new Date(),
+            // };
 
             try {
                 await WalletClient.sendTx(payload.from, payload.to, payload.amount, payload.memo);
@@ -157,6 +164,21 @@ export const wallet = createModel<RootModel>()({
         async getReward(payload: GetRewardPayload) {
             try {
                 await WalletClient.getReward(payload.from, payload.validatorAddress, payload.memo);
+            } catch (e) {
+                console.error(e);
+                return;
+            }
+            //TODO: Dispatch action
+        },
+        async redelegate(payload: RedelegatePayload) {
+            try {
+                await WalletClient.redelegate(
+                    payload.from,
+                    payload.validatorSrcAddress,
+                    payload.validatorDestAddress,
+                    payload.amount,
+                    payload.memo,
+                );
             } catch (e) {
                 console.error(e);
                 return;
