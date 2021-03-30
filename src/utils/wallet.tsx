@@ -1,4 +1,12 @@
-import { LumUtils, LumClient, LumMessages, LumWallet, LumRegistry, LumTypes } from '@lum-network/sdk-javascript';
+import {
+    LumClient,
+    LumConstants,
+    LumMessages,
+    LumRegistry,
+    LumTypes,
+    LumUtils,
+    LumWallet,
+} from '@lum-network/sdk-javascript';
 import { TxResponse } from '@cosmjs/tendermint-rpc';
 import { LUM_TESTNET } from 'constant';
 import { PasswordStrengthType, PasswordStrength, Transaction, Amount } from 'models';
@@ -87,6 +95,14 @@ class WalletClient {
         this.lumClient = await LumClient.connect(LUM_TESTNET);
     };
 
+    private getAccountAndChainId = (fromWallet: LumWallet) => {
+        if (this.lumClient === null) {
+            return;
+        }
+
+        return Promise.all([this.lumClient.getAccount(fromWallet.getAddress()), this.lumClient.getChainId()]);
+    };
+
     getWalletInformations = async (address: string) => {
         if (this.lumClient === null) {
             return null;
@@ -114,16 +130,226 @@ class WalletClient {
         }
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    sendTx = async (_fromWallet: LumWallet, _to: string, _amount: string) => {
+    sendTx = async (fromWallet: LumWallet, toAddress: string, amount: string, memo = '') => {
         if (this.lumClient === null) {
             return;
         }
 
+        // Build transaction message
+        const sendMsg = LumMessages.BuildMsgSend(fromWallet.getAddress(), toAddress, [
+            { denom: LumConstants.LumDenom, amount },
+        ]);
+        // Define fees (5 LUM)
+        const fee = {
+            amount: [{ denom: LumConstants.LumDenom, amount: '100' }],
+            gas: '100000',
+        };
+        // Fetch account number and sequence and chain id
+        const result = await this.getAccountAndChainId(fromWallet);
+
+        if (!result) {
+            return;
+        }
+
+        const [account, chainId] = result;
+
+        if (!account || !chainId) {
+            return;
+        }
+
+        // Create the transaction document
+        const doc = {
+            accountNumber: account.accountNumber,
+            chainId,
+            fee,
+            memo,
+            messages: [sendMsg],
+            sequence: account.sequence,
+        };
         // Sign and broadcast the transaction using the client
-        //const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, [sendMsg], fee, 'hello memo!');
-        // Verify the transaction was succesfully broadcasted and made it into a block
-        //console.log(`Broadcast success: ${LumUtils.broadcastTxCommitSuccess(broadcastResult)}`);
+        const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, doc);
+        // Verify the transaction was successfully broadcasted and made it into a block
+        console.log(`Broadcast success: ${LumUtils.broadcastTxCommitSuccess(broadcastResult)}`);
+    };
+
+    delegate = async (fromWallet: LumWallet, validatorAddress: string, amount: string, memo: string) => {
+        if (this.lumClient === null) {
+            return;
+        }
+
+        const delegateMsg = LumMessages.BuildMsgDelegate(fromWallet.getAddress(), validatorAddress, {
+            denom: LumConstants.LumDenom,
+            amount,
+        });
+
+        // Define fees (5 LUM)
+        const fee = {
+            amount: [{ denom: LumConstants.LumDenom, amount: '5' }],
+            gas: '200000',
+        };
+
+        // Fetch account number and sequence and chain id
+        const result = await this.getAccountAndChainId(fromWallet);
+
+        if (!result) {
+            return;
+        }
+
+        const [account, chainId] = result;
+
+        if (!account || !chainId) {
+            return;
+        }
+
+        const doc = {
+            accountNumber: account.accountNumber,
+            chainId,
+            fee,
+            memo,
+            messages: [delegateMsg],
+            sequence: account.sequence,
+        };
+
+        const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, doc);
+        // Verify the transaction was successfully broadcasted and made it into a block
+        console.log(`Broadcast success: ${LumUtils.broadcastTxCommitSuccess(broadcastResult)}`);
+    };
+
+    undelegate = async (fromWallet: LumWallet, validatorAddress: string, amount: string, memo: string) => {
+        if (this.lumClient === null) {
+            return;
+        }
+
+        const undelegateMsg = LumMessages.BuildMsgUndelegate(fromWallet.getAddress(), validatorAddress, {
+            denom: LumConstants.LumDenom,
+            amount,
+        });
+
+        // Define fees (5 LUM)
+        const fee = {
+            amount: [{ denom: LumConstants.LumDenom, amount: '5' }],
+            gas: '200000',
+        };
+
+        // Fetch account number and sequence and chain id
+        const result = await this.getAccountAndChainId(fromWallet);
+
+        if (!result) {
+            return;
+        }
+
+        const [account, chainId] = result;
+
+        if (!account || !chainId) {
+            return;
+        }
+
+        const doc = {
+            accountNumber: account.accountNumber,
+            chainId,
+            fee,
+            memo,
+            messages: [undelegateMsg],
+            sequence: account.sequence,
+        };
+
+        const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, doc);
+        // Verify the transaction was successfully broadcasted and made it into a block
+        console.log(`Broadcast success: ${LumUtils.broadcastTxCommitSuccess(broadcastResult)}`);
+    };
+
+    getReward = async (fromWallet: LumWallet, validatorAddress: string, memo: string) => {
+        if (this.lumClient === null) {
+            return;
+        }
+
+        const getRewardMsg = LumMessages.BuildMsgWithdrawDelegatorReward(fromWallet.getAddress(), validatorAddress);
+
+        // Define fees (5 LUM)
+        const fee = {
+            amount: [{ denom: LumConstants.LumDenom, amount: '1' }],
+            gas: '140000',
+        };
+
+        // Fetch account number and sequence and chain id
+        const result = await this.getAccountAndChainId(fromWallet);
+
+        if (!result) {
+            return;
+        }
+
+        const [account, chainId] = result;
+
+        if (!account || !chainId) {
+            return;
+        }
+
+        const doc = {
+            accountNumber: account.accountNumber,
+            chainId,
+            fee,
+            memo,
+            messages: [getRewardMsg],
+            sequence: account.sequence,
+        };
+
+        const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, doc);
+        // Verify the transaction was successfully broadcasted and made it into a block
+        console.log(`Broadcast success: ${LumUtils.broadcastTxCommitSuccess(broadcastResult)}`);
+    };
+
+    redelegate = async (
+        fromWallet: LumWallet,
+        validatorScrAddress: string,
+        validatorDestAddress: string,
+        amount: string,
+        memo: string,
+    ) => {
+        if (this.lumClient === null) {
+            return;
+        }
+
+        const redelegateMsg = LumMessages.BuildMsgBeginRedelegate(
+            fromWallet.getAddress(),
+            validatorScrAddress,
+            validatorDestAddress,
+            {
+                amount,
+                denom: LumConstants.LumDenom,
+            },
+        );
+
+        // Define fees (5 LUM)
+        const fee = {
+            amount: [{ denom: LumConstants.LumDenom, amount: '1' }],
+            gas: '300000',
+        };
+
+        // Fetch account number and sequence and chain id
+        const result = await this.getAccountAndChainId(fromWallet);
+
+        if (!result) {
+            return;
+        }
+
+        const [account, chainId] = result;
+
+        if (!account || !chainId) {
+            return;
+        }
+
+        const doc = {
+            accountNumber: account.accountNumber,
+            chainId,
+            fee,
+            memo,
+            messages: [redelegateMsg],
+            sequence: account.sequence,
+        };
+
+        const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, doc);
+        // Verify the transaction was successfully broadcasted and made it into a block
+        console.log(`Broadcast success: ${LumUtils.broadcastTxCommitSuccess(broadcastResult)}`);
     };
 }
 

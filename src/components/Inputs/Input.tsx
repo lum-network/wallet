@@ -17,7 +17,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>((props, ref) => {
             <div className={`normal-input-container d-flex flex-column ${className}`}>
                 {label && (
                     <label htmlFor={rest.id} className="form-label">
-                        {label}
+                        <p className="ms-2">{label}</p>
                     </label>
                 )}
                 <input ref={ref} className={`normal-input border-0 rounded-pill py-2 px-3 ${inputClass}`} {...rest} />

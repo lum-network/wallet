@@ -18,6 +18,7 @@ export interface Transaction {
     fromAddress: string;
     toAddress: string;
     time?: string;
+    memo?: string;
     success?: boolean;
     [key: string]: string | Amount[] | undefined | boolean;
 }
