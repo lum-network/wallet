@@ -13,14 +13,14 @@ export interface Amount {
 }
 
 export interface Transaction {
-    hash: string;
-    amount?: Amount;
-    addresses: string[];
+    hash: string;  
+    amount?: Amount[];
+    fromAddress: string;
+    toAddress: string;
+    time?: string;
     memo: string;
-    time: string;
-    code: number;
-    success: boolean;
-    [key: string]: string | number | Amount | undefined | string[] | boolean;
+    success?: boolean;
+    [key: string]: string | Amount[] | undefined | boolean;
 }
 
 export enum PasswordStrengthType {

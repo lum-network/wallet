@@ -9,7 +9,7 @@ import {
 } from '@lum-network/sdk-javascript';
 import { TxResponse } from '@cosmjs/tendermint-rpc';
 import { LUM_TESTNET } from 'constant';
-import { PasswordStrength, PasswordStrengthType } from 'models';
+import { PasswordStrengthType, PasswordStrength, Transaction, Amount } from 'models';
 
 export type MnemonicLength = 12 | 24;
 
@@ -46,8 +46,18 @@ export const checkPwdStrength = (password: string): PasswordStrength => {
     return PasswordStrengthType.Weak;
 };
 
-export const formatTxs = (rawTxs: TxResponse[]): unknown[] => {
-    const formattedTxs: unknown[] = [];
+type TxInfos = {
+    fromAddress: string;
+    toAddress: string;
+    amount: Amount[];
+};
+
+const isTxInfo = (info: { fromAddress?: string; toAddress?: string; amount?: Amount[] } | null): info is TxInfos => {
+    return !!(info && info.fromAddress && info.toAddress && info.amount);
+};
+
+export const formatTxs = (rawTxs: TxResponse[]): Transaction[] => {
+    const formattedTxs: Transaction[] = [];
 
     rawTxs.forEach((rawTx) => {
         // Decode TX to human readable format
@@ -55,10 +65,14 @@ export const formatTxs = (rawTxs: TxResponse[]): unknown[] => {
 
         txData.body?.messages?.forEach((msg) => {
             if (msg.typeUrl === LumMessages.MsgSendUrl) {
-                formattedTxs.push({
-                    hash: LumUtils.toHex(rawTx.hash).toUpperCase(),
-                    ...Object.assign({}, LumUtils.toJSON(LumRegistry.decode(msg))),
-                });
+                const txInfos = LumUtils.toJSON(LumRegistry.decode(msg));
+
+                if (typeof txInfos === 'object' && isTxInfo(txInfos)) {
+                    formattedTxs.push({
+                        ...txInfos,
+                        hash: LumUtils.toHex(rawTx.hash).toUpperCase(),
+                    });
+                }
             }
         });
     });
@@ -107,6 +121,8 @@ class WalletClient {
             ]);
 
             const formattedTxs = formatTxs(transactions);
+
+            console.log(formattedTxs);
 
             return { ...account, ...(balance && { currentBalance: balance.amount }), transactions: formattedTxs };
         } catch (e) {
