@@ -1,48 +1,58 @@
-# Getting Started with Create React App
+# Lum Network - Wallet
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is Lum Network's wallet project created to give you access to your personal LUM wallet by a Ledger or any Software method (Mnemonic, keystore or private key) and gives you the ability to interact with it.
 
-## Available Scripts
+This wallet is backed with Lum Network's Javascript SDK. You can find it [here](https://github.com/lum-network/sdk-javascript)
 
-In the project directory, you can run:
+## Features
 
-### `yarn start`
+- Access your wallet:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+  - **`Ledger`**, you can access your wallet with your ledger and the according Lum Network ledger app.
+  - **`Mnemonic`**, write down your 12/24 length mnemonic to access your wallet.
+  - **`Keystore`**, upload your keystore file and secure your access by providing the corresponding passsword.
+  - **`Private Key`**, enter your wallet private key to directly access it.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+**Note: Software methods are not recommanded as they are not secured and can be easily lost so use it at your own risks**
 
-### `yarn test`
+- View your recent transactions
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- Wallet operations
 
-### `yarn build`
+  - Delegate, undelegate and redelegate to dedicated validators
+  - Send Lum
+  - Earn rewards
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Development
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- First, clone the repository `git clone https://github.com/lum-network/wallet.git`
+- Install the project packages via `yarn`
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- Then, in the project directory, you can run:
 
-### `yarn eject`
+  #### `yarn build`
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+  Builds the app for production to the `build` folder.\
+  It correctly bundles React in production mode and optimizes the build for the best performance.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+  The build is minified and the filenames include the hashes.\
+  This works if you want to run an offline version of your wallet!
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+  #### `yarn start`
+  
+  Runs the app in the development mode.\
+  Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+  The page will reload if you make edits.\
+  You will also see any lint errors in the console.
 
-## Learn More
+  #### `yarn test`
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+  Launches the test runner in the interactive watch mode.\
+  See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Bug / Feature Request
+
+If you find a bug, or want a new feature added, please submit it on the [Github Issues](https://github.com/lum-network/wallet/issues)
