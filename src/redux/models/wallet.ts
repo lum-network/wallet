@@ -85,7 +85,7 @@ export const wallet = createModel<RootModel>()({
                 if (accountInfos) {
                     dispatch.wallet.setWalletData({
                         currentBalance: accountInfos.currentBalance ? Number(accountInfos.currentBalance) : undefined,
-                        //transactions: accountInfos.transactions,
+                        transactions: accountInfos.transactions,
                     });
                 }
             } catch (e) {
@@ -101,7 +101,7 @@ export const wallet = createModel<RootModel>()({
                 if (accountInfos) {
                     dispatch.wallet.setWalletData({
                         currentBalance: accountInfos.currentBalance ? Number(accountInfos.currentBalance) : undefined,
-                        //transactions: accountInfos.transactions,
+                        transactions: accountInfos.transactions,
                     });
                 }
             } catch (e) {
