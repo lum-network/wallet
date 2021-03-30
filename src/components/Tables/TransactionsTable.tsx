@@ -20,7 +20,9 @@ const TransactionRow = (props: RowProps): JSX.Element => {
     return (
         <tr>
             <td data-label="Hash">
-                <a href={`${LUM_EXPLORER}/txs/${row.hash}`}>{trunc(row.hash)}</a>
+                <a href={`${LUM_EXPLORER}/txs/${row.hash}`} target="_blank" rel="noreferrer">
+                    {trunc(row.hash)}
+                </a>
             </td>
             <td data-label="Date">
                 <div className="text-truncate">{toLocaleDateFormat(row.time ? new Date(row.time) : new Date())}</div>
@@ -40,7 +42,6 @@ const TransactionRow = (props: RowProps): JSX.Element => {
 
 const TransactionsTable = (props: TransactionsTableProps): JSX.Element => {
     if (props.transactions.length > 0) {
-        const { transactions } = props;
         const { t } = useTranslation();
         const headers = [
             'Hash',
@@ -50,9 +51,16 @@ const TransactionsTable = (props: TransactionsTableProps): JSX.Element => {
             t('transactions.table.amount'),
         ];
 
+        const txs = [...props.transactions].sort((txA, txB) => {
+            const aDate = txA.time ? new Date(txA.time) : new Date();
+            const bDate = txB.time ? new Date(txB.time) : new Date();
+
+            return aDate < bDate ? 1 : -1;
+        });
+
         return (
             <Table head={headers}>
-                {transactions.map((tx, index) => (
+                {txs.map((tx, index) => (
                     <TransactionRow key={index} row={tx} t={t} />
                 ))}
             </Table>

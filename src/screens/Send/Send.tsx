@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 
-import { AddressCard, BalanceCard, Input, Modal } from 'components';
+import { AddressCard, BalanceCard, Input, Modal, Button as CustomButton } from 'components';
 import { Redirect } from 'react-router';
 import { RootDispatch, RootState } from 'redux/store';
 import MessageButton from './components/MessageButton/MessageButton';
 import assets from 'assets';
-import { LumConstants, LumMessages } from '@lum-network/sdk-javascript';
+import { LumConstants, LumMessages, LumUtils } from '@lum-network/sdk-javascript';
 import { Button } from 'frontend-elements';
 import { useTranslation } from 'react-i18next';
 
@@ -30,8 +30,10 @@ const Send = (): JSX.Element => {
     const loadingAll = loadingSend | loadingDelegate | loadingUndelegate | loadingGetReward;
 
     const { t } = useTranslation();
+    const modalRef = useRef<HTMLDivElement>(null);
 
     const [modal, setModal] = useState<MsgType | null>(null);
+    const [txResult, setTxResult] = useState<{ hash: string; error?: string | null } | null>(null);
 
     const buttons: MsgType[] = [
         { id: LumMessages.MsgSendUrl, name: 'Send', icon: assets.images.messageSend },
@@ -50,6 +52,14 @@ const Send = (): JSX.Element => {
         return <Redirect to="/welcome" />;
     }
 
+    useEffect(() => {
+        if (modalRef.current) {
+            modalRef.current.addEventListener('hidden.bs.modal', () => {
+                setTxResult(null);
+            });
+        }
+    });
+
     const sendForm = useFormik({
         initialValues: { address: '', amount: '', memo: '' },
         validationSchema: yup.object().shape({
@@ -60,7 +70,7 @@ const Send = (): JSX.Element => {
             amount: yup.string().required(t('common.required')),
             memo: yup.string(),
         }),
-        onSubmit: (values) => onSubmitSend(values.address, values.amount, values.memo),
+        onSubmit: async (values) => await onSubmitSend(values.address, values.amount, values.memo),
     });
 
     const delegateForm = useFormik({
@@ -101,20 +111,36 @@ const Send = (): JSX.Element => {
         onSubmit: (values) => onSubmitGetReward(values.address, values.memo),
     });
 
-    const onSubmitSend = (toAddress: string, amount: string, memo: string) => {
-        dispatch.wallet.sendTx({ from: wallet, to: toAddress, amount, memo });
+    const onSubmitSend = async (toAddress: string, amount: string, memo: string) => {
+        const sendResult = await dispatch.wallet.sendTx({ from: wallet, to: toAddress, amount, memo });
+
+        if (sendResult) {
+            setTxResult({ hash: LumUtils.toHex(sendResult.hash), error: sendResult.error });
+        }
     };
 
-    const onSubmitDelegate = (validatorAddress: string, amount: string, memo: string) => {
-        dispatch.wallet.delegate({ validatorAddress, amount, memo, from: wallet });
+    const onSubmitDelegate = async (validatorAddress: string, amount: string, memo: string) => {
+        const delegateResult = await dispatch.wallet.delegate({ validatorAddress, amount, memo, from: wallet });
+
+        if (delegateResult) {
+            setTxResult({ hash: LumUtils.toHex(delegateResult.hash), error: delegateResult.error });
+        }
     };
 
-    const onSubmitUndelegate = (validatorAddress: string, amount: string, memo: string) => {
-        dispatch.wallet.undelegate({ validatorAddress, amount, memo, from: wallet });
+    const onSubmitUndelegate = async (validatorAddress: string, amount: string, memo: string) => {
+        const undelegateResult = await dispatch.wallet.undelegate({ validatorAddress, amount, memo, from: wallet });
+
+        if (undelegateResult) {
+            setTxResult({ hash: LumUtils.toHex(undelegateResult.hash), error: undelegateResult.error });
+        }
     };
 
-    const onSubmitGetReward = (validatorAddress: string, memo: string) => {
-        dispatch.wallet.getReward({ validatorAddress, memo, from: wallet });
+    const onSubmitGetReward = async (validatorAddress: string, memo: string) => {
+        const getRewardResult = await dispatch.wallet.getReward({ validatorAddress, memo, from: wallet });
+
+        if (getRewardResult) {
+            setTxResult({ hash: LumUtils.toHex(getRewardResult.hash), error: getRewardResult.error });
+        }
     };
 
     const onClickButton = (msg: MsgType) => {
@@ -286,17 +312,48 @@ const Send = (): JSX.Element => {
                             <AddressCard address={wallet.getAddress()} />
                         </div>
                         <div className="col-md-6">
-                            <BalanceCard balance={balance} />
+                            <BalanceCard balance={balance} address={wallet.getAddress()} />
                         </div>
                     </div>
                     {renderButtons}
                 </div>
             </div>
-            <Modal id="modalSendTxs" withCloseButton={!loadingAll} dataBsBackdrop={'static'} bodyClassName="w-100">
+            <Modal
+                ref={modalRef}
+                id="modalSendTxs"
+                withCloseButton={!loadingAll && (txResult === null || (txResult && txResult.error !== null))}
+                dataBsBackdrop={'static'}
+                bodyClassName="w-100"
+            >
                 {modal && (
                     <div className="d-flex flex-column align-items-center">
                         <h2 className="text-center">{modal.name}</h2>
-                        {renderModal()}
+                        {!txResult ? (
+                            renderModal()
+                        ) : txResult.error !== null ? (
+                            <>
+                                <p className="color-error">Failure</p>
+                                <p className="color-error my-5 text-start">
+                                    {txResult.error || 'An unknown error has occured, please try again later'}
+                                </p>
+                                <CustomButton className="mt-5" onClick={() => setTxResult(null)}>
+                                    Retry
+                                </CustomButton>
+                            </>
+                        ) : (
+                            <>
+                                <p className="color-success">Success</p>
+                                <Input
+                                    disabled
+                                    value={txResult.hash}
+                                    label="Hash"
+                                    className="text-start align-self-stretch mb-5"
+                                />
+                                <CustomButton className="mt-5" data-bs-target="modalSendTxs" data-bs-dismiss="modal">
+                                    Close
+                                </CustomButton>
+                            </>
+                        )}
                     </div>
                 )}
             </Modal>

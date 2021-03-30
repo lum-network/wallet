@@ -1,5 +1,4 @@
 import React from 'react';
-//import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 
 import { RootState } from 'redux/store';
@@ -8,7 +7,6 @@ import { Card } from 'frontend-elements';
 
 const Transactions = (): JSX.Element => {
     const transactions = useSelector((state: RootState) => state.wallet.transactions);
-    //const { t } = useTranslation();
 
     return (
         <div className="mt-4">

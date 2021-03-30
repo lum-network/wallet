@@ -56,12 +56,13 @@ const isTxInfo = (info: { fromAddress?: string; toAddress?: string; amount?: Amo
     return !!(info && info.fromAddress && info.toAddress && info.amount);
 };
 
-export const formatTxs = (rawTxs: TxResponse[]): Transaction[] => {
+export const formatTxs = async (rawTxs: TxResponse[], client: LumClient): Promise<Transaction[]> => {
     const formattedTxs: Transaction[] = [];
 
-    rawTxs.forEach((rawTx) => {
+    for (const rawTx of rawTxs) {
         // Decode TX to human readable format
         const txData = LumRegistry.decodeTx(rawTx.tx);
+        const block = await client.getBlock(rawTx.height);
 
         txData.body?.messages?.forEach((msg) => {
             if (msg.typeUrl === LumMessages.MsgSendUrl) {
@@ -70,12 +71,13 @@ export const formatTxs = (rawTxs: TxResponse[]): Transaction[] => {
                 if (typeof txInfos === 'object' && isTxInfo(txInfos)) {
                     formattedTxs.push({
                         ...txInfos,
+                        time: (block.block.header.time as Date).toISOString(),
                         hash: LumUtils.toHex(rawTx.hash).toUpperCase(),
                     });
                 }
             }
         });
-    });
+    }
 
     return formattedTxs;
 };
@@ -120,7 +122,7 @@ class WalletClient {
                 LumUtils.searchTxTo(address),
             ]);
 
-            const formattedTxs = formatTxs(transactions);
+            const formattedTxs = await formatTxs(transactions, this.lumClient);
 
             console.log(formattedTxs);
 
@@ -132,7 +134,7 @@ class WalletClient {
 
     sendTx = async (fromWallet: LumWallet, toAddress: string, amount: string, memo = '') => {
         if (this.lumClient === null) {
-            return;
+            return null;
         }
 
         // Build transaction message
@@ -148,13 +150,13 @@ class WalletClient {
         const result = await this.getAccountAndChainId(fromWallet);
 
         if (!result) {
-            return;
+            return null;
         }
 
         const [account, chainId] = result;
 
         if (!account || !chainId) {
-            return;
+            return null;
         }
 
         // Create the transaction document
@@ -169,12 +171,23 @@ class WalletClient {
         // Sign and broadcast the transaction using the client
         const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, doc);
         // Verify the transaction was successfully broadcasted and made it into a block
-        console.log(`Broadcast success: ${LumUtils.broadcastTxCommitSuccess(broadcastResult)}`);
+        const broadcasted = LumUtils.broadcastTxCommitSuccess(broadcastResult);
+
+        console.log(`Broadcast success: ${broadcasted}`);
+
+        return {
+            hash: broadcastResult.hash,
+            error: !broadcasted
+                ? broadcastResult.deliverTx && broadcastResult.deliverTx.log
+                    ? broadcastResult.deliverTx.log
+                    : broadcastResult.checkTx.log
+                : null,
+        };
     };
 
     delegate = async (fromWallet: LumWallet, validatorAddress: string, amount: string, memo: string) => {
         if (this.lumClient === null) {
-            return;
+            return null;
         }
 
         const delegateMsg = LumMessages.BuildMsgDelegate(fromWallet.getAddress(), validatorAddress, {
@@ -192,13 +205,13 @@ class WalletClient {
         const result = await this.getAccountAndChainId(fromWallet);
 
         if (!result) {
-            return;
+            return null;
         }
 
         const [account, chainId] = result;
 
         if (!account || !chainId) {
-            return;
+            return null;
         }
 
         const doc = {
@@ -212,12 +225,23 @@ class WalletClient {
 
         const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, doc);
         // Verify the transaction was successfully broadcasted and made it into a block
-        console.log(`Broadcast success: ${LumUtils.broadcastTxCommitSuccess(broadcastResult)}`);
+        const broadcasted = LumUtils.broadcastTxCommitSuccess(broadcastResult);
+
+        console.log(`Broadcast success: ${broadcasted}`);
+
+        return {
+            hash: broadcastResult.hash,
+            error: !broadcasted
+                ? broadcastResult.deliverTx && broadcastResult.deliverTx.log
+                    ? broadcastResult.deliverTx.log
+                    : broadcastResult.checkTx.log
+                : null,
+        };
     };
 
     undelegate = async (fromWallet: LumWallet, validatorAddress: string, amount: string, memo: string) => {
         if (this.lumClient === null) {
-            return;
+            return null;
         }
 
         const undelegateMsg = LumMessages.BuildMsgUndelegate(fromWallet.getAddress(), validatorAddress, {
@@ -235,13 +259,13 @@ class WalletClient {
         const result = await this.getAccountAndChainId(fromWallet);
 
         if (!result) {
-            return;
+            return null;
         }
 
         const [account, chainId] = result;
 
         if (!account || !chainId) {
-            return;
+            return null;
         }
 
         const doc = {
@@ -255,12 +279,23 @@ class WalletClient {
 
         const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, doc);
         // Verify the transaction was successfully broadcasted and made it into a block
-        console.log(`Broadcast success: ${LumUtils.broadcastTxCommitSuccess(broadcastResult)}`);
+        const broadcasted = LumUtils.broadcastTxCommitSuccess(broadcastResult);
+
+        console.log(`Broadcast success: ${broadcasted}`);
+
+        return {
+            hash: broadcastResult.hash,
+            error: !broadcasted
+                ? broadcastResult.deliverTx && broadcastResult.deliverTx.log
+                    ? broadcastResult.deliverTx.log
+                    : broadcastResult.checkTx.log
+                : null,
+        };
     };
 
     getReward = async (fromWallet: LumWallet, validatorAddress: string, memo: string) => {
         if (this.lumClient === null) {
-            return;
+            return null;
         }
 
         const getRewardMsg = LumMessages.BuildMsgWithdrawDelegatorReward(fromWallet.getAddress(), validatorAddress);
@@ -275,13 +310,13 @@ class WalletClient {
         const result = await this.getAccountAndChainId(fromWallet);
 
         if (!result) {
-            return;
+            return null;
         }
 
         const [account, chainId] = result;
 
         if (!account || !chainId) {
-            return;
+            return null;
         }
 
         const doc = {
@@ -295,7 +330,18 @@ class WalletClient {
 
         const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, doc);
         // Verify the transaction was successfully broadcasted and made it into a block
-        console.log(`Broadcast success: ${LumUtils.broadcastTxCommitSuccess(broadcastResult)}`);
+        const broadcasted = LumUtils.broadcastTxCommitSuccess(broadcastResult);
+
+        console.log(`Broadcast success: ${broadcasted}`);
+
+        return {
+            hash: broadcastResult.hash,
+            error: !broadcasted
+                ? broadcastResult.deliverTx && broadcastResult.deliverTx.log
+                    ? broadcastResult.deliverTx.log
+                    : broadcastResult.checkTx.log
+                : null,
+        };
     };
 
     redelegate = async (
@@ -306,7 +352,7 @@ class WalletClient {
         memo: string,
     ) => {
         if (this.lumClient === null) {
-            return;
+            return null;
         }
 
         const redelegateMsg = LumMessages.BuildMsgBeginRedelegate(
@@ -329,13 +375,13 @@ class WalletClient {
         const result = await this.getAccountAndChainId(fromWallet);
 
         if (!result) {
-            return;
+            return null;
         }
 
         const [account, chainId] = result;
 
         if (!account || !chainId) {
-            return;
+            return null;
         }
 
         const doc = {
@@ -349,7 +395,18 @@ class WalletClient {
 
         const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, doc);
         // Verify the transaction was successfully broadcasted and made it into a block
-        console.log(`Broadcast success: ${LumUtils.broadcastTxCommitSuccess(broadcastResult)}`);
+        const broadcasted = LumUtils.broadcastTxCommitSuccess(broadcastResult);
+
+        console.log(`Broadcast success: ${broadcasted}`);
+
+        return {
+            hash: broadcastResult.hash,
+            error: !broadcasted
+                ? broadcastResult.deliverTx && broadcastResult.deliverTx.log
+                    ? broadcastResult.deliverTx.log
+                    : broadcastResult.checkTx.log
+                : null,
+        };
     };
 }
 

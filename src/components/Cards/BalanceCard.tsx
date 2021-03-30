@@ -8,11 +8,12 @@ import { __DEV__ } from 'constant';
 import { useRematchDispatch } from 'redux/hooks';
 import { RootDispatch } from 'redux/store';
 
-const BalanceCard = ({ balance }: { balance: number }): JSX.Element => {
+const BalanceCard = ({ balance, address }: { balance: number; address: string }): JSX.Element => {
     const { t } = useTranslation();
 
-    const { mintFaucet } = useRematchDispatch((dispatch: RootDispatch) => ({
+    const { mintFaucet, getWalletInfos } = useRematchDispatch((dispatch: RootDispatch) => ({
         mintFaucet: dispatch.wallet.mintFaucet,
+        getWalletInfos: dispatch.wallet.getWalletInfos,
     }));
 
     return (
@@ -23,11 +24,11 @@ const BalanceCard = ({ balance }: { balance: number }): JSX.Element => {
                 <img src={assets.images.lumTicker} className="ticker" />
             </div>
             <div>
-                <button type="button" className="ps-2 pb-2">
+                <button type="button" className="ps-2 pb-2" onClick={() => getWalletInfos(address)}>
                     <img src={assets.images.syncIcon} className="tint-white" />
                 </button>
                 {__DEV__ && (
-                    <button type="button" className="ps-2 pb-2" onClick={mintFaucet}>
+                    <button type="button" className="ps-2 pb-2" onClick={() => mintFaucet(address)}>
                         <img src={assets.images.addIcon} className="tint-white" />
                     </button>
                 )}

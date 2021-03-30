@@ -34,7 +34,7 @@ const Dashboard = (): JSX.Element => {
                         <AddressCard address={wallet.getAddress()} />
                     </div>
                     <div className="col-lg-5 col-12">
-                        <BalanceCard balance={balance} />
+                        <BalanceCard balance={balance} address={wallet.getAddress()} />
                     </div>
                     <div className="col-lg-2 col-12">
                         <Card className="h-100 dashboard-card align-items-center text-center">

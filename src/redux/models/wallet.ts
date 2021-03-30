@@ -77,18 +77,20 @@ export const wallet = createModel<RootModel>()({
         signInAsync(payload: LumWallet) {
             dispatch.wallet.signIn(payload);
         },
+        async getWalletInfos(address: string) {
+            const accountInfos = await WalletClient.getWalletInformations(address);
+            if (accountInfos) {
+                dispatch.wallet.setWalletData({
+                    currentBalance: accountInfos.currentBalance ? Number(accountInfos.currentBalance) : undefined,
+                    transactions: accountInfos.transactions,
+                });
+            }
+        },
         async signInWithMnemonicAsync(payload: string) {
             try {
                 const wallet = await LumWalletFactory.fromMnemonic(payload);
                 dispatch.wallet.signIn(wallet);
-
-                const accountInfos = await WalletClient.getWalletInformations(wallet.getAddress());
-                if (accountInfos) {
-                    dispatch.wallet.setWalletData({
-                        currentBalance: accountInfos.currentBalance ? Number(accountInfos.currentBalance) : undefined,
-                        transactions: accountInfos.transactions,
-                    });
-                }
+                dispatch.wallet.getWalletInfos(wallet.getAddress());
             } catch (e) {
                 showErrorToast(e.message);
             }
@@ -97,14 +99,7 @@ export const wallet = createModel<RootModel>()({
             try {
                 const wallet = await LumWalletFactory.fromPrivateKey(LumUtils.keyFromHex(payload));
                 dispatch.wallet.signIn(wallet);
-
-                const accountInfos = await WalletClient.getWalletInformations(wallet.getAddress());
-                if (accountInfos) {
-                    dispatch.wallet.setWalletData({
-                        currentBalance: accountInfos.currentBalance ? Number(accountInfos.currentBalance) : undefined,
-                        transactions: accountInfos.transactions,
-                    });
-                }
+                dispatch.wallet.getWalletInfos(wallet.getAddress());
             } catch (e) {
                 showErrorToast(e.message);
             }
@@ -114,14 +109,7 @@ export const wallet = createModel<RootModel>()({
             try {
                 const wallet = await LumWalletFactory.fromKeyStore(data, password);
                 dispatch.wallet.signIn(wallet);
-
-                const accountInfos = await WalletClient.getWalletInformations(wallet.getAddress());
-                if (accountInfos) {
-                    dispatch.wallet.setWalletData({
-                        currentBalance: accountInfos.currentBalance ? Number(accountInfos.currentBalance) : undefined,
-                        //transactions: accountInfos.transactions,
-                    });
-                }
+                dispatch.wallet.getWalletInfos(wallet.getAddress());
             } catch (e) {
                 showErrorToast(e.message);
             }
@@ -136,44 +124,54 @@ export const wallet = createModel<RootModel>()({
             // };
 
             try {
-                await WalletClient.sendTx(payload.from, payload.to, payload.amount, payload.memo);
+                return await WalletClient.sendTx(payload.from, payload.to, payload.amount, payload.memo);
             } catch (e) {
                 console.error(e);
-                return;
+                return null;
             }
             //TODO: dispatch action
             //dispatch.wallet.addTransaction(tx);
         },
         async delegate(payload: DelegatePayload) {
             try {
-                await WalletClient.delegate(payload.from, payload.validatorAddress, payload.amount, payload.memo);
+                return await WalletClient.delegate(
+                    payload.from,
+                    payload.validatorAddress,
+                    payload.amount,
+                    payload.memo,
+                );
             } catch (e) {
                 console.error(e);
-                return;
+                return null;
             }
             //TODO: Dispatch action
         },
         async undelegate(payload: DelegatePayload) {
             try {
-                await WalletClient.undelegate(payload.from, payload.validatorAddress, payload.amount, payload.memo);
+                return await WalletClient.undelegate(
+                    payload.from,
+                    payload.validatorAddress,
+                    payload.amount,
+                    payload.memo,
+                );
             } catch (e) {
                 console.error(e);
-                return;
+                return null;
             }
             //TODO: Dispatch action
         },
         async getReward(payload: GetRewardPayload) {
             try {
-                await WalletClient.getReward(payload.from, payload.validatorAddress, payload.memo);
+                return await WalletClient.getReward(payload.from, payload.validatorAddress, payload.memo);
             } catch (e) {
                 console.error(e);
-                return;
+                return null;
             }
             //TODO: Dispatch action
         },
         async redelegate(payload: RedelegatePayload) {
             try {
-                await WalletClient.redelegate(
+                return await WalletClient.redelegate(
                     payload.from,
                     payload.validatorSrcAddress,
                     payload.validatorDestAddress,
@@ -182,26 +180,16 @@ export const wallet = createModel<RootModel>()({
                 );
             } catch (e) {
                 console.error(e);
-                return;
+                return null;
             }
             //TODO: Dispatch action
         },
-        async mintFaucet(payload: undefined, state) {
-            const address = state.wallet.currentWallet?.getAddress();
-
+        async mintFaucet(address: string) {
             if (address) {
                 const res = await axios.get(`https://bridge.testnet.lum.network/faucet/${address}`);
 
                 if (res.data.code === 200) {
-                    const accountInfos = await WalletClient.getWalletInformations(address);
-                    if (accountInfos) {
-                        dispatch.wallet.setWalletData({
-                            currentBalance: accountInfos.currentBalance
-                                ? Number(accountInfos.currentBalance)
-                                : undefined,
-                            transactions: accountInfos.transactions,
-                        });
-                    }
+                    dispatch.wallet.getWalletInfos(address);
                     showSuccessToast('Successfully minted faucet');
                 } else {
                     showErrorToast('An error occured when minting faucet');

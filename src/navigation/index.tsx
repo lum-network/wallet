@@ -10,7 +10,6 @@ import {
     Message,
     Send,
     Transactions,
-    TransactionDetails,
     Welcome,
     Error404,
     ImportPrivateKey,
@@ -52,9 +51,6 @@ const RootNavigator = (): JSX.Element => {
                     </PrivateRoute>
                     <PrivateRoute exact path="/transactions">
                         <Transactions />
-                    </PrivateRoute>
-                    <PrivateRoute path="/transaction/:txId">
-                        <TransactionDetails />
                     </PrivateRoute>
                     <Route path="*">
                         <Error404 />

@@ -151,7 +151,7 @@ const Message = (): JSX.Element => {
                             <AddressCard address={wallet.getAddress()} />
                         </div>
                         <div className="col-lg-6 col-12">
-                            <BalanceCard balance={currentBalance} />
+                            <BalanceCard balance={currentBalance} address={wallet.getAddress()} />
                         </div>
                         <div className="col-lg-6 col-12">
                             <Card className="d-flex flex-column h-100 justify-content-between">
