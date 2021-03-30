@@ -1,7 +1,8 @@
 import { LumUtils, LumWalletFactory, LumWallet } from '@lum-network/sdk-javascript';
 import { createModel } from '@rematch/core';
 import { RootModel, Transaction } from '../../models';
-import { showErrorToast, WalletClient } from 'utils';
+import { showErrorToast, showSuccessToast, WalletClient } from 'utils';
+import axios from 'axios';
 
 interface SendPayload {
     to: string;
@@ -184,6 +185,30 @@ export const wallet = createModel<RootModel>()({
                 return;
             }
             //TODO: Dispatch action
+        },
+        async mintFaucet(payload: undefined, state) {
+            const address = state.wallet.currentWallet?.getAddress();
+
+            if (address) {
+                const res = await axios.get(`https://bridge.testnet.lum.network/faucet/${address}`);
+
+                if (res.data.code === 200) {
+                    const accountInfos = await WalletClient.getWalletInformations(address);
+                    if (accountInfos) {
+                        dispatch.wallet.setWalletData({
+                            currentBalance: accountInfos.currentBalance
+                                ? Number(accountInfos.currentBalance)
+                                : undefined,
+                            transactions: accountInfos.transactions,
+                        });
+                    }
+                    showSuccessToast('Successfully minted faucet');
+                } else {
+                    showErrorToast('An error occured when minting faucet');
+                }
+            } else {
+                showErrorToast('Mint faucet error: Unknown address');
+            }
         },
     }),
 });

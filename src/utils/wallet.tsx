@@ -8,7 +8,7 @@ import {
     LumWallet,
 } from '@lum-network/sdk-javascript';
 import { TxResponse } from '@cosmjs/tendermint-rpc';
-import { LUM_TESTNET } from 'constant';
+import { LUM_MAINNET, LUM_TESTNET, __DEV__ } from 'constant';
 import { PasswordStrengthType, PasswordStrength, Transaction, Amount } from 'models';
 
 export type MnemonicLength = 12 | 24;
@@ -92,7 +92,7 @@ class WalletClient {
     lumClient: LumClient | null = null;
 
     init = async (): Promise<void> => {
-        this.lumClient = await LumClient.connect(LUM_TESTNET);
+        this.lumClient = await LumClient.connect(__DEV__ ? LUM_TESTNET : LUM_MAINNET);
     };
 
     private getAccountAndChainId = (fromWallet: LumWallet) => {
