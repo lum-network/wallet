@@ -13,7 +13,7 @@ export interface Amount {
 }
 
 export interface Transaction {
-    hash: string;  
+    hash: string;
     amount?: Amount[];
     fromAddress: string;
     toAddress: string;
