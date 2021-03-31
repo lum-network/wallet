@@ -30,10 +30,10 @@ const Dashboard = (): JSX.Element => {
         <div className="mt-4">
             <div className="container">
                 <div className="row gy-4">
-                    <div className="col-lg-5 col-12">
+                    <div className="col-lg-5 col-md-6 col-12">
                         <AddressCard address={wallet.getAddress()} />
                     </div>
-                    <div className="col-lg-5 col-12">
+                    <div className="col-lg-5 col-md-6 col-12">
                         <BalanceCard balance={balance} address={wallet.getAddress()} />
                     </div>
                     <div className="col-lg-2 col-12">

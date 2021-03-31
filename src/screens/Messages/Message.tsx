@@ -147,10 +147,10 @@ const Message = (): JSX.Element => {
             <div className="mt-4">
                 <div className="container">
                     <div className="row gy-4">
-                        <div className="col-lg-6 col-12">
+                        <div className="col-md-6 col-12">
                             <AddressCard address={wallet.getAddress()} />
                         </div>
-                        <div className="col-lg-6 col-12">
+                        <div className="col-md-6 col-12">
                             <BalanceCard balance={currentBalance} address={wallet.getAddress()} />
                         </div>
                         <div className="col-lg-6 col-12">
