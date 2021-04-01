@@ -4,7 +4,7 @@ import { Card } from 'frontend-elements';
 import { useTranslation } from 'react-i18next';
 
 import './Cards.scss';
-import { __DEV__ } from 'constant';
+import { LUM_TESTNET } from 'constant';
 import { useRematchDispatch } from 'redux/hooks';
 import { RootDispatch } from 'redux/store';
 
@@ -27,7 +27,7 @@ const BalanceCard = ({ balance, address }: { balance: number; address: string })
                 <button type="button" className="ps-2 pb-2" onClick={() => getWalletInfos(address)}>
                     <img src={assets.images.syncIcon} className="tint-white" />
                 </button>
-                {__DEV__ && (
+                {process.env.REACT_APP_RPC_URL === LUM_TESTNET && (
                     <button type="button" className="ps-2 pb-2" onClick={() => mintFaucet(address)}>
                         <img src={assets.images.addIcon} className="tint-white" />
                     </button>
