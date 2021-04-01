@@ -5,8 +5,11 @@
   "targets": {
     "lum-network": {
       "hosting": {
-        "wallet": [
+        "lum-network-wallet": [
           "lum-network-wallet"
+        ],
+        "lum-network-wallet-testnet": [
+          "lum-network-wallet-testnet"
         ]
       }
     }
