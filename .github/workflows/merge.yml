@@ -1,0 +1,67 @@
+# This workflow is intended to run each time a PR is merged on master (since this branch is write protected, we assume the only commits on it are PR merges)
+# It's building both test net and main net bundles, then deploying them on corresponding firebase projects
+# We assume it has already been unit tested on PR directly
+
+name: Deploy to Firebase Hosting on merge
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build_deploy_testnet:
+    name: Deploy the the built content on testnet hosting
+    runs-on: ubuntu-latest
+    environment: testnet
+    steps:
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v2
+        with:
+            submodules: recursive
+
+      - name: Install packages
+        run: yarn && cd src/frontend-elements && yarn
+
+      - name: Build the test net bundle
+        run: yarn build
+        env:
+          REACT_APP_RPC_URL: "https://node0.testnet.lum.network/rpc"
+
+      - name: Deploy on firebase testnet project
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          channelId: live
+          projectId: lum-network
+          target: lum-network-wallet-testnet
+        env:
+          FIREBASE_CLI_PREVIEWS: hostingchannels
+
+  build_deploy_mainnet:
+    name: Deploy the the built content on main net hosting
+    runs-on: ubuntu-latest
+    environment: mainnet
+    steps:
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v2
+        with:
+            submodules: recursive
+
+      - name: Install packages
+        run: yarn && cd src/frontend-elements && yarn
+
+      - name: Build the main net bundle
+        run: yarn build
+        env:
+          REACT_APP_RPC_URL: "https://node0.testnet.lum.network/rpc"
+
+      - name: Deploy on firebase main net project
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          channelId: live
+          projectId: lum-network
+          target: lum-network-wallet
+        env:
+          FIREBASE_CLI_PREVIEWS: hostingchannels
