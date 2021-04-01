@@ -10,7 +10,6 @@ import {
     Message,
     Send,
     Transactions,
-    TransactionDetails,
     Welcome,
     Error404,
     ImportPrivateKey,
@@ -20,8 +19,8 @@ import MainLayout from './Layout/MainLayout/MainLayout';
 
 const RootNavigator = (): JSX.Element => {
     return (
-        <MainLayout>
-            <BrowserRouter>
+        <BrowserRouter>
+            <MainLayout>
                 <Switch>
                     <Route path="/welcome">
                         <Welcome />
@@ -44,24 +43,21 @@ const RootNavigator = (): JSX.Element => {
                     <PrivateRoute exact path={['/home', '/']}>
                         <Dashboard />
                     </PrivateRoute>
-                    <PrivateRoute path="/message">
+                    <PrivateRoute exact path="/message">
                         <Message />
                     </PrivateRoute>
-                    <PrivateRoute path="/send">
+                    <PrivateRoute exact path="/send">
                         <Send />
                     </PrivateRoute>
-                    <PrivateRoute path="/transactions">
+                    <PrivateRoute exact path="/transactions">
                         <Transactions />
-                    </PrivateRoute>
-                    <PrivateRoute path="/transaction/:txId">
-                        <TransactionDetails />
                     </PrivateRoute>
                     <Route path="*">
                         <Error404 />
                     </Route>
                 </Switch>
-            </BrowserRouter>
-        </MainLayout>
+            </MainLayout>
+        </BrowserRouter>
     );
 };
 
@@ -74,11 +70,11 @@ const PrivateRoute = ({
     exact?: boolean;
     path: string | string[];
 }): JSX.Element => {
-    const address = useSelector((state: RootState) => state.wallet.address);
+    const wallet = useSelector((state: RootState) => state.wallet.currentWallet);
 
     return (
         <Route exact={exact} path={path}>
-            {address ? children : <Redirect to="/welcome" />}
+            {wallet ? children : <Redirect to="/welcome" />}
         </Route>
     );
 };

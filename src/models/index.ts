@@ -7,14 +7,20 @@ export interface RootModel extends Models<RootModel> {
 
 export const reduxModels: RootModel = { wallet };
 
-export interface Transaction {
-    id: string;
-    to: string;
-    from: string;
+export interface Amount {
+    denom: string;
     amount: number;
-    ticker: string;
-    date: Date;
-    [key: string]: string | number | Date;
+}
+
+export interface Transaction {
+    hash: string;
+    amount?: Amount[];
+    fromAddress: string;
+    toAddress: string;
+    time?: string;
+    memo?: string;
+    success?: boolean;
+    [key: string]: string | Amount[] | undefined | boolean;
 }
 
 export enum PasswordStrengthType {

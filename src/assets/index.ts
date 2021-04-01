@@ -14,6 +14,23 @@ import shieldIcon from './images/shield.png';
 import anonymousIcon from './images/anonymous.png';
 import printIcon from './images/print.png';
 import keyIcon from './images/key.png';
+import profileIcon from './images/profile.png';
+import sendIcon from './images/send.png';
+import stakeIcon from './images/stake.png';
+import messageMauveIcon from './images/message_mauve.png';
+import dashboardIcon from './images/dashboard.png';
+import copyIcon from './images/copy.png';
+import qrIcon from './images/qr.png';
+import lumTicker from './images/lum_ticker.png';
+import messageDelegate from './images/messageDelegate.svg';
+import messageCreateValidator from './images/messageCreateValidator.svg';
+import messageEditValidator from './images/messageEditValidator.svg';
+import messageGetReward from './images/messageGetReward.svg';
+import messageMultiSend from './images/messageMultiSend.svg';
+import messageSend from './images/messageSend.svg';
+import messageUndelegate from './images/messageUndelegate.svg';
+import messageWithdrawAddress from './images/messageWithdrawAddress.svg';
+import messageRedelegate from './images/messageRedelegate.svg';
 
 export default {
     images: {
@@ -33,5 +50,22 @@ export default {
         anonymousIcon,
         printIcon,
         keyIcon,
+        profileIcon,
+        dashboardIcon,
+        sendIcon,
+        stakeIcon,
+        messageMauveIcon,
+        copyIcon,
+        qrIcon,
+        lumTicker,
+        messageCreateValidator,
+        messageDelegate,
+        messageEditValidator,
+        messageGetReward,
+        messageSend,
+        messageUndelegate,
+        messageMultiSend,
+        messageWithdrawAddress,
+        messageRedelegate,
     },
 };

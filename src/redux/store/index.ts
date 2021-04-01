@@ -1,19 +1,11 @@
 import { RematchDispatch, RematchRootState, init } from '@rematch/core';
 import loadingPlugin, { ExtraModelsFromLoading } from '@rematch/loading';
-import persistPlugin, { getPersistor } from '@rematch/persist';
 import selectPlugin from '@rematch/select';
 import immerPlugin from '@rematch/immer';
-
-import storage from 'redux-persist/lib/storage';
 
 import { RootModel, reduxModels } from 'models';
 
 type FullModel = ExtraModelsFromLoading<RootModel>;
-
-const persistConfig = {
-    key: 'root',
-    storage,
-};
 
 const store = init<RootModel, FullModel>({
     models: reduxModels,
@@ -22,10 +14,8 @@ const store = init<RootModel, FullModel>({
             LOGOUT: () => undefined,
         },
     },
-    plugins: [loadingPlugin(), persistPlugin(persistConfig), selectPlugin(), immerPlugin()],
+    plugins: [loadingPlugin(), selectPlugin(), immerPlugin()],
 });
-
-export const persistor = getPersistor();
 
 export const { select } = store;
 

@@ -1,71 +1,69 @@
-import { Transaction } from 'models';
 import React from 'react';
 
-interface IProps {
+import { Table } from 'frontend-elements';
+import { Transaction } from 'models';
+import { toLocaleDateFormat, trunc } from 'utils';
+import { Namespace, Resources, TFunction, useTranslation } from 'react-i18next';
+import { LUM_EXPLORER } from 'constant';
+
+interface TransactionsTableProps {
     transactions: Transaction[];
 }
 
 interface RowProps {
-    rows: Transaction[];
-    headers: string[];
+    row: Transaction;
+    t: TFunction<Namespace<keyof Resources>>;
 }
 
-const TransactionsRows = (props: RowProps): JSX.Element => {
-    const { rows, headers } = props;
-
-    const renderRow = (row: Transaction, headers: string[]) => {
-        return (
-            <tr key={row.id}>
-                {headers.map((header, index) => {
-                    if (header === 'id') {
-                        return (
-                            <td key={index}>
-                                <a className="link-primary" href={`/transaction/${row.id}`}>
-                                    {row[header]}
-                                </a>
-                            </td>
-                        );
-                    }
-                    return (
-                        <td key={index}>
-                            <div className="text-truncate">{row[header]}</div>
-                        </td>
-                    );
-                })}
-            </tr>
-        );
-    };
-
+const TransactionRow = (props: RowProps): JSX.Element => {
+    const { row, t } = props;
     return (
-        <tbody>
-            {rows.map((value) => {
-                return renderRow(value, headers);
-            })}
-        </tbody>
+        <tr>
+            <td data-label="Hash">
+                <a href={`${LUM_EXPLORER}/txs/${row.hash}`} target="_blank" rel="noreferrer">
+                    {trunc(row.hash)}
+                </a>
+            </td>
+            <td data-label="Date">
+                <div className="text-truncate">{toLocaleDateFormat(row.time ? new Date(row.time) : new Date())}</div>
+            </td>
+            <td data-label={t('transactions.table.from')}>
+                <div className="text-truncate">{trunc(row.fromAddress)}</div>
+            </td>
+            <td data-label={t('transactions.table.to')} className="text-end">
+                <div className="text-truncate">{trunc(row.toAddress)}</div>
+            </td>
+            <td data-label={t('transactions.table.amount')} className="text-end">
+                <div className="text-truncate">{row.amount && row.amount[0] ? row.amount[0].amount : 0}</div>
+            </td>
+        </tr>
     );
 };
 
-const TransactionsTable = (props: IProps): JSX.Element => {
+const TransactionsTable = (props: TransactionsTableProps): JSX.Element => {
     if (props.transactions.length > 0) {
-        const headers = Object.keys(props.transactions[0]);
+        const { t } = useTranslation();
+        const headers = [
+            'Hash',
+            'Date',
+            t('transactions.table.from'),
+            t('transactions.table.to'),
+            t('transactions.table.amount'),
+        ];
+
+        const txs = [...props.transactions].sort((txA, txB) => {
+            const aDate = txA.time ? new Date(txA.time) : new Date();
+            const bDate = txB.time ? new Date(txB.time) : new Date();
+
+            return aDate < bDate ? 1 : -1;
+        });
 
         return (
-            <div className="table-responsive">
-                <table className="table table-hover table-borderless table-striped">
-                    <thead>
-                        <tr>
-                            {headers.map((header, index) => {
-                                return (
-                                    <th scope="col" key={index}>
-                                        {header}
-                                    </th>
-                                );
-                            })}
-                        </tr>
-                    </thead>
-                    <TransactionsRows rows={props.transactions} headers={headers} />
-                </table>
-            </div>
+            <Table head={headers}>
+                {txs.map((tx, index) => (
+                    <TransactionRow key={index} row={tx} t={t} />
+                ))}
+            </Table>
         );
     }
     return <div />;

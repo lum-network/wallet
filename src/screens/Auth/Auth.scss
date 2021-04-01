@@ -1,9 +1,5 @@
 @import 'src/styles/main';
 
-a {
-    color: $color-primary !important;
-}
-
 p {
     color: #b5b5b5;
     padding-top: 1rem;
@@ -151,4 +147,66 @@ h1.display-5 {
 .keyboard-step-title {
     font-size: $font-md;
     font-weight: $medium;
+}
+
+.text-btn {
+    color: $color-primary;
+    &:hover {
+        color: $color-primary;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .auth-header > img,
+    .scale-anim > img,
+    .create-btn > img,
+    .nav-item > a > img,
+    .text-btn > img {
+        filter: brightness(0) invert(1);
+    }
+    .auth-layout {
+        background: $color-primary;
+    }
+    .create-btn {
+        background: #000;
+    }
+    h3,
+    h6,
+    .display-5,
+    .input-group .normal-input,
+    .input-group > label {
+        color: white;
+    }
+    .auth-card,
+    .import-card,
+    .access-card {
+        background: #000;
+    }
+    .import-modal-content {
+        background: $color-primary !important;
+    }
+    .input-group .normal-input {
+        background: #000 !important;
+        &:focus {
+            color: white !important;
+        }
+    }
+    .nav-item > a {
+        color: $color-primary !important;
+    }
+
+    .nav-item {
+        border-bottom: 2px solid $color-primary;
+        &:hover {
+            cursor: pointer;
+        }
+    }
+
+    .nav-item.active {
+        border-bottom: 2px solid white;
+    }
+    .text-btn,
+    .nav-item.active > a {
+        color: white !important;
+    }
 }

@@ -1,0 +1,52 @@
+@import 'src/frontend-elements/styles/main';
+
+textarea {
+    // Remove outline on focus
+    border: none;
+    overflow: auto;
+    outline: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+
+    background-color: #f9f9f9;
+    border-radius: 16px;
+    height: 195px;
+    &[readonly] {
+        color: #555555;
+    }
+}
+
+.text-btn {
+    color: $color-primary;
+    &:hover {
+        color: $color-primary;
+    }
+}
+
+.result-box {
+    border-radius: 16px;
+    color: $color-primary;
+    &.success {
+        background: $color-light-green;
+    }
+    &.failure {
+        background: #ff7676;
+    }
+    animation: fadeIn 350ms forwards;
+}
+
+@media (prefers-color-scheme: dark) {
+    .text-btn {
+        color: white !important;
+    }
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Redirect, useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -16,25 +16,30 @@ import Button from 'components/Buttons/Button';
 type MethodModalType = 'mnemonic' | 'privateKey' | 'keystore';
 
 const Welcome = (): JSX.Element => {
-    const address = useSelector((state: RootState) => state.wallet.address);
-    const history = useHistory();
-
-    if (address) {
-        return <Redirect to="/home" />;
-    }
-
-    const { t } = useTranslation();
-
+    // State
     const [selectedMethod, setSelectedMethod] = useState<MethodModalType | null>(null);
     const [selectedMethodTemp, setSelectedMethodTemp] = useState<MethodModalType | null>(null);
     const [keystoreFile, setKeystoreFile] = useState<File | null>(null);
 
-    // UPDATE MODAL LISTENER
-    useEffect(() => {
-        const importSoftwareDocumentModal = document.getElementById('importSoftwareModal');
+    // Redux hooks
+    const wallet = useSelector((state: RootState) => state.wallet.currentWallet);
 
-        if (importSoftwareDocumentModal) {
-            importSoftwareDocumentModal.addEventListener(
+    if (wallet) {
+        return <Redirect to="/home" />;
+    }
+
+    // Refs
+    const importSoftwareModalRef = useRef<HTMLDivElement>(null);
+    const keystoreInputRef = useRef<HTMLInputElement>(null);
+
+    // Utils hooks
+    const history = useHistory();
+    const { t } = useTranslation();
+
+    // Effects
+    useEffect(() => {
+        if (importSoftwareModalRef.current) {
+            importSoftwareModalRef.current.addEventListener(
                 'hidden.bs.modal',
                 () => {
                     if (selectedMethod) {
@@ -54,9 +59,14 @@ const Welcome = (): JSX.Element => {
         }
     }, [selectedMethod, selectedMethodTemp, keystoreFile]);
 
-    // SOFTWARE IMPORT MODALS
+    // SOFTWARE IMPORT MODAL
     const importSoftwareModal = (
-        <Modal id="importSoftwareModal" bodyClassName="px-4" contentClassName="px-3">
+        <Modal
+            id="importSoftwareModal"
+            ref={importSoftwareModalRef}
+            bodyClassName="px-4"
+            contentClassName="px-3 import-modal-content"
+        >
             <p className="danger-text">{t('welcome.softwareModal.notRecommanded')}</p>
             <h3 className="mt-4">{t('welcome.softwareModal.title')}</h3>
             <p>{t('welcome.softwareModal.notRecommandedDescription')}</p>
@@ -98,10 +108,8 @@ const Welcome = (): JSX.Element => {
                 disabled={!selectedMethodTemp}
                 onClick={() => {
                     if (selectedMethodTemp === 'keystore') {
-                        const keystoreInputElement = document.getElementById('keystore-input');
-
-                        if (keystoreInputElement) {
-                            keystoreInputElement.click();
+                        if (keystoreInputRef.current) {
+                            keystoreInputRef.current.click();
                         }
                     } else {
                         setSelectedMethod(selectedMethodTemp);
@@ -118,15 +126,14 @@ const Welcome = (): JSX.Element => {
             {selectedMethodTemp === 'keystore' && (
                 <input
                     id="keystore-input"
+                    ref={keystoreInputRef}
                     type="file"
                     hidden
                     accept=".json"
                     onChange={(event) => {
                         if (event.target.files && event.target.files.length > 0) {
-                            const importSoftwareDocumentModal = document.getElementById('importSoftwareModal');
-
-                            if (importSoftwareDocumentModal) {
-                                importSoftwareDocumentModal.click();
+                            if (importSoftwareModalRef.current) {
+                                importSoftwareModalRef.current.click();
                             }
                             setSelectedMethod(selectedMethodTemp), setKeystoreFile(event.target.files[0]);
                         }
@@ -145,8 +152,8 @@ const Welcome = (): JSX.Element => {
                     </div>
                     <div className="row justify-content-center gy-4">
                         <div className="col-12 col-lg-3">
-                            <a href="/import/hardware">
-                                <Card className="scale-anim text-center btn-padding h-100 w-100">
+                            <a href="/import/hardware" className="text-reset text-decoration-none">
+                                <Card className="auth-card scale-anim text-center btn-padding h-100 w-100">
                                     <img
                                         src={Assets.images.hardwareIcon}
                                         className="img-fluid mb-3"
@@ -162,11 +169,11 @@ const Welcome = (): JSX.Element => {
                         <div className="col-12 col-lg-3">
                             <a
                                 role="button"
-                                className="h-100 w-100"
+                                className="h-100 w-100 text-reset text-decoration-none"
                                 data-bs-toggle="modal"
                                 data-bs-target="#importSoftwareModal"
                             >
-                                <Card className="scale-anim text-center btn-padding h-100 w-100">
+                                <Card className="auth-card scale-anim text-center btn-padding h-100 w-100">
                                     <img
                                         src={Assets.images.softwareIcon}
                                         className="img-fluid mb-4"
@@ -181,7 +188,7 @@ const Welcome = (): JSX.Element => {
                             </a>
                         </div>
                         <div className="col-12 col-lg-3">
-                            <a href="/create">
+                            <a href="/create" className="text-reset text-decoration-none">
                                 <div className="scale-anim btn-padding h-100 w-100 text-center d-flex align-items-center flex-column justify-content-evenly">
                                     <div className="create-btn rounded-circle mb-4 mb-lg-0 d-flex justify-content-center align-items-center">
                                         <img className="img-fluid" src={Assets.images.addIcon} width="27" height="27" />

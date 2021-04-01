@@ -1,25 +1,26 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
+import { WalletClient } from 'utils';
 import RootNavigator from '../navigation';
-import { RootDispatch, RootState } from '../redux/store';
+import { RootState } from '../redux/store';
 
 interface IProps {}
 
 const mapState = (state: RootState) => ({
     loading: state.loading.global,
     transactions: state.wallet.transactions,
-    address: state.wallet.address,
+    wallet: state.wallet.currentWallet,
 });
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const mapDispatch = (_dispatch: RootDispatch) => ({});
-
 type StateProps = ReturnType<typeof mapState>;
-type DispatchProps = ReturnType<typeof mapDispatch>;
 
-type Props = IProps & StateProps & DispatchProps;
+type Props = IProps & StateProps;
 
 class Core extends PureComponent<Props> {
+    async componentDidMount() {
+        await WalletClient.init();
+    }
+
     renderContent(): JSX.Element {
         return <RootNavigator />;
     }
@@ -33,10 +34,8 @@ class Core extends PureComponent<Props> {
     }
 
     render(): JSX.Element {
-        const { loading, transactions } = this.props;
-
-        return (!transactions || !transactions.length) && loading ? this.renderLoading() : this.renderContent();
+        return this.renderContent();
     }
 }
 
-export default connect(mapState, mapDispatch)(Core);
+export default connect(mapState)(Core);

@@ -41,7 +41,7 @@ button:focus {
 .scale-anim {
     transition: all 0.2s ease-in-out;
     &:hover {
-        transform: scale(1.025);
+        transform: scale(1.05);
     }
 }
 
@@ -56,4 +56,11 @@ button:focus {
     transform: rotateZ(45deg);
     width: 20px;
     height: 20px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .normal-btn {
+        background-color: $color-white;
+        color: $color-primary;
+    }
 }

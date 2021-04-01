@@ -1,6 +1,14 @@
 {
     "common": {
-        "continue": "Continue"
+        "continue": "Continue",
+        "address": "Address",
+        "send": "Send",
+        "required": "Required"
+    },
+    "dashboard": {
+        "latestTx": "Latest Transactions",
+        "currentBalance": "Current balance",
+        "followTwitter": "Follow us on Twitter"
     },
     "welcome": {
         "title": "Access My Wallet",
@@ -25,11 +33,18 @@
             }
         }
     },
+    "transactions": {
+        "table": {
+            "to": "To",
+            "from": "From",
+            "amount": "Amount"
+        }
+    },
     "navbar": {
         "dashboard": "Dashboard",
         "transactions": "Transactions",
         "send": "Send",
-        "message": "Message",
+        "message": "Messages",
         "logout": "Logout"
     }
 }

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useForm } from 'react-hook-form';
 
 import { useRematchDispatch } from 'redux/hooks';
 import { RootDispatch, RootState } from 'redux/store';
@@ -11,60 +10,74 @@ import AuthLayout from './components/AuthLayout';
 import './Auth.scss';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
-
-type MnemonicLength = 12 | 24;
+import { MnemonicLength, WalletUtils } from 'utils';
 
 const ImportMnemonic = (): JSX.Element => {
-    const [mnemonicLength, setMnemonicLength] = useState<MnemonicLength>(12);
+    // State
+    const [mnemonic, setMnemonic] = useState({ length: 12 as MnemonicLength, values: [] as string[] });
     /* const [isExtraWord, setIsExtraWord] = useState(false);
     const [extraWord, setExtraWord] = useState(''); */
-    const [inputsValues, setInputsValues] = useState<string[]>([]);
 
-    const { register, handleSubmit } = useForm();
-    const { t } = useTranslation();
-    const history = useHistory();
-
-    const address = useSelector((state: RootState) => state.wallet.address);
+    // Redux hooks
+    const wallet = useSelector((state: RootState) => state.wallet.currentWallet);
     const { signInWithMnemonic } = useRematchDispatch((dispatch: RootDispatch) => ({
         signInWithMnemonic: dispatch.wallet.signInWithMnemonicAsync,
     }));
 
+    // Utils hooks
+    const { t } = useTranslation();
+    const history = useHistory();
+
+    // Effects
     useEffect(() => {
-        if (address) {
+        if (wallet) {
             history.push('/home');
         }
-    }, [address]);
+    }, [wallet]);
 
     useEffect(() => {
         const inputs: string[] = [];
 
-        for (let i = 0; i < mnemonicLength; i++) {
-            inputs.push(inputsValues[i] || '');
+        for (let i = 0; i < mnemonic.length; i++) {
+            inputs.push(mnemonic.values[i] || '');
         }
 
-        setInputsValues(inputs);
-    }, [mnemonicLength]);
+        setMnemonic({ values: inputs, length: mnemonic.length });
+    }, [mnemonic.length]);
+
+    // Methods
+    const handlePaste: React.ClipboardEventHandler<HTMLInputElement> = (event) => {
+        event.clipboardData.items[0].getAsString((text) => {
+            const inputValues = text.split(' ');
+            const valuesLength = inputValues.length;
+
+            if (WalletUtils.checkMnemonicLength(valuesLength)) {
+                setMnemonic({ length: valuesLength, values: inputValues });
+            }
+        });
+    };
 
     const onInputChange = (value: string, index: number) => {
-        const newValues = [...inputsValues];
+        const newValues = [...mnemonic.values];
 
         newValues[index] = value;
 
-        setInputsValues(newValues);
+        setMnemonic({ values: newValues, length: mnemonic.length });
     };
 
     const onSubmit = () => {
-        const mnemonic = inputsValues.join(' ');
+        let mnemonicString = mnemonic.values.join(' ');
+        mnemonicString = mnemonicString.trim();
 
         /* if (extraWord) {
             mnemonic += ' ' + extraWord;
         } */
 
-        signInWithMnemonic(mnemonic);
+        signInWithMnemonic(mnemonicString);
     };
 
     const isEmptyField = () => {
-        return inputsValues.findIndex((input) => input.length === 0) !== -1;
+        return mnemonic.values.findIndex((input) => input.length === 0) !== -1;
     };
 
     return (
@@ -84,20 +97,22 @@ const ImportMnemonic = (): JSX.Element => {
                                     id="mnemonicLength"
                                     offLabel="12"
                                     onLabel="24"
-                                    checked={mnemonicLength === 24}
-                                    onChange={(event) => setMnemonicLength(event.target.checked ? 24 : 12)}
+                                    checked={mnemonic.length === 24}
+                                    onChange={(event) =>
+                                        setMnemonic({ length: event.target.checked ? 24 : 12, values: mnemonic.values })
+                                    }
                                 />
                                 <h6>Values</h6>
                             </div>
                         </div>
                         <div className="container-fluid py-4">
                             <div className="row gy-4">
-                                {inputsValues.map((input, index) => (
+                                {mnemonic.values.map((input, index) => (
                                     <div className="col-4" key={index}>
                                         <Input
-                                            ref={register}
                                             value={input}
                                             required
+                                            onPaste={handlePaste}
                                             onChange={(event) => onInputChange(event.target.value, index)}
                                             inputStyle="custom"
                                             name={`mnemonicInput${index}`}
@@ -111,7 +126,10 @@ const ImportMnemonic = (): JSX.Element => {
                                 ))}
                             </div>
                         </div>
-                        {/* <div className="separator my-4 w-100"></div>
+                        {/* 
+                            // EXTRA WORD PART COMMENTED FOR NOW
+                            
+                        <div className="separator my-4 w-100"></div>
                         <div className="d-flex flex-row justify-content-between align-self-stretch align-items-center my-4">
                             <h5 className="p-0 m-0">Extra word</h5>
                             <SwitchInput id="isExtraWord" onChange={(event) => setIsExtraWord(event.target.checked)} />
@@ -136,7 +154,7 @@ const ImportMnemonic = (): JSX.Element => {
                         )} */}
                         <Button
                             type="submit"
-                            onClick={handleSubmit(onSubmit)}
+                            onClick={onSubmit}
                             data-bs-dismiss="modal"
                             data-bs-target="mnemonicModal"
                             disabled={isEmptyField()}

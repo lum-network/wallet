@@ -1,6 +1,14 @@
 {
     "common": {
-        "continue": "Continuer"
+        "continue": "Continuer",
+        "address": "Adresse",
+        "send": "Envoyer",
+        "required": "Requis"
+    },
+    "dashboard": {
+        "latestTx": "Dernières Transactions",
+        "currentBalance": "Balance",
+        "followTwitter": "Suivez nous sur Twitter"
     },
     "welcome": {
         "title": "Accède à ton Wallet",
@@ -25,11 +33,18 @@
             }
         }
     },
+    "transactions": {
+        "table": {
+            "to": "Destinataire",
+            "from": "Expéditeur",
+            "amount": "Montant"
+        }
+    },
     "navbar": {
         "dashboard": "Tableau de bord",
         "transactions": "Transactions",
         "send": "Envoyer",
-        "message": "Message",
+        "message": "Messages",
         "logout": "Déconnexion"
     }
 }
