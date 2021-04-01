@@ -9,15 +9,6 @@
           "lum-network-wallet"
         ]
       }
-    },
-    {
-      "lum-network-testnet": {
-        "hosting": {
-          "wallet": [
-            "lum-network-testnet-wallet
-          ]
-        }
-      }
     }
   }
 }
