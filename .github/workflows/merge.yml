@@ -33,7 +33,7 @@ jobs:
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_TESTNET }}'
           channelId: live
           projectId: lum-network-testnet
-          target: lum-network-testnet-wallet
+          target: wallet
         env:
           FIREBASE_CLI_PREVIEWS: hostingchannels
 
@@ -62,6 +62,6 @@ jobs:
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
           channelId: live
           projectId: lum-network
-          target: lum-network-wallet
+          target: wallet
         env:
           FIREBASE_CLI_PREVIEWS: hostingchannels
