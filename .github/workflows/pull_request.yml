@@ -1,7 +1,11 @@
+# This workflow is intended to run each time a pull request is opened or updated
+# It's performing unit and interface tests, and deploying on preview channels
+
 name: Lint, format, test and deploy the explorer on pull request events
 on: 
   pull_request:
     types: [opened, edited, synchronize, reopened]
+
 jobs:
   build_and_preview:
     runs-on: ubuntu-latest
@@ -16,6 +20,8 @@ jobs:
 
       - name: Build
         run: yarn build
+        env:
+          REACT_APP_RPC_URL=https://node0.testnet.lum.network/rpc
 
       - name: Test
         run: yarn test
@@ -24,8 +30,8 @@ jobs:
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_TESTNET }}'
           expires: 7d
-          projectId: lum-network
+          projectId: lum-network-testnet
         env:
           FIREBASE_CLI_PREVIEWS: hostingchannels

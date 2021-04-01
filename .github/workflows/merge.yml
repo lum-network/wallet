@@ -1,3 +1,7 @@
+# This workflow is intended to run each time a PR is merged on master (since this branch is write protected, we assume the only commits on it are PR merges)
+# It's building both test net and main net bundles, then deploying them on corresponding firebase projects
+# We assume it has already been unit tested on PR directly
+ 
 name: Deploy to Firebase Hosting on merge
 on:
   push:
@@ -14,9 +18,6 @@ jobs:
 
       - name: Install packages
         run: yarn && cd src/frontend-elements && yarn
-
-      - name: Build
-        run: yarn build
     
   deploy_testnet:
     name: Deploy the the built content on testnet hosting
@@ -24,13 +25,18 @@ jobs:
     needs: build
     environment: testnet
     steps:
-      - name: Deploy
+      - name: Build the test net bundle
+        run: yarn build
+        env:
+          REACT_APP_RPC_URL=https://node0.testnet.lum.network/rpc
+
+      - name: Deploy on firebase testnet project
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_TESTNET }}'
           channelId: live
-          projectId: lum-network
+          projectId: lum-network-testnet
         env:
           FIREBASE_CLI_PREVIEWS: hostingchannels
 
@@ -40,7 +46,12 @@ jobs:
     needs: build
     environment: mainnet
     steps:
-      - name: Deploy
+      - name: Build the main net bundle
+        run: yarn build
+        env:
+          REACT_APP_RPC_URL=https://node0.testnet.lum.network/rpc
+
+      - name: Deploy on firebase main net project
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
