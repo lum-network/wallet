@@ -1,14 +1,5 @@
 {
   "projects": {
     "default": "lum-network"
-  },
-  "targets": {
-    "lum-network": {
-      "hosting": {
-        "wallet": [
-          "lum-network-wallet"
-        ]
-      }
-    }
   }
 }
