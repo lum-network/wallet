@@ -21,7 +21,7 @@ jobs:
       - name: Build
         run: yarn build
         env:
-          REACT_APP_RPC_URL=https://node0.testnet.lum.network/rpc
+          REACT_APP_RPC_URL: "https://node0.testnet.lum.network/rpc"
 
       - name: Test
         run: yarn test
