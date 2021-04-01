@@ -1,0 +1,31 @@
+name: Lint, format, test and deploy the explorer on pull request events
+on: 
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+jobs:
+  build_and_preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v2
+        with:
+            submodules: recursive
+
+      - name: Install packages
+        run: yarn && cd src/frontend-elements && yarn
+
+      - name: Build
+        run: yarn build
+
+      - name: Test
+        run: yarn test
+
+      - name: Deploy
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          expires: 7d
+          projectId: lum-network
+        env:
+          FIREBASE_CLI_PREVIEWS: hostingchannels
