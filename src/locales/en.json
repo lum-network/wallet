@@ -14,7 +14,7 @@
         "title": "Access My Wallet",
         "hardware": {
             "title": "Hardware",
-            "description": "Ledger, FINNEY, Trezor, Bitbox, Secalot, Keepkey, XWallet"
+            "description": "Ledger Wallet"
         },
         "software": {
             "title": "Software",
@@ -43,7 +43,7 @@
     "navbar": {
         "dashboard": "Dashboard",
         "transactions": "Transactions",
-        "send": "Send",
+        "staking": "Staking",
         "message": "Messages",
         "logout": "Logout"
     }

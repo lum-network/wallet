@@ -3,7 +3,7 @@
     "version": "0.1.0",
     "private": true,
     "dependencies": {
-        "@lum-network/sdk-javascript": "^0.3.2",
+        "@lum-network/sdk-javascript": "^0.3.3",
         "@popperjs/core": "^2.9.1",
         "@rematch/core": "^2.0.0",
         "@rematch/immer": "^2.0.0",

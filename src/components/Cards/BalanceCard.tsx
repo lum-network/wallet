@@ -1,14 +1,30 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import assets from 'assets';
 import { Card } from 'frontend-elements';
 import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
+import { Tooltip } from 'bootstrap';
+
+import { useRematchDispatch } from 'redux/hooks';
+import { RootDispatch, RootState } from 'redux/store';
 
 import './Cards.scss';
-import { useRematchDispatch } from 'redux/hooks';
-import { RootDispatch } from 'redux/store';
 
 const BalanceCard = ({ balance, address }: { balance: number; address: string }): JSX.Element => {
+    useEffect(() => {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        const tooltips = tooltipTriggerList.map((tooltipTriggerEl) => {
+            return new Tooltip(tooltipTriggerEl, { trigger: 'hover' });
+        });
+
+        return () => {
+            tooltips.forEach((tip) => tip.dispose());
+        };
+    }, []);
+
     const { t } = useTranslation();
+
+    const isLoading = useSelector((state: RootState) => state.loading.effects.wallet.getWalletInfos);
 
     const { mintFaucet, getWalletInfos } = useRematchDispatch((dispatch: RootDispatch) => ({
         mintFaucet: dispatch.wallet.mintFaucet,
@@ -23,11 +39,25 @@ const BalanceCard = ({ balance, address }: { balance: number; address: string })
                 <img src={assets.images.lumTicker} className="ticker" />
             </div>
             <div>
-                <button type="button" className="ps-2 pb-2" onClick={() => getWalletInfos(address)}>
-                    <img src={assets.images.syncIcon} className="tint-white" />
+                <button
+                    type="button"
+                    className="ps-2 pb-2"
+                    onClick={() => getWalletInfos(address)}
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="Refresh balance"
+                >
+                    <img src={assets.images.syncIcon} className={`tint-white refresh-img ${isLoading && 'loading'}`} />
                 </button>
                 {process.env.REACT_APP_RPC_URL.includes('testnet') && (
-                    <button type="button" className="ps-2 pb-2" onClick={() => mintFaucet(address)}>
+                    <button
+                        type="button"
+                        className="ps-2 pb-2"
+                        onClick={() => mintFaucet(address)}
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title="Mint Faucet"
+                    >
                         <img src={assets.images.addIcon} className="tint-white" />
                     </button>
                 )}

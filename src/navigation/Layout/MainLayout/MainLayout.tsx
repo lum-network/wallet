@@ -33,7 +33,13 @@ class MainLayout extends PureComponent<Props> {
                 }`}
             >
                 {!bottom && (
-                    <img src={assets.images.lumWallet} width="107" height="28" className="lum-logo me-lg-5 ms-lg-4" />
+                    <ul className="navbar-nav">
+                        <li>
+                            <NavLink to="/home" className="navbar-item me-lg-5 ms-lg-4 selected-navbar-item">
+                                <img src={assets.images.lumWallet} width="107" height="28" className="lum-logo" />
+                            </NavLink>
+                        </li>
+                    </ul>
                 )}
                 <ul className="navbar-nav me-md-auto">
                     <li>
@@ -57,18 +63,18 @@ class MainLayout extends PureComponent<Props> {
                             className="navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4"
                             activeClassName="selected-navbar-item"
                         >
-                            <img src={assets.images.stakeIcon} width="20" height="20" className="me-md-2 nav-icon" />
+                            <img src={assets.images.sendIcon} width="20" height="20" className="me-md-2 nav-icon" />
                             {t('navbar.transactions')}
                         </NavLink>
                     </li>
                     <li>
                         <NavLink
-                            to="/send"
+                            to="/staking"
                             className="navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4"
                             activeClassName="selected-navbar-item"
                         >
-                            <img src={assets.images.sendIcon} width="20" height="20" className="me-md-2 nav-icon" />
-                            {t('navbar.send')}
+                            <img src={assets.images.stakeIcon} width="20" height="20" className="me-md-2 nav-icon" />
+                            {t('navbar.staking')}
                         </NavLink>
                     </li>
                     <li>
@@ -113,9 +119,7 @@ class MainLayout extends PureComponent<Props> {
                             >
                                 <NavLink
                                     to="/welcome"
-                                    activeClassName="selected-navbar-item dropdown-item"
-                                    // NavLink prop workaround to always apply selected-navbar-item style
-                                    isActive={() => true}
+                                    className="selected-navbar-item dropdown-item"
                                     onClick={() => store.dispatch({ type: LOGOUT })}
                                 >
                                     <li>Logout</li>

@@ -20,7 +20,13 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>((props, ref) => {
                         <p className="ms-2">{label}</p>
                     </label>
                 )}
-                <input ref={ref} className={`normal-input border-0 rounded-pill py-2 px-3 ${inputClass}`} {...rest} />
+                <input
+                    ref={ref}
+                    className={`normal-input border-0 ${
+                        !rest.readOnly ? 'rounded-pill py-2 px-3' : 'ps-2'
+                    } ${inputClass}`}
+                    {...rest}
+                />
                 {description && <div className="form-text">{description}</div>}
             </div>
         );

@@ -1,10 +1,11 @@
 import React from 'react';
 
+import { Namespace, Resources, TFunction, useTranslation } from 'react-i18next';
+
 import { Table } from 'frontend-elements';
+import { LUM_EXPLORER } from 'constant';
 import { Transaction } from 'models';
 import { toLocaleDateFormat, trunc } from 'utils';
-import { Namespace, Resources, TFunction, useTranslation } from 'react-i18next';
-import { LUM_EXPLORER } from 'constant';
 
 interface TransactionsTableProps {
     transactions: Transaction[];
@@ -66,7 +67,19 @@ const TransactionsTable = (props: TransactionsTableProps): JSX.Element => {
             </Table>
         );
     }
-    return <div />;
+    return (
+        <div className="d-flex flex-column align-items-center p-5">
+            <div className="bg-white rounded-circle align-self-center p-3 mb-3 shadow-sm">
+                <div
+                    className="btn-close mx-auto"
+                    style={{
+                        filter: 'brightness(0) invert(0.8)',
+                    }}
+                />
+            </div>
+            No transactions yet
+        </div>
+    );
 };
 
 export default TransactionsTable;

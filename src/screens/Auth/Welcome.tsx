@@ -1,25 +1,29 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Redirect, useHistory } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Modal as BSModal } from 'bootstrap';
 
 import { RootState } from 'redux/store';
 
-import { Card, Modal } from 'components';
+import { Card, Modal, Button } from 'components';
 import Assets from 'assets';
 
-import './Auth.scss';
+import './styles/Auth.scss';
 
 import AuthLayout from './components/AuthLayout';
-import Button from 'components/Buttons/Button';
+import ImportMnemonicModal from './components/ImportMnemonicModal';
+import ImportPrivateKeyModal from './components/ImportPrivateKeyModal';
+import ImportKeystoreModal from './components/ImportKeystoreModal';
 
 type MethodModalType = 'mnemonic' | 'privateKey' | 'keystore';
 
 const Welcome = (): JSX.Element => {
     // State
     const [selectedMethod, setSelectedMethod] = useState<MethodModalType | null>(null);
-    const [selectedMethodTemp, setSelectedMethodTemp] = useState<MethodModalType | null>(null);
-    const [keystoreFile, setKeystoreFile] = useState<File | null>(null);
+    const [keystoreFileData, setKeystoreFileData] = useState<string | null>(null);
+    const [importSoftwareModal, setImportSoftwareModal] = useState<BSModal | null>(null);
+    const [softwareMethodModal, setSoftwareMethodModal] = useState<BSModal | null>(null);
 
     // Redux hooks
     const wallet = useSelector((state: RootState) => state.wallet.currentWallet);
@@ -30,51 +34,60 @@ const Welcome = (): JSX.Element => {
 
     // Refs
     const importSoftwareModalRef = useRef<HTMLDivElement>(null);
+    const softwareMethodModalRef = useRef<HTMLDivElement>(null);
     const keystoreInputRef = useRef<HTMLInputElement>(null);
 
     // Utils hooks
-    const history = useHistory();
     const { t } = useTranslation();
 
     // Effects
+    const importSoftwareModalHandler = useCallback(() => {
+        if (softwareMethodModal && ((selectedMethod === 'keystore' && keystoreFileData) || selectedMethod)) {
+            softwareMethodModal.show();
+        }
+    }, [selectedMethod, keystoreFileData]);
+
     useEffect(() => {
         if (importSoftwareModalRef.current) {
-            importSoftwareModalRef.current.addEventListener(
-                'hidden.bs.modal',
-                () => {
-                    if (selectedMethod) {
-                        if (keystoreFile) {
-                            keystoreFile.text().then((fileData) => {
-                                history.push(`/import/software/${selectedMethod}`, { fileData });
-                            });
-                        } else {
-                            history.push(`/import/software/${selectedMethod}`);
-                        }
-                    }
-                    setSelectedMethod(null);
-                    setSelectedMethodTemp(null);
-                },
-                { once: true },
-            );
+            importSoftwareModalRef.current.addEventListener('hidden.bs.modal', importSoftwareModalHandler);
         }
-    }, [selectedMethod, selectedMethodTemp, keystoreFile]);
+    });
+
+    useEffect(() => {
+        if (importSoftwareModalRef.current) {
+            setImportSoftwareModal(new BSModal(importSoftwareModalRef.current));
+        }
+        if (softwareMethodModalRef.current) {
+            setSoftwareMethodModal(new BSModal(softwareMethodModalRef.current));
+        }
+    }, []);
+
+    useEffect(() => {
+        if (wallet) {
+            if (softwareMethodModal) {
+                console.log('dispose software modal');
+                softwareMethodModal.dispose();
+                //BSModal.getInstance(softwareMethodModalRef.current).hide();
+            }
+        }
+    }, [wallet]);
 
     // SOFTWARE IMPORT MODAL
-    const importSoftwareModal = (
+    const importSoftwareModalContent = (
         <Modal
             id="importSoftwareModal"
             ref={importSoftwareModalRef}
             bodyClassName="px-4"
             contentClassName="px-3 import-modal-content"
         >
-            <p className="danger-text">{t('welcome.softwareModal.notRecommanded')}</p>
+            <p className="not-recommanded">{t('welcome.softwareModal.notRecommanded')}</p>
             <h3 className="mt-4">{t('welcome.softwareModal.title')}</h3>
             <p>{t('welcome.softwareModal.notRecommandedDescription')}</p>
             <div className="d-flex flex-column my-4">
                 <button
                     type="button"
-                    onClick={() => setSelectedMethodTemp('keystore')}
-                    className={`import-software-btn ${selectedMethodTemp === 'keystore' && 'selected'}`}
+                    onClick={() => setSelectedMethod('keystore')}
+                    className={`import-software-btn ${selectedMethod === 'keystore' && 'selected'}`}
                 >
                     <div className="d-flex align-items-center justify-content-center">
                         <img src={Assets.images.softwareIcon} height="28" className="me-3" />
@@ -83,8 +96,8 @@ const Welcome = (): JSX.Element => {
                 </button>
                 <button
                     type="button"
-                    onClick={() => setSelectedMethodTemp('mnemonic')}
-                    className={`import-software-btn my-4 ${selectedMethodTemp === 'mnemonic' && 'selected'}`}
+                    onClick={() => setSelectedMethod('mnemonic')}
+                    className={`import-software-btn my-4 ${selectedMethod === 'mnemonic' && 'selected'}`}
                 >
                     <div className="d-flex align-items-center justify-content-center">
                         <img src={Assets.images.bubbleIcon} height="28" className="me-3" />
@@ -93,8 +106,8 @@ const Welcome = (): JSX.Element => {
                 </button>
                 <button
                     type="button"
-                    onClick={() => setSelectedMethodTemp('privateKey')}
-                    className={`import-software-btn ${selectedMethodTemp === 'privateKey' && 'selected'}`}
+                    onClick={() => setSelectedMethod('privateKey')}
+                    className={`import-software-btn ${selectedMethod === 'privateKey' && 'selected'}`}
                 >
                     <div className="d-flex align-items-center justify-content-center">
                         <img src={Assets.images.keyIcon} height="28" className="me-3" />
@@ -105,25 +118,21 @@ const Welcome = (): JSX.Element => {
             <p>{t('welcome.softwareModal.description')}</p>
             <Button
                 type="button"
-                disabled={!selectedMethodTemp}
+                disabled={!selectedMethod}
                 onClick={() => {
-                    if (selectedMethodTemp === 'keystore') {
+                    if (selectedMethod === 'keystore') {
                         if (keystoreInputRef.current) {
                             keystoreInputRef.current.click();
                         }
                     } else {
-                        setSelectedMethod(selectedMethodTemp);
+                        importSoftwareModal?.hide();
                     }
                 }}
-                {...(selectedMethodTemp !== 'keystore' && {
-                    'data-bs-dismiss': 'modal',
-                    'data-bs-target': '#importSoftwareModal',
-                })}
                 className="my-4 w-100"
             >
                 {t('common.continue')}
             </Button>
-            {selectedMethodTemp === 'keystore' && (
+            {selectedMethod === 'keystore' && (
                 <input
                     id="keystore-input"
                     ref={keystoreInputRef}
@@ -132,14 +141,21 @@ const Welcome = (): JSX.Element => {
                     accept=".json"
                     onChange={(event) => {
                         if (event.target.files && event.target.files.length > 0) {
-                            if (importSoftwareModalRef.current) {
-                                importSoftwareModalRef.current.click();
-                            }
-                            setSelectedMethod(selectedMethodTemp), setKeystoreFile(event.target.files[0]);
+                            event.target.files[0].text().then((data) => {
+                                console.log(data);
+                                setKeystoreFileData(data);
+                                importSoftwareModal?.hide();
+                            });
                         }
                     }}
                 />
             )}
+        </Modal>
+    );
+
+    const importHardwareModalContent = (
+        <Modal id="importHardwareModal" bodyClassName="p-5">
+            <h2>Coming Soon...</h2>
         </Modal>
     );
 
@@ -152,7 +168,12 @@ const Welcome = (): JSX.Element => {
                     </div>
                     <div className="row justify-content-center gy-4">
                         <div className="col-12 col-lg-3">
-                            <a href="/import/hardware" className="text-reset text-decoration-none">
+                            <a
+                                role="button"
+                                data-bs-toggle="modal"
+                                data-bs-target="#importHardwareModal"
+                                className="text-reset text-decoration-none"
+                            >
                                 <Card className="auth-card scale-anim text-center btn-padding h-100 w-100">
                                     <img
                                         src={Assets.images.hardwareIcon}
@@ -163,15 +184,19 @@ const Welcome = (): JSX.Element => {
                                     />
                                     <h3 className="mt-4">{t('welcome.hardware.title')}</h3>
                                     <p>{t('welcome.hardware.description')}</p>
+                                    <br />
+                                    <p>COMING SOON</p>
                                 </Card>
                             </a>
                         </div>
                         <div className="col-12 col-lg-3">
-                            <a
-                                role="button"
+                            <Button
+                                buttonType="custom"
+                                onClick={() => {
+                                    setSelectedMethod(null);
+                                    importSoftwareModal?.show();
+                                }}
                                 className="h-100 w-100 text-reset text-decoration-none"
-                                data-bs-toggle="modal"
-                                data-bs-target="#importSoftwareModal"
                             >
                                 <Card className="auth-card scale-anim text-center btn-padding h-100 w-100">
                                     <img
@@ -183,9 +208,9 @@ const Welcome = (): JSX.Element => {
                                     />
                                     <h3 className="mt-4">{t('welcome.software.title')}</h3>
                                     <p>{t('welcome.software.description')}</p>
-                                    <p className="danger-text">{t('welcome.softwareModal.notRecommanded')}</p>
+                                    <p className="not-recommanded">{t('welcome.softwareModal.notRecommanded')}</p>
                                 </Card>
-                            </a>
+                            </Button>
                         </div>
                         <div className="col-12 col-lg-3">
                             <a href="/create" className="text-reset text-decoration-none">
@@ -200,7 +225,15 @@ const Welcome = (): JSX.Element => {
                     </div>
                 </div>
             </AuthLayout>
-            {importSoftwareModal}
+            {importSoftwareModalContent}
+            {importHardwareModalContent}
+            <Modal id="softwareMethodModal" ref={softwareMethodModalRef}>
+                {selectedMethod === 'mnemonic' && <ImportMnemonicModal />}
+                {selectedMethod === 'privateKey' && <ImportPrivateKeyModal />}
+                {selectedMethod === 'keystore' && keystoreFileData && (
+                    <ImportKeystoreModal fileData={keystoreFileData} onSubmit={() => softwareMethodModal?.hide()} />
+                )}
+            </Modal>
         </>
     );
 };

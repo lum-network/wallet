@@ -14,7 +14,7 @@
         "title": "Accède à ton Wallet",
         "hardware": {
             "title": "Physique",
-            "description": "Ledger, FINNEY, Trezor, Bitbox, Secalot, Keepkey, XWallet"
+            "description": "Ledger Wallet"
         },
         "software": {
             "title": "Digital",
@@ -43,7 +43,7 @@
     "navbar": {
         "dashboard": "Tableau de bord",
         "transactions": "Transactions",
-        "send": "Envoyer",
+        "staking": "Staking",
         "message": "Messages",
         "logout": "Déconnexion"
     }

@@ -38,23 +38,21 @@ const Dashboard = (): JSX.Element => {
                     </div>
                     <div className="col-lg-2 col-12">
                         <Card className="h-100 dashboard-card align-items-center text-center">
-                            <a href={LUM_TWITTER}>
+                            <a href={LUM_TWITTER} target="_blank" rel="noreferrer">
                                 <div className="twitter mb-4 mb-lg-0" />
                             </a>
                             <h4>{t('dashboard.followTwitter')}</h4>
                         </Card>
                     </div>
                 </div>
-                {transactions.length > 0 && (
-                    <div className="row mt-4">
-                        <div className="col">
-                            <Card withoutPadding>
-                                <h2 className="ps-5 pt-5 pb-1">{t('dashboard.latestTx')}</h2>
-                                <TransactionsTable transactions={transactions.slice(0, 5)} />
-                            </Card>
-                        </div>
+                <div className="row mt-4">
+                    <div className="col">
+                        <Card withoutPadding>
+                            <h2 className="ps-5 pt-5 pb-1">{t('dashboard.latestTx')}</h2>
+                            <TransactionsTable transactions={transactions.slice(0, 5)} />
+                        </Card>
                     </div>
-                )}
+                </div>
             </div>
         </div>
     );

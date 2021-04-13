@@ -123,8 +123,6 @@ class WalletClient {
 
             const formattedTxs = await formatTxs(transactions, this.lumClient);
 
-            console.log(formattedTxs);
-
             return { ...account, ...(balance && { currentBalance: balance.amount }), transactions: formattedTxs };
         } catch (e) {
             console.log(e);

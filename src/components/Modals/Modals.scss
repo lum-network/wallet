@@ -1,5 +1,9 @@
 @import 'src/styles/main';
 
+.modal {
+    overflow-y: auto !important;
+}
+
 .close-btn {
     margin-top: -25px;
     width: 50px;

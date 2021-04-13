@@ -112,7 +112,6 @@ const Message = (): JSX.Element => {
 
             if (isMessageToVerify(msg)) {
                 const result = await WalletUtils.validateSignMessage(msg);
-                console.log(result);
                 setVerifyMessage({ result, message: msg.msg, address: msg.address });
             } else {
                 showErrorToast('Invalid message payload');
@@ -294,7 +293,7 @@ const Message = (): JSX.Element => {
                             )}
                             rows={15}
                         />
-                        {!ClipboardJS.isSupported() && (
+                        {ClipboardJS.isSupported() && (
                             <p>Copy this payload to share it so anyone can verify its integrity</p>
                         )}
                         <CustomButton

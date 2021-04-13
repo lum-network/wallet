@@ -57,7 +57,7 @@ const CreateWallet = (): JSX.Element => {
     // Effects
     useEffect(() => {
         if (wallet) {
-            history.push('/home');
+            //history.push('/home');
         }
     }, [wallet]);
 
@@ -98,7 +98,7 @@ const CreateWallet = (): JSX.Element => {
     // Render content
     const mnemonicContent = (
         <div className="d-flex flex-column align-self-center text-center align-items-center import-card py-4 px-md-4">
-            <p className="danger-text">{t('welcome.softwareModal.notRecommanded')}</p>
+            <p className="not-recommanded">{t('welcome.softwareModal.notRecommanded')}</p>
             <p>{t('welcome.softwareModal.notRecommandedDescription')}</p>
             <h3 className="mt-4rem">Your mnemonic phrase</h3>
             <div className="d-flex flex-row align-self-stretch align-items-center justify-content-between mt-4rem">
@@ -177,7 +177,7 @@ const CreateWallet = (): JSX.Element => {
     const keystoreContent = (
         <div className="import-card py-4 px-md-4">
             <div className="mb-4rem">
-                <p className="danger-text">{t('welcome.softwareModal.notRecommanded')}</p>
+                <p className="not-recommanded">{t('welcome.softwareModal.notRecommanded')}</p>
                 <p>{t('welcome.softwareModal.notRecommandedDescription')}</p>
             </div>
             <div className="mb-4rem text-start">
