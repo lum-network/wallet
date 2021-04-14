@@ -40,6 +40,34 @@
             "amount": "Montant"
         }
     },
+    "send": {
+        "types": {
+            "send": {
+                "name": "Send",
+                "description": "Send description"
+            },
+            "delegate": {
+                "name": "Delegate",
+                "description": "Delegate description"
+            },
+            "undelegate": {
+                "name": "Undelegate",
+                "description": "Undelegate description"
+            },
+            "getRewards": {
+                "name": "Get Rewards",
+                "description": "Get Rewards description"
+            },
+            "withdrawRewards": {
+                "name": "Rewards Wallet",
+                "description": "Rewards Wallet description"
+            },
+            "redelegate": {
+                "name": "Redelegate",
+                "description": "Redelegate description"
+            }
+        }
+    },
     "navbar": {
         "dashboard": "Tableau de bord",
         "transactions": "Transactions",

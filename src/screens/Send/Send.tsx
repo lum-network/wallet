@@ -14,7 +14,7 @@ import { useTranslation } from 'react-i18next';
 
 import './Send.scss';
 
-type MsgType = { name: string; icon: string; id: string };
+type MsgType = { name: string; icon: string; id: string; description: string };
 
 const Send = (): JSX.Element => {
     const dispatch = useDispatch<RootDispatch>();
@@ -37,16 +37,42 @@ const Send = (): JSX.Element => {
     const [confirming, setConfirming] = useState(false);
 
     const buttons: MsgType[] = [
-        { id: LumMessages.MsgSendUrl, name: 'Send', icon: assets.images.messageSend },
-        { id: LumMessages.MsgDelegateUrl, name: 'Delegate', icon: assets.images.messageDelegate },
-        { id: LumMessages.MsgUndelegateUrl, name: 'Undelegate', icon: assets.images.messageUndelegate },
-        { id: LumMessages.MsgWithdrawDelegatorRewardUrl, name: 'Get rewards', icon: assets.images.messageGetReward },
+        {
+            id: LumMessages.MsgSendUrl,
+            name: t('send.types.send.name'),
+            icon: assets.images.messageSend,
+            description: t('send.types.send.description'),
+        },
+        {
+            id: LumMessages.MsgDelegateUrl,
+            name: t('send.types.delegate.name'),
+            icon: assets.images.messageDelegate,
+            description: t('send.types.delegate.description'),
+        },
+        {
+            id: LumMessages.MsgUndelegateUrl,
+            name: t('send.types.undelegate.name'),
+            icon: assets.images.messageUndelegate,
+            description: t('send.types.undelegate.description'),
+        },
+        {
+            id: LumMessages.MsgWithdrawDelegatorRewardUrl,
+            name: t('send.types.getRewards.name'),
+            icon: assets.images.messageGetReward,
+            description: t('send.types.getRewards.description'),
+        },
         {
             id: LumMessages.MsgSetWithdrawAddressUrl,
-            name: 'Rewards wallet',
+            name: t('send.types.withdrawRewards.name'),
             icon: assets.images.messageWithdrawAddress,
+            description: t('send.types.withdrawRewards.description'),
         },
-        { id: LumMessages.MsgBeginRedelegateUrl, name: 'Redelegate', icon: assets.images.messageRedelegate },
+        {
+            id: LumMessages.MsgBeginRedelegateUrl,
+            name: t('send.types.redelegate.name'),
+            icon: assets.images.messageRedelegate,
+            description: t('send.types.redelegate.description'),
+        },
     ];
 
     if (!wallet) {
@@ -416,6 +442,7 @@ const Send = (): JSX.Element => {
                         data-bs-target="#modalSendTxs"
                         data-bs-toggle="modal"
                         name={msg.name}
+                        description={msg.description}
                         icon={msg.icon}
                     />
                 </div>
