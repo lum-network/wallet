@@ -95,36 +95,14 @@ class MainLayout extends PureComponent<Props> {
                 </ul>
                 {!bottom && (
                     <ul className="navbar-nav">
-                        <li className="dropdown navbar-item selected-navbar-item">
-                            <button
-                                type="button"
-                                id="profileDropdownButton"
-                                data-bs-toggle="dropdown"
-                                data-bs-target="profileDropdownButton"
-                                aria-expanded="false"
+                        <li>
+                            <NavLink
+                                to="/welcome"
+                                className="navbar-item selected-navbar-item"
+                                onClick={() => store.dispatch({ type: LOGOUT })}
                             >
-                                <div className="logout d-flex align-items-center justify-content-center">
-                                    <img
-                                        src={assets.images.profileIcon}
-                                        width="22"
-                                        height="17.5"
-                                        className="nav-icon"
-                                    />
-                                </div>
-                            </button>
-                            <ul
-                                className="dropdown-menu dropdown-menu-end"
-                                aria-labelledby="profileDropdownButton"
-                                id="profileDropdownButton"
-                            >
-                                <NavLink
-                                    to="/welcome"
-                                    className="selected-navbar-item dropdown-item"
-                                    onClick={() => store.dispatch({ type: LOGOUT })}
-                                >
-                                    <li>Logout</li>
-                                </NavLink>
-                            </ul>
+                                <img src={assets.images.logoutIcon} width="50" height="50" className="nav-icon" />
+                            </NavLink>
                         </li>
                     </ul>
                 )}

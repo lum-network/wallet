@@ -102,6 +102,7 @@ const ImportMnemonicModal = (): JSX.Element => {
                                 name={`mnemonicInput${index}`}
                                 id={`mnemonicInput${index}`}
                                 type="form"
+                                autoComplete="off"
                                 label={`${(index + 1).toString()}.`}
                                 inputClass="border-0 mnemonic-input"
                                 className="border-bottom form-inline align-middle mt-4"
