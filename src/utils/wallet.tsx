@@ -55,13 +55,12 @@ const isTxInfo = (info: { fromAddress?: string; toAddress?: string; amount?: Amo
     return !!(info && info.fromAddress && info.toAddress && info.amount);
 };
 
-export const formatTxs = async (rawTxs: TxResponse[], client: LumClient): Promise<Transaction[]> => {
+export const formatTxs = async (rawTxs: TxResponse[]): Promise<Transaction[]> => {
     const formattedTxs: Transaction[] = [];
 
     for (const rawTx of rawTxs) {
         // Decode TX to human readable format
         const txData = LumRegistry.decodeTx(rawTx.tx);
-        const block = await client.getBlock(rawTx.height);
 
         txData.body?.messages?.forEach((msg) => {
             if (msg.typeUrl === LumMessages.MsgSendUrl) {
@@ -70,7 +69,7 @@ export const formatTxs = async (rawTxs: TxResponse[], client: LumClient): Promis
                 if (typeof txInfos === 'object' && isTxInfo(txInfos)) {
                     formattedTxs.push({
                         ...txInfos,
-                        time: (block.block.header.time as Date).toISOString(),
+                        height: rawTx.height,
                         hash: LumUtils.toHex(rawTx.hash).toUpperCase(),
                     });
                 }
@@ -121,7 +120,7 @@ class WalletClient {
                 LumUtils.searchTxTo(address),
             ]);
 
-            const formattedTxs = await formatTxs(transactions, this.lumClient);
+            const formattedTxs = await formatTxs(transactions);
 
             return { ...account, ...(balance && { currentBalance: balance.amount }), transactions: formattedTxs };
         } catch (e) {

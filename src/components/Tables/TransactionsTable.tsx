@@ -5,7 +5,7 @@ import { Namespace, Resources, TFunction, useTranslation } from 'react-i18next';
 import { Table } from 'frontend-elements';
 import { LUM_EXPLORER } from 'constant';
 import { Transaction } from 'models';
-import { toLocaleDateFormat, trunc } from 'utils';
+import { trunc } from 'utils';
 
 interface TransactionsTableProps {
     transactions: Transaction[];
@@ -25,9 +25,6 @@ const TransactionRow = (props: RowProps): JSX.Element => {
                     {trunc(row.hash)}
                 </a>
             </td>
-            <td data-label="Date">
-                <div className="text-truncate">{toLocaleDateFormat(row.time ? new Date(row.time) : new Date())}</div>
-            </td>
             <td data-label={t('transactions.table.from')}>
                 <div className="text-truncate">{trunc(row.fromAddress)}</div>
             </td>
@@ -46,17 +43,16 @@ const TransactionsTable = (props: TransactionsTableProps): JSX.Element => {
         const { t } = useTranslation();
         const headers = [
             'Hash',
-            'Date',
             t('transactions.table.from'),
             t('transactions.table.to'),
             t('transactions.table.amount'),
         ];
 
         const txs = [...props.transactions].sort((txA, txB) => {
-            const aDate = txA.time ? new Date(txA.time) : new Date();
-            const bDate = txB.time ? new Date(txB.time) : new Date();
+            const aHeight = txA.height;
+            const bHeight = txB.height;
 
-            return aDate < bDate ? 1 : -1;
+            return aHeight < bHeight ? 1 : -1;
         });
 
         return (
