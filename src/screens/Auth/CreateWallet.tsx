@@ -57,7 +57,7 @@ const CreateWallet = (): JSX.Element => {
     // Effects
     useEffect(() => {
         if (wallet) {
-            //history.push('/home');
+            history.push('/home');
         }
     }, [wallet]);
 
