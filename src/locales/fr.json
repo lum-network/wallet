@@ -3,7 +3,8 @@
         "continue": "Continuer",
         "address": "Adresse",
         "send": "Envoyer",
-        "required": "Requis"
+        "required": "Requis",
+        "lengthError": "Veuillez entrer au moins {{ count }} caractères"
     },
     "dashboard": {
         "latestTx": "Dernières Transactions",
@@ -30,7 +31,10 @@
                 "mnemonic": "Phrase mnémonique",
                 "keystore": "Fichier Keystore",
                 "privateKey": "Clé privée"
-            }
+            },
+            "importMnemonic": "Accès via Mnemonic",
+            "importKeystore": "Accès via Keystore",
+            "importPrivateKey": "Accès via Private Key"
         }
     },
     "transactions": {

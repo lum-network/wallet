@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
@@ -9,7 +9,7 @@ import { LumUtils } from '@lum-network/sdk-javascript';
 import { Card, Button } from 'frontend-elements';
 import Assets from 'assets';
 import { Input, SwitchInput } from 'components';
-import { PasswordStrength, PasswordStrengthType } from 'models';
+import { PasswordStrength, PasswordStrengthType, SoftwareType } from 'models';
 import { useRematchDispatch } from 'redux/hooks';
 import { RootDispatch, RootState } from 'redux/store';
 
@@ -19,19 +19,20 @@ import KeystoreFileSave from './components/KeystoreFileSave';
 import { MnemonicLength, WalletUtils } from 'utils';
 import printJS from 'print-js';
 
-type CreationType = 'mnemonic' | 'keystore' | 'privateKey';
-
 const CreateWallet = (): JSX.Element => {
     // State values
     const [introDone, setIntroDone] = useState(true);
-    const [creationType, setCreationType] = useState<CreationType>('mnemonic');
+    const [creationType, setCreationType] = useState<SoftwareType>(SoftwareType.Mnemonic);
     const [mnemonicLength, setMnemonicLength] = useState<MnemonicLength>(12);
-    //const [isExtraWord, setIsExtraWord] = useState(false);
-    //const [extraWord, setExtraWord] = useState('');
     const [inputsValues, setInputsValues] = useState<string[]>([]);
     const [passwordStrength, setPasswordStrength] = useState<PasswordStrength>(PasswordStrengthType.Weak);
     const [keystoreFileData, setKeystoreFileData] = useState<LumUtils.KeyStore | null>(null);
     const [keystoreFilePassword, setKeystoreFilePassword] = useState('');
+
+    /* CODE RELATED TO EXTRA WORD FOR FUTURE IMPLEMENTATION
+
+    const [isExtraWord, setIsExtraWord] = useState(false);
+    const [extraWord, setExtraWord] = useState(''); */
 
     // Redux hooks
     const wallet = useSelector((state: RootState) => state.wallet.currentWallet);
@@ -49,32 +50,18 @@ const CreateWallet = (): JSX.Element => {
             password: '',
         },
         validationSchema: yup.object().shape({
-            password: yup.string().min(9, 'Please enter at least 9 characters').required(t('common.required')),
+            password: yup
+                .string()
+                .min(9, t('common.lengthError', { count: 9 }))
+                .required(t('common.required')),
         }),
         onSubmit: (values) => onSubmitPassword(values.password),
     });
 
-    // Effects
-    useEffect(() => {
-        if (wallet) {
-            history.push('/home');
-        }
-    }, [wallet]);
-
-    useEffect(() => {
-        if (creationType === 'mnemonic') {
-            generateNewMnemonic();
-        }
-    }, [creationType]);
-
-    useEffect(() => {
-        generateNewMnemonic();
-    }, [mnemonicLength]);
-
     // Methods
-    const generateNewMnemonic = () => {
+    const generateNewMnemonic = useCallback(() => {
         setInputsValues(WalletUtils.generateMnemonic(mnemonicLength));
-    };
+    }, [mnemonicLength]);
 
     const onSubmitPassword = (password: string) => {
         setKeystoreFilePassword(password);
@@ -94,6 +81,23 @@ const CreateWallet = (): JSX.Element => {
             type: 'json',
         });
     };
+
+    // Effects
+    useEffect(() => {
+        if (wallet) {
+            history.push('/home');
+        }
+    }, [history, wallet]);
+
+    useEffect(() => {
+        if (creationType === SoftwareType.Mnemonic) {
+            generateNewMnemonic();
+        }
+    }, [creationType, generateNewMnemonic]);
+
+    useEffect(() => {
+        generateNewMnemonic();
+    }, [generateNewMnemonic, mnemonicLength]);
 
     // Render content
     const mnemonicContent = (
@@ -234,28 +238,34 @@ const CreateWallet = (): JSX.Element => {
                             <ul className="row nav nav-tabs border-0 text-center">
                                 <li
                                     className={`col-6 nav-item pt-4 pb-2 ${
-                                        creationType === 'keystore' ? 'active' : ''
+                                        creationType === SoftwareType.Keystore ? 'active' : ''
                                     }`}
                                 >
-                                    <a className="nav-link fs-5 border-0" onClick={() => setCreationType('keystore')}>
+                                    <a
+                                        className="nav-link fs-5 border-0"
+                                        onClick={() => setCreationType(SoftwareType.Keystore)}
+                                    >
                                         <img src={Assets.images.fileIcon} width="25" height="34" className="me-4" />
                                         <span>Keystore File</span>
                                     </a>
                                 </li>
                                 <li
                                     className={`col-6 nav-item pt-4 pb-2 ${
-                                        creationType === 'mnemonic' ? 'active' : ''
+                                        creationType === SoftwareType.Mnemonic ? 'active' : ''
                                     }`}
                                 >
-                                    <a className="nav-link fs-5 border-0" onClick={() => setCreationType('mnemonic')}>
+                                    <a
+                                        className="nav-link fs-5 border-0"
+                                        onClick={() => setCreationType(SoftwareType.Mnemonic)}
+                                    >
                                         <img src={Assets.images.bubbleIcon} width="39" height="34" className="me-4" />
                                         <span>Mnemonic phrase</span>
                                     </a>
                                 </li>
                             </ul>
                             <div className="d-flex flex-column align-self-center text-center align-items-center py-4">
-                                {creationType === 'mnemonic' && mnemonicContent}
-                                {creationType === 'keystore' && keystoreContent}
+                                {creationType === SoftwareType.Mnemonic && mnemonicContent}
+                                {creationType === SoftwareType.Keystore && keystoreContent}
                             </div>
                         </Card>
                     )

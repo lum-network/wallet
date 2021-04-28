@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useRematchDispatch } from 'redux/hooks';
@@ -9,10 +9,18 @@ import { Input, SwitchInput, Button } from 'components';
 import { MnemonicLength, WalletUtils } from 'utils';
 import '../styles/Auth.scss';
 
+const defaultMnemonicState: { length: MnemonicLength; values: string[] } = {
+    length: 12,
+    values: ['', '', '', '', '', '', '', '', '', '', '', ''],
+};
+
 const ImportMnemonicModal = (): JSX.Element => {
     // State
-    const [mnemonic, setMnemonic] = useState({ length: 12 as MnemonicLength, values: [] as string[] });
-    /* const [isExtraWord, setIsExtraWord] = useState(false);
+    const [mnemonic, setMnemonic] = useState(defaultMnemonicState);
+
+    /* CODE RELATED TO EXTRA WORD FOR FUTURE IMPLEMENTATION
+
+    const [isExtraWord, setIsExtraWord] = useState(false);
     const [extraWord, setExtraWord] = useState(''); */
 
     // Redux hooks
@@ -22,16 +30,6 @@ const ImportMnemonicModal = (): JSX.Element => {
 
     // Utils hooks
     const { t } = useTranslation();
-
-    useEffect(() => {
-        const inputs: string[] = [];
-
-        for (let i = 0; i < mnemonic.length; i++) {
-            inputs.push(mnemonic.values[i] || '');
-        }
-
-        setMnemonic({ values: inputs, length: mnemonic.length });
-    }, [mnemonic.length]);
 
     // Methods
     const handlePaste: React.ClipboardEventHandler<HTMLInputElement> = (event) => {
@@ -53,11 +51,21 @@ const ImportMnemonicModal = (): JSX.Element => {
         setMnemonic({ values: newValues, length: mnemonic.length });
     };
 
-    const onSubmit = () => {
-        let mnemonicString = mnemonic.values.join(' ');
-        mnemonicString = mnemonicString.trim();
+    const onLengthChange = (length: MnemonicLength) => {
+        const inputs: string[] = [];
 
-        /* if (extraWord) {
+        for (let i = 0; i < length; i++) {
+            inputs.push(mnemonic.values[i] || '');
+        }
+
+        setMnemonic({ values: inputs, length });
+    };
+
+    const onSubmit = () => {
+        const mnemonicString = mnemonic.values.map((val) => val.trim()).join(' ');
+
+        /*  CODE RELATED TO EXTRA WORD FOR FUTURE IMPLEMENTATION
+        if (extraWord) {
             mnemonic += ' ' + extraWord;
         } */
 
@@ -72,7 +80,7 @@ const ImportMnemonicModal = (): JSX.Element => {
         <>
             <div className="mb-4rem">
                 <p className="not-recommanded mb-2">{t('welcome.softwareModal.notRecommanded')}</p>
-                <h3 className="text-center">Access by Mnemonic</h3>
+                <h3 className="text-center">{t('welcome.softwareModal.importMnemonic')}</h3>
                 <p>{t('welcome.softwareModal.notRecommandedDescription')}</p>
             </div>
             <div className="d-flex flex-row align-self-stretch align-items-center justify-content-between mt-4rem">
@@ -82,9 +90,7 @@ const ImportMnemonicModal = (): JSX.Element => {
                         offLabel="12"
                         onLabel="24"
                         checked={mnemonic.length === 24}
-                        onChange={(event) =>
-                            setMnemonic({ length: event.target.checked ? 24 : 12, values: mnemonic.values })
-                        }
+                        onChange={(event) => onLengthChange(event.target.checked ? 24 : 12)}
                     />
                     <h6>Values</h6>
                 </div>

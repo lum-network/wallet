@@ -75,10 +75,6 @@ const Send = (): JSX.Element => {
         },
     ];
 
-    if (!wallet) {
-        return <Redirect to="/welcome" />;
-    }
-
     useEffect(() => {
         if (modalRef.current) {
             modalRef.current.addEventListener('hidden.bs.modal', () => {
@@ -154,6 +150,10 @@ const Send = (): JSX.Element => {
         }),
         onSubmit: (values) => onSubmitGetReward(values.address, values.memo),
     });
+
+    if (!wallet) {
+        return <Redirect to="/welcome" />;
+    }
 
     const onSubmitSend = async (toAddress: string, amount: string, memo: string) => {
         const sendResult = await dispatch.wallet.sendTx({ from: wallet, to: toAddress, amount, memo });

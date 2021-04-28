@@ -28,7 +28,10 @@ const ImportKeystoreModal = (props: { fileData: string; onSubmit: () => void }):
             password: '',
         },
         validationSchema: yup.object().shape({
-            password: yup.string().min(9, 'Please enter at least 9 characters').required(t('common.required')),
+            password: yup
+                .string()
+                .min(9, t('common.lengthError', { count: 9 }))
+                .required(t('common.required')),
         }),
         onSubmit: (values) => onSubmitPassword(values.password),
     });
@@ -43,7 +46,7 @@ const ImportKeystoreModal = (props: { fileData: string; onSubmit: () => void }):
         <>
             <div className="mb-4rem">
                 <p className="not-recommanded mb-2">{t('welcome.softwareModal.notRecommanded')}</p>
-                <h3 className="text-center">Access by Keystore</h3>
+                <h3 className="text-center">{t('welcome.softwareModal.importKeystore')}</h3>
                 <p>{t('welcome.softwareModal.notRecommandedDescription')}</p>
             </div>
             <div className="mb-4rem text-start">

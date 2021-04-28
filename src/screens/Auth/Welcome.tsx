@@ -15,22 +15,17 @@ import AuthLayout from './components/AuthLayout';
 import ImportMnemonicModal from './components/ImportMnemonicModal';
 import ImportPrivateKeyModal from './components/ImportPrivateKeyModal';
 import ImportKeystoreModal from './components/ImportKeystoreModal';
-
-type MethodModalType = 'mnemonic' | 'privateKey' | 'keystore';
+import { SoftwareType } from 'models';
 
 const Welcome = (): JSX.Element => {
     // State
-    const [selectedMethod, setSelectedMethod] = useState<MethodModalType | null>(null);
+    const [selectedMethod, setSelectedMethod] = useState<SoftwareType | null>(null);
     const [keystoreFileData, setKeystoreFileData] = useState<string | null>(null);
     const [importSoftwareModal, setImportSoftwareModal] = useState<BSModal | null>(null);
     const [softwareMethodModal, setSoftwareMethodModal] = useState<BSModal | null>(null);
 
     // Redux hooks
     const wallet = useSelector((state: RootState) => state.wallet.currentWallet);
-
-    if (wallet) {
-        return <Redirect to="/home" />;
-    }
 
     // Refs
     const importSoftwareModalRef = useRef<HTMLDivElement>(null);
@@ -42,16 +37,24 @@ const Welcome = (): JSX.Element => {
 
     // Effects
     const importSoftwareModalHandler = useCallback(() => {
-        if (softwareMethodModal && ((selectedMethod === 'keystore' && keystoreFileData) || selectedMethod)) {
+        if (softwareMethodModal && ((selectedMethod === SoftwareType.Keystore && keystoreFileData) || selectedMethod)) {
             softwareMethodModal.show();
         }
-    }, [selectedMethod, keystoreFileData]);
+    }, [softwareMethodModal, selectedMethod, keystoreFileData]);
 
     useEffect(() => {
-        if (importSoftwareModalRef.current) {
-            importSoftwareModalRef.current.addEventListener('hidden.bs.modal', importSoftwareModalHandler);
+        const currentSoftwareModalRef = importSoftwareModalRef.current;
+
+        if (currentSoftwareModalRef) {
+            currentSoftwareModalRef.addEventListener('hidden.bs.modal', importSoftwareModalHandler);
         }
-    });
+
+        return () => {
+            if (currentSoftwareModalRef) {
+                currentSoftwareModalRef.removeEventListener('hidden.bs.modal', importSoftwareModalHandler);
+            }
+        };
+    }, [importSoftwareModalHandler]);
 
     useEffect(() => {
         if (importSoftwareModalRef.current) {
@@ -60,23 +63,22 @@ const Welcome = (): JSX.Element => {
         if (softwareMethodModalRef.current) {
             setSoftwareMethodModal(new BSModal(softwareMethodModalRef.current));
         }
-    }, []);
+    }, [importSoftwareModalRef, softwareMethodModalRef]);
 
     useEffect(() => {
         if (wallet) {
             if (softwareMethodModal) {
-                console.log('dispose software modal');
                 softwareMethodModal.dispose();
-                //BSModal.getInstance(softwareMethodModalRef.current).hide();
             }
         }
-    }, [wallet]);
+    }, [softwareMethodModal, wallet]);
 
     // SOFTWARE IMPORT MODAL
     const importSoftwareModalContent = (
         <Modal
             id="importSoftwareModal"
             ref={importSoftwareModalRef}
+            onCloseButtonPress={() => setSelectedMethod(null)}
             bodyClassName="px-4"
             contentClassName="px-3 import-modal-content"
         >
@@ -86,8 +88,8 @@ const Welcome = (): JSX.Element => {
             <div className="d-flex flex-column my-4">
                 <button
                     type="button"
-                    onClick={() => setSelectedMethod('keystore')}
-                    className={`import-software-btn ${selectedMethod === 'keystore' && 'selected'}`}
+                    onClick={() => setSelectedMethod(SoftwareType.Keystore)}
+                    className={`import-software-btn ${selectedMethod === SoftwareType.Keystore && 'selected'}`}
                 >
                     <div className="d-flex align-items-center justify-content-center">
                         <img src={Assets.images.softwareIcon} height="28" className="me-3" />
@@ -96,8 +98,8 @@ const Welcome = (): JSX.Element => {
                 </button>
                 <button
                     type="button"
-                    onClick={() => setSelectedMethod('mnemonic')}
-                    className={`import-software-btn my-4 ${selectedMethod === 'mnemonic' && 'selected'}`}
+                    onClick={() => setSelectedMethod(SoftwareType.Mnemonic)}
+                    className={`import-software-btn my-4 ${selectedMethod === SoftwareType.Mnemonic && 'selected'}`}
                 >
                     <div className="d-flex align-items-center justify-content-center">
                         <img src={Assets.images.bubbleIcon} height="28" className="me-3" />
@@ -106,8 +108,8 @@ const Welcome = (): JSX.Element => {
                 </button>
                 <button
                     type="button"
-                    onClick={() => setSelectedMethod('privateKey')}
-                    className={`import-software-btn ${selectedMethod === 'privateKey' && 'selected'}`}
+                    onClick={() => setSelectedMethod(SoftwareType.PrivateKey)}
+                    className={`import-software-btn ${selectedMethod === SoftwareType.PrivateKey && 'selected'}`}
                 >
                     <div className="d-flex align-items-center justify-content-center">
                         <img src={Assets.images.keyIcon} height="28" className="me-3" />
@@ -120,7 +122,7 @@ const Welcome = (): JSX.Element => {
                 type="button"
                 disabled={!selectedMethod}
                 onClick={() => {
-                    if (selectedMethod === 'keystore') {
+                    if (selectedMethod === SoftwareType.Keystore) {
                         if (keystoreInputRef.current) {
                             keystoreInputRef.current.click();
                         }
@@ -132,7 +134,7 @@ const Welcome = (): JSX.Element => {
             >
                 {t('common.continue')}
             </Button>
-            {selectedMethod === 'keystore' && (
+            {selectedMethod === SoftwareType.Keystore && (
                 <input
                     id="keystore-input"
                     ref={keystoreInputRef}
@@ -142,7 +144,6 @@ const Welcome = (): JSX.Element => {
                     onChange={(event) => {
                         if (event.target.files && event.target.files.length > 0) {
                             event.target.files[0].text().then((data) => {
-                                console.log(data);
                                 setKeystoreFileData(data);
                                 importSoftwareModal?.hide();
                             });
@@ -158,6 +159,10 @@ const Welcome = (): JSX.Element => {
             <h2>Coming Soon...</h2>
         </Modal>
     );
+
+    if (wallet) {
+        return <Redirect to="/home" />;
+    }
 
     return (
         <>
@@ -228,9 +233,9 @@ const Welcome = (): JSX.Element => {
             {importSoftwareModalContent}
             {importHardwareModalContent}
             <Modal id="softwareMethodModal" ref={softwareMethodModalRef}>
-                {selectedMethod === 'mnemonic' && <ImportMnemonicModal />}
-                {selectedMethod === 'privateKey' && <ImportPrivateKeyModal />}
-                {selectedMethod === 'keystore' && keystoreFileData && (
+                {selectedMethod === SoftwareType.Mnemonic && <ImportMnemonicModal />}
+                {selectedMethod === SoftwareType.PrivateKey && <ImportPrivateKeyModal />}
+                {selectedMethod === SoftwareType.Keystore && keystoreFileData && (
                     <ImportKeystoreModal fileData={keystoreFileData} onSubmit={() => softwareMethodModal?.hide()} />
                 )}
             </Modal>

@@ -39,8 +39,9 @@ const TransactionRow = (props: RowProps): JSX.Element => {
 };
 
 const TransactionsTable = (props: TransactionsTableProps): JSX.Element => {
+    const { t } = useTranslation();
+
     if (props.transactions.length > 0) {
-        const { t } = useTranslation();
         const headers = [
             'Hash',
             t('transactions.table.from'),
@@ -48,12 +49,7 @@ const TransactionsTable = (props: TransactionsTableProps): JSX.Element => {
             t('transactions.table.amount'),
         ];
 
-        const txs = [...props.transactions].sort((txA, txB) => {
-            const aHeight = txA.height;
-            const bHeight = txB.height;
-
-            return aHeight < bHeight ? 1 : -1;
-        });
+        const txs = [...props.transactions].sort((txA, txB) => (txA.height < txB.height ? 1 : -1));
 
         return (
             <Table head={headers}>

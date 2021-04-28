@@ -30,3 +30,9 @@ export enum PasswordStrengthType {
 }
 
 export type PasswordStrength = PasswordStrengthType.Weak | PasswordStrengthType.Medium | PasswordStrengthType.Strong;
+
+export enum SoftwareType {
+    Mnemonic = 'mnemonic',
+    PrivateKey = 'privateKey',
+    Keystore = 'keystore',
+}

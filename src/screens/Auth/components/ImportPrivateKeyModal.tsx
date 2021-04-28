@@ -23,7 +23,10 @@ const ImportPrivateKeyModal = (): JSX.Element => {
             privateKey: '',
         },
         validationSchema: yup.object().shape({
-            privateKey: yup.string().min(64, 'Please enter at least 64 characters').required(t('common.required')),
+            privateKey: yup
+                .string()
+                .min(64, t('common.lengthError', { count: 64 }))
+                .required(t('common.required')),
         }),
         onSubmit: (values) => onSubmitPassword(values.privateKey),
     });
@@ -37,7 +40,7 @@ const ImportPrivateKeyModal = (): JSX.Element => {
         <>
             <div className="mb-4rem">
                 <p className="not-recommanded mb-2">{t('welcome.softwareModal.notRecommanded')}</p>
-                <h3 className="text-center">Access by Private key</h3>
+                <h3 className="text-center">{t('welcome.softwareModal.importPrivateKey')}</h3>
                 <p>{t('welcome.softwareModal.notRecommandedDescription')}</p>
             </div>
             <div className="text-start mb-4rem">

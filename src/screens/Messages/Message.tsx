@@ -53,10 +53,6 @@ const Message = (): JSX.Element => {
         currentBalance: state.wallet.currentBalance,
     }));
 
-    if (!wallet) {
-        return <Redirect to="/welcome" />;
-    }
-
     // Refs
     const confirmModalRef = useRef<HTMLDivElement>(null);
     const signatureModalRef = useRef<HTMLDivElement>(null);
@@ -93,6 +89,10 @@ const Message = (): JSX.Element => {
             signatureClipboard.destroy();
         };
     });
+
+    if (!wallet) {
+        return <Redirect to="/welcome" />;
+    }
 
     // Methods
     const handleSign = async () => {
