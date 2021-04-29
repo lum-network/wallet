@@ -45,6 +45,10 @@ h1.display-5 {
     color: #ff7676;
 }
 
+.not-recommanded {
+    color: #f3b265;
+}
+
 .warning-text {
     color: $color-orange;
 }
@@ -144,7 +148,7 @@ h1.display-5 {
     margin-right: 2rem;
 }
 
-.keyboard-step-title {
+.keystore-step-title {
     font-size: $font-md;
     font-weight: $medium;
 }
@@ -186,7 +190,7 @@ h1.display-5 {
         background: $color-primary !important;
     }
     .input-group .normal-input {
-        background: #000 !important;
+        background: $color-primary !important;
         &:focus {
             color: white !important;
         }

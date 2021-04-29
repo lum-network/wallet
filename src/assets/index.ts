@@ -17,6 +17,7 @@ import keyIcon from './images/key.png';
 import profileIcon from './images/profile.png';
 import sendIcon from './images/send.png';
 import stakeIcon from './images/stake.png';
+import logoutIcon from './images/logout.png';
 import messageMauveIcon from './images/message_mauve.png';
 import dashboardIcon from './images/dashboard.png';
 import copyIcon from './images/copy.png';
@@ -58,6 +59,7 @@ export default {
         copyIcon,
         qrIcon,
         lumTicker,
+        logoutIcon,
         messageCreateValidator,
         messageDelegate,
         messageEditValidator,

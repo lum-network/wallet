@@ -2,19 +2,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { Switch, Route, BrowserRouter, Redirect } from 'react-router-dom';
 import { RootState } from 'redux/store';
-import {
-    CreateWallet,
-    Dashboard,
-    ImportHardwareWallet,
-    ImportMnemonic,
-    Message,
-    Send,
-    Transactions,
-    Welcome,
-    Error404,
-    ImportPrivateKey,
-    ImportKeystore,
-} from 'screens';
+import { CreateWallet, Dashboard, Message, Staking, Transactions, Welcome, Error404 } from 'screens';
 import MainLayout from './Layout/MainLayout/MainLayout';
 
 const RootNavigator = (): JSX.Element => {
@@ -28,29 +16,17 @@ const RootNavigator = (): JSX.Element => {
                     <Route path="/create">
                         <CreateWallet />
                     </Route>
-                    <Route path="/import/software/mnemonic">
-                        <ImportMnemonic />
-                    </Route>
-                    <Route path="/import/software/privateKey">
-                        <ImportPrivateKey />
-                    </Route>
-                    <Route path="/import/software/keystore">
-                        <ImportKeystore />
-                    </Route>
-                    <Route path="/import/hardware">
-                        <ImportHardwareWallet />
-                    </Route>
                     <PrivateRoute exact path={['/home', '/']}>
                         <Dashboard />
                     </PrivateRoute>
                     <PrivateRoute exact path="/message">
                         <Message />
                     </PrivateRoute>
-                    <PrivateRoute exact path="/send">
-                        <Send />
-                    </PrivateRoute>
                     <PrivateRoute exact path="/transactions">
                         <Transactions />
+                    </PrivateRoute>
+                    <PrivateRoute exact path="/staking">
+                        <Staking />
                     </PrivateRoute>
                     <Route path="*">
                         <Error404 />

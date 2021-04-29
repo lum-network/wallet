@@ -50,6 +50,8 @@ button:focus {
     min-height: 40px;
     max-width: 40px;
     max-height: 40px;
+    background-color: white;
+    border-radius: 20px;
 }
 
 .toast-close-btn > img {
@@ -62,5 +64,8 @@ button:focus {
     .normal-btn {
         background-color: $color-white;
         color: $color-primary;
+    }
+    .toast-close-btn {
+        background-color: $color-primary;
     }
 }

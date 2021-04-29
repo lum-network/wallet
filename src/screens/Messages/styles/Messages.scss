@@ -15,6 +15,9 @@ textarea {
     &[readonly] {
         color: #555555;
     }
+    &::placeholder {
+        color: $color-grey;
+    }
 }
 
 .text-btn {

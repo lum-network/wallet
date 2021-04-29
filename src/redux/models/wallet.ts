@@ -66,12 +66,6 @@ export const wallet = createModel<RootModel>()({
 
             return state;
         },
-        /* addTransaction(state, tx: Transaction) {
-            state.transactions.unshift(tx);
-            state.currentBalance += tx.amount;
-
-            return state;
-        }, */
     },
     effects: (dispatch) => ({
         signInAsync(payload: LumWallet) {
@@ -115,14 +109,6 @@ export const wallet = createModel<RootModel>()({
             }
         },
         async sendTx(payload: SendPayload) {
-            // const tx = {
-            //     ...payload,
-            //     id: `tx-${state.wallet.transactions.length}`,
-            //     amount: Number(payload.amount),
-            //     from: payload.from.getAddress(),
-            //     date: new Date(),
-            // };
-
             try {
                 return await WalletClient.sendTx(payload.from, payload.to, payload.amount, payload.memo);
             } catch (e) {
@@ -130,7 +116,6 @@ export const wallet = createModel<RootModel>()({
                 return null;
             }
             //TODO: dispatch action
-            //dispatch.wallet.addTransaction(tx);
         },
         async delegate(payload: DelegatePayload) {
             try {

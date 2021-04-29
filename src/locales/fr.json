@@ -3,7 +3,8 @@
         "continue": "Continuer",
         "address": "Adresse",
         "send": "Envoyer",
-        "required": "Requis"
+        "required": "Requis",
+        "lengthError": "Veuillez entrer au moins {{ count }} caractères"
     },
     "dashboard": {
         "latestTx": "Dernières Transactions",
@@ -14,7 +15,7 @@
         "title": "Accède à ton Wallet",
         "hardware": {
             "title": "Physique",
-            "description": "Ledger, FINNEY, Trezor, Bitbox, Secalot, Keepkey, XWallet"
+            "description": "Ledger Wallet"
         },
         "software": {
             "title": "Digital",
@@ -30,7 +31,10 @@
                 "mnemonic": "Phrase mnémonique",
                 "keystore": "Fichier Keystore",
                 "privateKey": "Clé privée"
-            }
+            },
+            "importMnemonic": "Accès via Mnemonic",
+            "importKeystore": "Accès via Keystore",
+            "importPrivateKey": "Accès via Private Key"
         }
     },
     "transactions": {
@@ -40,10 +44,38 @@
             "amount": "Montant"
         }
     },
+    "send": {
+        "types": {
+            "send": {
+                "name": "Send",
+                "description": "Send description"
+            },
+            "delegate": {
+                "name": "Delegate",
+                "description": "Delegate description"
+            },
+            "undelegate": {
+                "name": "Undelegate",
+                "description": "Undelegate description"
+            },
+            "getRewards": {
+                "name": "Get Rewards",
+                "description": "Get Rewards description"
+            },
+            "withdrawRewards": {
+                "name": "Rewards Wallet",
+                "description": "Rewards Wallet description"
+            },
+            "redelegate": {
+                "name": "Redelegate",
+                "description": "Redelegate description"
+            }
+        }
+    },
     "navbar": {
         "dashboard": "Tableau de bord",
         "transactions": "Transactions",
-        "send": "Envoyer",
+        "staking": "Staking",
         "message": "Messages",
         "logout": "Déconnexion"
     }

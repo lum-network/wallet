@@ -1,3 +1,5 @@
+@import 'src/styles/main';
+
 .normal-input {
     background-color: #f9f9f9;
     &:focus {
@@ -8,6 +10,17 @@
         background-color: #f9f9f9;
         color: #555555;
     }
+}
+.normal-input:read-only {
+    &:-webkit-autofill,
+    &:-webkit-autofill:hover,
+    &:-webkit-autofill:focus,
+    &:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 30px white inset !important;
+        box-shadow: 0 0 0 30px white inset !important;
+        -webkit-text-fill-color: $color-primary;
+    }
+    background-color: white !important;
 }
 
 .form-switch {
@@ -62,6 +75,18 @@ input[type='checkbox'] {
 
 @media (prefers-color-scheme: dark) {
     label.form-label {
+        color: white;
+    }
+    .normal-input:read-only {
+        &:-webkit-autofill,
+        &:-webkit-autofill:hover,
+        &:-webkit-autofill:focus,
+        &:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px $color-primary inset !important;
+            box-shadow: 0 0 0 30px $color-primary inset !important;
+            -webkit-text-fill-color: white;
+        }
+        background-color: $color-primary !important;
         color: white;
     }
 }

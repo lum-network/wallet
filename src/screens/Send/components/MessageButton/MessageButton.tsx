@@ -4,21 +4,23 @@ import { Card } from 'frontend-elements';
 
 interface IProps {
     name: string;
+    description: string;
     icon: string;
     'data-bs-target': string;
     'data-bs-toggle': string;
 }
 
 const MessageButton = (props: IProps): JSX.Element => {
-    const { icon, name, ...rest } = props;
+    const { icon, name, description, ...rest } = props;
 
     return (
-        <div className="message-button-container" {...rest}>
-            <Card className="d-flex align-items-center flex-column">
+        <div className="message-button-container h-100" {...rest}>
+            <Card className="d-flex align-items-center text-center flex-column h-100">
                 <div className="message-circle">
                     <img alt="image" src={icon} />
                 </div>
-                <h4 className="button-title text-center mt-3 color-type">{name}</h4>
+                <h4 className="button-title mt-3 color-type">{name}</h4>
+                <p>{description}</p>
             </Card>
         </div>
     );

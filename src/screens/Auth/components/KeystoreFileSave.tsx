@@ -41,7 +41,7 @@ const KeystoreFileSave = (props: { data: LumUtils.KeyStore; password: string }):
                             <div className="keystore-step-container d-flex flex-row">
                                 <img src={assets.images.shieldIcon} width="50" />
                                 <div className="me-5">
-                                    <h4 className="keyboard-step-title mb-1">{"Don't Lose It"}</h4>
+                                    <h4 className="keystore-step-title mb-1">{"Don't Lose It"}</h4>
                                     <p className="p-0">
                                         Be careful, it can not be recovered
                                         <br />
@@ -54,7 +54,7 @@ const KeystoreFileSave = (props: { data: LumUtils.KeyStore; password: string }):
                             <div className="keystore-step-container d-flex flex-row">
                                 <img src={assets.images.anonymousIcon} width="50" />
                                 <div>
-                                    <h4 className="keyboard-step-title mb-1">{"Don't Share It"}</h4>
+                                    <h4 className="keystore-step-title mb-1">{"Don't Share It"}</h4>
                                     <p className="p-0">
                                         Your funds will be stolen if you use this file on a malicious phishing site.
                                     </p>
@@ -65,7 +65,7 @@ const KeystoreFileSave = (props: { data: LumUtils.KeyStore; password: string }):
                             <div className="keystore-step-container d-flex flex-row">
                                 <img src={assets.images.cloudIcon} width="50" />
                                 <div>
-                                    <h4 className="keyboard-step-title mb-1">{'Make a Backup'}</h4>
+                                    <h4 className="keystore-step-title mb-1">{'Make a Backup'}</h4>
                                     <p className="p-0">
                                         Secure it like the millions of dollars
                                         <br />

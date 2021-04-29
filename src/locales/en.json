@@ -3,7 +3,8 @@
         "continue": "Continue",
         "address": "Address",
         "send": "Send",
-        "required": "Required"
+        "required": "Required",
+        "lengthError": "Please enter at least {{ count }} characters"
     },
     "dashboard": {
         "latestTx": "Latest Transactions",
@@ -14,7 +15,7 @@
         "title": "Access My Wallet",
         "hardware": {
             "title": "Hardware",
-            "description": "Ledger, FINNEY, Trezor, Bitbox, Secalot, Keepkey, XWallet"
+            "description": "Ledger Wallet"
         },
         "software": {
             "title": "Software",
@@ -30,7 +31,10 @@
                 "mnemonic": "Mnemonic phrase",
                 "keystore": "Keystore File",
                 "privateKey": "Private Key"
-            }
+            },
+            "importMnemonic": "Access by Mnemonic",
+            "importKeystore": "Access by Keystore",
+            "importPrivateKey": "Access by Private Key"
         }
     },
     "transactions": {
@@ -40,10 +44,38 @@
             "amount": "Amount"
         }
     },
+    "send": {
+        "types": {
+            "send": {
+                "name": "Send",
+                "description": "Send description"
+            },
+            "delegate": {
+                "name": "Delegate",
+                "description": "Delegate description"
+            },
+            "undelegate": {
+                "name": "Undelegate",
+                "description": "Undelegate description"
+            },
+            "getRewards": {
+                "name": "Get Rewards",
+                "description": "Get Rewards description"
+            },
+            "withdrawRewards": {
+                "name": "Rewards Wallet",
+                "description": "Rewards Wallet description"
+            },
+            "redelegate": {
+                "name": "Redelegate",
+                "description": "Redelegate description"
+            }
+        }
+    },
     "navbar": {
         "dashboard": "Dashboard",
         "transactions": "Transactions",
-        "send": "Send",
+        "staking": "Staking",
         "message": "Messages",
         "logout": "Logout"
     }

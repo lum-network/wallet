@@ -14,13 +14,13 @@ export interface Amount {
 
 export interface Transaction {
     hash: string;
-    amount?: Amount[];
+    height: number;
     fromAddress: string;
     toAddress: string;
-    time?: string;
+    amount: Amount[];
     memo?: string;
     success?: boolean;
-    [key: string]: string | Amount[] | undefined | boolean;
+    [key: string]: string | Amount[] | number | boolean | undefined;
 }
 
 export enum PasswordStrengthType {
@@ -30,3 +30,9 @@ export enum PasswordStrengthType {
 }
 
 export type PasswordStrength = PasswordStrengthType.Weak | PasswordStrengthType.Medium | PasswordStrengthType.Strong;
+
+export enum SoftwareType {
+    Mnemonic = 'mnemonic',
+    PrivateKey = 'privateKey',
+    Keystore = 'keystore',
+}

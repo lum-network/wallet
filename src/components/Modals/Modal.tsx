@@ -9,10 +9,19 @@ interface Props {
     contentClassName?: string;
     bodyClassName?: string;
     dataBsBackdrop?: 'static' | 'true';
+    onCloseButtonPress?: () => void;
 }
 
 const Modal = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
-    const { id, children, bodyClassName, contentClassName, withCloseButton = true, dataBsBackdrop = 'true' } = props;
+    const {
+        id,
+        children,
+        bodyClassName,
+        contentClassName,
+        onCloseButtonPress,
+        withCloseButton = true,
+        dataBsBackdrop = 'true',
+    } = props;
 
     return (
         <div
@@ -24,11 +33,12 @@ const Modal = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
             data-bs-backdrop={dataBsBackdrop}
             ref={ref}
         >
-            <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-dialog modal-dialog-centered my-5">
                 <div className={`border-0 text-center modal-content ${contentClassName}`}>
                     {withCloseButton && (
                         <button
                             type="button"
+                            onClick={onCloseButtonPress}
                             className="close-btn bg-white rounded-circle align-self-center"
                             data-bs-dismiss="modal"
                             data-bs-target={id}
