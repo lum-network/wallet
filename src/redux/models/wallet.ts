@@ -75,7 +75,7 @@ export const wallet = createModel<RootModel>()({
             const accountInfos = await WalletClient.getWalletInformations(address);
             if (accountInfos) {
                 dispatch.wallet.setWalletData({
-                    currentBalance: accountInfos.currentBalance ? Number(accountInfos.currentBalance) : undefined,
+                    currentBalance: accountInfos.currentBalance,
                     transactions: accountInfos.transactions,
                 });
             }

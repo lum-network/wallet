@@ -1,25 +1,36 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useFormik } from 'formik';
-import * as yup from 'yup';
-
-import { AddressCard, BalanceCard, Input, Modal, Button as CustomButton } from 'components';
+import { useSelector } from 'react-redux';
 import { Redirect } from 'react-router';
-import { RootDispatch, RootState } from 'redux/store';
-import MessageButton from './components/MessageButton/MessageButton';
-import assets from 'assets';
+import { useTranslation } from 'react-i18next';
+import { useFormik } from 'formik';
 import { LumConstants, LumMessages, LumUtils } from '@lum-network/sdk-javascript';
 import { Button } from 'frontend-elements';
-import { useTranslation } from 'react-i18next';
+import * as yup from 'yup';
+
+import assets from 'assets';
+import { AddressCard, BalanceCard, Input, Modal, Button as CustomButton } from 'components';
+import { RootDispatch, RootState } from 'redux/store';
+import { useRematchDispatch } from 'redux/hooks';
+import MessageButton from './components/MessageButton/MessageButton';
 
 import './Send.scss';
 
 type MsgType = { name: string; icon: string; id: string; description: string };
 
 const Send = (): JSX.Element => {
-    const dispatch = useDispatch<RootDispatch>();
     const wallet = useSelector((state: RootState) => state.wallet.currentWallet);
     const balance = useSelector((state: RootState) => state.wallet.currentBalance);
+
+    // Rematch effects
+    const { sendTx, undelegate, delegate, getReward, getWalletInfos } = useRematchDispatch(
+        (dispatch: RootDispatch) => ({
+            sendTx: dispatch.wallet.sendTx,
+            delegate: dispatch.wallet.delegate,
+            getReward: dispatch.wallet.getReward,
+            undelegate: dispatch.wallet.undelegate,
+            getWalletInfos: dispatch.wallet.getWalletInfos,
+        }),
+    );
 
     // Loaders
     const loadingSend = useSelector((state: RootState) => state.loading.effects.wallet.sendTx);
@@ -156,7 +167,7 @@ const Send = (): JSX.Element => {
     }
 
     const onSubmitSend = async (toAddress: string, amount: string, memo: string) => {
-        const sendResult = await dispatch.wallet.sendTx({ from: wallet, to: toAddress, amount, memo });
+        const sendResult = await sendTx({ from: wallet, to: toAddress, amount, memo });
 
         if (sendResult) {
             setConfirming(false);
@@ -165,7 +176,7 @@ const Send = (): JSX.Element => {
     };
 
     const onSubmitDelegate = async (validatorAddress: string, amount: string, memo: string) => {
-        const delegateResult = await dispatch.wallet.delegate({ validatorAddress, amount, memo, from: wallet });
+        const delegateResult = await delegate({ validatorAddress, amount, memo, from: wallet });
 
         if (delegateResult) {
             setTxResult({ hash: LumUtils.toHex(delegateResult.hash), error: delegateResult.error });
@@ -173,7 +184,7 @@ const Send = (): JSX.Element => {
     };
 
     const onSubmitUndelegate = async (validatorAddress: string, amount: string, memo: string) => {
-        const undelegateResult = await dispatch.wallet.undelegate({ validatorAddress, amount, memo, from: wallet });
+        const undelegateResult = await undelegate({ validatorAddress, amount, memo, from: wallet });
 
         if (undelegateResult) {
             setTxResult({ hash: LumUtils.toHex(undelegateResult.hash), error: undelegateResult.error });
@@ -181,7 +192,7 @@ const Send = (): JSX.Element => {
     };
 
     const onSubmitGetReward = async (validatorAddress: string, memo: string) => {
-        const getRewardResult = await dispatch.wallet.getReward({ validatorAddress, memo, from: wallet });
+        const getRewardResult = await getReward({ validatorAddress, memo, from: wallet });
 
         if (getRewardResult) {
             setTxResult({ hash: LumUtils.toHex(getRewardResult.hash), error: getRewardResult.error });
@@ -197,6 +208,7 @@ const Send = (): JSX.Element => {
             <div className="col-12">
                 <Input
                     {...sendForm.getFieldProps('amount')}
+                    value={sendForm.values.amount}
                     readOnly={confirming}
                     autoComplete="off"
                     placeholder="Amount"
@@ -499,7 +511,12 @@ const Send = (): JSX.Element => {
                                     label="Hash"
                                     className="text-start align-self-stretch mb-5"
                                 />
-                                <CustomButton className="mt-5" data-bs-target="modalSendTxs" data-bs-dismiss="modal">
+                                <CustomButton
+                                    className="mt-5"
+                                    data-bs-target="modalSendTxs"
+                                    data-bs-dismiss="modal"
+                                    onClick={() => getWalletInfos(wallet.getAddress())}
+                                >
                                     Close
                                 </CustomButton>
                             </>
