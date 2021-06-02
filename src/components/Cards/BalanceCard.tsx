@@ -9,6 +9,7 @@ import { useRematchDispatch } from 'redux/hooks';
 import { RootDispatch, RootState } from 'redux/store';
 
 import './Cards.scss';
+import { IS_TESTNET } from 'utils/wallet';
 
 const BalanceCard = ({ balance, address }: { balance: number; address: string }): JSX.Element => {
     useEffect(() => {
@@ -49,7 +50,7 @@ const BalanceCard = ({ balance, address }: { balance: number; address: string })
                 >
                     <img src={assets.images.syncIcon} className={`tint-white refresh-img ${isLoading && 'loading'}`} />
                 </button>
-                {process.env.REACT_APP_RPC_URL.includes('testnet') && (
+                {IS_TESTNET && (
                     <button
                         type="button"
                         className="ps-2 pb-2"

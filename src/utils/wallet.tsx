@@ -12,6 +12,8 @@ import { PasswordStrengthType, PasswordStrength, Transaction } from 'models';
 
 export type MnemonicLength = 12 | 24;
 
+export const IS_TESTNET = process.env.REACT_APP_RPC_URL.includes('testnet');
+
 export const checkMnemonicLength = (length: number): length is MnemonicLength => {
     return length === 12 || length === 24;
 };

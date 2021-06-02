@@ -4,7 +4,8 @@
         "address": "Adresse",
         "send": "Envoyer",
         "required": "Requis",
-        "lengthError": "Veuillez entrer au moins {{ count }} caractères"
+        "lengthError": "Veuillez entrer au moins {{ count }} caractères",
+        "testnetBanner": "Environnement testnet"
     },
     "dashboard": {
         "latestTx": "Dernières Transactions",
