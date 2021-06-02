@@ -8,9 +8,11 @@ import {
     LumWallet,
 } from '@lum-network/sdk-javascript';
 import { TxResponse } from '@cosmjs/tendermint-rpc';
-import { PasswordStrengthType, PasswordStrength, Transaction, Amount } from 'models';
+import { PasswordStrengthType, PasswordStrength, Transaction } from 'models';
 
 export type MnemonicLength = 12 | 24;
+
+export const IS_TESTNET = process.env.REACT_APP_RPC_URL.includes('testnet');
 
 export const checkMnemonicLength = (length: number): length is MnemonicLength => {
     return length === 12 || length === 24;
@@ -48,10 +50,12 @@ export const checkPwdStrength = (password: string): PasswordStrength => {
 type TxInfos = {
     fromAddress: string;
     toAddress: string;
-    amount: Amount[];
+    amount: LumTypes.Coin[];
 };
 
-const isTxInfo = (info: { fromAddress?: string; toAddress?: string; amount?: Amount[] } | null): info is TxInfos => {
+const isTxInfo = (
+    info: { fromAddress?: string; toAddress?: string; amount?: LumTypes.Coin[] } | null,
+): info is TxInfos => {
     return !!(info && info.fromAddress && info.toAddress && info.amount);
 };
 
@@ -113,7 +117,25 @@ class WalletClient {
             if (account === null) {
                 return null;
             }
-            const balance = await this.lumClient.getBalanceUnverified(address, 'lum');
+            let currentBalance = 0;
+
+            this.lumClient
+                .getBalanceUnverified(address, LumConstants.LumDenom)
+                .then((lumBalance) => {
+                    if (lumBalance) {
+                        currentBalance += Number(lumBalance.amount);
+                    }
+                })
+                .catch((e) => console.error(e));
+
+            this.lumClient
+                .getBalanceUnverified(address, LumConstants.MicroLumDenom)
+                .then((ulumBalance) => {
+                    if (ulumBalance) {
+                        currentBalance += Number(LumUtils.convertUnit(ulumBalance, LumConstants.LumDenom));
+                    }
+                })
+                .catch((e) => console.error(e));
 
             const transactions = await this.lumClient.searchTx([
                 LumUtils.searchTxFrom(address),
@@ -122,24 +144,30 @@ class WalletClient {
 
             const formattedTxs = await formatTxs(transactions);
 
-            return { ...account, ...(balance && { currentBalance: balance.amount }), transactions: formattedTxs };
+            return { ...account, currentBalance, transactions: formattedTxs };
         } catch (e) {
             console.log(e);
         }
     };
 
-    sendTx = async (fromWallet: LumWallet, toAddress: string, amount: string, memo = '') => {
+    sendTx = async (fromWallet: LumWallet, toAddress: string, lumAmount: string, memo = '') => {
         if (this.lumClient === null) {
             return null;
         }
 
+        // Convert Lum to uLum
+        const amount = LumUtils.convertUnit(
+            { denom: LumConstants.LumDenom, amount: lumAmount },
+            LumConstants.MicroLumDenom,
+        );
+
         // Build transaction message
         const sendMsg = LumMessages.BuildMsgSend(fromWallet.getAddress(), toAddress, [
-            { denom: LumConstants.LumDenom, amount },
+            { denom: LumConstants.MicroLumDenom, amount },
         ]);
         // Define fees (5 LUM)
         const fee = {
-            amount: [{ denom: LumConstants.LumDenom, amount: '100' }],
+            amount: [{ denom: LumConstants.MicroLumDenom, amount: '100' }],
             gas: '100000',
         };
         // Fetch account number and sequence and chain id
@@ -181,19 +209,25 @@ class WalletClient {
         };
     };
 
-    delegate = async (fromWallet: LumWallet, validatorAddress: string, amount: string, memo: string) => {
+    delegate = async (fromWallet: LumWallet, validatorAddress: string, lumAmount: string, memo: string) => {
         if (this.lumClient === null) {
             return null;
         }
 
+        // Convert Lum to uLum
+        const amount = LumUtils.convertUnit(
+            { denom: LumConstants.LumDenom, amount: lumAmount },
+            LumConstants.MicroLumDenom,
+        );
+
         const delegateMsg = LumMessages.BuildMsgDelegate(fromWallet.getAddress(), validatorAddress, {
-            denom: LumConstants.LumDenom,
+            denom: LumConstants.MicroLumDenom,
             amount,
         });
 
         // Define fees (5 LUM)
         const fee = {
-            amount: [{ denom: LumConstants.LumDenom, amount: '5' }],
+            amount: [{ denom: LumConstants.MicroLumDenom, amount: '5' }],
             gas: '200000',
         };
 
@@ -235,19 +269,25 @@ class WalletClient {
         };
     };
 
-    undelegate = async (fromWallet: LumWallet, validatorAddress: string, amount: string, memo: string) => {
+    undelegate = async (fromWallet: LumWallet, validatorAddress: string, lumAmount: string, memo: string) => {
         if (this.lumClient === null) {
             return null;
         }
 
+        // Convert Lum to uLum
+        const amount = LumUtils.convertUnit(
+            { denom: LumConstants.LumDenom, amount: lumAmount },
+            LumConstants.MicroLumDenom,
+        );
+
         const undelegateMsg = LumMessages.BuildMsgUndelegate(fromWallet.getAddress(), validatorAddress, {
-            denom: LumConstants.LumDenom,
+            denom: LumConstants.MicroLumDenom,
             amount,
         });
 
         // Define fees (5 LUM)
         const fee = {
-            amount: [{ denom: LumConstants.LumDenom, amount: '5' }],
+            amount: [{ denom: LumConstants.MicroLumDenom, amount: '5' }],
             gas: '200000',
         };
 
@@ -298,7 +338,7 @@ class WalletClient {
 
         // Define fees (5 LUM)
         const fee = {
-            amount: [{ denom: LumConstants.LumDenom, amount: '1' }],
+            amount: [{ denom: LumConstants.MicroLumDenom, amount: '1' }],
             gas: '140000',
         };
 
@@ -344,12 +384,18 @@ class WalletClient {
         fromWallet: LumWallet,
         validatorScrAddress: string,
         validatorDestAddress: string,
-        amount: string,
+        lumAmount: string,
         memo: string,
     ) => {
         if (this.lumClient === null) {
             return null;
         }
+
+        // Convert Lum to uLum
+        const amount = LumUtils.convertUnit(
+            { denom: LumConstants.LumDenom, amount: lumAmount },
+            LumConstants.MicroLumDenom,
+        );
 
         const redelegateMsg = LumMessages.BuildMsgBeginRedelegate(
             fromWallet.getAddress(),
@@ -357,13 +403,13 @@ class WalletClient {
             validatorDestAddress,
             {
                 amount,
-                denom: LumConstants.LumDenom,
+                denom: LumConstants.MicroLumDenom,
             },
         );
 
         // Define fees (5 LUM)
         const fee = {
-            amount: [{ denom: LumConstants.LumDenom, amount: '1' }],
+            amount: [{ denom: LumConstants.MicroLumDenom, amount: '1' }],
             gas: '300000',
         };
 

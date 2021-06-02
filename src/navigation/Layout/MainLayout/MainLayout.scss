@@ -14,10 +14,13 @@
     bottom: 0;
 }
 
+.navbar-container {
+    z-index: 1000;
+}
+
 .navbar {
     background: white;
     box-shadow: 0px 4px 10px rgba(205, 205, 205, 0.25);
-    z-index: 1000;
     height: 82px;
 }
 
@@ -77,6 +80,10 @@ a:focus {
     padding-top: 82px;
 }
 
+.content.testnet {
+    padding-top: 122px;
+}
+
 @include media-breakpoint-down(lg) {
     .navbar {
         height: 60px;
@@ -86,11 +93,18 @@ a:focus {
         padding-top: 60px;
     }
 
+    .content.testnet {
+        padding-top: 100px;
+    }
+
     .main-layout {
         padding-bottom: 100px;
     }
     .main-layout nav ul {
         display: none;
+    }
+    .main-layout nav ul.lum-logo {
+        display: initial;
     }
     .main-layout nav.bottom-navbar {
         display: flex;
@@ -122,6 +136,18 @@ a:focus {
 }
 
 @include media-breakpoint-down(sm) {
+    .content {
+        padding-top: 20px;
+    }
+
+    .content.testnet {
+        padding-top: 40px;
+    }
+
+    .main-layout nav {
+        display: none;
+    }
+
     .main-layout nav.bottom-navbar {
         height: 90px;
     }

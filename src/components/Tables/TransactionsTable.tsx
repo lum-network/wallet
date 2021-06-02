@@ -6,6 +6,7 @@ import { Table } from 'frontend-elements';
 import { LUM_EXPLORER } from 'constant';
 import { Transaction } from 'models';
 import { trunc } from 'utils';
+import { LumConstants, LumUtils } from '@lum-network/sdk-javascript';
 
 interface TransactionsTableProps {
     transactions: Transaction[];
@@ -32,7 +33,13 @@ const TransactionRow = (props: RowProps): JSX.Element => {
                 <div className="text-truncate">{trunc(row.toAddress)}</div>
             </td>
             <td data-label={t('transactions.table.amount')} className="text-end">
-                <div className="text-truncate">{row.amount && row.amount[0] ? row.amount[0].amount : 0}</div>
+                <div className="text-truncate">
+                    {row.amount && row.amount[0]
+                        ? row.amount[0].denom === LumConstants.MicroLumDenom
+                            ? LumUtils.convertUnit(row.amount[0], LumConstants.LumDenom)
+                            : row.amount[0].amount
+                        : 0}
+                </div>
             </td>
         </tr>
     );
