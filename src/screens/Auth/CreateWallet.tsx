@@ -77,7 +77,7 @@ const CreateWallet = (): JSX.Element => {
     const printMnemonic = () => {
         printJS({
             printable: [{ mnemonic: inputsValues }],
-            properties: ['mnemonic'],
+            properties: [{ field: 'mnemonic', displayName: 'Lum Network - Wallet mnemonic' }],
             type: 'json',
         });
     };

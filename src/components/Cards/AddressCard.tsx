@@ -39,7 +39,7 @@ const AddressCard = ({ address }: { address: string }): JSX.Element => {
     const printAddress = () => {
         printJS({
             printable: [{ address }],
-            properties: ['address'],
+            properties: [{ field: 'address', displayName: 'Lum Network - Wallet address' }],
             type: 'json',
         });
     };
@@ -81,7 +81,7 @@ const AddressCard = ({ address }: { address: string }): JSX.Element => {
                 </div>
             </Card>
             <Modal id="qrModal">
-                <CodeQr content="https://surprise.io" size={256} />
+                <CodeQr content={address} size={256} />
             </Modal>
         </>
     );
