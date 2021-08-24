@@ -67,22 +67,16 @@ const Send = (): JSX.Element => {
             description: t('send.types.undelegate.description'),
         },
         {
-            id: LumMessages.MsgWithdrawDelegatorRewardUrl,
-            name: t('send.types.getRewards.name'),
-            icon: assets.images.messageGetReward,
-            description: t('send.types.getRewards.description'),
-        },
-        {
-            id: LumMessages.MsgSetWithdrawAddressUrl,
-            name: t('send.types.withdrawRewards.name'),
-            icon: assets.images.messageWithdrawAddress,
-            description: t('send.types.withdrawRewards.description'),
-        },
-        {
             id: LumMessages.MsgBeginRedelegateUrl,
             name: t('send.types.redelegate.name'),
             icon: assets.images.messageRedelegate,
             description: t('send.types.redelegate.description'),
+        },
+        {
+            id: LumMessages.MsgWithdrawDelegatorRewardUrl,
+            name: t('send.types.getRewards.name'),
+            icon: assets.images.messageGetReward,
+            description: t('send.types.getRewards.description'),
         },
     ];
 
