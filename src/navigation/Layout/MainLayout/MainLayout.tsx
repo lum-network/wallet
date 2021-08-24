@@ -29,7 +29,9 @@ class MainLayout extends PureComponent<Props> {
 
         return (
             <div className="navbar-container position-fixed w-100">
-                {!bottom && IS_TESTNET && <div className="bg-white text-center py-2">{t('common.testnetBanner')}</div>}
+                {!bottom && IS_TESTNET && (
+                    <div className="warning-bar text-center py-2">{t('common.testnetBanner')}</div>
+                )}
                 <nav
                     className={`ps-lg-2 pe-lg-4 py-3 justify-content-center justify-content-lg-between navbar navbar-expand-lg ${
                         bottom ? 'position-fixed w-100 bottom-navbar' : ''
@@ -134,7 +136,7 @@ class MainLayout extends PureComponent<Props> {
         ) : (
             <div className="auth-layout">
                 {IS_TESTNET && (
-                    <div className="sticky-top vw-100 bg-white text-center py-2">{t('common.testnetBanner')}</div>
+                    <div className="sticky-top vw-100 warning-bar text-center py-2">{t('common.testnetBanner')}</div>
                 )}
                 {children}
             </div>

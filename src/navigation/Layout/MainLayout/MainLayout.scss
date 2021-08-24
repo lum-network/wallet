@@ -46,6 +46,13 @@ a:focus {
     object-fit: contain;
 }
 
+.warning-bar {
+    background: #ffddd3;
+    color: #ff7245;
+    font-size: 12;
+    font-weight: bold;
+}
+
 .navbar-item {
     color: #321c3b !important;
     opacity: 0.3;
