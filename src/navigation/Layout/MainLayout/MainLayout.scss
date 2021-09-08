@@ -82,6 +82,24 @@ a:focus {
     width: 50px;
 }
 
+.logout-modal-title {
+    color: $color-primary;
+    white-space: pre-line;
+}
+
+.logout-modal-cancel-btn {
+    background-color: $color-white;
+    color: $color-primary;
+    border: $color-primary 1px solid;
+    &:hover {
+        border: $color-primary 1px solid;
+    }
+}
+
+.logout-modal-logout-btn {
+    background-color: #ff7676;
+}
+
 .content {
     padding-top: 82px;
 }
@@ -192,9 +210,22 @@ a:focus {
             opacity: 1;
         }
     }
+
     .logout {
         border: solid #fff;
     }
+    .logout-modal-cancel-btn {
+        background-color: $color-primary;
+        color: $color-white;
+        border: $color-white 1px solid;
+        &:hover {
+            border: $color-white 1px solid;
+        }
+    }
+    .logout-modal-title {
+        color: $color-white;
+    }
+
     .dropdown-menu {
         background-color: $color-primary !important;
     }
