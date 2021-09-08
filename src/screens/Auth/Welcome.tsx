@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Redirect } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Modal as BSModal } from 'bootstrap';
 
@@ -218,14 +218,14 @@ const Welcome = (): JSX.Element => {
                             </Button>
                         </div>
                         <div className="col-12 col-lg-3">
-                            <a href="/create" className="text-reset text-decoration-none">
+                            <Link to="/create" className="text-reset text-decoration-none">
                                 <div className="scale-anim btn-padding h-100 w-100 text-center d-flex align-items-center flex-column justify-content-evenly">
                                     <div className="create-btn rounded-circle mb-4 mb-lg-0 d-flex justify-content-center align-items-center">
                                         <img className="img-fluid" src={Assets.images.addIcon} width="27" height="27" />
                                     </div>
                                     <h3>{t('welcome.createWallet')}</h3>
                                 </div>
-                            </a>
+                            </Link>
                         </div>
                     </div>
                 </div>

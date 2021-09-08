@@ -27,7 +27,7 @@
             "title": "Access your Wallet",
             "description": "Acquire a hardware wallet for the highest security when accessing your crypto.",
             "notRecommanded": "EXPERIENCED USERS",
-            "notRecommandedDescription": "This is not a recommended way to access your wallet, due to the sensitivity of the information involved.\nThese options should only be used in offline settings by experienced users.",
+            "notRecommandedDescription": "This is not a recommended way to access your wallet.\nDue to the sensitivity of the information involved, these options should only be used in offline settings by experienced users.",
             "types": {
                 "mnemonic": "Mnemonic phrase",
                 "keystore": "Keystore File",
@@ -36,6 +36,29 @@
             "importMnemonic": "Access by Mnemonic",
             "importKeystore": "Access by Keystore",
             "importPrivateKey": "Access by Private Key"
+        }
+    },
+    "createWallet": {
+        "title": "Get a new Wallet",
+        "alreadyHave": "Already have a Wallet?",
+        "accessWallet": "Access my Wallet",
+        "keystoreTab": "Keystore File",
+        "mnemonicTab": "Mnemonic Phrase",
+        "doNotForget": "DO NOT FORGET",
+        "mnemonic": {
+            "title": "Your mnemonic phrase",
+            "values": "Values",
+            "random": "Random",
+            "button": "I wrote down my mnemonic phrase",
+            "warningDescription": " to save your mnemonic phrase.\nYou will need this to access your wallet"
+        },
+        "keystore": {
+            "title": "Your Password",
+            "pwdStrength": "Password strength: ",
+            "button": "Continue",
+            "warningDescription1": " to save your password.\nYou will need this",
+            "pwdPlusKeystore": " Password + Keystore ",
+            "warningDescription2": "file to access your wallet."
         }
     },
     "transactions": {

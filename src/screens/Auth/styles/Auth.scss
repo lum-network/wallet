@@ -160,6 +160,13 @@ h1.display-5 {
     }
 }
 
+.text-btn-green {
+    color: $color-green;
+    &:hover {
+        color: $color-green;
+    }
+}
+
 @media (prefers-color-scheme: dark) {
     .auth-header > img,
     .scale-anim > img,
