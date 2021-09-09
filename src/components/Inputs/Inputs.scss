@@ -20,7 +20,7 @@
         box-shadow: 0 0 0 30px white inset !important;
         -webkit-text-fill-color: $color-primary;
     }
-    background-color: white !important;
+    background-color: white;
 }
 
 .form-switch {
@@ -86,7 +86,7 @@ input[type='checkbox'] {
             box-shadow: 0 0 0 30px $color-primary inset !important;
             -webkit-text-fill-color: white;
         }
-        background-color: $color-primary !important;
+        background-color: $color-primary;
         color: white;
     }
 }

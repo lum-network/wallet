@@ -136,7 +136,7 @@ const CreateWallet = (): JSX.Element => {
                                 id={`mnemonicInput${index}`}
                                 type="form"
                                 label={`${(index + 1).toString()}.`}
-                                inputClass="border-0 mnemonic-input"
+                                inputClass="mnemonic-input-create"
                                 className="border-bottom form-inline align-middle mt-4"
                             />
                         </div>

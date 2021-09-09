@@ -101,8 +101,14 @@ h1.display-5 {
     }
 }
 
+.mnemonic-input-import {
+    border-bottom-color: #999999;
+    &:disabled {
+        background-color: white !important;
+    }
+}
 // Create  Wallet
-.mnemonic-input {
+.mnemonic-input-create {
     border-bottom-color: #999999;
     &:disabled {
         background-color: white !important;
@@ -121,7 +127,7 @@ h1.display-5 {
 }
 
 .nav-item > a > img {
-    opacity: 20%;
+    opacity: 30%;
 }
 
 .nav-item.active {
@@ -196,12 +202,6 @@ h1.display-5 {
     .import-modal-content {
         background: $color-primary !important;
     }
-    .input-group .normal-input {
-        background: $color-primary !important;
-        &:focus {
-            color: white !important;
-        }
-    }
     .nav-item > a {
         color: $color-primary !important;
     }
@@ -218,6 +218,16 @@ h1.display-5 {
     }
     .text-btn,
     .nav-item.active > a {
+        color: white !important;
+    }
+
+    .mnemonic-input-import {
+        background-color: $color-primary !important;
+        color: white !important;
+    }
+
+    .mnemonic-input-create:disabled {
+        background-color: #000 !important;
         color: white !important;
     }
 }

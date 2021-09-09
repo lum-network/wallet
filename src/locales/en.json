@@ -5,7 +5,12 @@
         "send": "Send",
         "required": "Required",
         "lengthError": "Please enter at least {{ count }} characters",
-        "testnetBanner": "⚠️ You are connected to the Testnet ⚠️"
+        "testnetBanner": "⚠️ You are connected to the Testnet ⚠️",
+        "cancel": "Cancel"
+    },
+    "logout": {
+        "title": "Are you sure you want\nto log out ?",
+        "logoutBtn": "Log out"
     },
     "dashboard": {
         "latestTx": "Latest Transactions",
