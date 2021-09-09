@@ -35,13 +35,14 @@ const Welcome = (): JSX.Element => {
     // Utils hooks
     const { t } = useTranslation();
 
-    // Effects
+    // Callbacks
     const importSoftwareModalHandler = useCallback(() => {
         if (softwareMethodModal && ((selectedMethod === SoftwareType.Keystore && keystoreFileData) || selectedMethod)) {
             softwareMethodModal.show();
         }
     }, [softwareMethodModal, selectedMethod, keystoreFileData]);
 
+    // Effects
     useEffect(() => {
         const currentSoftwareModalRef = importSoftwareModalRef.current;
 
@@ -58,7 +59,9 @@ const Welcome = (): JSX.Element => {
 
     useEffect(() => {
         if (importSoftwareModalRef.current) {
-            setImportSoftwareModal(new BSModal(importSoftwareModalRef.current));
+            setImportSoftwareModal(
+                new BSModal(importSoftwareModalRef.current, { backdrop: 'static', keyboard: false }),
+            );
         }
         if (softwareMethodModalRef.current) {
             setSoftwareMethodModal(new BSModal(softwareMethodModalRef.current));
