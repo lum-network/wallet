@@ -475,7 +475,8 @@ const Send = (): JSX.Element => {
                 ref={modalRef}
                 id="modalSendTxs"
                 withCloseButton={!loadingAll && (txResult === null || (txResult && txResult.error !== null))}
-                dataBsBackdrop={'static'}
+                dataBsBackdrop="static"
+                dataBsKeyboard={false}
                 bodyClassName="w-100"
             >
                 {modal && (
