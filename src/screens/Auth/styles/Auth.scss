@@ -127,7 +127,7 @@ h1.display-5 {
 }
 
 .nav-item > a > img {
-    opacity: 30%;
+    opacity: 0.3;
 }
 
 .nav-item.active {
@@ -140,7 +140,7 @@ h1.display-5 {
 }
 
 .nav-item.active > a > img {
-    opacity: 100%;
+    opacity: 1;
 }
 
 .keystore-step-container {
