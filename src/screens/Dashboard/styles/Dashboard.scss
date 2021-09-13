@@ -13,6 +13,13 @@
     object-fit: contain;
 }
 
+.scale-animation {
+    transition: all linear 200ms;
+    &:hover {
+        transform: scale(1.03);
+    }
+}
+
 .account-card {
     background-color: #5d9aff;
 }
