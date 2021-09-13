@@ -15,7 +15,7 @@ import MessageButton from './components/MessageButton/MessageButton';
 
 import './Send.scss';
 
-type MsgType = { name: string; icon: string; id: string; description: string };
+type MsgType = { name: string; icon: string; iconClassName?: string; id: string; description: string };
 
 const Send = (): JSX.Element => {
     const wallet = useSelector((state: RootState) => state.wallet.currentWallet);
@@ -52,6 +52,7 @@ const Send = (): JSX.Element => {
             id: LumMessages.MsgSendUrl,
             name: t('send.types.send.name'),
             icon: assets.images.messageSend,
+            iconClassName: 'send-icon',
             description: t('send.types.send.description'),
         },
         {
@@ -450,6 +451,7 @@ const Send = (): JSX.Element => {
                         name={msg.name}
                         description={msg.description}
                         icon={msg.icon}
+                        iconClassName={msg.iconClassName}
                     />
                 </div>
             ))}

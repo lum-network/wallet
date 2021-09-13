@@ -1,5 +1,10 @@
 @import 'src/frontend-elements/styles/main';
 
+.send-icon {
+    margin-bottom: -6px;
+    margin-left: -3px;
+}
+
 p.color-error {
     color: $color-red;
 }
