@@ -87,7 +87,7 @@ const Welcome = (): JSX.Element => {
         >
             <p className="not-recommanded">{t('welcome.softwareModal.notRecommanded')}</p>
             <h3 className="mt-4">{t('welcome.softwareModal.title')}</h3>
-            <p>{t('welcome.softwareModal.notRecommandedDescription')}</p>
+            <p className="auth-paragraph">{t('welcome.softwareModal.notRecommandedDescription')}</p>
             <div className="d-flex flex-column my-4">
                 <button
                     type="button"
@@ -120,7 +120,7 @@ const Welcome = (): JSX.Element => {
                     </div>
                 </button>
             </div>
-            <p>{t('welcome.softwareModal.description')}</p>
+            <p className="auth-paragraph">{t('welcome.softwareModal.description')}</p>
             <Button
                 type="button"
                 disabled={!selectedMethod}
@@ -191,9 +191,9 @@ const Welcome = (): JSX.Element => {
                                         height="90"
                                     />
                                     <h3 className="mt-4">{t('welcome.hardware.title')}</h3>
-                                    <p>{t('welcome.hardware.description')}</p>
+                                    <p className="auth-paragraph">{t('welcome.hardware.description')}</p>
                                     <br />
-                                    <p>COMING SOON</p>
+                                    <p className="auth-paragraph">COMING SOON</p>
                                 </Card>
                             </a>
                         </div>
@@ -215,7 +215,7 @@ const Welcome = (): JSX.Element => {
                                         height="76"
                                     />
                                     <h3 className="mt-4">{t('welcome.software.title')}</h3>
-                                    <p>{t('welcome.software.description')}</p>
+                                    <p className="auth-paragraph">{t('welcome.software.description')}</p>
                                     <p className="not-recommanded">{t('welcome.softwareModal.notRecommanded')}</p>
                                 </Card>
                             </Button>

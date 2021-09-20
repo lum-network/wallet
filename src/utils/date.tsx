@@ -7,8 +7,8 @@ dayjs.extend(utcPlugin);
 dayjs.extend(relativeTimePlugin);
 dayjs.extend(localizedFormatPLugin);
 
-export const dateFromNow = (date: Date): string => {
+export const dateFromNow = (date: dayjs.ConfigType): string => {
     return dayjs.utc(date).fromNow();
 };
 
-export const toLocaleDateFormat = (date: Date): string => dayjs.utc(date).format('lll');
+export const toLocaleDateFormat = (date: dayjs.ConfigType): string => dayjs.utc(date).format('lll');

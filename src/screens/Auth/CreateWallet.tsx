@@ -103,7 +103,7 @@ const CreateWallet = (): JSX.Element => {
     const mnemonicContent = (
         <div className="w-100 py-4 px-md-4">
             <p className="not-recommanded">{t('welcome.softwareModal.notRecommanded')}</p>
-            <p>{t('welcome.softwareModal.notRecommandedDescription')}</p>
+            <p className="auth-paragraph">{t('welcome.softwareModal.notRecommandedDescription')}</p>
             <h3 className="mt-4rem">{t('createWallet.mnemonic.title')}</h3>
             <div className="d-flex flex-row align-self-stretch align-items-center justify-content-between mt-4rem">
                 <div className="d-flex flex-row align-items-center">
@@ -182,7 +182,7 @@ const CreateWallet = (): JSX.Element => {
         <div className="w-100 py-4 px-md-4">
             <div className="mb-4rem">
                 <p className="not-recommanded">{t('welcome.softwareModal.notRecommanded')}</p>
-                <p>{t('welcome.softwareModal.notRecommandedDescription')}</p>
+                <p className="auth-paragraph">{t('welcome.softwareModal.notRecommandedDescription')}</p>
             </div>
             <div className="mb-4rem text-start">
                 <h3 className="text-center">{t('createWallet.keystore.title')}</h3>
@@ -197,7 +197,7 @@ const CreateWallet = (): JSX.Element => {
                     placeholder="•••••••••"
                     className="mt-4"
                 />
-                <p>
+                <p className="auth-paragraph">
                     {t('createWallet.keystore.pwdStrength')}
                     <span
                         className={`text-capitalize fw-bold ${
@@ -211,7 +211,9 @@ const CreateWallet = (): JSX.Element => {
                         {passwordStrength}
                     </span>
                 </p>
-                {formik.touched.password && formik.errors.password && <p>{formik.errors.password}</p>}
+                {formik.touched.password && formik.errors.password && (
+                    <p className="auth-paragraph">{formik.errors.password}</p>
+                )}
             </div>
             <Button onPress={formik.handleSubmit} className="mt-4 py-4 rounded-pill">
                 {t('createWallet.keystore.button')}
@@ -230,7 +232,7 @@ const CreateWallet = (): JSX.Element => {
             <div className="d-flex flex-column align-items-center mb-4">
                 <div className="mb-4rem text-center">
                     <h1 className="display-5">{t('createWallet.title')}</h1>
-                    <p>
+                    <p className="auth-paragraph">
                         {t('createWallet.alreadyHave')}
                         <span className="ms-1">
                             <Link to="/welcome" className="text-btn-green">

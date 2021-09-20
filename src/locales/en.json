@@ -71,6 +71,18 @@
             "to": "To",
             "from": "From",
             "amount": "Amount"
+        },
+        "types": {
+            "send": "Send",
+            "delegate": "Delegate",
+            "undelegate": "Undelegate",
+            "claimBeam": "Claim Beam",
+            "updateBeam": "Update Beam",
+            "multiSend": "Multi Send",
+            "createValidator": "Create Validator",
+            "editValidator": "Edit Validator",
+            "getReward": "Get Reward",
+            "openBeam": "Open Beam"
         }
     },
     "send": {

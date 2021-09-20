@@ -8,15 +8,25 @@ export interface RootModel extends Models<RootModel> {
 
 export const reduxModels: RootModel = { wallet };
 
-export interface Transaction {
+export interface CommonTransactionProps {
+    type: string;
     hash: string;
     height: number;
-    fromAddress: string;
-    toAddress: string;
     amount: LumTypes.Coin[];
+    time: string;
     memo?: string;
     success?: boolean;
     [key: string]: string | LumTypes.Coin[] | number | boolean | undefined;
+}
+
+export interface Transaction extends CommonTransactionProps {
+    fromAddress: string;
+    toAddress: string;
+}
+
+export interface StakingTransaction extends CommonTransactionProps {
+    delegatorAddress: string;
+    validatorAddress: string;
 }
 
 export enum PasswordStrengthType {

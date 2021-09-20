@@ -102,23 +102,21 @@ const Message = (): JSX.Element => {
     };
 
     const handleVerify = async () => {
-        try {
-            const msg = JSON.parse(messageToVerify, (key, value) => {
-                if (key === 'sig' || key === 'publicKey') {
-                    value = LumUtils.keyFromHex(value);
-                }
-                return value;
-            });
-
-            if (isMessageToVerify(msg)) {
-                const result = await WalletUtils.validateSignMessage(msg);
-                setVerifyMessage({ result, message: msg.msg, address: msg.address });
-            } else {
-                showErrorToast('Invalid message payload');
+        const msg = JSON.parse(messageToVerify, (key, value) => {
+            if (key === 'sig' || key === 'publicKey') {
+                value = LumUtils.keyFromHex(value);
             }
-        } catch (error) {
-            console.log(error);
-            showErrorToast(error.message);
+            return value;
+        });
+
+        if (isMessageToVerify(msg)) {
+            WalletUtils.validateSignMessage(msg)
+                .then((result) => {
+                    setVerifyMessage({ result, message: msg.msg, address: msg.address });
+                })
+                .catch((error) => showErrorToast(error.message));
+        } else {
+            showErrorToast('Invalid message payload');
         }
     };
 

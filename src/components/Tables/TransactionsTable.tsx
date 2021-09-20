@@ -5,8 +5,9 @@ import { Namespace, Resources, TFunction, useTranslation } from 'react-i18next';
 import { Table } from 'frontend-elements';
 import { LUM_EXPLORER } from 'constant';
 import { Transaction } from 'models';
-import { trunc } from 'utils';
-import { LumConstants, LumUtils } from '@lum-network/sdk-javascript';
+import { NumbersUtils, trunc } from 'utils';
+import { LumConstants } from '@lum-network/sdk-javascript';
+import { SmallerDecimal, TransactionTypeBadge } from 'components';
 
 interface TransactionsTableProps {
     transactions: Transaction[];
@@ -19,6 +20,7 @@ interface RowProps {
 
 const TransactionRow = (props: RowProps): JSX.Element => {
     const { row, t } = props;
+
     return (
         <tr>
             <td data-label="Hash">
@@ -26,20 +28,40 @@ const TransactionRow = (props: RowProps): JSX.Element => {
                     {trunc(row.hash)}
                 </a>
             </td>
+            <td data-label="Type">
+                <TransactionTypeBadge type={row.type} />
+            </td>
             <td data-label={t('transactions.table.from')}>
-                <div className="text-truncate">{trunc(row.fromAddress)}</div>
+                <a href={`${LUM_EXPLORER}/account/${row.fromAddress}`} target="_blank" rel="noreferrer">
+                    {trunc(row.fromAddress)}
+                </a>
             </td>
             <td data-label={t('transactions.table.to')} className="text-end">
-                <div className="text-truncate">{trunc(row.toAddress)}</div>
+                <a
+                    href={`${LUM_EXPLORER}/${
+                        row.toAddress.includes(LumConstants.LumBech32PrefixValAddr) ? 'validators' : 'account'
+                    }/${row.toAddress}`}
+                    target="_blank"
+                    rel="noreferrer"
+                >
+                    {trunc(row.toAddress)}
+                </a>
             </td>
             <td data-label={t('transactions.table.amount')} className="text-end">
-                <div className="text-truncate">
-                    {row.amount && row.amount[0]
-                        ? row.amount[0].denom === LumConstants.MicroLumDenom
-                            ? LumUtils.convertUnit(row.amount[0], LumConstants.LumDenom)
-                            : row.amount[0].amount
-                        : 0}
-                </div>
+                <SmallerDecimal
+                    nb={NumbersUtils.format(
+                        row.amount && row.amount[0]
+                            ? row.amount[0]
+                            : {
+                                  amount: '0',
+                                  denom: LumConstants.LumDenom,
+                              },
+                        true,
+                    )}
+                />
+            </td>
+            <td data-label="Time" className="text-end">
+                <div className="text-truncate">{row.time}</div>
             </td>
         </tr>
     );
@@ -51,9 +73,11 @@ const TransactionsTable = (props: TransactionsTableProps): JSX.Element => {
     if (props.transactions.length > 0) {
         const headers = [
             'Hash',
+            'Type',
             t('transactions.table.from'),
             t('transactions.table.to'),
             t('transactions.table.amount'),
+            'Time',
         ];
 
         const txs = [...props.transactions].sort((txA, txB) => (txA.height < txB.height ? 1 : -1));

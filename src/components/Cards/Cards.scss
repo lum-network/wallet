@@ -21,6 +21,12 @@
     transform: rotate(360deg);
 }
 
+.wallet-address > h6 {
+    &:hover {
+        opacity: 0.8;
+    }
+}
+
 @-moz-keyframes spin {
     100% {
         -moz-transform: rotate(360deg);
