@@ -216,6 +216,7 @@ const Welcome = (): JSX.Element => {
                                     />
                                     <h3 className="mt-4">{t('welcome.software.title')}</h3>
                                     <p className="auth-paragraph">{t('welcome.software.description')}</p>
+                                    <br />
                                     <p className="not-recommanded">{t('welcome.softwareModal.notRecommanded')}</p>
                                 </Card>
                             </Button>

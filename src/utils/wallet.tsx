@@ -154,14 +154,14 @@ class WalletClient {
         }
 
         try {
-            const account = await this.lumClient.getAccountUnverified(address);
+            const account = await this.lumClient.getAccount(address);
             if (account === null) {
                 return null;
             }
             let currentBalance = 0;
 
             this.lumClient
-                .getAllBalancesUnverified(address)
+                .getAllBalances(address)
                 .then((balances) => {
                     if (balances.length > 0) {
                         for (const balance of balances) {
