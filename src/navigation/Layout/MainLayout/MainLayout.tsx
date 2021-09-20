@@ -64,7 +64,7 @@ class MainLayout extends PureComponent<Props> {
                         </li>
                         <li>
                             <NavLink
-                                to="/transactions"
+                                to="/operations"
                                 className="navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4"
                                 activeClassName="selected-navbar-item"
                             >

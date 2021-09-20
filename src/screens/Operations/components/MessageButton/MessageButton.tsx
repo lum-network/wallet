@@ -21,7 +21,7 @@ const MessageButton = (props: IProps): JSX.Element => {
                     <img alt="image" src={icon} className={iconClassName} />
                 </div>
                 <h4 className="button-title mt-3 color-type">{name}</h4>
-                <p>{description}</p>
+                <p className="pt-3">{description}</p>
             </Card>
         </div>
     );
