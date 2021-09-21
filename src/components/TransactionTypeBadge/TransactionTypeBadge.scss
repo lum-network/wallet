@@ -1,0 +1,20 @@
+@import 'src/styles/main';
+
+.transaction-type-badge {
+    display: inline-block;
+    border: solid 2px $color-type;
+    border-radius: 20px;
+    padding: 1px 14px;
+    white-space: nowrap;
+}
+
+.transaction-type-badge > p.badge-text {
+    color: $color-type;
+    font-size: $font-sm;
+}
+
+.transaction-type-badge > p > img {
+    height: 12px;
+    width: 12px;
+    margin-right: 6px;
+}

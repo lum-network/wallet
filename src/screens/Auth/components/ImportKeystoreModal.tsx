@@ -9,6 +9,8 @@ import { RootDispatch, RootState } from 'redux/store';
 import { useSelector } from 'react-redux';
 import { Button } from 'frontend-elements';
 
+import '../styles/Auth.scss';
+
 const ImportKeystoreModal = (props: { fileData: string; onSubmit: () => void }): JSX.Element => {
     // Redux hooks
     const { signInWithKeystoreFile } = useRematchDispatch((dispatch: RootDispatch) => ({
@@ -47,7 +49,7 @@ const ImportKeystoreModal = (props: { fileData: string; onSubmit: () => void }):
             <div className="mb-4rem">
                 <p className="not-recommanded mb-2">{t('welcome.softwareModal.notRecommanded')}</p>
                 <h3 className="text-center">{t('welcome.softwareModal.importKeystore')}</h3>
-                <p>{t('welcome.softwareModal.notRecommandedDescription')}</p>
+                <p className="auth-paragraph">{t('welcome.softwareModal.notRecommandedDescription')}</p>
             </div>
             <div className="mb-4rem text-start">
                 <Input
@@ -61,7 +63,7 @@ const ImportKeystoreModal = (props: { fileData: string; onSubmit: () => void }):
             <Button onPress={formik.handleSubmit} loading={isLoading} className="mt-4 py-4 rounded-pill">
                 {t('common.continue')}
             </Button>
-            <p className="mt-5 mb-3">
+            <p className="auth-paragraph mt-5 mb-3">
                 <span className="fw-bold danger-text">DO NOT FORGET</span> to save your password. <br />
                 You will need this <span className="fw-bold danger-text">Password + Keystore</span> file to access your
                 wallet.

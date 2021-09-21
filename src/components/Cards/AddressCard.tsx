@@ -9,6 +9,7 @@ import { Card, CodeQr } from 'frontend-elements';
 
 import Modal from '../Modals/Modal';
 import { showSuccessToast } from 'utils';
+import { LUM_EXPLORER } from 'constant';
 
 const AddressCard = ({ address }: { address: string }): JSX.Element => {
     useEffect(() => {
@@ -48,7 +49,14 @@ const AddressCard = ({ address }: { address: string }): JSX.Element => {
         <>
             <Card withoutPadding className="dashboard-card account-card p-4 h-100">
                 <h2 className="ps-2 pt-3 text-white">{t('common.address')}</h2>
-                <h6 className="text-truncate fw-normal ps-2 my-3 text-white w-100">{address}</h6>
+                <a
+                    className="wallet-address"
+                    href={`${LUM_EXPLORER}/account/${address}`}
+                    target="_blank"
+                    rel="noreferrer"
+                >
+                    <h6 className="text-break fw-normal ps-2 my-3 text-white w-100">{address}</h6>
+                </a>
                 <div className="pb-2 ps-2">
                     <button type="button" data-bs-toggle="modal" data-bs-target="#qrModal" className="me-2">
                         <img

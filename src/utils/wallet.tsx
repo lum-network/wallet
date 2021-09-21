@@ -9,6 +9,7 @@ import {
 } from '@lum-network/sdk-javascript';
 import { TxResponse } from '@cosmjs/tendermint-rpc';
 import { PasswordStrengthType, PasswordStrength, Transaction } from 'models';
+import { dateFromNow, showErrorToast } from 'utils';
 
 export type MnemonicLength = 12 | 24;
 
@@ -47,38 +48,76 @@ export const checkPwdStrength = (password: string): PasswordStrength => {
     return PasswordStrengthType.Weak;
 };
 
-type TxInfos = {
+type SendTxInfos = {
     fromAddress: string;
     toAddress: string;
     amount: LumTypes.Coin[];
 };
 
-const isTxInfo = (
-    info: { fromAddress?: string; toAddress?: string; amount?: LumTypes.Coin[] } | null,
-): info is TxInfos => {
+type StakingTxInfos = {
+    validatorAddress: string;
+    delegatorAddress: string;
+    amount: LumTypes.Coin;
+};
+
+const isSendTxInfo = (
+    info: {
+        fromAddress?: string;
+        toAddress?: string;
+        amount?: LumTypes.Coin[];
+    } | null,
+): info is SendTxInfos => {
     return !!(info && info.fromAddress && info.toAddress && info.amount);
 };
 
-export const formatTxs = async (rawTxs: TxResponse[]): Promise<Transaction[]> => {
+const isStakingTxInfo = (
+    info: {
+        delegatorAddress?: string;
+        validatorAddress?: string;
+        amount?: LumTypes.Coin;
+    } | null,
+): info is StakingTxInfos => {
+    return !!(info && info.validatorAddress && info.delegatorAddress && info.amount);
+};
+
+export const formatTxs = async (rawTxs: TxResponse[], client: LumClient): Promise<Transaction[]> => {
     const formattedTxs: Transaction[] = [];
 
     for (const rawTx of rawTxs) {
         // Decode TX to human readable format
         const txData = LumRegistry.decodeTx(rawTx.tx);
 
-        txData.body?.messages?.forEach((msg) => {
-            if (msg.typeUrl === LumMessages.MsgSendUrl) {
+        if (txData.body && txData.body.messages) {
+            for (const msg of txData.body.messages) {
                 const txInfos = LumUtils.toJSON(LumRegistry.decode(msg));
+                if (typeof txInfos === 'object') {
+                    const block = await client.getBlock(rawTx.height);
 
-                if (typeof txInfos === 'object' && isTxInfo(txInfos)) {
-                    formattedTxs.push({
-                        ...txInfos,
-                        height: rawTx.height,
-                        hash: LumUtils.toHex(rawTx.hash).toUpperCase(),
-                    });
+                    if (isSendTxInfo(txInfos)) {
+                        formattedTxs.push({
+                            ...txInfos,
+                            type: msg.typeUrl,
+                            height: rawTx.height,
+                            hash: LumUtils.toHex(rawTx.hash).toUpperCase(),
+                            time: dateFromNow(block.block.header.time.getTime()),
+                        });
+                    } else if (isStakingTxInfo(txInfos)) {
+                        const fromAddress = txInfos.delegatorAddress;
+                        const toAddress = txInfos.validatorAddress;
+
+                        formattedTxs.push({
+                            fromAddress,
+                            toAddress,
+                            type: msg.typeUrl,
+                            amount: [txInfos.amount],
+                            height: rawTx.height,
+                            hash: LumUtils.toHex(rawTx.hash).toUpperCase(),
+                            time: dateFromNow(block.block.header.time.getTime()),
+                        });
+                    }
                 }
             }
-        });
+        }
     }
 
     return formattedTxs;
@@ -95,8 +134,10 @@ export const validateSignMessage = async (msg: LumTypes.SignMsg): Promise<boolea
 class WalletClient {
     lumClient: LumClient | null = null;
 
-    init = async (): Promise<void> => {
-        this.lumClient = await LumClient.connect(process.env.REACT_APP_RPC_URL);
+    init = () => {
+        LumClient.connect(process.env.REACT_APP_RPC_URL)
+            .then((client) => (this.lumClient = client))
+            .catch(() => showErrorToast('Unable to connect to the blockchain'));
     };
 
     private getAccountAndChainId = (fromWallet: LumWallet) => {
@@ -120,29 +161,22 @@ class WalletClient {
             let currentBalance = 0;
 
             this.lumClient
-                .getBalance(address, LumConstants.LumDenom)
-                .then((lumBalance) => {
-                    if (lumBalance) {
-                        currentBalance += Number(lumBalance.amount);
+                .getAllBalances(address)
+                .then((balances) => {
+                    if (balances.length > 0) {
+                        for (const balance of balances) {
+                            currentBalance += Number(LumUtils.convertUnit(balance, LumConstants.LumDenom));
+                        }
                     }
                 })
-                .catch((e) => console.error(e));
-
-            this.lumClient
-                .getBalance(address, LumConstants.MicroLumDenom)
-                .then((ulumBalance) => {
-                    if (ulumBalance) {
-                        currentBalance += Number(LumUtils.convertUnit(ulumBalance, LumConstants.LumDenom));
-                    }
-                })
-                .catch((e) => console.error(e));
+                .catch((e) => console.log(e));
 
             const transactions = await this.lumClient.searchTx([
-                LumUtils.searchTxFrom(address),
-                LumUtils.searchTxTo(address),
+                LumUtils.searchTxByTags([{ key: 'transfer.recipient', value: address }]),
+                LumUtils.searchTxByTags([{ key: 'transfer.sender', value: address }]),
             ]);
 
-            const formattedTxs = await formatTxs(transactions);
+            const formattedTxs = await formatTxs(transactions, this.lumClient);
 
             return { ...account, currentBalance, transactions: formattedTxs };
         } catch (e) {
@@ -183,6 +217,7 @@ class WalletClient {
             return null;
         }
 
+        const { accountNumber, sequence } = account;
         // Create the transaction document
         const doc: LumTypes.Doc = {
             chainId,
@@ -191,8 +226,8 @@ class WalletClient {
             messages: [sendMsg],
             signers: [
                 {
-                    accountNumber: account.accountNumber,
-                    sequence: account.sequence,
+                    accountNumber,
+                    sequence,
                     publicKey: fromWallet.getPublicKey(),
                 },
             ],
@@ -249,16 +284,17 @@ class WalletClient {
             return null;
         }
 
+        const { accountNumber, sequence } = account;
+
         const doc: LumTypes.Doc = {
             chainId,
             fee,
             memo,
             messages: [delegateMsg],
-
             signers: [
                 {
-                    accountNumber: account.accountNumber,
-                    sequence: account.sequence,
+                    accountNumber,
+                    sequence,
                     publicKey: fromWallet.getPublicKey(),
                 },
             ],
@@ -315,6 +351,7 @@ class WalletClient {
             return null;
         }
 
+        const { accountNumber, sequence } = account;
         const doc: LumTypes.Doc = {
             chainId,
             fee,
@@ -323,8 +360,8 @@ class WalletClient {
 
             signers: [
                 {
-                    accountNumber: account.accountNumber,
-                    sequence: account.sequence,
+                    accountNumber,
+                    sequence,
                     publicKey: fromWallet.getPublicKey(),
                 },
             ],
@@ -372,16 +409,17 @@ class WalletClient {
             return null;
         }
 
+        const { accountNumber, sequence } = account;
+
         const doc: LumTypes.Doc = {
             chainId,
             fee,
             memo,
             messages: [getRewardMsg],
-
             signers: [
                 {
-                    accountNumber: account.accountNumber,
-                    sequence: account.sequence,
+                    accountNumber,
+                    sequence,
                     publicKey: fromWallet.getPublicKey(),
                 },
             ],
@@ -449,6 +487,8 @@ class WalletClient {
             return null;
         }
 
+        const { accountNumber, sequence } = account;
+
         const doc: LumTypes.Doc = {
             chainId,
             fee,
@@ -456,8 +496,8 @@ class WalletClient {
             messages: [redelegateMsg],
             signers: [
                 {
-                    accountNumber: account.accountNumber,
-                    sequence: account.sequence,
+                    accountNumber,
+                    sequence,
                     publicKey: fromWallet.getPublicKey(),
                 },
             ],

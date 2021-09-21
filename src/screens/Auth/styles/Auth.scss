@@ -1,8 +1,7 @@
 @import 'src/styles/main';
 
-p {
+.auth-paragraph {
     color: #b5b5b5;
-    padding-top: 1rem;
     padding-top: 1rem;
 }
 
@@ -93,6 +92,7 @@ h1.display-5 {
 
 .import-card {
     width: 100% !important;
+    background-color: $color-white;
 }
 
 @include media-breakpoint-up(lg) {
@@ -144,7 +144,7 @@ h1.display-5 {
 }
 
 .keystore-step-container {
-    background-color: $color-grey;
+    background-color: #f7faff;
     padding: 2rem;
     border-radius: 15px;
 }
@@ -178,7 +178,8 @@ h1.display-5 {
     .scale-anim > img,
     .create-btn > img,
     .nav-item > a > img,
-    .text-btn > img {
+    .text-btn > img,
+    .keystore-step-container > img {
         filter: brightness(0) invert(1);
     }
     .auth-layout {
@@ -229,5 +230,9 @@ h1.display-5 {
     .mnemonic-input-create:disabled {
         background-color: #000 !important;
         color: white !important;
+    }
+
+    .keystore-step-container {
+        background-color: $color-primary;
     }
 }
