@@ -4,30 +4,36 @@ import { Redirect } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useFormik } from 'formik';
 import { LumConstants, LumMessages, LumUtils } from '@lum-network/sdk-javascript';
-import { Button } from 'frontend-elements';
 import * as yup from 'yup';
 
 import assets from 'assets';
 import { AddressCard, BalanceCard, Input, Modal, Button as CustomButton } from 'components';
 import { RootDispatch, RootState } from 'redux/store';
 import { useRematchDispatch } from 'redux/hooks';
+
 import MessageButton from './components/MessageButton/MessageButton';
+import Delegate from './components/Forms/Delegate';
+import Send from './components/Forms/Send';
+import Undelegate from './components/Forms/Undelegate';
+import GetRewards from './components/Forms/GetRewards';
+import Redelegate from './components/Forms/Redelegate';
 
-import './Send.scss';
+import './Operations.scss';
 
-type MsgType = { name: string; icon: string; id: string; description: string };
+type MsgType = { name: string; icon: string; iconClassName?: string; id: string; description: string };
 
-const Send = (): JSX.Element => {
+const Operations = (): JSX.Element => {
     const wallet = useSelector((state: RootState) => state.wallet.currentWallet);
     const balance = useSelector((state: RootState) => state.wallet.currentBalance);
 
     // Rematch effects
-    const { sendTx, undelegate, delegate, getReward, getWalletInfos } = useRematchDispatch(
+    const { sendTx, undelegate, delegate, redelegate, getReward, getWalletInfos } = useRematchDispatch(
         (dispatch: RootDispatch) => ({
             sendTx: dispatch.wallet.sendTx,
             delegate: dispatch.wallet.delegate,
             getReward: dispatch.wallet.getReward,
             undelegate: dispatch.wallet.undelegate,
+            redelegate: dispatch.wallet.redelegate,
             getWalletInfos: dispatch.wallet.getWalletInfos,
         }),
     );
@@ -36,6 +42,7 @@ const Send = (): JSX.Element => {
     const loadingSend = useSelector((state: RootState) => state.loading.effects.wallet.sendTx);
     const loadingDelegate = useSelector((state: RootState) => state.loading.effects.wallet.delegate);
     const loadingUndelegate = useSelector((state: RootState) => state.loading.effects.wallet.undelegate);
+    const loadingRedelegate = useSelector((state: RootState) => state.loading.effects.wallet.redelegate);
     const loadingGetReward = useSelector((state: RootState) => state.loading.effects.wallet.getReward);
 
     const loadingAll = loadingSend | loadingDelegate | loadingUndelegate | loadingGetReward;
@@ -52,6 +59,7 @@ const Send = (): JSX.Element => {
             id: LumMessages.MsgSendUrl,
             name: t('send.types.send.name'),
             icon: assets.images.messageSend,
+            iconClassName: 'send-icon',
             description: t('send.types.send.description'),
         },
         {
@@ -144,6 +152,27 @@ const Send = (): JSX.Element => {
         onSubmit: (values) => onSubmitUndelegate(values.address, values.amount, values.memo),
     });
 
+    const redelegateForm = useFormik({
+        initialValues: { fromAddress: '', toAddress: '', amount: '', memo: 'Redelegated' },
+        validationSchema: yup.object().shape({
+            fromAddress: yup
+                .string()
+                .required(t('common.required'))
+                .matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`), {
+                    message: 'Check source validator address',
+                }),
+            toAddress: yup
+                .string()
+                .required(t('common.required'))
+                .matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`), {
+                    message: 'Check destination validator address',
+                }),
+            amount: yup.string().required(t('common.required')),
+            memo: yup.string(),
+        }),
+        onSubmit: (values) => onSubmitRedelegate(values.fromAddress, values.toAddress, values.amount, values.memo),
+    });
+
     const getRewardForm = useFormik({
         initialValues: { address: '', amount: '', memo: 'Get reward' },
         validationSchema: yup.object().shape({
@@ -185,6 +214,25 @@ const Send = (): JSX.Element => {
         }
     };
 
+    const onSubmitRedelegate = async (
+        validatorSrcAddress: string,
+        validatorDestAddress: string,
+        amount: string,
+        memo: string,
+    ) => {
+        const redelegateResult = await redelegate({
+            validatorSrcAddress,
+            validatorDestAddress,
+            amount,
+            memo,
+            from: wallet,
+        });
+
+        if (redelegateResult) {
+            setTxResult({ hash: LumUtils.toHex(redelegateResult.hash), error: redelegateResult.error });
+        }
+    };
+
     const onSubmitGetReward = async (validatorAddress: string, memo: string) => {
         const getRewardResult = await getReward({ validatorAddress, memo, from: wallet });
 
@@ -197,226 +245,6 @@ const Send = (): JSX.Element => {
         setModal(msg);
     };
 
-    const renderSend = (
-        <form className="row w-100 align-items-start text-start mt-3">
-            <div className="col-12">
-                <Input
-                    {...sendForm.getFieldProps('amount')}
-                    value={sendForm.values.amount}
-                    readOnly={confirming}
-                    autoComplete="off"
-                    placeholder="Amount"
-                    label="Amount"
-                />
-                {sendForm.touched.amount && sendForm.errors.amount && (
-                    <p className="ms-2 color-error">{sendForm.errors.amount}</p>
-                )}
-            </div>
-            <div className="col-12 mt-4">
-                <Input
-                    {...sendForm.getFieldProps('address')}
-                    readOnly={confirming}
-                    placeholder="To address"
-                    label="To Address"
-                />
-                {sendForm.touched.address && sendForm.errors.address && (
-                    <p className="ms-2 color-error">{sendForm.errors.address}</p>
-                )}
-            </div>
-            <div className="col-12 mt-4">
-                {(!confirming || (confirming && sendForm.values.memo)) && (
-                    <Input
-                        {...sendForm.getFieldProps('memo')}
-                        readOnly={confirming}
-                        placeholder="Memo"
-                        label="Memo (optional)"
-                    />
-                )}
-                {sendForm.touched.memo && sendForm.errors.memo && (
-                    <p className="ms-2 color-error">{sendForm.errors.memo}</p>
-                )}
-            </div>
-            <div className="justify-content-center mt-4 col-10 offset-1 col-sm-6 offset-sm-3">
-                <Button loading={loadingSend} onPress={confirming ? sendForm.handleSubmit : () => setConfirming(true)}>
-                    {confirming ? 'Send' : 'Continue'}
-                </Button>
-                {confirming && (
-                    <CustomButton
-                        className="bg-transparent text-btn mt-2 mx-auto"
-                        onClick={() => {
-                            setConfirming(false);
-                        }}
-                    >
-                        Modify
-                    </CustomButton>
-                )}
-            </div>
-        </form>
-    );
-
-    const renderDelegate = (
-        <form className="row w-100 align-items-start text-start mt-3">
-            <div className="col-12">
-                <Input
-                    {...delegateForm.getFieldProps('amount')}
-                    readOnly={confirming}
-                    placeholder="Amount"
-                    label="Amount"
-                />
-                {delegateForm.touched.amount && delegateForm.errors.amount && (
-                    <p className="ms-2 color-error">{delegateForm.errors.amount}</p>
-                )}
-            </div>
-            <div className="col-12 mt-4">
-                <Input
-                    {...delegateForm.getFieldProps('address')}
-                    readOnly={confirming}
-                    placeholder="Validator address"
-                    label="Validator Address"
-                />
-                {delegateForm.touched.address && delegateForm.errors.address && (
-                    <p className="ms-2 color-error">{delegateForm.errors.address}</p>
-                )}
-            </div>
-            <div className="col-12 mt-4">
-                {(!confirming || (confirming && delegateForm.values.memo)) && (
-                    <Input
-                        {...delegateForm.getFieldProps('memo')}
-                        readOnly={confirming}
-                        placeholder="Memo"
-                        label="Memo (optional)"
-                    />
-                )}
-                {delegateForm.touched.memo && delegateForm.errors.memo && (
-                    <p className="ms-2 color-error">{delegateForm.errors.memo}</p>
-                )}
-            </div>
-            <div className="justify-content-center mt-4 col-10 offset-1 col-sm-6 offset-sm-3">
-                <Button
-                    loading={loadingDelegate}
-                    onPress={confirming ? delegateForm.handleSubmit : () => setConfirming(true)}
-                >
-                    {confirming ? 'Delegate' : 'Continue'}
-                </Button>
-                {confirming && (
-                    <CustomButton
-                        className="bg-transparent text-btn mt-2 mx-auto"
-                        onClick={() => {
-                            setConfirming(false);
-                        }}
-                    >
-                        Modify
-                    </CustomButton>
-                )}
-            </div>
-        </form>
-    );
-
-    const renderUndelegate = (
-        <form className="row w-100 align-items-start text-start mt-3">
-            <div className="col-12">
-                <Input
-                    {...undelegateForm.getFieldProps('amount')}
-                    readOnly={confirming}
-                    placeholder="Amount"
-                    label="Amount"
-                />
-                {undelegateForm.touched.amount && undelegateForm.errors.amount && (
-                    <p className="ms-2 color-error">{undelegateForm.errors.amount}</p>
-                )}
-            </div>
-            <div className="col-12 mt-4">
-                <Input
-                    {...undelegateForm.getFieldProps('address')}
-                    placeholder="Validator address"
-                    readOnly={confirming}
-                    label="Validator Address"
-                />
-                {undelegateForm.touched.address && undelegateForm.errors.address && (
-                    <p className="ms-2 color-error">{undelegateForm.errors.address}</p>
-                )}
-            </div>
-            <div className="col-12 mt-4">
-                {(!confirming || (confirming && undelegateForm.values.memo)) && (
-                    <Input
-                        {...undelegateForm.getFieldProps('memo')}
-                        readOnly={confirming}
-                        placeholder="Memo"
-                        label="Memo (optional)"
-                    />
-                )}
-                {undelegateForm.touched.memo && undelegateForm.errors.memo && (
-                    <p className="ms-2 color-error">{undelegateForm.errors.memo}</p>
-                )}
-            </div>
-            <div className="justify-content-center mt-4 col-10 offset-1 col-sm-6 offset-sm-3">
-                <Button
-                    loading={loadingUndelegate}
-                    onPress={confirming ? undelegateForm.handleSubmit : () => setConfirming(true)}
-                >
-                    {confirming ? 'Undelegate' : 'Continue'}
-                </Button>
-                {confirming && (
-                    <CustomButton
-                        className="bg-transparent text-btn mt-2 mx-auto"
-                        onClick={() => {
-                            setConfirming(false);
-                        }}
-                    >
-                        Modify
-                    </CustomButton>
-                )}
-            </div>
-        </form>
-    );
-
-    const renderGetReward = (
-        <form className="row w-100 align-items-start text-start mt-3">
-            <div className="col-12 mt-4">
-                <Input
-                    {...getRewardForm.getFieldProps('address')}
-                    placeholder="Validator address"
-                    readOnly={confirming}
-                    label="Validator Address"
-                />
-                {getRewardForm.touched.address && getRewardForm.errors.address && (
-                    <p className="ms-2 color-error">{getRewardForm.errors.address}</p>
-                )}
-            </div>
-            <div className="col-12 mt-4">
-                {(!confirming || (confirming && getRewardForm.values.memo)) && (
-                    <Input
-                        {...getRewardForm.getFieldProps('memo')}
-                        readOnly={confirming}
-                        placeholder="Memo"
-                        label="Memo (optional)"
-                    />
-                )}
-                {getRewardForm.touched.memo && getRewardForm.errors.memo && (
-                    <p className="ms-2 color-error">{getRewardForm.errors.memo}</p>
-                )}
-            </div>
-            <div className="justify-content-center mt-4 col-10 offset-1 col-sm-6 offset-sm-3">
-                <Button
-                    loading={loadingGetReward}
-                    onPress={confirming ? getRewardForm.handleSubmit : () => setConfirming(true)}
-                >
-                    {confirming ? 'Get reward' : 'Continue'}
-                </Button>
-                {confirming && (
-                    <CustomButton
-                        className="bg-transparent text-btn mt-2 mx-auto"
-                        onClick={() => {
-                            setConfirming(false);
-                        }}
-                    >
-                        Modify
-                    </CustomButton>
-                )}
-            </div>
-        </form>
-    );
-
     const renderModal = (): JSX.Element | null => {
         if (!modal) {
             return null;
@@ -424,16 +252,19 @@ const Send = (): JSX.Element => {
 
         switch (modal.id) {
             case LumMessages.MsgSendUrl:
-                return renderSend;
+                return <Send isLoading={loadingSend} form={sendForm} />;
 
             case LumMessages.MsgDelegateUrl:
-                return renderDelegate;
+                return <Delegate isLoading={loadingDelegate} form={delegateForm} />;
 
             case LumMessages.MsgUndelegateUrl:
-                return renderUndelegate;
+                return <Undelegate isLoading={loadingUndelegate} form={undelegateForm} />;
+
+            case LumMessages.MsgBeginRedelegateUrl:
+                return <Redelegate isLoading={loadingRedelegate} form={redelegateForm} />;
 
             case LumMessages.MsgWithdrawDelegatorRewardUrl:
-                return renderGetReward;
+                return <GetRewards isLoading={loadingGetReward} form={getRewardForm} />;
 
             default:
                 return <div>Soon</div>;
@@ -450,6 +281,7 @@ const Send = (): JSX.Element => {
                         name={msg.name}
                         description={msg.description}
                         icon={msg.icon}
+                        iconClassName={msg.iconClassName}
                     />
                 </div>
             ))}
@@ -475,17 +307,15 @@ const Send = (): JSX.Element => {
                 ref={modalRef}
                 id="modalSendTxs"
                 withCloseButton={!loadingAll && (txResult === null || (txResult && txResult.error !== null))}
-                dataBsBackdrop={'static'}
+                dataBsBackdrop="static"
+                dataBsKeyboard={false}
                 bodyClassName="w-100"
             >
                 {modal && (
                     <div className="d-flex flex-column align-items-center">
                         <h2 className="text-center">{modal.name}</h2>
                         {!txResult ? (
-                            <>
-                                {confirming && <h6 className="mt-3">Confirmation</h6>}
-                                {renderModal()}
-                            </>
+                            renderModal()
                         ) : txResult.error !== null ? (
                             <>
                                 <p className="color-error">Failure</p>
@@ -522,4 +352,4 @@ const Send = (): JSX.Element => {
     );
 };
 
-export default Send;
+export default Operations;

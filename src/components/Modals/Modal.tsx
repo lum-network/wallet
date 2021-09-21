@@ -9,6 +9,7 @@ interface Props {
     contentClassName?: string;
     bodyClassName?: string;
     dataBsBackdrop?: 'static' | 'true';
+    dataBsKeyboard?: boolean;
     onCloseButtonPress?: () => void;
 }
 
@@ -21,6 +22,7 @@ const Modal = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
         onCloseButtonPress,
         withCloseButton = true,
         dataBsBackdrop = 'true',
+        dataBsKeyboard = true,
     } = props;
 
     return (
@@ -31,6 +33,7 @@ const Modal = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
             aria-labelledby={`${id}Label`}
             aria-hidden="true"
             data-bs-backdrop={dataBsBackdrop}
+            data-bs-keyboard={dataBsKeyboard}
             ref={ref}
         >
             <div className="modal-dialog modal-dialog-centered my-5">
