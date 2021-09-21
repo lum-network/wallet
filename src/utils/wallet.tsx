@@ -113,14 +113,14 @@ class WalletClient {
         }
 
         try {
-            const account = await this.lumClient.getAccountUnverified(address);
+            const account = await this.lumClient.getAccount(address);
             if (account === null) {
                 return null;
             }
             let currentBalance = 0;
 
             this.lumClient
-                .getBalanceUnverified(address, LumConstants.LumDenom)
+                .getBalance(address, LumConstants.LumDenom)
                 .then((lumBalance) => {
                     if (lumBalance) {
                         currentBalance += Number(lumBalance.amount);
@@ -129,7 +129,7 @@ class WalletClient {
                 .catch((e) => console.error(e));
 
             this.lumClient
-                .getBalanceUnverified(address, LumConstants.MicroLumDenom)
+                .getBalance(address, LumConstants.MicroLumDenom)
                 .then((ulumBalance) => {
                     if (ulumBalance) {
                         currentBalance += Number(LumUtils.convertUnit(ulumBalance, LumConstants.LumDenom));
@@ -184,13 +184,18 @@ class WalletClient {
         }
 
         // Create the transaction document
-        const doc = {
-            accountNumber: account.accountNumber,
+        const doc: LumTypes.Doc = {
             chainId,
             fee,
             memo,
             messages: [sendMsg],
-            sequence: account.sequence,
+            signers: [
+                {
+                    accountNumber: account.accountNumber,
+                    sequence: account.sequence,
+                    publicKey: fromWallet.getPublicKey(),
+                },
+            ],
         };
         // Sign and broadcast the transaction using the client
         const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, doc);
@@ -244,13 +249,19 @@ class WalletClient {
             return null;
         }
 
-        const doc = {
-            accountNumber: account.accountNumber,
+        const doc: LumTypes.Doc = {
             chainId,
             fee,
             memo,
             messages: [delegateMsg],
-            sequence: account.sequence,
+
+            signers: [
+                {
+                    accountNumber: account.accountNumber,
+                    sequence: account.sequence,
+                    publicKey: fromWallet.getPublicKey(),
+                },
+            ],
         };
 
         const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, doc);
@@ -304,13 +315,19 @@ class WalletClient {
             return null;
         }
 
-        const doc = {
-            accountNumber: account.accountNumber,
+        const doc: LumTypes.Doc = {
             chainId,
             fee,
             memo,
             messages: [undelegateMsg],
-            sequence: account.sequence,
+
+            signers: [
+                {
+                    accountNumber: account.accountNumber,
+                    sequence: account.sequence,
+                    publicKey: fromWallet.getPublicKey(),
+                },
+            ],
         };
 
         const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, doc);
@@ -355,13 +372,19 @@ class WalletClient {
             return null;
         }
 
-        const doc = {
-            accountNumber: account.accountNumber,
+        const doc: LumTypes.Doc = {
             chainId,
             fee,
             memo,
             messages: [getRewardMsg],
-            sequence: account.sequence,
+
+            signers: [
+                {
+                    accountNumber: account.accountNumber,
+                    sequence: account.sequence,
+                    publicKey: fromWallet.getPublicKey(),
+                },
+            ],
         };
 
         const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, doc);
@@ -426,13 +449,18 @@ class WalletClient {
             return null;
         }
 
-        const doc = {
-            accountNumber: account.accountNumber,
+        const doc: LumTypes.Doc = {
             chainId,
             fee,
             memo,
             messages: [redelegateMsg],
-            sequence: account.sequence,
+            signers: [
+                {
+                    accountNumber: account.accountNumber,
+                    sequence: account.sequence,
+                    publicKey: fromWallet.getPublicKey(),
+                },
+            ],
         };
 
         const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, doc);
