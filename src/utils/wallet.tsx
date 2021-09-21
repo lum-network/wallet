@@ -120,19 +120,12 @@ class WalletClient {
             let currentBalance = 0;
 
             this.lumClient
-                .getBalance(address, LumConstants.LumDenom)
-                .then((lumBalance) => {
-                    if (lumBalance) {
-                        currentBalance += Number(lumBalance.amount);
-                    }
-                })
-                .catch((e) => console.error(e));
-
-            this.lumClient
-                .getBalance(address, LumConstants.MicroLumDenom)
-                .then((ulumBalance) => {
-                    if (ulumBalance) {
-                        currentBalance += Number(LumUtils.convertUnit(ulumBalance, LumConstants.LumDenom));
+                .getAllBalances(address)
+                .then((balances) => {
+                    if (balances.length > 0) {
+                        for (const balance of balances) {
+                            currentBalance += Number(LumUtils.convertUnit(balance, LumConstants.LumDenom));
+                        }
                     }
                 })
                 .catch((e) => console.error(e));
@@ -254,7 +247,6 @@ class WalletClient {
             fee,
             memo,
             messages: [delegateMsg],
-
             signers: [
                 {
                     accountNumber: account.accountNumber,
@@ -320,7 +312,6 @@ class WalletClient {
             fee,
             memo,
             messages: [undelegateMsg],
-
             signers: [
                 {
                     accountNumber: account.accountNumber,
@@ -377,7 +368,6 @@ class WalletClient {
             fee,
             memo,
             messages: [getRewardMsg],
-
             signers: [
                 {
                     accountNumber: account.accountNumber,
@@ -476,6 +466,66 @@ class WalletClient {
                     ? broadcastResult.deliverTx.log
                     : broadcastResult.checkTx.log
                 : null,
+        };
+    };
+
+    static getValidators = async (client: LumClient) => {
+        const { validators } = client.queryClient.staking;
+
+        try {
+            const [bondedValidators, unbondedValidators] = await Promise.all([
+                validators('BOND_STATUS_BONDED'),
+                validators('BOND_STATUS_UNBONDED'),
+            ]);
+
+            return { bonded: bondedValidators.validators, unbonded: unbondedValidators.validators };
+        } catch (e) {
+            console.log(e);
+        }
+    };
+
+    getValidatorsInfos = async (address: string) => {
+        if (!this.lumClient) {
+            return null;
+        }
+
+        const validators = await WalletClient.getValidators(this.lumClient);
+
+        const [delegation, unbonding] = await Promise.all([
+            this.lumClient.queryClient.staking.delegatorDelegations(address),
+            this.lumClient.queryClient.staking.delegatorUnbondingDelegations(address),
+        ]);
+
+        const delegations = delegation.delegationResponses;
+        const unbondings = unbonding.unbondingResponses;
+
+        let unbondedTokens = 0;
+        let stakedCoins = 0;
+
+        for (const delegation of delegations) {
+            if (delegation.balance) {
+                stakedCoins += Number(LumUtils.convertUnit(delegation.balance, LumConstants.LumDenom));
+            }
+        }
+
+        for (const unbonding of unbondings) {
+            for (const entry of unbonding.entries) {
+                unbondedTokens += Number(
+                    LumUtils.convertUnit(
+                        { amount: entry.balance, denom: LumConstants.MicroLumDenom },
+                        LumConstants.LumDenom,
+                    ),
+                );
+            }
+        }
+
+        return {
+            bonded: validators?.bonded || [],
+            unbonded: validators?.unbonded || [],
+            delegations,
+            unbondings,
+            stakedCoins,
+            unbondedTokens,
         };
     };
 }

@@ -1,12 +1,14 @@
 import { LumTypes } from '@lum-network/sdk-javascript';
 import { Models } from '@rematch/core';
+import { staking } from '../redux/models/staking';
 import { wallet } from '../redux/models/wallet';
 
 export interface RootModel extends Models<RootModel> {
     wallet: typeof wallet;
+    staking: typeof staking;
 }
 
-export const reduxModels: RootModel = { wallet };
+export const reduxModels: RootModel = { wallet, staking };
 
 export interface Transaction {
     hash: string;

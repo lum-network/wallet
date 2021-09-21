@@ -103,5 +103,17 @@
         "staking": "Staking",
         "message": "Messages",
         "logout": "Logout"
+    },
+    "staking": {
+        "stakedCoins": "Staked Coins",
+        "unbondedTokens": "Unbonded Tokens",
+        "rewards": "Rewards",
+        "tableLabels": {
+            "validator": "Validator",
+            "status": "Status",
+            "votingPower": "Voting Power",
+            "commission": "Commission"
+        },
+        "status": ["Unspecified", "Unbonded", "Unbonding", "Bonded"]
     }
 }
