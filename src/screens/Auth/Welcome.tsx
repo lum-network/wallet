@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Redirect } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Modal as BSModal } from 'bootstrap';
 
@@ -35,13 +35,14 @@ const Welcome = (): JSX.Element => {
     // Utils hooks
     const { t } = useTranslation();
 
-    // Effects
+    // Callbacks
     const importSoftwareModalHandler = useCallback(() => {
         if (softwareMethodModal && ((selectedMethod === SoftwareType.Keystore && keystoreFileData) || selectedMethod)) {
             softwareMethodModal.show();
         }
     }, [softwareMethodModal, selectedMethod, keystoreFileData]);
 
+    // Effects
     useEffect(() => {
         const currentSoftwareModalRef = importSoftwareModalRef.current;
 
@@ -58,7 +59,9 @@ const Welcome = (): JSX.Element => {
 
     useEffect(() => {
         if (importSoftwareModalRef.current) {
-            setImportSoftwareModal(new BSModal(importSoftwareModalRef.current));
+            setImportSoftwareModal(
+                new BSModal(importSoftwareModalRef.current, { backdrop: 'static', keyboard: false }),
+            );
         }
         if (softwareMethodModalRef.current) {
             setSoftwareMethodModal(new BSModal(softwareMethodModalRef.current));
@@ -84,7 +87,7 @@ const Welcome = (): JSX.Element => {
         >
             <p className="not-recommanded">{t('welcome.softwareModal.notRecommanded')}</p>
             <h3 className="mt-4">{t('welcome.softwareModal.title')}</h3>
-            <p>{t('welcome.softwareModal.notRecommandedDescription')}</p>
+            <p className="auth-paragraph">{t('welcome.softwareModal.notRecommandedDescription')}</p>
             <div className="d-flex flex-column my-4">
                 <button
                     type="button"
@@ -117,7 +120,7 @@ const Welcome = (): JSX.Element => {
                     </div>
                 </button>
             </div>
-            <p>{t('welcome.softwareModal.description')}</p>
+            <p className="auth-paragraph">{t('welcome.softwareModal.description')}</p>
             <Button
                 type="button"
                 disabled={!selectedMethod}
@@ -188,9 +191,9 @@ const Welcome = (): JSX.Element => {
                                         height="90"
                                     />
                                     <h3 className="mt-4">{t('welcome.hardware.title')}</h3>
-                                    <p>{t('welcome.hardware.description')}</p>
+                                    <p className="auth-paragraph">{t('welcome.hardware.description')}</p>
                                     <br />
-                                    <p>COMING SOON</p>
+                                    <p className="auth-paragraph">COMING SOON</p>
                                 </Card>
                             </a>
                         </div>
@@ -212,20 +215,21 @@ const Welcome = (): JSX.Element => {
                                         height="76"
                                     />
                                     <h3 className="mt-4">{t('welcome.software.title')}</h3>
-                                    <p>{t('welcome.software.description')}</p>
+                                    <p className="auth-paragraph">{t('welcome.software.description')}</p>
+                                    <br />
                                     <p className="not-recommanded">{t('welcome.softwareModal.notRecommanded')}</p>
                                 </Card>
                             </Button>
                         </div>
                         <div className="col-12 col-lg-3">
-                            <a href="/create" className="text-reset text-decoration-none">
+                            <Link to="/create" className="text-reset text-decoration-none">
                                 <div className="scale-anim btn-padding h-100 w-100 text-center d-flex align-items-center flex-column justify-content-evenly">
                                     <div className="create-btn rounded-circle mb-4 mb-lg-0 d-flex justify-content-center align-items-center">
                                         <img className="img-fluid" src={Assets.images.addIcon} width="27" height="27" />
                                     </div>
                                     <h3>{t('welcome.createWallet')}</h3>
                                 </div>
-                            </a>
+                            </Link>
                         </div>
                     </div>
                 </div>

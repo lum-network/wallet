@@ -9,7 +9,7 @@ on:
       - master
 jobs:
   build_deploy_testnet:
-    name: Deploy the the built content on testnet hosting
+    name: Deploy on testnet hosting
     runs-on: ubuntu-latest
     environment: testnet
     steps:
@@ -38,7 +38,7 @@ jobs:
           FIREBASE_CLI_PREVIEWS: hostingchannels
 
   build_deploy_mainnet:
-    name: Deploy the the built content on main net hosting
+    name: Deploy on main net hosting
     runs-on: ubuntu-latest
     environment: mainnet
     steps:

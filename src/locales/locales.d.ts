@@ -7,6 +7,5 @@ declare module 'react-i18next' {
     // and extend them!
     interface Resources {
         en: typeof en;
-        fr: typeof en;
     }
 }

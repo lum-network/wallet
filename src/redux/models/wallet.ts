@@ -80,33 +80,31 @@ export const wallet = createModel<RootModel>()({
                 });
             }
         },
-        async signInWithMnemonicAsync(payload: string) {
-            try {
-                const wallet = await LumWalletFactory.fromMnemonic(payload);
-                dispatch.wallet.signIn(wallet);
-                dispatch.wallet.getWalletInfos(wallet.getAddress());
-            } catch (e) {
-                showErrorToast(e.message);
-            }
+        signInWithMnemonicAsync(payload: string) {
+            LumWalletFactory.fromMnemonic(payload)
+                .then((wallet) => {
+                    dispatch.wallet.signIn(wallet);
+                    dispatch.wallet.getWalletInfos(wallet.getAddress());
+                })
+                .catch((e) => showErrorToast(e.message));
         },
-        async signInWithPrivateKeyAsync(payload: string) {
-            try {
-                const wallet = await LumWalletFactory.fromPrivateKey(LumUtils.keyFromHex(payload));
-                dispatch.wallet.signIn(wallet);
-                dispatch.wallet.getWalletInfos(wallet.getAddress());
-            } catch (e) {
-                showErrorToast(e.message);
-            }
+        signInWithPrivateKeyAsync(payload: string) {
+            LumWalletFactory.fromPrivateKey(LumUtils.keyFromHex(payload))
+                .then((wallet) => {
+                    dispatch.wallet.signIn(wallet);
+                    dispatch.wallet.getWalletInfos(wallet.getAddress());
+                })
+                .catch((e) => showErrorToast(e.message));
         },
-        async signInWithKeystoreAsync(payload: SignInKeystorePayload) {
+        signInWithKeystoreAsync(payload: SignInKeystorePayload) {
             const { data, password } = payload;
-            try {
-                const wallet = await LumWalletFactory.fromKeyStore(data, password);
-                dispatch.wallet.signIn(wallet);
-                dispatch.wallet.getWalletInfos(wallet.getAddress());
-            } catch (e) {
-                showErrorToast(e.message);
-            }
+
+            LumWalletFactory.fromKeyStore(data, password)
+                .then((wallet) => {
+                    dispatch.wallet.signIn(wallet);
+                    dispatch.wallet.getWalletInfos(wallet.getAddress());
+                })
+                .catch((e) => showErrorToast(e.message));
         },
         async sendTx(payload: SendPayload) {
             try {

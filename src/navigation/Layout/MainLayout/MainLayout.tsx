@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { NavLink } from 'react-router-dom';
 import store, { RootState } from 'redux/store';
 import { LOGOUT } from 'redux/constants';
-import { Footer } from 'components';
+import { Footer, Modal, Button } from 'components';
 
 import './MainLayout.scss';
 import { IS_TESTNET } from 'utils/wallet';
@@ -29,7 +29,9 @@ class MainLayout extends PureComponent<Props> {
 
         return (
             <div className="navbar-container position-fixed w-100">
-                {!bottom && IS_TESTNET && <div className="bg-white text-center py-2">{t('common.testnetBanner')}</div>}
+                {!bottom && IS_TESTNET && (
+                    <div className="warning-bar text-center py-2">{t('common.testnetBanner')}</div>
+                )}
                 <nav
                     className={`ps-lg-2 pe-lg-4 py-3 justify-content-center justify-content-lg-between navbar navbar-expand-lg ${
                         bottom ? 'position-fixed w-100 bottom-navbar' : ''
@@ -62,7 +64,7 @@ class MainLayout extends PureComponent<Props> {
                         </li>
                         <li>
                             <NavLink
-                                to="/transactions"
+                                to="/operations"
                                 className="navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4"
                                 activeClassName="selected-navbar-item"
                             >
@@ -104,13 +106,14 @@ class MainLayout extends PureComponent<Props> {
                     {!bottom && (
                         <ul className="navbar-nav">
                             <li>
-                                <NavLink
-                                    to="/welcome"
+                                <a
+                                    role="button"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#logoutModal"
                                     className="navbar-item selected-navbar-item"
-                                    onClick={() => store.dispatch({ type: LOGOUT })}
                                 >
                                     <img src={assets.images.logoutIcon} width="50" height="50" className="nav-icon" />
-                                </NavLink>
+                                </a>
                             </li>
                         </ul>
                     )}
@@ -130,11 +133,26 @@ class MainLayout extends PureComponent<Props> {
                     <Footer />
                 </footer>
                 {this.renderNavbar(true)}
+                <Modal id="logoutModal" dataBsBackdrop="static" contentClassName="p-3" withCloseButton={false}>
+                    <h1 className="logout-modal-title">{t('logout.title')}</h1>
+                    <div className="d-flex flex-column flex-sm-row  justify-content-between mt-5">
+                        <Button className="logout-modal-cancel-btn me-sm-4 mb-4 mb-sm-0" data-bs-dismiss="modal">
+                            <div className="px-sm-2">{t('common.cancel')}</div>
+                        </Button>
+                        <Button
+                            className="logout-modal-logout-btn text-white"
+                            data-bs-dismiss="modal"
+                            onClick={() => store.dispatch({ type: LOGOUT })}
+                        >
+                            <div className="px-sm-2">{t('logout.logoutBtn')}</div>
+                        </Button>
+                    </div>
+                </Modal>
             </div>
         ) : (
             <div className="auth-layout">
                 {IS_TESTNET && (
-                    <div className="sticky-top vw-100 bg-white text-center py-2">{t('common.testnetBanner')}</div>
+                    <div className="sticky-top vw-100 warning-bar text-center py-2">{t('common.testnetBanner')}</div>
                 )}
                 {children}
             </div>

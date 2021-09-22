@@ -25,33 +25,41 @@ This wallet is backed with Lum Network's Javascript SDK. You can find it [here](
   - Send Lum
   - Earn rewards
 
-## Development
+## Installation
 
-- First, clone the repository `git clone https://github.com/lum-network/wallet.git`
-- Install the project packages via `yarn`
+### Clone
 
-- Then, in the project directory, you can run:
+This project has a git submodule so clone it with:
 
-  #### `yarn build`
+> $ git clone git@github.com:lum-network/wallet.git --recursive
 
-  Builds the app for production to the `build` folder.\
-  It correctly bundles React in production mode and optimizes the build for the best performance.
+### Install dependencies
 
-  The build is minified and the filenames include the hashes.\
-  This works if you want to run an offline version of your wallet!
+There are two `package.json` in this repository:
 
-  #### `yarn start`
-  
-  Runs the app in the development mode.\
-  Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+> $ yarn && cd src/frontend-elements && yarn && cd ../..
 
-  The page will reload if you make edits.\
-  You will also see any lint errors in the console.
+### Running your app
 
-  #### `yarn test`
+Now you can run your app with:
 
-  Launches the test runner in the interactive watch mode.\
-  See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+> $ yarn start
+
+### Building your app
+
+You can build your app with:
+
+> $ yarn build
+
+## Code Style
+
+All React components are functional components with hooks.
+
+There is a Prettier and ES Lint configuration to follow.
+
+## Contributing
+
+All contributions are more than welcome! Feel free to fork the repository and create a Pull Request!
 
 ## Bug / Feature Request
 

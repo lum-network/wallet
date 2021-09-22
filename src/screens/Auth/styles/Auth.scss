@@ -1,8 +1,7 @@
 @import 'src/styles/main';
 
-p {
+.auth-paragraph {
     color: #b5b5b5;
-    padding-top: 1rem;
     padding-top: 1rem;
 }
 
@@ -93,6 +92,7 @@ h1.display-5 {
 
 .import-card {
     width: 100% !important;
+    background-color: $color-white;
 }
 
 @include media-breakpoint-up(lg) {
@@ -101,8 +101,14 @@ h1.display-5 {
     }
 }
 
+.mnemonic-input-import {
+    border-bottom-color: #999999;
+    &:disabled {
+        background-color: white !important;
+    }
+}
 // Create  Wallet
-.mnemonic-input {
+.mnemonic-input-create {
     border-bottom-color: #999999;
     &:disabled {
         background-color: white !important;
@@ -121,7 +127,7 @@ h1.display-5 {
 }
 
 .nav-item > a > img {
-    opacity: 20%;
+    opacity: 0.3;
 }
 
 .nav-item.active {
@@ -134,11 +140,11 @@ h1.display-5 {
 }
 
 .nav-item.active > a > img {
-    opacity: 100%;
+    opacity: 1;
 }
 
 .keystore-step-container {
-    background-color: $color-grey;
+    background-color: #f7faff;
     padding: 2rem;
     border-radius: 15px;
 }
@@ -160,12 +166,20 @@ h1.display-5 {
     }
 }
 
+.text-btn-green {
+    color: $color-green;
+    &:hover {
+        color: $color-green;
+    }
+}
+
 @media (prefers-color-scheme: dark) {
     .auth-header > img,
     .scale-anim > img,
     .create-btn > img,
     .nav-item > a > img,
-    .text-btn > img {
+    .text-btn > img,
+    .keystore-step-container > img {
         filter: brightness(0) invert(1);
     }
     .auth-layout {
@@ -189,12 +203,6 @@ h1.display-5 {
     .import-modal-content {
         background: $color-primary !important;
     }
-    .input-group .normal-input {
-        background: $color-primary !important;
-        &:focus {
-            color: white !important;
-        }
-    }
     .nav-item > a {
         color: $color-primary !important;
     }
@@ -212,5 +220,19 @@ h1.display-5 {
     .text-btn,
     .nav-item.active > a {
         color: white !important;
+    }
+
+    .mnemonic-input-import {
+        background-color: $color-primary !important;
+        color: white !important;
+    }
+
+    .mnemonic-input-create:disabled {
+        background-color: #000 !important;
+        color: white !important;
+    }
+
+    .keystore-step-container {
+        background-color: $color-primary;
     }
 }

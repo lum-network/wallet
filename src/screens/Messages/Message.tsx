@@ -32,7 +32,7 @@ const isMessageToVerify = (msg: {
 
 const verifyPlaceholder = `{
     "address": "lum968b882bf30932bebc7b440cc50e489438c4cce",
-    "msg": "coucou",
+    "msg": "Hello World!",
     "publicKey": "a968b882bf30932bebc7b440cc50e489438c4cce82zcidns82ns9sx92sqaa212id",
     "sig": "a0feb1d1d026e2431b437ef7a9a190dc3edacea5de6ef41490212867643c19754424ff7c4ca62ee41cbd6a15d437754887f65c7ff113e3ea2264a4d8911a727b1c",
     "version": "1",
@@ -102,23 +102,21 @@ const Message = (): JSX.Element => {
     };
 
     const handleVerify = async () => {
-        try {
-            const msg = JSON.parse(messageToVerify, (key, value) => {
-                if (key === 'sig' || key === 'publicKey') {
-                    value = LumUtils.keyFromHex(value);
-                }
-                return value;
-            });
-
-            if (isMessageToVerify(msg)) {
-                const result = await WalletUtils.validateSignMessage(msg);
-                setVerifyMessage({ result, message: msg.msg, address: msg.address });
-            } else {
-                showErrorToast('Invalid message payload');
+        const msg = JSON.parse(messageToVerify, (key, value) => {
+            if (key === 'sig' || key === 'publicKey') {
+                value = LumUtils.keyFromHex(value);
             }
-        } catch (error) {
-            console.log(error);
-            showErrorToast(error.message);
+            return value;
+        });
+
+        if (isMessageToVerify(msg)) {
+            WalletUtils.validateSignMessage(msg)
+                .then((result) => {
+                    setVerifyMessage({ result, message: msg.msg, address: msg.address });
+                })
+                .catch((error) => showErrorToast(error.message));
+        } else {
+            showErrorToast('Invalid message payload');
         }
     };
 
@@ -157,9 +155,9 @@ const Message = (): JSX.Element => {
                                 <div>
                                     <h2>Sign Message</h2>
                                     <div className="my-4">
-                                        Include your nickname and where you use the nickname so someone else cannot use
-                                        it. Include a specific reason for the message so it cannot be reused for a
-                                        different purpose.
+                                        Enter a message you want to sign using your wallet. If you share the resulting
+                                        payload, the receiver will be able to verify that your wallet address signed
+                                        this message.
                                     </div>
                                     <div>
                                         <h4 className="mb-3">Message</h4>
@@ -234,7 +232,7 @@ const Message = (): JSX.Element => {
                                         }`}
                                     >
                                         {verifyMessage.address} <br />
-                                        {`${verifyMessage ? 'did' : 'did not'} sign the message: ${
+                                        {`${verifyMessage.result ? 'did' : 'did not'} sign the message: ${
                                             verifyMessage.message
                                         }`}
                                     </div>

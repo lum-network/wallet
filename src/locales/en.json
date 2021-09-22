@@ -5,7 +5,12 @@
         "send": "Send",
         "required": "Required",
         "lengthError": "Please enter at least {{ count }} characters",
-        "testnetBanner": "Testnet environment in use"
+        "testnetBanner": "⚠️ You are connected to the Testnet ⚠️",
+        "cancel": "Cancel"
+    },
+    "logout": {
+        "title": "Are you sure you want\nto log out ?",
+        "logoutBtn": "Log out"
     },
     "dashboard": {
         "latestTx": "Latest Transactions",
@@ -22,12 +27,12 @@
             "title": "Software",
             "description": "Keystore file, Private key, Mnemonic phrase"
         },
-        "createWallet": "Create your Wallet",
+        "createWallet": "Create a Wallet",
         "softwareModal": {
             "title": "Access your Wallet",
-            "description": "Purchase a hardware wallet for the highest security when accessing your crypto.",
-            "notRecommanded": "NOT RECOMMANDED",
-            "notRecommandedDescription": "This is not a recommended way to access your wallet, due to the sensitivity of the information involved.\nThese options should only be used in offline settings by experienced users.",
+            "description": "Acquire a hardware wallet for the highest security when accessing your crypto.",
+            "notRecommanded": "EXPERIENCED USERS",
+            "notRecommandedDescription": "This is not a recommended way to access your wallet.\nDue to the sensitivity of the information involved, these options should only be used in offline settings by experienced users.",
             "types": {
                 "mnemonic": "Mnemonic phrase",
                 "keystore": "Keystore File",
@@ -38,44 +43,75 @@
             "importPrivateKey": "Access by Private Key"
         }
     },
+    "createWallet": {
+        "title": "Get a new Wallet",
+        "alreadyHave": "Already have a Wallet?",
+        "accessWallet": "Access my Wallet",
+        "keystoreTab": "Keystore File",
+        "mnemonicTab": "Mnemonic Phrase",
+        "doNotForget": "DO NOT FORGET",
+        "mnemonic": {
+            "title": "Your mnemonic phrase",
+            "values": "Values",
+            "random": "Random",
+            "button": "I wrote down my mnemonic phrase",
+            "warningDescription": " to save your mnemonic phrase.\nYou will need this to access your wallet"
+        },
+        "keystore": {
+            "title": "Your Password",
+            "pwdStrength": "Password strength: ",
+            "button": "Continue",
+            "warningDescription1": " to save your password.\nYou will need this",
+            "pwdPlusKeystore": " Password + Keystore ",
+            "warningDescription2": "file to access your wallet."
+        }
+    },
     "transactions": {
         "table": {
             "to": "To",
             "from": "From",
             "amount": "Amount"
+        },
+        "types": {
+            "send": "Send",
+            "delegate": "Delegate",
+            "undelegate": "Undelegate",
+            "claimBeam": "Claim Beam",
+            "updateBeam": "Update Beam",
+            "multiSend": "Multi Send",
+            "createValidator": "Create Validator",
+            "editValidator": "Edit Validator",
+            "getReward": "Get Reward",
+            "openBeam": "Open Beam"
         }
     },
     "send": {
         "types": {
             "send": {
                 "name": "Send",
-                "description": "Send description"
+                "description": "Send LUM directly to another wallet address"
             },
             "delegate": {
                 "name": "Delegate",
-                "description": "Delegate description"
+                "description": "Delegate LUM to a network validator address"
             },
             "undelegate": {
                 "name": "Undelegate",
-                "description": "Undelegate description"
+                "description": "Undelegate LUM from a network validator address"
             },
             "getRewards": {
                 "name": "Get Rewards",
-                "description": "Get Rewards description"
-            },
-            "withdrawRewards": {
-                "name": "Rewards Wallet",
-                "description": "Rewards Wallet description"
+                "description": "Get LUM rewards from a network validator you delegated to"
             },
             "redelegate": {
                 "name": "Redelegate",
-                "description": "Redelegate description"
+                "description": "Redelegate LUM from one network validator to another"
             }
         }
     },
     "navbar": {
         "dashboard": "Dashboard",
-        "transactions": "Transactions",
+        "transactions": "Operations",
         "staking": "Staking",
         "message": "Messages",
         "logout": "Logout"

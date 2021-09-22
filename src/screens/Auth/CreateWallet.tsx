@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { LumUtils } from '@lum-network/sdk-javascript';
@@ -77,7 +77,7 @@ const CreateWallet = (): JSX.Element => {
     const printMnemonic = () => {
         printJS({
             printable: [{ mnemonic: inputsValues }],
-            properties: ['mnemonic'],
+            properties: [{ field: 'mnemonic', displayName: 'Lum Network - Wallet mnemonic' }],
             type: 'json',
         });
     };
@@ -101,10 +101,10 @@ const CreateWallet = (): JSX.Element => {
 
     // Render content
     const mnemonicContent = (
-        <div className="d-flex flex-column align-self-center text-center align-items-center import-card py-4 px-md-4">
+        <div className="w-100 py-4 px-md-4">
             <p className="not-recommanded">{t('welcome.softwareModal.notRecommanded')}</p>
-            <p>{t('welcome.softwareModal.notRecommandedDescription')}</p>
-            <h3 className="mt-4rem">Your mnemonic phrase</h3>
+            <p className="auth-paragraph">{t('welcome.softwareModal.notRecommandedDescription')}</p>
+            <h3 className="mt-4rem">{t('createWallet.mnemonic.title')}</h3>
             <div className="d-flex flex-row align-self-stretch align-items-center justify-content-between mt-4rem">
                 <div className="d-flex flex-row align-items-center">
                     <SwitchInput
@@ -114,20 +114,20 @@ const CreateWallet = (): JSX.Element => {
                         checked={mnemonicLength === 24}
                         onChange={(event) => setMnemonicLength(event.target.checked ? 24 : 12)}
                     />
-                    <h6>Values</h6>
+                    <h6>{t('createWallet.mnemonic.values')}</h6>
                 </div>
                 <Button
                     className="d-flex flex-row align-items-center bg-transparent text-btn"
                     onPress={generateNewMnemonic}
                 >
                     <img src={Assets.images.syncIcon} height="16" width="16" className="me-2" />
-                    <h5>Random</h5>
+                    <h5>{t('createWallet.mnemonic.random')}</h5>
                 </Button>
             </div>
             <div className="container-fluid py-4 mb-4">
                 <div className="row gy-4" id="mnemonicInputsToPrint">
                     {inputsValues.map((input, index) => (
-                        <div className="col-4" key={index}>
+                        <div className="col-6 col-md-4" key={index}>
                             <Input
                                 value={input}
                                 disabled
@@ -136,7 +136,7 @@ const CreateWallet = (): JSX.Element => {
                                 id={`mnemonicInput${index}`}
                                 type="form"
                                 label={`${(index + 1).toString()}.`}
-                                inputClass="border-0 mnemonic-input"
+                                inputClass="mnemonic-input-create"
                                 className="border-bottom form-inline align-middle mt-4"
                             />
                         </div>
@@ -163,29 +163,29 @@ const CreateWallet = (): JSX.Element => {
                     </p>
                 </div>
             )} */}
-            <div className="d-flex align-items-center">
+            <div className="d-flex align-items-center justify-content-center">
                 <Button className="justify-self-stretch me-4 py-4 rounded-pill" onPress={continueWithMnemonic}>
-                    I wrote down my mnemonic phrase
+                    {t('createWallet.mnemonic.button')}
                 </Button>
                 <Button onPress={printMnemonic} className="scale-anim bg-transparent">
                     <img src={Assets.images.printIcon} height="34" width="34" />
                 </Button>
             </div>
             <div className="mt-4rem">
-                <span className="fw-bold danger-text">DO NOT FORGET</span> to save your mnemonic phrase. <br />
-                You will need this to access your wallet.
+                <span className="fw-bold danger-text">{t('createWallet.doNotForget')}</span>
+                {t('createWallet.mnemonic.warningDescription')}
             </div>
         </div>
     );
 
     const keystoreContent = (
-        <div className="import-card py-4 px-md-4">
+        <div className="w-100 py-4 px-md-4">
             <div className="mb-4rem">
                 <p className="not-recommanded">{t('welcome.softwareModal.notRecommanded')}</p>
-                <p>{t('welcome.softwareModal.notRecommandedDescription')}</p>
+                <p className="auth-paragraph">{t('welcome.softwareModal.notRecommandedDescription')}</p>
             </div>
             <div className="mb-4rem text-start">
-                <h3 className="text-center">Your Password</h3>
+                <h3 className="text-center">{t('createWallet.keystore.title')}</h3>
                 <Input
                     {...formik.getFieldProps('password')}
                     type="password"
@@ -197,8 +197,8 @@ const CreateWallet = (): JSX.Element => {
                     placeholder="•••••••••"
                     className="mt-4"
                 />
-                <p>
-                    Password strength:{' '}
+                <p className="auth-paragraph">
+                    {t('createWallet.keystore.pwdStrength')}
                     <span
                         className={`text-capitalize fw-bold ${
                             passwordStrength === PasswordStrengthType.Strong
@@ -211,15 +211,18 @@ const CreateWallet = (): JSX.Element => {
                         {passwordStrength}
                     </span>
                 </p>
-                {formik.touched.password && formik.errors.password && <p>{formik.errors.password}</p>}
+                {formik.touched.password && formik.errors.password && (
+                    <p className="auth-paragraph">{formik.errors.password}</p>
+                )}
             </div>
             <Button onPress={formik.handleSubmit} className="mt-4 py-4 rounded-pill">
-                Continue
+                {t('createWallet.keystore.button')}
             </Button>
             <div className="mt-4rem">
-                <span className="fw-bold danger-text">DO NOT FORGET</span> to save your password. <br />
-                You will need this <span className="fw-bold danger-text">Password + Keystore</span> file to access your
-                wallet.
+                <span className="fw-bold danger-text">{t('createWallet.doNotForget')}</span>
+                {t('createWallet.keystore.warningDescription1')}
+                <span className="fw-bold danger-text">{t('createWallet.keystore.pwdPlusKeystore')}</span>
+                {t('createWallet.keystore.warningDescription2')}
             </div>
         </div>
     );
@@ -227,8 +230,16 @@ const CreateWallet = (): JSX.Element => {
     return (
         <AuthLayout>
             <div className="d-flex flex-column align-items-center mb-4">
-                <div className="mb-4rem">
-                    <h1 className="text-center display-5">Get a new Wallet</h1>
+                <div className="mb-4rem text-center">
+                    <h1 className="display-5">{t('createWallet.title')}</h1>
+                    <p className="auth-paragraph">
+                        {t('createWallet.alreadyHave')}
+                        <span className="ms-1">
+                            <Link to="/welcome" className="text-btn-green">
+                                {t('createWallet.accessWallet')}
+                            </Link>
+                        </span>
+                    </p>
                 </div>
                 {introDone ? (
                     keystoreFileData ? (
@@ -246,7 +257,7 @@ const CreateWallet = (): JSX.Element => {
                                         onClick={() => setCreationType(SoftwareType.Keystore)}
                                     >
                                         <img src={Assets.images.fileIcon} width="25" height="34" className="me-4" />
-                                        <span>Keystore File</span>
+                                        <span>{t('createWallet.keystoreTab')}</span>
                                     </a>
                                 </li>
                                 <li
@@ -259,7 +270,7 @@ const CreateWallet = (): JSX.Element => {
                                         onClick={() => setCreationType(SoftwareType.Mnemonic)}
                                     >
                                         <img src={Assets.images.bubbleIcon} width="39" height="34" className="me-4" />
-                                        <span>Mnemonic phrase</span>
+                                        <span>{t('createWallet.mnemonicTab')}</span>
                                     </a>
                                 </li>
                             </ul>

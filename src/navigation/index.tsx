@@ -2,7 +2,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { Switch, Route, BrowserRouter, Redirect } from 'react-router-dom';
 import { RootState } from 'redux/store';
-import { CreateWallet, Dashboard, Message, Staking, Transactions, Welcome, Error404 } from 'screens';
+import { CreateWallet, Dashboard, Message, Staking, Operations, Welcome, Error404 } from 'screens';
 import MainLayout from './Layout/MainLayout/MainLayout';
 
 const RootNavigator = (): JSX.Element => {
@@ -22,8 +22,8 @@ const RootNavigator = (): JSX.Element => {
                     <PrivateRoute exact path="/message">
                         <Message />
                     </PrivateRoute>
-                    <PrivateRoute exact path="/transactions">
-                        <Transactions />
+                    <PrivateRoute exact path="/operations">
+                        <Operations />
                     </PrivateRoute>
                     <PrivateRoute exact path="/staking">
                         <Staking />

@@ -17,6 +17,7 @@ const defaultMnemonicState: { length: MnemonicLength; values: string[] } = {
 const ImportMnemonicModal = (): JSX.Element => {
     // State
     const [mnemonic, setMnemonic] = useState(defaultMnemonicState);
+    const [pasteHandled, setPasteHandled] = useState(false);
 
     /* CODE RELATED TO EXTRA WORD FOR FUTURE IMPLEMENTATION
 
@@ -33,22 +34,26 @@ const ImportMnemonicModal = (): JSX.Element => {
 
     // Methods
     const handlePaste: React.ClipboardEventHandler<HTMLInputElement> = (event) => {
-        event.clipboardData.items[0].getAsString((text) => {
-            const inputValues = text.split(' ');
-            const valuesLength = inputValues.length;
+        const text = event.clipboardData.getData('text/plain');
+        const inputValues = text.split(' ');
+        const valuesLength = inputValues.length;
 
-            if (WalletUtils.checkMnemonicLength(valuesLength)) {
-                setMnemonic({ length: valuesLength, values: inputValues });
-            }
-        });
+        if (WalletUtils.checkMnemonicLength(valuesLength)) {
+            setMnemonic({ values: inputValues, length: valuesLength });
+            setPasteHandled(true);
+        }
     };
 
     const onInputChange = (value: string, index: number) => {
-        const newValues = [...mnemonic.values];
+        if (pasteHandled) {
+            setPasteHandled(false);
+        } else {
+            const newValues = [...mnemonic.values];
 
-        newValues[index] = value;
+            newValues[index] = value;
 
-        setMnemonic({ values: newValues, length: mnemonic.length });
+            setMnemonic({ values: newValues, length: mnemonic.length });
+        }
     };
 
     const onLengthChange = (length: MnemonicLength) => {
@@ -81,7 +86,7 @@ const ImportMnemonicModal = (): JSX.Element => {
             <div className="mb-4rem">
                 <p className="not-recommanded mb-2">{t('welcome.softwareModal.notRecommanded')}</p>
                 <h3 className="text-center">{t('welcome.softwareModal.importMnemonic')}</h3>
-                <p>{t('welcome.softwareModal.notRecommandedDescription')}</p>
+                <p className="auth-paragraph">{t('welcome.softwareModal.notRecommandedDescription')}</p>
             </div>
             <div className="d-flex flex-row align-self-stretch align-items-center justify-content-between mt-4rem">
                 <div className="d-flex flex-row align-items-center">
@@ -110,7 +115,7 @@ const ImportMnemonicModal = (): JSX.Element => {
                                 type="form"
                                 autoComplete="off"
                                 label={`${(index + 1).toString()}.`}
-                                inputClass="border-0 mnemonic-input"
+                                inputClass="border-0 mnemonic-input-import"
                                 className="border-bottom form-inline align-middle mt-4"
                             />
                         </div>
