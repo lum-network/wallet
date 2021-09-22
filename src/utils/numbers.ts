@@ -1,4 +1,5 @@
-import { LumConstants, LumUtils } from '@lum-network/sdk-javascript';
+import { LumConstants, LumTypes, LumUtils } from '@lum-network/sdk-javascript';
+import numeral from 'numeral';
 
 export const convertUnitNumber = (nb: number | string): number => {
     let amount: string;
@@ -17,4 +18,8 @@ export const convertUnitNumber = (nb: number | string): number => {
     };
 
     return parseFloat(LumUtils.convertUnit(coin, LumConstants.LumDenom));
+};
+
+export const format = (coin: LumTypes.Coin, moreDecimal?: boolean): string => {
+    return numeral(LumUtils.convertUnit(coin, LumConstants.LumDenom)).format(moreDecimal ? '0,0.000000' : '0,0.000');
 };

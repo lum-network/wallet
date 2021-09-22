@@ -86,7 +86,7 @@ const ImportMnemonicModal = (): JSX.Element => {
             <div className="mb-4rem">
                 <p className="not-recommanded mb-2">{t('welcome.softwareModal.notRecommanded')}</p>
                 <h3 className="text-center">{t('welcome.softwareModal.importMnemonic')}</h3>
-                <p>{t('welcome.softwareModal.notRecommandedDescription')}</p>
+                <p className="auth-paragraph">{t('welcome.softwareModal.notRecommandedDescription')}</p>
             </div>
             <div className="d-flex flex-row align-self-stretch align-items-center justify-content-between mt-4rem">
                 <div className="d-flex flex-row align-items-center">

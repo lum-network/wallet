@@ -1,14 +1,16 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { Redirect } from 'react-router';
+import { Redirect, useLocation } from 'react-router';
 
 import { Card } from 'frontend-elements';
+import { LUM_TWITTER } from 'constant';
 import { TransactionsTable, AddressCard, BalanceCard } from 'components';
-import { RootState } from 'redux/store';
+import { RootDispatch, RootState } from 'redux/store';
 
 import './styles/Dashboard.scss';
-import { LUM_TWITTER } from 'constant';
+import { usePrevious } from 'utils';
+import { useRematchDispatch } from 'redux/hooks';
 
 const Dashboard = (): JSX.Element => {
     // Redux hooks
@@ -19,8 +21,22 @@ const Dashboard = (): JSX.Element => {
         wallet: state.wallet.currentWallet,
     }));
 
+    const { getWalletInfos } = useRematchDispatch((dispatch: RootDispatch) => ({
+        getWalletInfos: dispatch.wallet.getWalletInfos,
+    }));
+
     // Utils hooks
     const { t } = useTranslation();
+    const location = useLocation();
+
+    const prevLocation = usePrevious(location);
+
+    // Effects
+    useEffect(() => {
+        if (wallet && location != prevLocation) {
+            getWalletInfos(wallet.getAddress());
+        }
+    }, [location, prevLocation, wallet, getWalletInfos]);
 
     if (!wallet) {
         return <Redirect to="/welcome" />;
@@ -36,13 +52,13 @@ const Dashboard = (): JSX.Element => {
                     <div className="col-lg-5 col-md-6 col-12">
                         <BalanceCard balance={balance} address={wallet.getAddress()} />
                     </div>
-                    <div className="col-lg-2 col-12">
-                        <Card className="h-100 dashboard-card align-items-center text-center">
-                            <a href={LUM_TWITTER} target="_blank" rel="noreferrer">
-                                <div className="twitter mb-4 mb-lg-0" />
-                            </a>
-                            <h4>{t('dashboard.followTwitter')}</h4>
-                        </Card>
+                    <div className="col-lg-2 col-12 scale-animation">
+                        <a href={LUM_TWITTER} target="_blank" rel="noreferrer">
+                            <Card className="h-100 dashboard-card align-items-center justify-content-center text-center">
+                                <div className="twitter mb-2" />
+                                <h4>{t('dashboard.followTwitter')}</h4>
+                            </Card>
+                        </a>
                     </div>
                 </div>
                 <div className="row mt-4">

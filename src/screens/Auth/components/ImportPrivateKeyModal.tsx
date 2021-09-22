@@ -41,7 +41,7 @@ const ImportPrivateKeyModal = (): JSX.Element => {
             <div className="mb-4rem">
                 <p className="not-recommanded mb-2">{t('welcome.softwareModal.notRecommanded')}</p>
                 <h3 className="text-center">{t('welcome.softwareModal.importPrivateKey')}</h3>
-                <p>{t('welcome.softwareModal.notRecommandedDescription')}</p>
+                <p className="auth-paragraph">{t('welcome.softwareModal.notRecommandedDescription')}</p>
             </div>
             <div className="text-start mb-4rem">
                 <Input
