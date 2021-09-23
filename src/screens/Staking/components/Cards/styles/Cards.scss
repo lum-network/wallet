@@ -9,3 +9,11 @@
 .rewards-card {
     background: #47ce5d;
 }
+
+.claim-reward-btn {
+    background-color: white;
+    color: #47ce5d;
+    &:hover {
+        color: #47ce5d;
+    }
+}

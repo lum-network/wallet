@@ -148,40 +148,42 @@ class WalletClient {
         return Promise.all([this.lumClient.getAccount(fromWallet.getAddress()), this.lumClient.getChainId()]);
     };
 
-    getWalletInformations = async (address: string) => {
+    getWalletBalance = async (address: string) => {
         if (this.lumClient === null) {
             return null;
         }
 
-        try {
-            const account = await this.lumClient.getAccount(address);
-            if (account === null) {
-                return null;
+        let currentBalance = 0;
+
+        const balances = await this.lumClient.getAllBalances(address);
+        if (balances.length > 0) {
+            for (const balance of balances) {
+                currentBalance += Number(LumUtils.convertUnit(balance, LumConstants.LumDenom));
             }
-            let currentBalance = 0;
-
-            this.lumClient
-                .getAllBalances(address)
-                .then((balances) => {
-                    if (balances.length > 0) {
-                        for (const balance of balances) {
-                            currentBalance += Number(LumUtils.convertUnit(balance, LumConstants.LumDenom));
-                        }
-                    }
-                })
-                .catch((e) => console.error(e));
-
-            const transactions = await this.lumClient.searchTx([
-                LumUtils.searchTxByTags([{ key: 'transfer.recipient', value: address }]),
-                LumUtils.searchTxByTags([{ key: 'transfer.sender', value: address }]),
-            ]);
-
-            const formattedTxs = await formatTxs(transactions, this.lumClient);
-
-            return { ...account, currentBalance, transactions: formattedTxs };
-        } catch (e) {
-            console.log(e);
         }
+
+        return currentBalance;
+    };
+
+    getTransactions = async (address: string) => {
+        if (this.lumClient === null) {
+            return null;
+        }
+
+        const transactions = await this.lumClient.searchTx([
+            LumUtils.searchTxByTags([{ key: 'transfer.recipient', value: address }]),
+            LumUtils.searchTxByTags([{ key: 'transfer.sender', value: address }]),
+        ]);
+
+        return await formatTxs(transactions, this.lumClient);
+    };
+
+    getRewards = async (address: string) => {
+        if (this.lumClient === null) {
+            return null;
+        }
+
+        return await this.lumClient.queryClient.distribution.delegationTotalRewards(address);
     };
 
     sendTx = async (fromWallet: LumWallet, toAddress: string, lumAmount: string, memo = '') => {

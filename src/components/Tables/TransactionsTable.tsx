@@ -49,7 +49,7 @@ const TransactionRow = (props: RowProps): JSX.Element => {
             </td>
             <td data-label={t('transactions.table.amount')} className="text-end">
                 <SmallerDecimal
-                    nb={NumbersUtils.format(
+                    nb={NumbersUtils.formatUnit(
                         row.amount && row.amount[0]
                             ? row.amount[0]
                             : {
@@ -59,6 +59,7 @@ const TransactionRow = (props: RowProps): JSX.Element => {
                         true,
                     )}
                 />
+                <span className="ms-2">{LumConstants.LumDenom}</span>
             </td>
             <td data-label="Time" className="text-end">
                 <div className="text-truncate">{row.time}</div>

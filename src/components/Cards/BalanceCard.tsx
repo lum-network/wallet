@@ -29,7 +29,7 @@ const BalanceCard = ({ balance, address }: { balance: number; address: string })
 
     const { mintFaucet, getWalletInfos } = useRematchDispatch((dispatch: RootDispatch) => ({
         mintFaucet: dispatch.wallet.mintFaucet,
-        getWalletInfos: dispatch.wallet.getWalletInfos,
+        getWalletInfos: dispatch.wallet.reloadWalletInfos,
     }));
 
     return (

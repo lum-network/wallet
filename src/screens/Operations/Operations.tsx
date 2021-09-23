@@ -34,7 +34,7 @@ const Operations = (): JSX.Element => {
             getReward: dispatch.wallet.getReward,
             undelegate: dispatch.wallet.undelegate,
             redelegate: dispatch.wallet.redelegate,
-            getWalletInfos: dispatch.wallet.getWalletInfos,
+            getWalletInfos: dispatch.wallet.reloadWalletInfos,
         }),
     );
 

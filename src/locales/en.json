@@ -120,11 +120,23 @@
         "stakedCoins": "Staked Coins",
         "unbondedTokens": "Unbonded Tokens",
         "rewards": "Rewards",
+        "myValidators": {
+            "title": "My validators",
+            "empty": "No delegations yet"
+        },
+        "availableValidators": {
+            "title": "Available validators",
+            "empty": "No available validators yet"
+        },
         "tableLabels": {
+            "rank": "Rank",
+            "uptime": "Uptime",
             "validator": "Validator",
             "status": "Status",
             "votingPower": "Voting Power",
-            "commission": "Commission"
+            "commission": "Commission",
+            "stakedCoins": "Staked Coins",
+            "rewards": "Rewards"
         },
         "status": ["Unspecified", "Unbonded", "Unbonding", "Bonded"]
     }
