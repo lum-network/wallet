@@ -10,6 +10,7 @@ import { RootDispatch, RootState } from 'redux/store';
 
 import './Cards.scss';
 import { IS_TESTNET } from 'utils/wallet';
+import { NumbersUtils } from 'utils';
 
 const BalanceCard = ({ balance, address }: { balance: number; address: string }): JSX.Element => {
     useEffect(() => {
@@ -36,7 +37,9 @@ const BalanceCard = ({ balance, address }: { balance: number; address: string })
         <Card withoutPadding className="h-100 dashboard-card balance-card p-4">
             <h2 className="ps-2 pt-3 text-white">{t('dashboard.currentBalance')}</h2>
             <div className="ps-2 my-3 d-flex flex-row align-items-baseline w-100">
-                <h1 className="display-6 fw-normal me-2 me-sm-3 text-white text-truncate">{balance}</h1>
+                <h1 className="display-6 fw-normal me-2 me-sm-3 text-white text-truncate">
+                    {NumbersUtils.formatTo6digit(balance)}
+                </h1>
                 <img src={assets.images.lumTicker} className="ticker" />
             </div>
             <div>

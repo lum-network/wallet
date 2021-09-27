@@ -1,24 +1,50 @@
-import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useEffect, useRef, useState } from 'react';
 
+import { useSelector } from 'react-redux';
 import { Redirect } from 'react-router';
+import { useTranslation } from 'react-i18next';
+import { Validator } from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
+import { LumConstants, LumMessages, LumUtils } from '@lum-network/sdk-javascript';
+import { useFormik } from 'formik';
+import * as yup from 'yup';
+
 import { Card } from 'frontend-elements';
 import { RootDispatch, RootState } from 'redux/store';
 import { useRematchDispatch } from 'redux/hooks';
-import { BalanceCard } from 'components';
+import { BalanceCard, Button, Input, Modal } from 'components';
 import { UserValidator } from 'models';
+import { CLIENT_PRECISION } from 'constant';
+import { NumbersUtils } from 'utils';
+import { Modal as BSModal } from 'bootstrap';
 
 import StakedCoinsCard from './components/Cards/StakedCoinsCard';
 import UnbondedTokensCard from './components/Cards/UnbondedTokensCard';
 import RewardsCard from './components/Cards/RewardsCard';
 import MyValidators from './components/Lists/MyValidators';
-import { CLIENT_PRECISION } from 'constant';
-import { NumbersUtils } from 'utils';
 import AvailableValidators from './components/Lists/AvailableValidators';
 
-const Staking = (): JSX.Element => {
-    const [userValidators, setUserValidators] = useState<UserValidator[]>([]);
+import Delegate from '../Operations/components/Forms/Delegate';
+import Undelegate from '../Operations/components/Forms/Undelegate';
 
+const Staking = (): JSX.Element => {
+    // State
+    const [userValidators, setUserValidators] = useState<UserValidator[]>([]);
+    const [txResult, setTxResult] = useState<{ hash: string; error?: string | null } | null>(null);
+    const [modalType, setModalType] = useState<{ id: string; name: string } | null>(null);
+    const [confirming, setConfirming] = useState(false);
+    const [operationModal, setOperationModal] = useState<BSModal | null>(null);
+
+    // Dispatch methods
+    const { getValidatorsInfos, delegate, undelegate, getWalletInfos } = useRematchDispatch(
+        (dispatch: RootDispatch) => ({
+            getValidatorsInfos: dispatch.staking.getValidatorsInfosAsync,
+            delegate: dispatch.wallet.delegate,
+            undelegate: dispatch.wallet.undelegate,
+            getWalletInfos: dispatch.wallet.reloadWalletInfos,
+        }),
+    );
+
+    // Redux state values
     const {
         bondedValidators,
         unbondedValidators,
@@ -29,6 +55,8 @@ const Staking = (): JSX.Element => {
         balance,
         delegations,
         unbondings,
+        loadingDelegate,
+        loadingUndelegate,
     } = useSelector((state: RootState) => ({
         wallet: state.wallet.currentWallet,
         balance: state.wallet.currentBalance,
@@ -39,12 +67,44 @@ const Staking = (): JSX.Element => {
         unbondings: state.staking.unbondings,
         stakedCoins: state.staking.stakedCoins,
         unbondedTokens: state.staking.unbondedTokens,
+        loadingDelegate: state.loading.effects.wallet.delegate,
+        loadingUndelegate: state.loading.effects.wallet.undelegate,
     }));
 
-    const { getValidatorsInfos } = useRematchDispatch((dispatch: RootDispatch) => ({
-        getValidatorsInfos: dispatch.staking.getValidatorsInfosAsync,
-    }));
+    const loadingAll = loadingDelegate | loadingUndelegate;
 
+    // Utils
+    const modalRef = useRef<HTMLDivElement>(null);
+
+    const { t } = useTranslation();
+
+    const delegateForm = useFormik({
+        initialValues: { address: '', amount: '', memo: 'Delegated' },
+        validationSchema: yup.object().shape({
+            address: yup
+                .string()
+                .required(t('common.required'))
+                .matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`), { message: 'Check validator address' }),
+            amount: yup.string().required(t('common.required')),
+            memo: yup.string(),
+        }),
+        onSubmit: (values) => onSubmitDelegate(values.address, values.amount, values.memo),
+    });
+
+    const undelegateForm = useFormik({
+        initialValues: { address: '', amount: '', memo: 'Undelegated' },
+        validationSchema: yup.object().shape({
+            address: yup
+                .string()
+                .required(t('common.required'))
+                .matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`), { message: 'Check validator address' }),
+            amount: yup.string().required(t('common.required')),
+            memo: yup.string(),
+        }),
+        onSubmit: (values) => onSubmitUndelegate(values.address, values.amount, values.memo),
+    });
+
+    // Effects
     useEffect(() => {
         if (wallet) {
             getValidatorsInfos(wallet.getAddress());
@@ -79,39 +139,167 @@ const Staking = (): JSX.Element => {
         setUserValidators(validators);
     }, [delegations, unbondings, bondedValidators, unbondedValidators, rewards]);
 
+    useEffect(() => {
+        if (modalRef && modalRef.current) {
+            setOperationModal(new BSModal(modalRef.current, { backdrop: 'static', keyboard: false }));
+        }
+    }, []);
+
+    useEffect(() => {
+        if (modalRef.current) {
+            modalRef.current.addEventListener('hidden.bs.modal', () => {
+                if (delegateForm.touched.address || delegateForm.touched.amount || delegateForm.touched.memo) {
+                    delegateForm.resetForm();
+                }
+                if (undelegateForm.touched.address || undelegateForm.touched.amount || undelegateForm.touched.memo) {
+                    undelegateForm.resetForm();
+                }
+                if (confirming) {
+                    setConfirming(false);
+                }
+                if (txResult) {
+                    setTxResult(null);
+                }
+            });
+        }
+    });
+
     if (!wallet) {
         return <Redirect to="/welcome" />;
     }
 
+    // Submit methods
+    const onSubmitDelegate = async (validatorAddress: string, amount: string, memo: string) => {
+        const delegateResult = await delegate({ validatorAddress, amount, memo, from: wallet });
+
+        if (delegateResult) {
+            setTxResult({ hash: LumUtils.toHex(delegateResult.hash), error: delegateResult.error });
+        }
+    };
+
+    const onSubmitUndelegate = async (validatorAddress: string, amount: string, memo: string) => {
+        const undelegateResult = await undelegate({ validatorAddress, amount, memo, from: wallet });
+
+        if (undelegateResult) {
+            setTxResult({ hash: LumUtils.toHex(undelegateResult.hash), error: undelegateResult.error });
+        }
+    };
+
+    // Click methods
+    const onDelegate = (validator: Validator) => {
+        if (operationModal) {
+            delegateForm.initialValues.address = validator.operatorAddress;
+            setModalType({ id: LumMessages.MsgDelegateUrl, name: t('send.types.delegate.name') });
+            operationModal.show();
+        }
+    };
+
+    const onUndelegate = (validator: Validator) => {
+        if (operationModal) {
+            undelegateForm.initialValues.address = validator.operatorAddress;
+            setModalType({ id: LumMessages.MsgUndelegateUrl, name: t('send.types.undelegate.name') });
+            operationModal.show();
+        }
+    };
+
+    // Rendering
+    const renderModal = (): JSX.Element | null => {
+        if (!modalType) {
+            return null;
+        }
+
+        switch (modalType.id) {
+            case LumMessages.MsgDelegateUrl:
+                return <Delegate isLoading={loadingDelegate} form={delegateForm} />;
+
+            case LumMessages.MsgUndelegateUrl:
+                return <Undelegate isLoading={loadingUndelegate} form={undelegateForm} />;
+
+            default:
+                return <div>Soon</div>;
+        }
+    };
+
     return (
-        <div className="mt-4">
-            <div className="container">
-                <div className="row gy-4">
-                    <div className="col-md-6">
-                        <StakedCoinsCard amount={stakedCoins} />
-                    </div>
-                    <div className="col-md-6">
-                        <BalanceCard balance={balance} address={wallet.getAddress()} />
-                    </div>
-                    <div className="col-md-6">
-                        <UnbondedTokensCard amount={unbondedTokens} />
-                    </div>
-                    <div className="col-md-6">
-                        <RewardsCard rewards={rewards} />
-                    </div>
-                    <div className="col">
-                        <Card withoutPadding>
-                            <MyValidators validators={userValidators} />
-                        </Card>
-                    </div>
-                    <div className="col">
-                        <Card withoutPadding>
-                            <AvailableValidators validators={bondedValidators} />
-                        </Card>
+        <>
+            <div className="mt-4">
+                <div className="container">
+                    <div className="row gy-4">
+                        <div className="col-md-6">
+                            <StakedCoinsCard amount={stakedCoins} />
+                        </div>
+                        <div className="col-md-6">
+                            <BalanceCard balance={balance} address={wallet.getAddress()} />
+                        </div>
+                        <div className="col-md-6">
+                            <UnbondedTokensCard amount={unbondedTokens} />
+                        </div>
+                        <div className="col-md-6">
+                            <RewardsCard rewards={rewards} />
+                        </div>
+                        <div className="col">
+                            <Card withoutPadding className="pb-2">
+                                <MyValidators
+                                    onDelegate={onDelegate}
+                                    onUndelegate={onUndelegate}
+                                    validators={userValidators}
+                                />
+                            </Card>
+                        </div>
+                        <div className="col">
+                            <Card withoutPadding className="pb-2">
+                                <AvailableValidators onDelegate={onDelegate} validators={bondedValidators} />
+                            </Card>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+            <Modal
+                ref={modalRef}
+                id="modalSendTxs"
+                withCloseButton={!loadingAll && (txResult === null || (txResult && txResult.error !== null))}
+                dataBsBackdrop="static"
+                dataBsKeyboard={false}
+                bodyClassName="w-100"
+            >
+                {modalType && (
+                    <div className="d-flex flex-column align-items-center">
+                        <h2 className="text-center">{modalType.name}</h2>
+                        {!txResult ? (
+                            renderModal()
+                        ) : txResult.error !== null ? (
+                            <>
+                                <p className="color-error">Failure</p>
+                                <p className="color-error my-5 text-start">
+                                    {txResult.error || 'An unknown error has occured, please try again later'}
+                                </p>
+                                <Button className="mt-5" onClick={() => setTxResult(null)}>
+                                    Retry
+                                </Button>
+                            </>
+                        ) : (
+                            <>
+                                <p className="color-success">Success</p>
+                                <Input
+                                    disabled
+                                    value={txResult.hash}
+                                    label="Hash"
+                                    className="text-start align-self-stretch mb-5"
+                                />
+                                <Button
+                                    className="mt-5"
+                                    data-bs-target="modalSendTxs"
+                                    data-bs-dismiss="modal"
+                                    onClick={() => getWalletInfos(wallet.getAddress())}
+                                >
+                                    Close
+                                </Button>
+                            </>
+                        )}
+                    </div>
+                )}
+            </Modal>
+        </>
     );
 };
 

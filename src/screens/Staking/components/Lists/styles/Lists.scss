@@ -1,0 +1,36 @@
+@import 'main';
+
+.delegate-btn,
+.delegate-btn:hover {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px 15px;
+    position: relative;
+    background: linear-gradient(white, white) padding-box,
+        linear-gradient(to top, rgba(192, 113, 79, 1), rgba(253, 184, 134, 1)) border-box !important;
+    border: 1px solid transparent;
+    color: $color-primary;
+}
+
+tr:nth-child(odd) > td > .delegate-btn {
+    background: linear-gradient($color-striped, $color-striped) padding-box,
+        linear-gradient(to top, rgba(192, 113, 79, 1), rgba(253, 184, 134, 1)) border-box !important;
+}
+
+@media (prefers-color-scheme: dark) {
+    .validator-logo {
+        filter: brightness(0) invert(1);
+    }
+    .delegate-btn,
+    .delegate-btn:hover {
+        background: linear-gradient($color-primary, $color-primary) padding-box,
+            linear-gradient(to top, rgba(192, 113, 79, 1), rgba(253, 184, 134, 1)) border-box !important;
+        color: white;
+    }
+
+    tr:nth-child(odd) > td > .delegate-btn {
+        background: linear-gradient($color-dark-striped, $color-dark-striped) padding-box,
+            linear-gradient(to top, rgba(192, 113, 79, 1), rgba(253, 184, 134, 1)) border-box !important;
+    }
+}

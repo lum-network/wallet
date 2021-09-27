@@ -8,13 +8,30 @@ import { Table } from 'frontend-elements';
 import { CLIENT_PRECISION, LUM_EXPLORER } from 'constant';
 import { calculateTotalVotingPower, NumbersUtils, trunc } from 'utils';
 import { UserValidator } from 'models';
-import { SmallerDecimal } from 'components';
+import { DropdownButton, SmallerDecimal } from 'components';
+import { useSelector } from 'react-redux';
+import { RootDispatch, RootState } from 'redux/store';
+import { useRematchDispatch } from 'redux/hooks';
+import { BondStatus, Validator } from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
 
 interface Props {
     validators: UserValidator[];
+    onDelegate: (val: Validator) => void;
+    onUndelegate: (val: Validator) => void;
 }
 
-const MyValidators = ({ validators }: Props): JSX.Element => {
+const MyValidators = ({ validators, onDelegate, onUndelegate }: Props): JSX.Element => {
+    const { wallet, loadingClaim, loadingDelegate, loadingUndelegate } = useSelector((state: RootState) => ({
+        wallet: state.wallet.currentWallet,
+        loadingClaim: state.loading.effects.wallet.getReward,
+        loadingDelegate: state.loading.effects.wallet.delegate,
+        loadingUndelegate: state.loading.effects.wallet.undelegate,
+    }));
+
+    const { getReward } = useRematchDispatch((dispatch: RootDispatch) => ({
+        getReward: dispatch.wallet.getReward,
+    }));
+
     const { t } = useTranslation();
 
     const headers = [
@@ -24,13 +41,14 @@ const MyValidators = ({ validators }: Props): JSX.Element => {
         t('staking.tableLabels.commission'),
         t('staking.tableLabels.stakedCoins'),
         t('staking.tableLabels.rewards'),
+        '',
     ];
 
     const totalVotingPower = NumbersUtils.convertUnitNumber(calculateTotalVotingPower(validators));
     const statuses = t('staking.status', { returnObjects: true });
 
     const renderRow = (validator: UserValidator, index: number) => (
-        <tr key={index}>
+        <tr key={index} className="overflow-visible">
             <td data-label={headers[0]}>
                 <a href={`${LUM_EXPLORER}/validator/${validator.operatorAddress}`} target="_blank" rel="noreferrer">
                     {validator.description?.identity ||
@@ -52,7 +70,7 @@ const MyValidators = ({ validators }: Props): JSX.Element => {
                     </p>
                 </div>
             </td>
-            <td data-label={headers[3]} className="text-end">
+            <td data-label={headers[3]}>
                 <p>
                     {numeral(parseFloat(validator.commission?.commissionRates?.rate || '') / CLIENT_PRECISION).format(
                         '0.00%',
@@ -67,6 +85,37 @@ const MyValidators = ({ validators }: Props): JSX.Element => {
                 <SmallerDecimal nb={NumbersUtils.formatTo6digit(NumbersUtils.convertUnitNumber(validator.reward))} />
                 <span className="ms-2">{LumConstants.LumDenom}</span>
             </td>
+            {wallet && (
+                <td data-label={headers[6]} className="text-end">
+                    <DropdownButton
+                        id={`validator${index}-action-dropdown`}
+                        title="Actions"
+                        className="d-flex justify-content-end"
+                        direction="up"
+                        disabled={validator.status !== BondStatus.BOND_STATUS_BONDED}
+                        isLoading={loadingClaim || loadingDelegate || loadingUndelegate}
+                        items={[
+                            {
+                                title: 'Claim',
+                                onPress: () =>
+                                    getReward({
+                                        from: wallet,
+                                        memo: 'Claim Reward',
+                                        validatorAddress: validator.operatorAddress,
+                                    }),
+                            },
+                            {
+                                title: 'Undelegate',
+                                onPress: () => onUndelegate(validator),
+                            },
+                            {
+                                title: 'Delegate',
+                                onPress: () => onDelegate(validator),
+                            },
+                        ]}
+                    />
+                </td>
+            )}
         </tr>
     );
 
@@ -76,7 +125,9 @@ const MyValidators = ({ validators }: Props): JSX.Element => {
                 <h2 className="ps-2 pt-5 pb-1">{t('staking.myValidators.title')}</h2>
             </div>
             {validators.length > 0 ? (
-                <Table head={headers}>{validators.map((val, index) => renderRow(val, index))}</Table>
+                <Table className="overflow-visible" head={headers}>
+                    {validators.map((val, index) => renderRow(val, index))}
+                </Table>
             ) : (
                 <div className="d-flex flex-column align-items-center p-5">
                     <div className="bg-white rounded-circle align-self-center p-3 mb-3 shadow-sm">

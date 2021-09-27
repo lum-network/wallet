@@ -4,9 +4,9 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 
 import 'clipboard/dist/clipboard.min';
-import '@popperjs/core/dist/esm/popper';
-import 'bootstrap/dist/js/bootstrap.bundle';
 import 'bootstrap/dist/css/bootstrap.css';
+import '@popperjs/core';
+import 'bootstrap';
 import './styles/_main.scss';
 
 ReactDOM.render(

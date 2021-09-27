@@ -1,16 +1,23 @@
-import { Validator } from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
-import { CLIENT_PRECISION, LUM_EXPLORER } from 'constant';
-import { Table, Button } from 'frontend-elements';
-import numeral from 'numeral';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { Validator } from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
+import numeral from 'numeral';
+import { Table } from 'frontend-elements';
+
+import { Button } from 'components';
+import { CLIENT_PRECISION, LUM_EXPLORER } from 'constant';
 import { trunc, NumbersUtils, calculateTotalVotingPower } from 'utils';
+
+import placeholderValidator from 'assets/images/placeholderValidator.svg';
+
+import './styles/Lists.scss';
 
 interface Props {
     validators: Validator[];
+    onDelegate: (val: Validator) => void;
 }
 
-const AvailableValidators = ({ validators }: Props): JSX.Element => {
+const AvailableValidators = ({ validators, onDelegate }: Props): JSX.Element => {
     const { t } = useTranslation();
 
     const headers = [
@@ -33,9 +40,12 @@ const AvailableValidators = ({ validators }: Props): JSX.Element => {
                 <td data-label={headers[0]}>{rank > -1 ? rank + 1 : NaN}</td>
                 <td data-label={headers[1]}>
                     <a href={`${LUM_EXPLORER}/validator/${validator.operatorAddress}`} target="_blank" rel="noreferrer">
-                        {validator.description?.identity ||
-                            validator.description?.moniker ||
-                            trunc(validator.operatorAddress)}
+                        <img src={placeholderValidator} width={34} height={34} className="me-2 validator-logo" />
+                        <span>
+                            {validator.description?.identity ||
+                                validator.description?.moniker ||
+                                trunc(validator.operatorAddress)}
+                        </span>
                     </a>
                 </td>
                 <td></td>
@@ -59,7 +69,11 @@ const AvailableValidators = ({ validators }: Props): JSX.Element => {
                     </p>
                 </td>
                 <td data-label={headers[5]} className="text-end">
-                    <Button onPress={() => null} className="ms-auto">
+                    <Button
+                        buttonType="custom"
+                        onClick={() => onDelegate(validator)}
+                        className="delegate-btn ms-auto rounded-pill"
+                    >
                         Delegate
                     </Button>
                 </td>
