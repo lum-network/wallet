@@ -4,7 +4,7 @@
     "private": true,
     "dependencies": {
         "@keplr-wallet/types": "^0.9.0-alpha.14",
-        "@lum-network/sdk-javascript": "^0.5.3",
+        "@lum-network/sdk-javascript": "^0.6.0",
         "@popperjs/core": "^2.9.1",
         "@rematch/core": "^2.0.0",
         "@rematch/immer": "^2.0.0",

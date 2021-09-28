@@ -201,7 +201,7 @@ class WalletClient {
         ]);
         // Define fees (5 LUM)
         const fee = {
-            amount: [{ denom: LumConstants.MicroLumDenom, amount: '100' }],
+            amount: [{ denom: LumConstants.MicroLumDenom, amount: '1000' }],
             gas: '100000',
         };
         // Fetch account number and sequence and chain id
