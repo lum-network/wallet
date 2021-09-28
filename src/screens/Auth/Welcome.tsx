@@ -85,9 +85,9 @@ const Welcome = (): JSX.Element => {
             bodyClassName="px-4"
             contentClassName="px-3 import-modal-content"
         >
-            <p className="not-recommanded">{t('welcome.softwareModal.notRecommanded')}</p>
+            <p className="not-recommended">{t('welcome.softwareModal.notRecommended')}</p>
             <h3 className="mt-4">{t('welcome.softwareModal.title')}</h3>
-            <p className="auth-paragraph">{t('welcome.softwareModal.notRecommandedDescription')}</p>
+            <p className="auth-paragraph">{t('welcome.softwareModal.notRecommendedDescription')}</p>
             <div className="d-flex flex-column my-4">
                 <button
                     type="button"
@@ -217,7 +217,7 @@ const Welcome = (): JSX.Element => {
                                     <h3 className="mt-4">{t('welcome.software.title')}</h3>
                                     <p className="auth-paragraph">{t('welcome.software.description')}</p>
                                     <br />
-                                    <p className="not-recommanded">{t('welcome.softwareModal.notRecommanded')}</p>
+                                    <p className="not-recommended">{t('welcome.softwareModal.notRecommended')}</p>
                                 </Card>
                             </Button>
                         </div>

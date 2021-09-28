@@ -102,8 +102,8 @@ const CreateWallet = (): JSX.Element => {
     // Render content
     const mnemonicContent = (
         <div className="w-100 py-4 px-md-4">
-            <p className="not-recommanded">{t('welcome.softwareModal.notRecommanded')}</p>
-            <p className="auth-paragraph">{t('welcome.softwareModal.notRecommandedDescription')}</p>
+            <p className="not-recommended">{t('welcome.softwareModal.notRecommended')}</p>
+            <p className="auth-paragraph">{t('welcome.softwareModal.notRecommendedDescription')}</p>
             <h3 className="mt-4rem">{t('createWallet.mnemonic.title')}</h3>
             <div className="d-flex flex-row align-self-stretch align-items-center justify-content-between mt-4rem">
                 <div className="d-flex flex-row align-items-center">
@@ -181,8 +181,8 @@ const CreateWallet = (): JSX.Element => {
     const keystoreContent = (
         <div className="w-100 py-4 px-md-4">
             <div className="mb-4rem">
-                <p className="not-recommanded">{t('welcome.softwareModal.notRecommanded')}</p>
-                <p className="auth-paragraph">{t('welcome.softwareModal.notRecommandedDescription')}</p>
+                <p className="not-recommended">{t('welcome.softwareModal.notRecommended')}</p>
+                <p className="auth-paragraph">{t('welcome.softwareModal.notRecommendedDescription')}</p>
             </div>
             <div className="mb-4rem text-start">
                 <h3 className="text-center">{t('createWallet.keystore.title')}</h3>

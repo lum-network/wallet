@@ -47,9 +47,9 @@ const ImportKeystoreModal = (props: { fileData: string; onSubmit: () => void }):
     return (
         <>
             <div className="mb-4rem">
-                <p className="not-recommanded mb-2">{t('welcome.softwareModal.notRecommanded')}</p>
+                <p className="not-recommended mb-2">{t('welcome.softwareModal.notRecommended')}</p>
                 <h3 className="text-center">{t('welcome.softwareModal.importKeystore')}</h3>
-                <p className="auth-paragraph">{t('welcome.softwareModal.notRecommandedDescription')}</p>
+                <p className="auth-paragraph">{t('welcome.softwareModal.notRecommendedDescription')}</p>
             </div>
             <div className="mb-4rem text-start">
                 <Input
