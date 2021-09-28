@@ -4,7 +4,7 @@ import { Link, Redirect } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Modal as BSModal } from 'bootstrap';
 
-import { RootState } from 'redux/store';
+import { RootDispatch, RootState } from 'redux/store';
 
 import { Card, Modal, Button } from 'components';
 import Assets from 'assets';
@@ -16,6 +16,7 @@ import ImportMnemonicModal from './components/ImportMnemonicModal';
 import ImportPrivateKeyModal from './components/ImportPrivateKeyModal';
 import ImportKeystoreModal from './components/ImportKeystoreModal';
 import { SoftwareType } from 'models';
+import { useRematchDispatch } from 'redux/hooks';
 
 const Welcome = (): JSX.Element => {
     // State
@@ -26,6 +27,9 @@ const Welcome = (): JSX.Element => {
 
     // Redux hooks
     const wallet = useSelector((state: RootState) => state.wallet.currentWallet);
+    const { signInWithKeplr } = useRematchDispatch((dispatch: RootDispatch) => ({
+        signInWithKeplr: dispatch.wallet.signInWithKeplrAsync,
+    }));
 
     // Refs
     const importSoftwareModalRef = useRef<HTMLDivElement>(null);
@@ -175,6 +179,29 @@ const Welcome = (): JSX.Element => {
                         <h1 className="text-center display-5">{t('welcome.title')}</h1>
                     </div>
                     <div className="row justify-content-center gy-4">
+                        <div className="col-12 col-lg-3">
+                            <a
+                                role="button"
+                                className="text-reset text-decoration-none"
+                                onClick={() => {
+                                    signInWithKeplr();
+                                }}
+                            >
+                                <Card className="auth-card scale-anim text-center btn-padding h-100 w-100">
+                                    <img
+                                        src={Assets.images.cloudIcon}
+                                        className="img-fluid mb-3"
+                                        alt="Harware Icon"
+                                        width="90"
+                                        height="90"
+                                    />
+                                    <h3 className="mt-4">{t('welcome.extension.title')}</h3>
+                                    <p className="auth-paragraph">{t('welcome.extension.description')}</p>
+                                    <br />
+                                    <p className="recommended">{t('welcome.extension.info')}</p>
+                                </Card>
+                            </a>
+                        </div>
                         <div className="col-12 col-lg-3">
                             <a
                                 role="button"

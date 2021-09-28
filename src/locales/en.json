@@ -19,6 +19,11 @@
     },
     "welcome": {
         "title": "Access My Wallet",
+        "extension": {
+            "title": "Extension",
+            "description": "Keplr interchain wallet",
+            "info": "RECOMMENDED"
+        },
         "hardware": {
             "title": "Hardware",
             "description": "Ledger Wallet"
