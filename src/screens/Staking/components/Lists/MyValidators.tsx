@@ -47,10 +47,14 @@ const MyValidators = ({ validators, onDelegate, onUndelegate }: Props): JSX.Elem
     const totalVotingPower = NumbersUtils.convertUnitNumber(calculateTotalVotingPower(validators));
     const statuses = t('staking.status', { returnObjects: true });
 
+    if (!wallet) {
+        return <div />;
+    }
+
     const renderRow = (validator: UserValidator, index: number) => (
-        <tr key={index} className="overflow-visible">
+        <tr key={index} className="validators-table-row">
             <td data-label={headers[0]}>
-                <a href={`${LUM_EXPLORER}/validator/${validator.operatorAddress}`} target="_blank" rel="noreferrer">
+                <a href={`${LUM_EXPLORER}/validators/${validator.operatorAddress}`} target="_blank" rel="noreferrer">
                     {validator.description?.identity ||
                         validator.description?.moniker ||
                         trunc(validator.operatorAddress)}
@@ -85,37 +89,36 @@ const MyValidators = ({ validators, onDelegate, onUndelegate }: Props): JSX.Elem
                 <SmallerDecimal nb={NumbersUtils.formatTo6digit(NumbersUtils.convertUnitNumber(validator.reward))} />
                 <span className="ms-2">{LumConstants.LumDenom}</span>
             </td>
-            {wallet && (
-                <td data-label={headers[6]} className="text-end">
-                    <DropdownButton
-                        id={`validator${index}-action-dropdown`}
-                        title="Actions"
-                        className="d-flex justify-content-end"
-                        direction="up"
-                        disabled={validator.status !== BondStatus.BOND_STATUS_BONDED}
-                        isLoading={loadingClaim || loadingDelegate || loadingUndelegate}
-                        items={[
-                            {
-                                title: 'Claim',
-                                onPress: () =>
-                                    getReward({
-                                        from: wallet,
-                                        memo: 'Claim Reward',
-                                        validatorAddress: validator.operatorAddress,
-                                    }),
-                            },
-                            {
-                                title: 'Undelegate',
-                                onPress: () => onUndelegate(validator),
-                            },
-                            {
-                                title: 'Delegate',
-                                onPress: () => onDelegate(validator),
-                            },
-                        ]}
-                    />
-                </td>
-            )}
+            <td data-label={headers[6]} className="text-end">
+                <DropdownButton
+                    title="Actions"
+                    className="d-flex justify-content-end me-lg-4"
+                    direction="up"
+                    disabled={validator.status !== BondStatus.BOND_STATUS_BONDED}
+                    isLoading={loadingClaim || loadingDelegate || loadingUndelegate}
+                    items={[
+                        {
+                            title: 'Claim',
+                            onPress: () =>
+                                getReward({
+                                    from: wallet,
+                                    memo: 'Claim Reward',
+                                    validatorAddress: validator.operatorAddress,
+                                }),
+                        },
+                        {
+                            title: 'Undelegate',
+                            onPress: () => onUndelegate(validator),
+                        },
+                        {
+                            title: 'Delegate',
+                            onPress: () => onDelegate(validator),
+                        },
+                    ]}
+                />
+            </td>
+            {/* Additional Spacer when the table becomes vertical */}
+            <td className="d-block d-lg-none" />
         </tr>
     );
 
@@ -125,7 +128,7 @@ const MyValidators = ({ validators, onDelegate, onUndelegate }: Props): JSX.Elem
                 <h2 className="ps-2 pt-5 pb-1">{t('staking.myValidators.title')}</h2>
             </div>
             {validators.length > 0 ? (
-                <Table className="overflow-visible" head={headers}>
+                <Table className="validators-table overflow-visible" head={headers}>
                     {validators.map((val, index) => renderRow(val, index))}
                 </Table>
             ) : (

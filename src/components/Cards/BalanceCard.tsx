@@ -13,6 +13,15 @@ import { IS_TESTNET } from 'utils/wallet';
 import { NumbersUtils } from 'utils';
 
 const BalanceCard = ({ balance, address }: { balance: number; address: string }): JSX.Element => {
+    const isLoading = useSelector((state: RootState) => state.loading.effects.wallet.reloadWalletInfos);
+
+    const { mintFaucet, getWalletInfos } = useRematchDispatch((dispatch: RootDispatch) => ({
+        mintFaucet: dispatch.wallet.mintFaucet,
+        getWalletInfos: dispatch.wallet.reloadWalletInfos,
+    }));
+
+    const { t } = useTranslation();
+
     useEffect(() => {
         const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
         const tooltips = tooltipTriggerList.map((tooltipTriggerEl) => {
@@ -23,15 +32,6 @@ const BalanceCard = ({ balance, address }: { balance: number; address: string })
             tooltips.forEach((tip) => tip.dispose());
         };
     }, []);
-
-    const { t } = useTranslation();
-
-    const isLoading = useSelector((state: RootState) => state.loading.effects.wallet.getWalletInfos);
-
-    const { mintFaucet, getWalletInfos } = useRematchDispatch((dispatch: RootDispatch) => ({
-        mintFaucet: dispatch.wallet.mintFaucet,
-        getWalletInfos: dispatch.wallet.reloadWalletInfos,
-    }));
 
     return (
         <Card withoutPadding className="h-100 dashboard-card balance-card p-4">

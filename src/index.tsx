@@ -1,10 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+import App from './App';
+
 import 'clipboard/dist/clipboard.min';
-import 'bootstrap/dist/css/bootstrap.css';
 import '@popperjs/core';
 import 'bootstrap';
 import './styles/_main.scss';

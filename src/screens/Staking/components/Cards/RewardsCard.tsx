@@ -40,10 +40,10 @@ const RewardsCard = ({ rewards }: Props): JSX.Element => {
     };
 
     return (
-        <Card withoutPadding className="h-100 dashboard-card rewards-card flex-row align-items-center p-4">
-            <div>
+        <Card withoutPadding className="h-100 dashboard-card flex-row flex-wrap align-items-center rewards-card p-4">
+            <div className="d-flex flex-column">
                 <h2 className="ps-2 pt-3 text-white">{t('staking.rewards')}</h2>
-                <div className="ps-2 my-3 d-flex flex-row align-items-baseline w-100">
+                <div className="px-2 my-3 d-flex flex-row align-items-baseline w-100">
                     <h1 className="display-6 fw-normal me-2 me-sm-3 text-white text-truncate">
                         {rewards.total && rewards.total.length > 0
                             ? NumbersUtils.formatTo6digit(

@@ -14,7 +14,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>((props, ref) => {
 
     if (inputStyle === 'input') {
         return (
-            <div className={`normal-input-container d-flex flex-column ${className}`}>
+            <div className={`d-flex flex-column ${className}`}>
                 {label && (
                     <label htmlFor={rest.id} className="form-label">
                         <p className="ms-2">{label}</p>

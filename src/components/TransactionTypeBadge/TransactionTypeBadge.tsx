@@ -5,10 +5,12 @@ import './TransactionTypeBadge.scss';
 
 interface Props {
     type: string;
+    userAddress: string;
+    toAddress: string;
 }
 
-const TransactionTypeBadge = ({ type }: Props): JSX.Element => {
-    const { name, icon } = TransactionsUtils.getTxTypeInfos(type);
+const TransactionTypeBadge = ({ type, userAddress, toAddress }: Props): JSX.Element => {
+    const { name, icon } = TransactionsUtils.getTxTypeInfos(type, userAddress, toAddress);
 
     return (
         <div className="transaction-type-badge">

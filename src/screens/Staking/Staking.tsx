@@ -225,19 +225,19 @@ const Staking = (): JSX.Element => {
             <div className="mt-4">
                 <div className="container">
                     <div className="row gy-4">
-                        <div className="col-md-6">
+                        <div className="col-lg-6">
                             <StakedCoinsCard amount={stakedCoins} />
                         </div>
-                        <div className="col-md-6">
+                        <div className="col-lg-6">
                             <BalanceCard balance={balance} address={wallet.getAddress()} />
                         </div>
-                        <div className="col-md-6">
+                        <div className="col-lg-6">
                             <UnbondedTokensCard amount={unbondedTokens} />
                         </div>
-                        <div className="col-md-6">
+                        <div className="col-lg-6">
                             <RewardsCard rewards={rewards} />
                         </div>
-                        <div className="col">
+                        <div className="col-12">
                             <Card withoutPadding className="pb-2">
                                 <MyValidators
                                     onDelegate={onDelegate}
@@ -246,7 +246,7 @@ const Staking = (): JSX.Element => {
                                 />
                             </Card>
                         </div>
-                        <div className="col">
+                        <div className="col-12">
                             <Card withoutPadding className="pb-2">
                                 <AvailableValidators onDelegate={onDelegate} validators={bondedValidators} />
                             </Card>

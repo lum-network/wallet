@@ -1,11 +1,10 @@
-import { Button } from 'components';
 import React from 'react';
 
+import { Button } from 'components';
 import './Dropdown.scss';
 
 interface Props {
     title: string;
-    id: string;
     disabled?: boolean;
     isLoading?: boolean;
     className?: string;
@@ -16,17 +15,9 @@ interface Props {
     }[];
 }
 
-const DropdownButton = ({
-    items,
-    title,
-    id,
-    className,
-    disabled,
-    isLoading,
-    direction = 'down',
-}: Props): JSX.Element => {
+const DropdownButton = ({ items, title, className, disabled, isLoading, direction = 'down' }: Props): JSX.Element => {
     return (
-        <div className={`drop${direction} ${className}`}>
+        <div id="dropdown" className={`drop${direction} ${className}`}>
             <Button
                 type="button"
                 buttonType="custom"
@@ -35,25 +26,18 @@ const DropdownButton = ({
                 data-bs-display="static"
                 disabled={disabled}
                 isLoading={isLoading}
-                data-bs-target={`#${id}`}
                 aria-expanded="false"
             >
                 {title}
             </Button>
-            <ul id={id} className="dropdown-menu dropdown-menu-end text-center border-0 mb-3" aria-labelledby={id}>
+            <ul className="dropdown-menu dropdown-menu-end text-center border-0 mb-3" aria-labelledby="dropdownMenu">
                 {items.map((item, index) => (
-                    <>
-                        <li key={index}>
-                            <a type="button" className="dropdown-item" onClick={item.onPress}>
-                                {item.title}
-                            </a>
-                        </li>
-                        {index < items.length - 1 && (
-                            <li>
-                                <hr className="dropdown-divider" />
-                            </li>
-                        )}
-                    </>
+                    <li key={index}>
+                        <a type="button" className="dropdown-item" onClick={item.onPress}>
+                            {item.title}
+                        </a>
+                        {index < items.length - 1 && <hr className="dropdown-divider" />}
+                    </li>
                 ))}
             </ul>
         </div>

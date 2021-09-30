@@ -67,7 +67,7 @@ const Dashboard = (): JSX.Element => {
                             <div className="ps-4">
                                 <h2 className="ps-2 pt-5 pb-1">{t('dashboard.latestTx')}</h2>
                             </div>
-                            <TransactionsTable transactions={transactions.slice(0, 5)} />
+                            <TransactionsTable transactions={transactions} wallet={wallet} />
                         </Card>
                     </div>
                 </div>

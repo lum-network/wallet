@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Validator } from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
 import numeral from 'numeral';
 import { Table } from 'frontend-elements';
 
-import { Button } from 'components';
+import { Button, Input } from 'components';
 import { CLIENT_PRECISION, LUM_EXPLORER } from 'constant';
 import { trunc, NumbersUtils, calculateTotalVotingPower } from 'utils';
 
@@ -18,11 +18,14 @@ interface Props {
 }
 
 const AvailableValidators = ({ validators, onDelegate }: Props): JSX.Element => {
+    const [vals, setVals] = useState([...validators]);
+    const [searchText, setSearchText] = useState('');
     const { t } = useTranslation();
 
     const headers = [
         t('staking.tableLabels.rank'),
         t('staking.tableLabels.validator'),
+        '',
         '',
         t('staking.tableLabels.votingPower'),
         /* t('staking.tableLabels.uptime'), */
@@ -32,14 +35,37 @@ const AvailableValidators = ({ validators, onDelegate }: Props): JSX.Element => 
 
     const totalVotingPower = NumbersUtils.convertUnitNumber(calculateTotalVotingPower(validators));
 
+    useEffect(() => {
+        if (searchText) {
+            setVals(
+                validators.filter(
+                    (validator) =>
+                        validator.operatorAddress.includes(searchText) ||
+                        validator.description?.moniker.includes(searchText) ||
+                        validator.description?.identity.includes(searchText),
+                ),
+            );
+        } else {
+            setVals([...validators]);
+        }
+    }, [searchText, validators]);
+
+    const onSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchText(event.target.value);
+    };
+
     const renderRow = (validator: Validator, index: number) => {
-        const rank = validators.findIndex((val) => val.operatorAddress === validator.operatorAddress);
+        const rank = vals.findIndex((val) => val.operatorAddress === validator.operatorAddress);
 
         return (
-            <tr key={index}>
+            <tr key={index} className="validators-table-row">
                 <td data-label={headers[0]}>{rank > -1 ? rank + 1 : NaN}</td>
                 <td data-label={headers[1]}>
-                    <a href={`${LUM_EXPLORER}/validator/${validator.operatorAddress}`} target="_blank" rel="noreferrer">
+                    <a
+                        href={`${LUM_EXPLORER}/validators/${validator.operatorAddress}`}
+                        target="_blank"
+                        rel="noreferrer"
+                    >
                         <img src={placeholderValidator} width={34} height={34} className="me-2 validator-logo" />
                         <span>
                             {validator.description?.identity ||
@@ -48,8 +74,9 @@ const AvailableValidators = ({ validators, onDelegate }: Props): JSX.Element => 
                         </span>
                     </a>
                 </td>
-                <td></td>
-                <td data-label={headers[3]} className="text-end">
+                <td className="d-none d-lg-table-cell"></td>
+                <td className="d-none d-lg-table-cell"></td>
+                <td data-label={headers[4]} className="text-end">
                     <div className="d-flex flex-column">
                         <p>{numeral(NumbersUtils.convertUnitNumber(validator.tokens || 0)).format('0,0')}</p>
                         <p className="text-muted">
@@ -61,33 +88,43 @@ const AvailableValidators = ({ validators, onDelegate }: Props): JSX.Element => 
                     </div>
                 </td>
                 {/* TO RE-ENABLE WHEN UPTIME IS AVAILABLE <td data-label={headers[3]}>{validator.}</td> */}
-                <td data-label={headers[4]} className="text-end">
+                <td data-label={headers[5]} className="text-end">
                     <p>
                         {numeral(
                             parseFloat(validator.commission?.commissionRates?.rate || '0') / CLIENT_PRECISION,
                         ).format('0.00%')}
                     </p>
                 </td>
-                <td data-label={headers[5]} className="text-end">
+                <td data-label={headers[6]} className="text-end">
                     <Button
                         buttonType="custom"
                         onClick={() => onDelegate(validator)}
-                        className="delegate-btn ms-auto rounded-pill"
+                        className="delegate-btn ms-auto me-lg-4 rounded-pill"
                     >
                         Delegate
                     </Button>
                 </td>
+                {/* Additional Spacer when the table becomes vertical */}
+                <td className="d-block d-lg-none" />
             </tr>
         );
     };
 
     return (
         <>
+            <Input
+                className="ps-4 py-4 validators-search-input"
+                inputClass="search-input h-100 fs-6 py-3"
+                placeholder="Search available validator"
+                onChange={onSearch}
+            />
             <div className="ps-4">
-                <h2 className="ps-2 pt-5 pb-1">{t('staking.availableValidators.title')}</h2>
+                <h2 className="ps-2 pb-1">{t('staking.availableValidators.title')}</h2>
             </div>
-            {validators.length > 0 ? (
-                <Table head={headers}>{validators.map((val, index) => renderRow(val, index))}</Table>
+            {vals.length > 0 ? (
+                <Table className="validators-table" head={headers}>
+                    {vals.map((val, index) => renderRow(val, index))}
+                </Table>
             ) : (
                 <div className="d-flex flex-column align-items-center p-5">
                     <div className="bg-white rounded-circle align-self-center p-3 mb-3 shadow-sm">
@@ -98,7 +135,9 @@ const AvailableValidators = ({ validators, onDelegate }: Props): JSX.Element => 
                             }}
                         />
                     </div>
-                    {t('staking.availableValidators.empty')}
+                    {searchText
+                        ? t('staking.availableValidators.emptySearch', { searchText })
+                        : t('staking.availableValidators.empty')}
                 </div>
             )}
         </>

@@ -80,6 +80,10 @@ const isStakingTxInfo = (
     return !!(info && info.validatorAddress && info.delegatorAddress && info.amount);
 };
 
+const alreadyExists = (array: Transaction[], value: Transaction) => {
+    return array.length === 0 ? false : array.findIndex((val) => val.hash === value.hash) > -1;
+};
+
 export const formatTxs = async (rawTxs: TxResponse[], client: LumClient): Promise<Transaction[]> => {
     const formattedTxs: Transaction[] = [];
 
@@ -94,18 +98,21 @@ export const formatTxs = async (rawTxs: TxResponse[], client: LumClient): Promis
                     const block = await client.getBlock(rawTx.height);
 
                     if (isSendTxInfo(txInfos)) {
-                        formattedTxs.push({
+                        const tx: Transaction = {
                             ...txInfos,
                             type: msg.typeUrl,
                             height: rawTx.height,
                             hash: LumUtils.toHex(rawTx.hash).toUpperCase(),
                             time: dateFromNow(block.block.header.time.getTime()),
-                        });
+                        };
+                        if (!alreadyExists(formattedTxs, tx)) {
+                            formattedTxs.push(tx);
+                        }
                     } else if (isStakingTxInfo(txInfos)) {
                         const fromAddress = txInfos.delegatorAddress;
                         const toAddress = txInfos.validatorAddress;
 
-                        formattedTxs.push({
+                        const tx: Transaction = {
                             fromAddress,
                             toAddress,
                             type: msg.typeUrl,
@@ -113,7 +120,11 @@ export const formatTxs = async (rawTxs: TxResponse[], client: LumClient): Promis
                             height: rawTx.height,
                             hash: LumUtils.toHex(rawTx.hash).toUpperCase(),
                             time: dateFromNow(block.block.header.time.getTime()),
-                        });
+                        };
+
+                        if (!alreadyExists(formattedTxs, tx)) {
+                            formattedTxs.push(tx);
+                        }
                     }
                 }
             }
@@ -146,6 +157,24 @@ class WalletClient {
         }
 
         return Promise.all([this.lumClient.getAccount(fromWallet.getAddress()), this.lumClient.getChainId()]);
+    };
+
+    private getValidators = async () => {
+        if (this.lumClient === null) {
+            return null;
+        }
+        const { validators } = this.lumClient.queryClient.staking;
+
+        try {
+            const [bondedValidators, unbondedValidators] = await Promise.all([
+                validators('BOND_STATUS_BONDED'),
+                validators('BOND_STATUS_UNBONDED'),
+            ]);
+
+            return { bonded: bondedValidators.validators, unbonded: unbondedValidators.validators };
+        } catch (e) {
+            console.log(e);
+        }
     };
 
     getWalletBalance = async (address: string) => {
@@ -520,64 +549,53 @@ class WalletClient {
         };
     };
 
-    static getValidators = async (client: LumClient) => {
-        const { validators } = client.queryClient.staking;
-
-        try {
-            const [bondedValidators, unbondedValidators] = await Promise.all([
-                validators('BOND_STATUS_BONDED'),
-                validators('BOND_STATUS_UNBONDED'),
-            ]);
-
-            return { bonded: bondedValidators.validators, unbonded: unbondedValidators.validators };
-        } catch (e) {
-            console.log(e);
-        }
-    };
-
     getValidatorsInfos = async (address: string) => {
         if (!this.lumClient) {
             return null;
         }
 
-        const validators = await WalletClient.getValidators(this.lumClient);
+        try {
+            const validators = await this.getValidators();
 
-        const [delegation, unbonding] = await Promise.all([
-            this.lumClient.queryClient.staking.delegatorDelegations(address),
-            this.lumClient.queryClient.staking.delegatorUnbondingDelegations(address),
-        ]);
+            const [delegation, unbonding] = await Promise.all([
+                this.lumClient.queryClient.staking.delegatorDelegations(address),
+                this.lumClient.queryClient.staking.delegatorUnbondingDelegations(address),
+            ]);
 
-        const delegations = delegation.delegationResponses;
-        const unbondings = unbonding.unbondingResponses;
+            const delegations = delegation.delegationResponses;
+            const unbondings = unbonding.unbondingResponses;
 
-        let unbondedTokens = 0;
-        let stakedCoins = 0;
+            let unbondedTokens = 0;
+            let stakedCoins = 0;
 
-        for (const delegation of delegations) {
-            if (delegation.balance) {
-                stakedCoins += Number(LumUtils.convertUnit(delegation.balance, LumConstants.LumDenom));
+            for (const delegation of delegations) {
+                if (delegation.balance) {
+                    stakedCoins += Number(LumUtils.convertUnit(delegation.balance, LumConstants.LumDenom));
+                }
             }
-        }
 
-        for (const unbonding of unbondings) {
-            for (const entry of unbonding.entries) {
-                unbondedTokens += Number(
-                    LumUtils.convertUnit(
-                        { amount: entry.balance, denom: LumConstants.MicroLumDenom },
-                        LumConstants.LumDenom,
-                    ),
-                );
+            for (const unbonding of unbondings) {
+                for (const entry of unbonding.entries) {
+                    unbondedTokens += Number(
+                        LumUtils.convertUnit(
+                            { amount: entry.balance, denom: LumConstants.MicroLumDenom },
+                            LumConstants.LumDenom,
+                        ),
+                    );
+                }
             }
-        }
 
-        return {
-            bonded: validators?.bonded || [],
-            unbonded: validators?.unbonded || [],
-            delegations,
-            unbondings,
-            stakedCoins,
-            unbondedTokens,
-        };
+            return {
+                bonded: validators?.bonded || [],
+                unbonded: validators?.unbonded || [],
+                delegations,
+                unbondings,
+                stakedCoins,
+                unbondedTokens,
+            };
+        } catch (e) {
+            console.error(e);
+        }
     };
 }
 

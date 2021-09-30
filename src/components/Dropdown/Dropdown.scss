@@ -1,6 +1,6 @@
-@import '../../styles/main';
+@import 'main';
 
-.dropdown-toggle {
+#dropdown > .dropdown-toggle {
     background-color: transparent;
     border: 2px $color-primary solid;
     color: $color-primary;
@@ -15,20 +15,21 @@
     }
 }
 
-.dropdown-menu {
+#dropdown > .dropdown-menu {
     background-color: white;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
     border-radius: 9px;
     min-width: fit-content;
 }
 
-.dropdown-item {
+#dropdown > .dropdown-menu > li > .dropdown-item {
     color: $color-primary;
-    padding: 0px 15px;
+    -webkit-appearance: none;
+    padding: 0px 10px;
 }
 
 @media (prefers-color-scheme: dark) {
-    .dropdown-toggle {
+    #dropdown > .dropdown-toggle {
         border: 2px white solid;
         color: white;
         &:hover {
@@ -41,15 +42,19 @@
             border: 2px $color-grey solid;
         }
     }
-    .dropdown-menu {
+    #dropdown > .dropdown-menu {
         background-color: $color-primary;
         box-shadow: 0px 4px 4px rgba(255, 255, 255, 0.25);
         border-radius: 9px;
     }
-    .dropdown-item {
+    #dropdown > .dropdown-menu > li > .dropdown-item {
         color: white;
+        &:hover,
+        &:focus {
+            background-color: $color-dark-background;
+        }
     }
-    .dropdown-divider {
+    #dropdown > .dropdown-menu > li > .dropdown-divider {
         background-color: white;
     }
 }
