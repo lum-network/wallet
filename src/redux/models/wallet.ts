@@ -137,7 +137,7 @@ export const wallet = createModel<RootModel>()({
         async sendTx(payload: SendPayload) {
             const result = await WalletClient.sendTx(payload.from, payload.to, payload.amount, payload.memo);
 
-            if (!result || (result && result.error)) {
+            if (!result) {
                 return null;
             }
 
@@ -152,7 +152,7 @@ export const wallet = createModel<RootModel>()({
                 payload.memo,
             );
 
-            if (!result || (result && result.error)) {
+            if (!result) {
                 return null;
             }
 
@@ -167,7 +167,7 @@ export const wallet = createModel<RootModel>()({
                 payload.memo,
             );
 
-            if (!result || (result && result.error)) {
+            if (!result) {
                 return null;
             }
 
@@ -177,7 +177,7 @@ export const wallet = createModel<RootModel>()({
         async getReward(payload: GetRewardPayload) {
             const result = await WalletClient.getReward(payload.from, payload.validatorAddress, payload.memo);
 
-            if (!result || (result && result.error)) {
+            if (!result) {
                 return null;
             }
 
@@ -192,7 +192,7 @@ export const wallet = createModel<RootModel>()({
                 payload.amount,
                 payload.memo,
             );
-            if (!result || (result && result.error)) {
+            if (!result) {
                 return null;
             }
 

@@ -26,14 +26,13 @@ tr:nth-child(odd) > td > .delegate-btn {
     width: 264px;
 }
 
-.validators-search-input > input {
+.search-input {
     box-shadow: inset 0px 3.42928px 5.14392px rgba(0, 0, 0, 0.05);
-    &::before {
-        content: '+';
-        position: relative;
-        background-color: aquamarine;
-        height: 100%;
-    }
+}
+
+.search-input > input {
+    font-size: 10px;
+    margin-left: 0.5rem !important;
 }
 
 @include media-breakpoint-down(lg) {

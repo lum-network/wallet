@@ -74,6 +74,7 @@
         },
         "types": {
             "send": "Send",
+            "receive": "Receive",
             "delegate": "Delegate",
             "undelegate": "Undelegate",
             "claimBeam": "Claim Beam",
@@ -126,7 +127,8 @@
         },
         "availableValidators": {
             "title": "Available validators",
-            "empty": "No available validators yet"
+            "empty": "No available validators yet",
+            "emptySearch": "No available validator found with \"{{searchText}}\""
         },
         "tableLabels": {
             "rank": "Rank",
