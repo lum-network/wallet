@@ -2,6 +2,14 @@
 
 .normal-input {
     background-color: #f9f9f9;
+}
+
+.normal-input.read-only {
+    background-color: transparent;
+}
+
+.normal-input > input {
+    background-color: transparent;
     &:focus {
         outline: thin dotted;
         outline: 0;
@@ -11,7 +19,8 @@
         color: #555555;
     }
 }
-.normal-input:read-only {
+.normal-input > input:read-only,
+.normal-input > input:moz-read-only {
     &:-webkit-autofill,
     &:-webkit-autofill:hover,
     &:-webkit-autofill:focus,
@@ -20,7 +29,6 @@
         box-shadow: 0 0 0 30px white inset !important;
         -webkit-text-fill-color: $color-primary;
     }
-    background-color: white;
 }
 
 .form-switch {
@@ -77,7 +85,7 @@ input[type='checkbox'] {
     label.form-label {
         color: white;
     }
-    .normal-input:read-only {
+    .normal-input.read-only > input {
         &:-webkit-autofill,
         &:-webkit-autofill:hover,
         &:-webkit-autofill:focus,
@@ -86,7 +94,6 @@ input[type='checkbox'] {
             box-shadow: 0 0 0 30px $color-primary inset !important;
             -webkit-text-fill-color: white;
         }
-        background-color: $color-primary;
         color: white;
     }
 }

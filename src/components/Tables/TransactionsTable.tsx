@@ -6,20 +6,22 @@ import { Table } from 'frontend-elements';
 import { LUM_EXPLORER } from 'constant';
 import { Transaction } from 'models';
 import { NumbersUtils, trunc } from 'utils';
-import { LumConstants } from '@lum-network/sdk-javascript';
+import { LumConstants, LumWallet } from '@lum-network/sdk-javascript';
 import { SmallerDecimal, TransactionTypeBadge } from 'components';
 
 interface TransactionsTableProps {
     transactions: Transaction[];
+    wallet: LumWallet;
 }
 
 interface RowProps {
     row: Transaction;
+    wallet: LumWallet;
     t: TFunction<Namespace<keyof Resources>>;
 }
 
 const TransactionRow = (props: RowProps): JSX.Element => {
-    const { row, t } = props;
+    const { row, t, wallet } = props;
 
     return (
         <tr>
@@ -29,10 +31,16 @@ const TransactionRow = (props: RowProps): JSX.Element => {
                 </a>
             </td>
             <td data-label="Type">
-                <TransactionTypeBadge type={row.type} />
+                <TransactionTypeBadge type={row.type} userAddress={wallet.getAddress()} toAddress={row.toAddress} />
             </td>
             <td data-label={t('transactions.table.from')}>
-                <a href={`${LUM_EXPLORER}/account/${row.fromAddress}`} target="_blank" rel="noreferrer">
+                <a
+                    href={`${LUM_EXPLORER}/${
+                        row.fromAddress.includes(LumConstants.LumBech32PrefixValAddr) ? 'validators' : 'account'
+                    }/${row.fromAddress}`}
+                    target="_blank"
+                    rel="noreferrer"
+                >
                     {trunc(row.fromAddress)}
                 </a>
             </td>
@@ -49,7 +57,7 @@ const TransactionRow = (props: RowProps): JSX.Element => {
             </td>
             <td data-label={t('transactions.table.amount')} className="text-end">
                 <SmallerDecimal
-                    nb={NumbersUtils.format(
+                    nb={NumbersUtils.formatUnit(
                         row.amount && row.amount[0]
                             ? row.amount[0]
                             : {
@@ -59,6 +67,7 @@ const TransactionRow = (props: RowProps): JSX.Element => {
                         true,
                     )}
                 />
+                <span className="ms-2">{LumConstants.LumDenom}</span>
             </td>
             <td data-label="Time" className="text-end">
                 <div className="text-truncate">{row.time}</div>
@@ -85,7 +94,7 @@ const TransactionsTable = (props: TransactionsTableProps): JSX.Element => {
         return (
             <Table head={headers}>
                 {txs.map((tx, index) => (
-                    <TransactionRow key={index} row={tx} t={t} />
+                    <TransactionRow key={index} row={tx} t={t} wallet={props.wallet} />
                 ))}
             </Table>
         );
