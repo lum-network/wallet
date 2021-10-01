@@ -3,7 +3,8 @@ import React from 'react';
 import './Inputs.scss';
 
 interface InputProps extends React.ComponentPropsWithRef<'input'> {
-    icon?: JSX.Element;
+    icon?: string;
+    iconClass?: string;
     label?: string;
     description?: string;
     inputClass?: string;
@@ -11,7 +12,7 @@ interface InputProps extends React.ComponentPropsWithRef<'input'> {
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>((props, ref) => {
-    const { className, inputClass, label, icon, description, inputStyle = 'input', ...rest } = props;
+    const { className, inputClass, label, icon, iconClass, description, inputStyle = 'input', ...rest } = props;
 
     if (inputStyle === 'input') {
         return (
@@ -26,7 +27,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>((props, ref) => {
                         !rest.readOnly ? 'rounded-pill py-2 px-3' : 'read-only ps-2'
                     } ${inputClass}`}
                 >
-                    {icon}
+                    {icon && <img src={icon} className={iconClass} />}
                     <input ref={ref} className={`w-100 border-0`} {...rest} />
                 </div>
                 {description && <div className="form-text">{description}</div>}
