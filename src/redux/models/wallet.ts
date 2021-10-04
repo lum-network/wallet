@@ -3,31 +3,31 @@ import { createModel } from '@rematch/core';
 import { Window as KeplrWindow } from '@keplr-wallet/types';
 import { LumUtils, LumWalletFactory, LumWallet, LumConstants } from '@lum-network/sdk-javascript';
 
-import { Rewards, RootModel, Transaction } from '../../models';
+import { Rewards, RootModel, Transaction, Wallet } from '../../models';
 import { showErrorToast, showSuccessToast, WalletClient } from 'utils';
 
 interface SendPayload {
     to: string;
-    from: LumWallet;
+    from: Wallet;
     amount: string;
     memo: string;
 }
 
 interface DelegatePayload {
     validatorAddress: string;
-    from: LumWallet;
+    from: Wallet;
     amount: string;
     memo: string;
 }
 
 interface GetRewardPayload {
     validatorAddress: string;
-    from: LumWallet;
+    from: Wallet;
     memo: string;
 }
 
 interface RedelegatePayload {
-    from: LumWallet;
+    from: Wallet;
     memo: string;
     validatorSrcAddress: string;
     validatorDestAddress: string;
@@ -40,7 +40,7 @@ interface SignInKeystorePayload {
 }
 
 interface WalletState {
-    currentWallet: LumWallet | null;
+    currentWallet: Wallet | null;
     currentBalance: number;
     transactions: Transaction[];
     rewards: Rewards;
@@ -58,8 +58,18 @@ export const wallet = createModel<RootModel>()({
         },
     } as WalletState,
     reducers: {
-        signIn(state, wallet: LumWallet) {
-            state.currentWallet = wallet;
+        signIn(state, wallet: LumWallet, isExtensionImport?: boolean) {
+            state.currentWallet = {
+                useAccount: wallet.useAccount,
+                sign: wallet.sign,
+                signMessage: wallet.signMessage,
+                signTransaction: wallet.signTransaction,
+                signingMode: wallet.signingMode,
+                canChangeAccount: wallet.canChangeAccount,
+                getPublicKey: wallet.getPublicKey,
+                getAddress: wallet.getAddress,
+                isExtensionImport,
+            };
             return state;
         },
         setWalletData(state, data: { transactions?: Transaction[]; currentBalance?: number; rewards?: Rewards }) {
@@ -79,9 +89,6 @@ export const wallet = createModel<RootModel>()({
         },
     },
     effects: (dispatch) => ({
-        signInAsync(payload: LumWallet) {
-            dispatch.wallet.signIn(payload);
-        },
         async getWalletBalance(address: string) {
             const currentBalance = await WalletClient.getWalletBalance(address);
 
@@ -193,11 +200,11 @@ export const wallet = createModel<RootModel>()({
                     const offlineSigner = keplrWindow.getOfflineSigner(chainId);
                     LumWalletFactory.fromOfflineSigner(offlineSigner)
                         .then((wallet) => {
-                            dispatch.wallet.signIn(wallet);
+                            dispatch.wallet.signIn(wallet, true);
                             dispatch.wallet.reloadWalletInfos(wallet.getAddress());
                         })
                         .catch((e) => showErrorToast(e.message));
-                } catch {
+                } catch (e) {
                     showErrorToast('Failed to connect to Keplr wallet');
                     return;
                 }

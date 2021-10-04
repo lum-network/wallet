@@ -177,6 +177,10 @@ h1.display-5 {
     }
 }
 
+.on-top {
+    z-index: $zindex-popover;
+}
+
 @media (prefers-color-scheme: dark) {
     .auth-header > img,
     .scale-anim > img,

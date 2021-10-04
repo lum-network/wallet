@@ -22,6 +22,7 @@
         "extension": {
             "title": "Extension",
             "description": "Keplr interchain wallet",
+            "longDescription": "Keplr is a chrome extension to allow you to handle a wallet on multiple chain on the Cosmos environment  including the Lum Network",
             "info": "RECOMMENDED"
         },
         "hardware": {

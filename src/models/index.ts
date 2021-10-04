@@ -1,4 +1,4 @@
-import { LumTypes } from '@lum-network/sdk-javascript';
+import { LumTypes, LumWallet } from '@lum-network/sdk-javascript';
 import { Validator } from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
 import { Models } from '@rematch/core';
 import { staking } from '../redux/models/staking';
@@ -10,6 +10,10 @@ export interface RootModel extends Models<RootModel> {
 }
 
 export const reduxModels: RootModel = { wallet, staking };
+
+export interface Wallet extends LumWallet {
+    isExtensionImport?: boolean;
+}
 
 export interface CommonTransactionProps {
     type: string;
@@ -55,8 +59,17 @@ export enum PasswordStrengthType {
 
 export type PasswordStrength = PasswordStrengthType.Weak | PasswordStrengthType.Medium | PasswordStrengthType.Strong;
 
-export enum SoftwareType {
+export enum SoftwareMethod {
     Mnemonic = 'mnemonic',
     PrivateKey = 'privateKey',
     Keystore = 'keystore',
+}
+
+export enum ExtensionMethod {
+    Keplr = 'keplr',
+}
+
+export enum HardwareMethod {
+    Ledger = 'ledger',
+    Lum = 'lumapp',
 }

@@ -159,9 +159,15 @@ const Message = (): JSX.Element => {
                                         payload, the receiver will be able to verify that your wallet address signed
                                         this message.
                                     </div>
+                                    {wallet.isExtensionImport && (
+                                        <div className="mb-3 not-recommended">
+                                            SIGN MESSAGE IS DISABLED FOR EXTENSION WALLETS FOR NOW
+                                        </div>
+                                    )}
                                     <div>
                                         <h4 className="mb-3">Message</h4>
                                         <textarea
+                                            disabled={wallet.isExtensionImport}
                                             className="w-100 p-2"
                                             value={message}
                                             rows={10}

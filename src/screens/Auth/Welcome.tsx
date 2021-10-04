@@ -6,7 +6,7 @@ import { Modal as BSModal } from 'bootstrap';
 
 import { RootDispatch, RootState } from 'redux/store';
 
-import { Card, Modal, Button } from 'components';
+import { Modal, Button } from 'components';
 import Assets from 'assets';
 
 import './styles/Auth.scss';
@@ -15,18 +15,26 @@ import AuthLayout from './components/AuthLayout';
 import ImportMnemonicModal from './components/ImportMnemonicModal';
 import ImportPrivateKeyModal from './components/ImportPrivateKeyModal';
 import ImportKeystoreModal from './components/ImportKeystoreModal';
-import { SoftwareType } from 'models';
+import { ExtensionMethod, HardwareMethod, SoftwareMethod } from 'models';
 import { useRematchDispatch } from 'redux/hooks';
+import ImportButton from './components/ImportButton';
+
+interface ImportType {
+    type: 'software' | 'extension' | 'hardware';
+    method: SoftwareMethod | HardwareMethod | ExtensionMethod | null;
+}
 
 const Welcome = (): JSX.Element => {
     // State
-    const [selectedMethod, setSelectedMethod] = useState<SoftwareType | null>(null);
+    const [selectedMethod, setSelectedMethod] = useState<ImportType | null>(null);
     const [keystoreFileData, setKeystoreFileData] = useState<string | null>(null);
     const [importSoftwareModal, setImportSoftwareModal] = useState<BSModal | null>(null);
     const [softwareMethodModal, setSoftwareMethodModal] = useState<BSModal | null>(null);
 
     // Redux hooks
     const wallet = useSelector((state: RootState) => state.wallet.currentWallet);
+    const isSigningWithKeplr = useSelector((state: RootState) => state.loading.effects.wallet.signInWithKeplrAsync);
+
     const { signInWithKeplr } = useRematchDispatch((dispatch: RootDispatch) => ({
         signInWithKeplr: dispatch.wallet.signInWithKeplrAsync,
     }));
@@ -41,10 +49,16 @@ const Welcome = (): JSX.Element => {
 
     // Callbacks
     const importSoftwareModalHandler = useCallback(() => {
-        if (softwareMethodModal && ((selectedMethod === SoftwareType.Keystore && keystoreFileData) || selectedMethod)) {
+        if (
+            softwareMethodModal &&
+            selectedMethod &&
+            !isSigningWithKeplr &&
+            ((selectedMethod.method && selectedMethod.method === SoftwareMethod.Keystore && keystoreFileData) ||
+                selectedMethod.method)
+        ) {
             softwareMethodModal.show();
         }
-    }, [softwareMethodModal, selectedMethod, keystoreFileData]);
+    }, [softwareMethodModal, selectedMethod, keystoreFileData, isSigningWithKeplr]);
 
     // Effects
     useEffect(() => {
@@ -77,95 +91,163 @@ const Welcome = (): JSX.Element => {
             if (softwareMethodModal) {
                 softwareMethodModal.dispose();
             }
+            if (importSoftwareModal) {
+                importSoftwareModal.dispose();
+            }
         }
-    }, [softwareMethodModal, wallet]);
+    }, [softwareMethodModal, importSoftwareModal, wallet]);
 
-    // SOFTWARE IMPORT MODAL
-    const importSoftwareModalContent = (
-        <Modal
-            id="importSoftwareModal"
-            ref={importSoftwareModalRef}
-            onCloseButtonPress={() => setSelectedMethod(null)}
-            bodyClassName="px-4"
-            contentClassName="px-3 import-modal-content"
-        >
-            <p className="not-recommended">{t('welcome.softwareModal.notRecommended')}</p>
-            <h3 className="mt-4">{t('welcome.softwareModal.title')}</h3>
-            <p className="auth-paragraph">{t('welcome.softwareModal.notRecommendedDescription')}</p>
-            <div className="d-flex flex-column my-4">
-                <button
-                    type="button"
-                    onClick={() => setSelectedMethod(SoftwareType.Keystore)}
-                    className={`import-software-btn ${selectedMethod === SoftwareType.Keystore && 'selected'}`}
-                >
-                    <div className="d-flex align-items-center justify-content-center">
-                        <img src={Assets.images.softwareIcon} height="28" className="me-3" />
-                        {t('welcome.softwareModal.types.keystore')}
-                    </div>
-                </button>
-                <button
-                    type="button"
-                    onClick={() => setSelectedMethod(SoftwareType.Mnemonic)}
-                    className={`import-software-btn my-4 ${selectedMethod === SoftwareType.Mnemonic && 'selected'}`}
-                >
-                    <div className="d-flex align-items-center justify-content-center">
-                        <img src={Assets.images.bubbleIcon} height="28" className="me-3" />
-                        {t('welcome.softwareModal.types.mnemonic')}
-                    </div>
-                </button>
-                <button
-                    type="button"
-                    onClick={() => setSelectedMethod(SoftwareType.PrivateKey)}
-                    className={`import-software-btn ${selectedMethod === SoftwareType.PrivateKey && 'selected'}`}
-                >
-                    <div className="d-flex align-items-center justify-content-center">
-                        <img src={Assets.images.keyIcon} height="28" className="me-3" />
-                        {t('welcome.softwareModal.types.privateKey')}
-                    </div>
-                </button>
-            </div>
-            <p className="auth-paragraph">{t('welcome.softwareModal.description')}</p>
-            <Button
-                type="button"
-                disabled={!selectedMethod}
-                onClick={() => {
-                    if (selectedMethod === SoftwareType.Keystore) {
-                        if (keystoreInputRef.current) {
-                            keystoreInputRef.current.click();
-                        }
-                    } else {
-                        importSoftwareModal?.hide();
-                    }
-                }}
-                className="my-4 w-100"
-            >
-                {t('common.continue')}
-            </Button>
-            {selectedMethod === SoftwareType.Keystore && (
-                <input
-                    id="keystore-input"
-                    ref={keystoreInputRef}
-                    type="file"
-                    hidden
-                    accept=".json"
-                    onChange={(event) => {
-                        if (event.target.files && event.target.files.length > 0) {
-                            event.target.files[0].text().then((data) => {
-                                setKeystoreFileData(data);
+    const renderImportTypeModal = () => {
+        if (!selectedMethod) {
+            return null;
+        }
+
+        switch (selectedMethod.type) {
+            case 'software':
+                return (
+                    <>
+                        <p className="not-recommended">{t('welcome.softwareModal.notRecommended')}</p>
+                        <h3 className="mt-4">{t('welcome.softwareModal.title')}</h3>
+                        <p className="auth-paragraph">{t('welcome.softwareModal.notRecommendedDescription')}</p>
+                        <div className="d-flex flex-column my-4">
+                            <button
+                                type="button"
+                                onClick={() => setSelectedMethod({ type: 'software', method: SoftwareMethod.Keystore })}
+                                className={`import-software-btn ${
+                                    selectedMethod?.method === SoftwareMethod.Keystore && 'selected'
+                                }`}
+                            >
+                                <div className="d-flex align-items-center justify-content-center">
+                                    <img src={Assets.images.softwareIcon} height="28" className="me-3" />
+                                    {t('welcome.softwareModal.types.keystore')}
+                                </div>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setSelectedMethod({ type: 'software', method: SoftwareMethod.Mnemonic })}
+                                className={`import-software-btn my-4 ${
+                                    selectedMethod?.method === SoftwareMethod.Mnemonic && 'selected'
+                                }`}
+                            >
+                                <div className="d-flex align-items-center justify-content-center">
+                                    <img src={Assets.images.bubbleIcon} height="28" className="me-3" />
+                                    {t('welcome.softwareModal.types.mnemonic')}
+                                </div>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    setSelectedMethod({ type: 'software', method: SoftwareMethod.PrivateKey })
+                                }
+                                className={`import-software-btn ${
+                                    selectedMethod?.method === SoftwareMethod.PrivateKey && 'selected'
+                                }`}
+                            >
+                                <div className="d-flex align-items-center justify-content-center">
+                                    <img src={Assets.images.keyIcon} height="28" className="me-3" />
+                                    {t('welcome.softwareModal.types.privateKey')}
+                                </div>
+                            </button>
+                        </div>
+                        <p className="auth-paragraph">{t('welcome.softwareModal.description')}</p>
+                        <Button
+                            type="button"
+                            disabled={!selectedMethod.method}
+                            onClick={() => {
+                                if (selectedMethod?.method === SoftwareMethod.Keystore) {
+                                    if (keystoreInputRef.current) {
+                                        keystoreInputRef.current.click();
+                                    }
+                                } else {
+                                    importSoftwareModal?.hide();
+                                }
+                            }}
+                            className="my-4 w-100"
+                        >
+                            {t('common.continue')}
+                        </Button>
+                        {selectedMethod?.method === SoftwareMethod.Keystore && (
+                            <input
+                                id="keystore-input"
+                                ref={keystoreInputRef}
+                                type="file"
+                                hidden
+                                accept=".json"
+                                onChange={(event) => {
+                                    if (event.target.files && event.target.files.length > 0) {
+                                        event.target.files[0].text().then((data) => {
+                                            setKeystoreFileData(data);
+                                            importSoftwareModal?.hide();
+                                        });
+                                    }
+                                }}
+                            />
+                        )}
+                    </>
+                );
+            case 'extension':
+                return (
+                    <>
+                        <p className="recommended">{t('welcome.extension.info')}</p>
+                        <h3 className="mt-4">{t('welcome.softwareModal.title')}</h3>
+                        <p className="auth-paragraph mb-2">{t('welcome.extension.longDescription')}</p>
+                        <div className="d-flex flex-column my-4">
+                            <button
+                                type="button"
+                                onClick={() => setSelectedMethod({ type: 'extension', method: ExtensionMethod.Keplr })}
+                                className={`import-software-btn ${
+                                    selectedMethod?.method === ExtensionMethod.Keplr && 'selected'
+                                }`}
+                            >
+                                <div className="d-flex align-items-center justify-content-center">
+                                    <img src={Assets.images.softwareIcon} height="28" className="me-3" />
+                                    Keplr extension
+                                </div>
+                            </button>
+                        </div>
+                        <Button
+                            type="button"
+                            disabled={!selectedMethod.method}
+                            onClick={() => {
+                                if (
+                                    selectedMethod &&
+                                    selectedMethod.method &&
+                                    selectedMethod.method === ExtensionMethod.Keplr
+                                ) {
+                                    signInWithKeplr();
+                                }
                                 importSoftwareModal?.hide();
-                            });
-                        }
-                    }}
-                />
-            )}
-        </Modal>
-    );
+                            }}
+                            className="my-4 w-100"
+                        >
+                            {t('common.continue')}
+                        </Button>
+                    </>
+                );
+            case 'hardware':
+            default:
+                return <h2>Coming Soon...</h2>;
+        }
+    };
 
-    const importHardwareModalContent = (
-        <Modal id="importHardwareModal" bodyClassName="p-5">
-            <h2>Coming Soon...</h2>
-        </Modal>
-    );
+    const renderSoftwareImportModalContent = () => {
+        if (!selectedMethod || (selectedMethod && selectedMethod.type !== 'software')) {
+            return null;
+        }
+
+        switch (selectedMethod.method) {
+            case SoftwareMethod.Mnemonic:
+                return <ImportMnemonicModal />;
+            case SoftwareMethod.PrivateKey:
+                return <ImportPrivateKeyModal />;
+            case SoftwareMethod.Keystore:
+                return keystoreFileData ? (
+                    <ImportKeystoreModal fileData={keystoreFileData} onSubmit={() => softwareMethodModal?.hide()} />
+                ) : (
+                    <div />
+                );
+        }
+    };
 
     if (wallet) {
         return <Redirect to="/home" />;
@@ -180,73 +262,39 @@ const Welcome = (): JSX.Element => {
                     </div>
                     <div className="row justify-content-center gy-4">
                         <div className="col-12 col-lg-3">
-                            <a
-                                role="button"
-                                className="text-reset text-decoration-none"
-                                onClick={() => {
-                                    signInWithKeplr();
-                                }}
-                            >
-                                <Card className="auth-card scale-anim text-center btn-padding h-100 w-100">
-                                    <img
-                                        src={Assets.images.extensionIcon}
-                                        className="img-fluid mb-3"
-                                        alt="Harware Icon"
-                                        width="90"
-                                        height="90"
-                                    />
-                                    <h3 className="mt-4">{t('welcome.extension.title')}</h3>
-                                    <p className="auth-paragraph">{t('welcome.extension.description')}</p>
-                                    <br />
-                                    <p className="recommended">{t('welcome.extension.info')}</p>
-                                </Card>
-                            </a>
+                            <ImportButton
+                                method="extension"
+                                disabled={isSigningWithKeplr}
+                                title={t('welcome.extension.title')}
+                                description={t('welcome.extension.description')}
+                                note={t('welcome.extension.info')}
+                                icon={Assets.images.extensionIcon}
+                                onClick={() => setSelectedMethod({ type: 'extension', method: null })}
+                            />
                         </div>
                         <div className="col-12 col-lg-3">
-                            <a
-                                role="button"
-                                data-bs-toggle="modal"
-                                data-bs-target="#importHardwareModal"
-                                className="text-reset text-decoration-none"
-                            >
-                                <Card className="auth-card scale-anim text-center btn-padding h-100 w-100">
-                                    <img
-                                        src={Assets.images.hardwareIcon}
-                                        className="img-fluid mb-3"
-                                        alt="Harware Icon"
-                                        width="90"
-                                        height="90"
-                                    />
-                                    <h3 className="mt-4">{t('welcome.hardware.title')}</h3>
-                                    <p className="auth-paragraph">{t('welcome.hardware.description')}</p>
-                                    <br />
-                                    <p className="auth-paragraph">COMING SOON</p>
-                                </Card>
-                            </a>
+                            <ImportButton
+                                method="hardware"
+                                disabled={isSigningWithKeplr}
+                                title={t('welcome.hardware.title')}
+                                description={t('welcome.hardware.description')}
+                                note="COMING SOON"
+                                icon={Assets.images.hardwareIcon}
+                                onClick={() => setSelectedMethod({ type: 'hardware', method: null })}
+                            />
                         </div>
                         <div className="col-12 col-lg-3">
-                            <Button
-                                buttonType="custom"
-                                onClick={() => {
-                                    setSelectedMethod(null);
-                                    importSoftwareModal?.show();
-                                }}
-                                className="h-100 w-100 text-reset text-decoration-none"
-                            >
-                                <Card className="auth-card scale-anim text-center btn-padding h-100 w-100">
-                                    <img
-                                        src={Assets.images.softwareIcon}
-                                        className="img-fluid mb-4"
-                                        alt="Software Icon"
-                                        width="57"
-                                        height="76"
-                                    />
-                                    <h3 className="mt-4">{t('welcome.software.title')}</h3>
-                                    <p className="auth-paragraph">{t('welcome.software.description')}</p>
-                                    <br />
-                                    <p className="not-recommended">{t('welcome.softwareModal.notRecommended')}</p>
-                                </Card>
-                            </Button>
+                            <ImportButton
+                                method="software"
+                                disabled={isSigningWithKeplr}
+                                title={t('welcome.software.title')}
+                                description={t('welcome.software.description')}
+                                note={t('welcome.softwareModal.notRecommended')}
+                                icon={Assets.images.softwareIcon}
+                                iconWidth="57"
+                                iconHeight="76"
+                                onClick={() => setSelectedMethod({ type: 'software', method: null })}
+                            />
                         </div>
                         <div className="col-12 col-lg-3">
                             <Link to="/create" className="text-reset text-decoration-none">
@@ -261,15 +309,19 @@ const Welcome = (): JSX.Element => {
                     </div>
                 </div>
             </AuthLayout>
-            {importSoftwareModalContent}
-            {importHardwareModalContent}
-            <Modal id="softwareMethodModal" ref={softwareMethodModalRef}>
-                {selectedMethod === SoftwareType.Mnemonic && <ImportMnemonicModal />}
-                {selectedMethod === SoftwareType.PrivateKey && <ImportPrivateKeyModal />}
-                {selectedMethod === SoftwareType.Keystore && keystoreFileData && (
-                    <ImportKeystoreModal fileData={keystoreFileData} onSubmit={() => softwareMethodModal?.hide()} />
-                )}
+            <Modal
+                id="importSoftwareModal"
+                ref={importSoftwareModalRef}
+                onCloseButtonPress={() => setSelectedMethod(null)}
+                bodyClassName="px-4"
+                contentClassName="px-3 import-modal-content"
+            >
+                {renderImportTypeModal()}
             </Modal>
+            <Modal id="softwareMethodModal" ref={softwareMethodModalRef}>
+                {renderSoftwareImportModalContent()}
+            </Modal>
+            {isSigningWithKeplr && <div className="w-100 h-100 position-absolute opacity-50 bg-black on-top" />}
         </>
     );
 };

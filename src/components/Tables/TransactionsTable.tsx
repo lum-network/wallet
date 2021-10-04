@@ -4,19 +4,19 @@ import { Namespace, Resources, TFunction, useTranslation } from 'react-i18next';
 
 import { Table } from 'frontend-elements';
 import { LUM_EXPLORER } from 'constant';
-import { Transaction } from 'models';
+import { Transaction, Wallet } from 'models';
 import { NumbersUtils, trunc } from 'utils';
-import { LumConstants, LumWallet } from '@lum-network/sdk-javascript';
+import { LumConstants } from '@lum-network/sdk-javascript';
 import { SmallerDecimal, TransactionTypeBadge } from 'components';
 
 interface TransactionsTableProps {
     transactions: Transaction[];
-    wallet: LumWallet;
+    wallet: Wallet;
 }
 
 interface RowProps {
     row: Transaction;
-    wallet: LumWallet;
+    wallet: Wallet;
     t: TFunction<Namespace<keyof Resources>>;
 }
 

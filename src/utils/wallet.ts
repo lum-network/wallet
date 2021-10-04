@@ -1,14 +1,6 @@
-import {
-    LumClient,
-    LumConstants,
-    LumMessages,
-    LumRegistry,
-    LumTypes,
-    LumUtils,
-    LumWallet,
-} from '@lum-network/sdk-javascript';
+import { LumClient, LumConstants, LumMessages, LumRegistry, LumTypes, LumUtils } from '@lum-network/sdk-javascript';
 import { TxResponse } from '@cosmjs/tendermint-rpc';
-import { PasswordStrengthType, PasswordStrength, Transaction } from 'models';
+import { PasswordStrengthType, PasswordStrength, Transaction, Wallet } from 'models';
 import { dateFromNow, showErrorToast } from 'utils';
 
 export type MnemonicLength = 12 | 24;
@@ -134,7 +126,7 @@ export const formatTxs = async (rawTxs: TxResponse[], client: LumClient): Promis
     return formattedTxs;
 };
 
-export const generateSignedMessage = async (wallet: LumWallet, message: string): Promise<LumTypes.SignMsg> => {
+export const generateSignedMessage = async (wallet: Wallet, message: string): Promise<LumTypes.SignMsg> => {
     return await wallet.signMessage(message);
 };
 
@@ -151,7 +143,7 @@ class WalletClient {
             .catch(() => showErrorToast('Unable to connect to the blockchain'));
     };
 
-    private getAccountAndChainId = (fromWallet: LumWallet) => {
+    private getAccountAndChainId = (fromWallet: Wallet) => {
         if (this.lumClient === null) {
             return;
         }
@@ -215,7 +207,7 @@ class WalletClient {
         return await this.lumClient.queryClient.distribution.delegationTotalRewards(address);
     };
 
-    sendTx = async (fromWallet: LumWallet, toAddress: string, lumAmount: string, memo = '') => {
+    sendTx = async (fromWallet: Wallet, toAddress: string, lumAmount: string, memo = '') => {
         if (this.lumClient === null) {
             return null;
         }
@@ -280,7 +272,7 @@ class WalletClient {
         };
     };
 
-    delegate = async (fromWallet: LumWallet, validatorAddress: string, lumAmount: string, memo: string) => {
+    delegate = async (fromWallet: Wallet, validatorAddress: string, lumAmount: string, memo: string) => {
         if (this.lumClient === null) {
             return null;
         }
@@ -347,7 +339,7 @@ class WalletClient {
         };
     };
 
-    undelegate = async (fromWallet: LumWallet, validatorAddress: string, lumAmount: string, memo: string) => {
+    undelegate = async (fromWallet: Wallet, validatorAddress: string, lumAmount: string, memo: string) => {
         if (this.lumClient === null) {
             return null;
         }
@@ -413,7 +405,7 @@ class WalletClient {
         };
     };
 
-    getReward = async (fromWallet: LumWallet, validatorAddress: string, memo: string) => {
+    getReward = async (fromWallet: Wallet, validatorAddress: string, memo: string) => {
         if (this.lumClient === null) {
             return null;
         }
@@ -472,7 +464,7 @@ class WalletClient {
     };
 
     redelegate = async (
-        fromWallet: LumWallet,
+        fromWallet: Wallet,
         validatorScrAddress: string,
         validatorDestAddress: string,
         lumAmount: string,
