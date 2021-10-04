@@ -189,7 +189,7 @@ const Welcome = (): JSX.Element => {
                             >
                                 <Card className="auth-card scale-anim text-center btn-padding h-100 w-100">
                                     <img
-                                        src={Assets.images.cloudIcon}
+                                        src={Assets.images.extensionIcon}
                                         className="img-fluid mb-3"
                                         alt="Harware Icon"
                                         width="90"

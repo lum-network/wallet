@@ -3,6 +3,7 @@ import softwareIcon from './images/software.png';
 import addIcon from './images/add.png';
 import githubIcon from './images/github.png';
 import emailIcon from './images/email.png';
+import extensionIcon from './images/extension.svg';
 import telegramIcon from './images/telegram.png';
 import lumWallet from './images/lum_wallet.png';
 import lumWalletMauve from './images/lum_wallet_mauve.png';
@@ -42,6 +43,7 @@ export default {
         githubIcon,
         telegramIcon,
         emailIcon,
+        extensionIcon,
         lumWallet,
         lumWalletMauve,
         syncIcon,
