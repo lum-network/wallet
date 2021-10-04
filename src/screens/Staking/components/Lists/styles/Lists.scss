@@ -1,0 +1,82 @@
+@import 'main';
+
+.delegate-btn,
+.delegate-btn:hover {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px 15px;
+    position: relative;
+    background: linear-gradient(white, white) padding-box,
+        linear-gradient(to top, rgba(192, 113, 79, 1), rgba(253, 184, 134, 1)) border-box;
+    border: 1px solid transparent;
+    color: $color-primary;
+}
+
+tr:nth-child(odd) > td > .delegate-btn {
+    background: linear-gradient($color-striped, $color-striped) padding-box,
+        linear-gradient(to top, rgba(192, 113, 79, 1), rgba(253, 184, 134, 1)) border-box;
+}
+
+.validators-table {
+    overflow-y: visible !important;
+}
+
+.validators-search-input {
+    width: 264px;
+}
+
+.search-input {
+    box-shadow: inset 0px 3.42928px 5.14392px rgba(0, 0, 0, 0.05);
+}
+
+.search-input > input {
+    font-size: 10px;
+    margin-left: 0.5rem !important;
+}
+
+@include media-breakpoint-down(lg) {
+    .validators-table-row > td {
+        padding-top: 1.5rem !important;
+        padding-bottom: 1.5rem !important;
+    }
+    .validators-table > table.table thead {
+        display: none;
+    }
+
+    .validators-table > table.table tr {
+        display: block;
+        margin: 12px 0;
+    }
+
+    .validators-table > table.table td {
+        display: block;
+        text-align: right;
+        height: 40px;
+        padding-left: 24px !important;
+        padding-right: 24px !important;
+    }
+
+    .validators-table > table.table td:before {
+        content: attr(data-label);
+        float: left;
+        font-weight: $medium;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .validator-logo {
+        filter: brightness(0) invert(1);
+    }
+    .delegate-btn,
+    .delegate-btn:hover {
+        background: linear-gradient($color-primary, $color-primary) padding-box,
+            linear-gradient(to top, rgba(192, 113, 79, 1), rgba(253, 184, 134, 1)) border-box;
+        color: white;
+    }
+
+    tr:nth-child(odd) > td > .delegate-btn {
+        background: linear-gradient($color-dark-striped, $color-dark-striped) padding-box,
+            linear-gradient(to top, rgba(192, 113, 79, 1), rgba(253, 184, 134, 1)) border-box;
+    }
+}

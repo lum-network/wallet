@@ -6,4 +6,5 @@ export * as TransactionsUtils from './transactions';
 export * from './toasts';
 export * from './date';
 export * from './strings';
+export * from './staking';
 export * from './hooks';

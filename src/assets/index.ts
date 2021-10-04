@@ -22,6 +22,7 @@ import messageMauveIcon from './images/message_mauve.png';
 import dashboardIcon from './images/dashboard.png';
 import copyIcon from './images/copy.png';
 import qrIcon from './images/qr.png';
+import searchIcon from './images/search.svg';
 import lumTicker from './images/lum_ticker.png';
 import messageDelegate from './images/messageDelegate.svg';
 import messageCreateValidator from './images/messageCreateValidator.svg';
@@ -58,6 +59,7 @@ export default {
         messageMauveIcon,
         copyIcon,
         qrIcon,
+        searchIcon,
         lumTicker,
         logoutIcon,
         messageCreateValidator,

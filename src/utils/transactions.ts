@@ -14,10 +14,17 @@ import beamClaimLogo from 'assets/images/messageTypes/claimBeam.svg';
 
 import i18n from 'locales';
 
-export const getTxTypeInfos = (type: string): { name: string; icon: string } => {
+export const getTxTypeInfos = (
+    type: string,
+    userAddress: string,
+    toAddress: string,
+): { name: string; icon: string } => {
     switch (type) {
         case LumMessages.MsgSendUrl:
-            return { name: i18n.t('transactions.types.send'), icon: sendLogo };
+            return {
+                name: i18n.t(toAddress === userAddress ? 'transactions.types.receive' : 'transactions.types.send'),
+                icon: sendLogo,
+            };
         case LumMessages.MsgDelegateUrl:
             return { name: i18n.t('transactions.types.delegate'), icon: delegateLogo };
         case LumMessages.MsgUndelegateUrl:

@@ -1,12 +1,15 @@
 import { LumTypes } from '@lum-network/sdk-javascript';
+import { Validator } from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
 import { Models } from '@rematch/core';
+import { staking } from '../redux/models/staking';
 import { wallet } from '../redux/models/wallet';
 
 export interface RootModel extends Models<RootModel> {
     wallet: typeof wallet;
+    staking: typeof staking;
 }
 
-export const reduxModels: RootModel = { wallet };
+export const reduxModels: RootModel = { wallet, staking };
 
 export interface CommonTransactionProps {
     type: string;
@@ -27,6 +30,21 @@ export interface Transaction extends CommonTransactionProps {
 export interface StakingTransaction extends CommonTransactionProps {
     delegatorAddress: string;
     validatorAddress: string;
+}
+
+export interface Reward {
+    validatorAddress: string;
+    reward: LumTypes.Coin[];
+}
+
+export interface Rewards {
+    rewards: Reward[];
+    total: LumTypes.Coin[];
+}
+
+export interface UserValidator extends Validator {
+    reward: number;
+    stakedCoins: string;
 }
 
 export enum PasswordStrengthType {

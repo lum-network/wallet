@@ -80,6 +80,10 @@ const isStakingTxInfo = (
     return !!(info && info.validatorAddress && info.delegatorAddress && info.amount);
 };
 
+const alreadyExists = (array: Transaction[], value: Transaction) => {
+    return array.length === 0 ? false : array.findIndex((val) => val.hash === value.hash) > -1;
+};
+
 export const formatTxs = async (rawTxs: TxResponse[], client: LumClient): Promise<Transaction[]> => {
     const formattedTxs: Transaction[] = [];
 
@@ -94,18 +98,21 @@ export const formatTxs = async (rawTxs: TxResponse[], client: LumClient): Promis
                     const block = await client.getBlock(rawTx.height);
 
                     if (isSendTxInfo(txInfos)) {
-                        formattedTxs.push({
+                        const tx: Transaction = {
                             ...txInfos,
                             type: msg.typeUrl,
                             height: rawTx.height,
                             hash: LumUtils.toHex(rawTx.hash).toUpperCase(),
                             time: dateFromNow(block.block.header.time.getTime()),
-                        });
+                        };
+                        if (!alreadyExists(formattedTxs, tx)) {
+                            formattedTxs.push(tx);
+                        }
                     } else if (isStakingTxInfo(txInfos)) {
                         const fromAddress = txInfos.delegatorAddress;
                         const toAddress = txInfos.validatorAddress;
 
-                        formattedTxs.push({
+                        const tx: Transaction = {
                             fromAddress,
                             toAddress,
                             type: msg.typeUrl,
@@ -113,7 +120,11 @@ export const formatTxs = async (rawTxs: TxResponse[], client: LumClient): Promis
                             height: rawTx.height,
                             hash: LumUtils.toHex(rawTx.hash).toUpperCase(),
                             time: dateFromNow(block.block.header.time.getTime()),
-                        });
+                        };
+
+                        if (!alreadyExists(formattedTxs, tx)) {
+                            formattedTxs.push(tx);
+                        }
                     }
                 }
             }
@@ -148,40 +159,60 @@ class WalletClient {
         return Promise.all([this.lumClient.getAccount(fromWallet.getAddress()), this.lumClient.getChainId()]);
     };
 
-    getWalletInformations = async (address: string) => {
+    private getValidators = async () => {
+        if (this.lumClient === null) {
+            return null;
+        }
+        const { validators } = this.lumClient.queryClient.staking;
+
+        try {
+            const [bondedValidators, unbondedValidators] = await Promise.all([
+                validators('BOND_STATUS_BONDED'),
+                validators('BOND_STATUS_UNBONDED'),
+            ]);
+
+            return { bonded: bondedValidators.validators, unbonded: unbondedValidators.validators };
+        } catch (e) {
+            console.log(e);
+        }
+    };
+
+    getWalletBalance = async (address: string) => {
         if (this.lumClient === null) {
             return null;
         }
 
-        try {
-            const account = await this.lumClient.getAccount(address);
-            if (account === null) {
-                return null;
+        let currentBalance = 0;
+
+        const balances = await this.lumClient.getAllBalances(address);
+        if (balances.length > 0) {
+            for (const balance of balances) {
+                currentBalance += Number(LumUtils.convertUnit(balance, LumConstants.LumDenom));
             }
-            let currentBalance = 0;
-
-            this.lumClient
-                .getAllBalances(address)
-                .then((balances) => {
-                    if (balances.length > 0) {
-                        for (const balance of balances) {
-                            currentBalance += Number(LumUtils.convertUnit(balance, LumConstants.LumDenom));
-                        }
-                    }
-                })
-                .catch((e) => console.log(e));
-
-            const transactions = await this.lumClient.searchTx([
-                LumUtils.searchTxByTags([{ key: 'transfer.recipient', value: address }]),
-                LumUtils.searchTxByTags([{ key: 'transfer.sender', value: address }]),
-            ]);
-
-            const formattedTxs = await formatTxs(transactions, this.lumClient);
-
-            return { ...account, currentBalance, transactions: formattedTxs };
-        } catch (e) {
-            console.log(e);
         }
+
+        return currentBalance;
+    };
+
+    getTransactions = async (address: string) => {
+        if (this.lumClient === null) {
+            return null;
+        }
+
+        const transactions = await this.lumClient.searchTx([
+            LumUtils.searchTxByTags([{ key: 'transfer.recipient', value: address }]),
+            LumUtils.searchTxByTags([{ key: 'transfer.sender', value: address }]),
+        ]);
+
+        return await formatTxs(transactions, this.lumClient);
+    };
+
+    getRewards = async (address: string) => {
+        if (this.lumClient === null) {
+            return null;
+        }
+
+        return await this.lumClient.queryClient.distribution.delegationTotalRewards(address);
     };
 
     sendTx = async (fromWallet: LumWallet, toAddress: string, lumAmount: string, memo = '') => {
@@ -357,7 +388,6 @@ class WalletClient {
             fee,
             memo,
             messages: [undelegateMsg],
-
             signers: [
                 {
                     accountNumber,
@@ -517,6 +547,55 @@ class WalletClient {
                     : broadcastResult.checkTx.log
                 : null,
         };
+    };
+
+    getValidatorsInfos = async (address: string) => {
+        if (!this.lumClient) {
+            return null;
+        }
+
+        try {
+            const validators = await this.getValidators();
+
+            const [delegation, unbonding] = await Promise.all([
+                this.lumClient.queryClient.staking.delegatorDelegations(address),
+                this.lumClient.queryClient.staking.delegatorUnbondingDelegations(address),
+            ]);
+
+            const delegations = delegation.delegationResponses;
+            const unbondings = unbonding.unbondingResponses;
+
+            let unbondedTokens = 0;
+            let stakedCoins = 0;
+
+            for (const delegation of delegations) {
+                if (delegation.balance) {
+                    stakedCoins += Number(LumUtils.convertUnit(delegation.balance, LumConstants.LumDenom));
+                }
+            }
+
+            for (const unbonding of unbondings) {
+                for (const entry of unbonding.entries) {
+                    unbondedTokens += Number(
+                        LumUtils.convertUnit(
+                            { amount: entry.balance, denom: LumConstants.MicroLumDenom },
+                            LumConstants.LumDenom,
+                        ),
+                    );
+                }
+            }
+
+            return {
+                bonded: validators?.bonded || [],
+                unbonded: validators?.unbonded || [],
+                delegations,
+                unbondings,
+                stakedCoins,
+                unbondedTokens,
+            };
+        } catch (e) {
+            console.error(e);
+        }
     };
 }
 

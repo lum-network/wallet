@@ -79,6 +79,7 @@
         },
         "types": {
             "send": "Send",
+            "receive": "Receive",
             "delegate": "Delegate",
             "undelegate": "Undelegate",
             "claimBeam": "Claim Beam",
@@ -120,5 +121,30 @@
         "staking": "Staking",
         "message": "Messages",
         "logout": "Logout"
+    },
+    "staking": {
+        "stakedCoins": "Staked Coins",
+        "unbondedTokens": "Unbonded Tokens",
+        "rewards": "Rewards",
+        "myValidators": {
+            "title": "My validators",
+            "empty": "No delegations yet"
+        },
+        "availableValidators": {
+            "title": "Available validators",
+            "empty": "No available validators yet",
+            "emptySearch": "No available validator found with \"{{searchText}}\""
+        },
+        "tableLabels": {
+            "rank": "Rank",
+            "uptime": "Uptime",
+            "validator": "Validator",
+            "status": "Status",
+            "votingPower": "Voting Power",
+            "commission": "Commission",
+            "stakedCoins": "Staked Coins",
+            "rewards": "Rewards"
+        },
+        "status": ["Unspecified", "Unbonded", "Unbonding", "Bonded"]
     }
 }

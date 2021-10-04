@@ -1,0 +1,19 @@
+.staked-coins-card {
+    background: linear-gradient(33.31deg, #c0714f -8.93%, #fdb886 62.32%);
+}
+
+.unbonded-tokens-card {
+    background: linear-gradient(33.31deg, #979796 -8.93%, #cdcdcd 17.64%, #dedede 41.76%, #cccccc 62.32%);
+}
+
+.rewards-card {
+    background: #47ce5d;
+}
+
+.claim-reward-btn {
+    background-color: white;
+    color: #47ce5d;
+    &:hover {
+        color: #47ce5d;
+    }
+}

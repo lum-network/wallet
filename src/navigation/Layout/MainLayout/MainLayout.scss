@@ -230,13 +230,4 @@ a:focus {
     .logout-modal-title {
         color: $color-white;
     }
-
-    .dropdown-menu {
-        background-color: $color-primary !important;
-    }
-    .dropdown-item {
-        &:hover {
-            background-color: #000 !important;
-        }
-    }
 }

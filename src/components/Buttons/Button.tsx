@@ -1,13 +1,15 @@
+import { Loading } from 'frontend-elements';
 import React from 'react';
 
 import './Buttons.scss';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     buttonType?: 'custom' | 'normal';
+    isLoading?: boolean;
 }
 
 const Button = (props: ButtonProps): JSX.Element => {
-    const { children, className, buttonType = 'normal', ...rest } = props;
+    const { children, className, isLoading, buttonType = 'normal', ...rest } = props;
 
     return (
         <button
@@ -18,7 +20,7 @@ const Button = (props: ButtonProps): JSX.Element => {
                     : 'scale-anim'
             } ${className}`}
         >
-            {children}
+            {isLoading ? <Loading /> : children}
         </button>
     );
 };
