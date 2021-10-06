@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { Link, Redirect } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Modal as BSModal } from 'bootstrap';
+import { Window as KeplrWindow } from '@keplr-wallet/types';
 
 import { RootDispatch, RootState } from 'redux/store';
 
@@ -101,6 +102,8 @@ const Welcome = (): JSX.Element => {
         if (!selectedMethod) {
             return null;
         }
+
+        const isKeplrInstalled = !!(window as KeplrWindow).getOfflineSigner && !!(window as KeplrWindow).keplr;
 
         switch (selectedMethod.type) {
             case 'software':
@@ -205,9 +208,12 @@ const Welcome = (): JSX.Element => {
                                 </div>
                             </button>
                         </div>
+                        {!isKeplrInstalled && (
+                            <p className="not-recommended">You have to install Keplr extension first</p>
+                        )}
                         <Button
                             type="button"
-                            disabled={!selectedMethod.method}
+                            disabled={!selectedMethod.method || !isKeplrInstalled}
                             onClick={() => {
                                 if (
                                     selectedMethod &&
@@ -312,7 +318,7 @@ const Welcome = (): JSX.Element => {
             <Modal
                 id="importSoftwareModal"
                 ref={importSoftwareModalRef}
-                onCloseButtonPress={() => setSelectedMethod(null)}
+                onCloseButtonPress={() => setTimeout(() => setSelectedMethod(null), 300)}
                 bodyClassName="px-4"
                 contentClassName="px-3 import-modal-content"
             >
