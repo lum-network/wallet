@@ -134,17 +134,11 @@ export const wallet = createModel<RootModel>()({
                         chainId: chainId,
                         chainName: chainId.includes('testnet') ? 'Lum Network [Test]' : 'Lum Network',
                         rpc: process.env.REACT_APP_RPC_URL,
-                        // TODO:
-                        // this should come from the environment settings
                         rest: 'https://node0.testnet.lum.network/rest',
                         stakeCurrency: {
                             coinDenom: LumConstants.LumDenom.toUpperCase(),
                             coinMinimalDenom: LumConstants.MicroLumDenom,
                             coinDecimals: LumConstants.LumExponent,
-                            // TODO:
-                            // (Optional) Keplr can show the fiat value of the coin if a coingecko id is provided.
-                            // You can get id from https://api.coingecko.com/api/v3/coins/list if it is listed.
-                            // coinGeckoId: ""
                         },
                         walletUrlForStaking: 'https://wallet.lum.network', // TODO: should be in constants
                         bip44: {
@@ -163,10 +157,6 @@ export const wallet = createModel<RootModel>()({
                                 coinDenom: LumConstants.LumDenom.toUpperCase(),
                                 coinMinimalDenom: LumConstants.MicroLumDenom,
                                 coinDecimals: LumConstants.LumExponent,
-                                // TODO:
-                                // (Optional) Keplr can show the fiat value of the coin if a coingecko id is provided.
-                                // You can get id from https://api.coingecko.com/api/v3/coins/list if it is listed.
-                                // coinGeckoId: ""
                             },
                         ],
                         // List of coin/tokens used as a fee token in this chain.
@@ -175,14 +165,9 @@ export const wallet = createModel<RootModel>()({
                                 coinDenom: LumConstants.LumDenom.toUpperCase(),
                                 coinMinimalDenom: LumConstants.MicroLumDenom,
                                 coinDecimals: LumConstants.LumExponent,
-                                // TODO:
-                                // (Optional) Keplr can show the fiat value of the coin if a coingecko id is provided.
-                                // You can get id from https://api.coingecko.com/api/v3/coins/list if it is listed.
-                                // coinGeckoId: ""
                             },
                         ],
                         coinType: 837,
-                        // TODO: to improve and set to appropriate amounts
                         gasPriceStep: {
                             low: 0.01,
                             average: 0.025,
