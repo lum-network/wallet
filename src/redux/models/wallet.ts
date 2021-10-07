@@ -140,7 +140,7 @@ export const wallet = createModel<RootModel>()({
                             coinMinimalDenom: LumConstants.MicroLumDenom,
                             coinDecimals: LumConstants.LumExponent,
                         },
-                        walletUrlForStaking: 'https://wallet.lum.network', // TODO: should be in constants
+                        walletUrlForStaking: 'https://wallet.lum.network',
                         bip44: {
                             coinType: 837,
                         },
