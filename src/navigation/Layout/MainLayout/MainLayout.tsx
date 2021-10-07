@@ -9,6 +9,7 @@ import { Footer, Modal, Button } from 'components';
 
 import './MainLayout.scss';
 import { IS_TESTNET } from 'utils/wallet';
+import { showInfoToast } from 'utils';
 
 interface IProps {
     children: React.ReactNode;
@@ -24,6 +25,15 @@ type StateProps = ReturnType<typeof mapState>;
 type Props = IProps & StateProps & WithTranslation;
 
 class MainLayout extends PureComponent<Props> {
+    componentDidMount() {
+        window.addEventListener('keplr_keystorechange', () => {
+            if (this.props.wallet && this.props.wallet.isExtensionImport) {
+                showInfoToast('Keplr Key store/account has changed, you have been logged out');
+                store.dispatch({ type: LOGOUT });
+            }
+        });
+    }
+
     renderNavbar(bottom?: boolean) {
         const { t } = this.props;
 

@@ -1,31 +1,33 @@
-import { LumUtils, LumWalletFactory, LumWallet } from '@lum-network/sdk-javascript';
-import { createModel } from '@rematch/core';
-import { Rewards, RootModel, Transaction } from '../../models';
-import { showErrorToast, showSuccessToast, WalletClient } from 'utils';
 import axios from 'axios';
+import { createModel } from '@rematch/core';
+import { Window as KeplrWindow } from '@keplr-wallet/types';
+import { LumUtils, LumWalletFactory, LumWallet, LumConstants } from '@lum-network/sdk-javascript';
+
+import { Rewards, RootModel, Transaction, Wallet } from '../../models';
+import { showErrorToast, showSuccessToast, WalletClient } from 'utils';
 
 interface SendPayload {
     to: string;
-    from: LumWallet;
+    from: Wallet;
     amount: string;
     memo: string;
 }
 
 interface DelegatePayload {
     validatorAddress: string;
-    from: LumWallet;
+    from: Wallet;
     amount: string;
     memo: string;
 }
 
 interface GetRewardPayload {
     validatorAddress: string;
-    from: LumWallet;
+    from: Wallet;
     memo: string;
 }
 
 interface RedelegatePayload {
-    from: LumWallet;
+    from: Wallet;
     memo: string;
     validatorSrcAddress: string;
     validatorDestAddress: string;
@@ -38,7 +40,7 @@ interface SignInKeystorePayload {
 }
 
 interface WalletState {
-    currentWallet: LumWallet | null;
+    currentWallet: Wallet | null;
     currentBalance: number;
     transactions: Transaction[];
     rewards: Rewards;
@@ -56,8 +58,18 @@ export const wallet = createModel<RootModel>()({
         },
     } as WalletState,
     reducers: {
-        signIn(state, wallet: LumWallet) {
-            state.currentWallet = wallet;
+        signIn(state, wallet: LumWallet, isExtensionImport?: boolean) {
+            state.currentWallet = {
+                useAccount: wallet.useAccount,
+                sign: wallet.sign,
+                signMessage: wallet.signMessage,
+                signTransaction: wallet.signTransaction,
+                signingMode: wallet.signingMode,
+                canChangeAccount: wallet.canChangeAccount,
+                getPublicKey: wallet.getPublicKey,
+                getAddress: wallet.getAddress,
+                isExtensionImport,
+            };
             return state;
         },
         setWalletData(state, data: { transactions?: Transaction[]; currentBalance?: number; rewards?: Rewards }) {
@@ -77,9 +89,6 @@ export const wallet = createModel<RootModel>()({
         },
     },
     effects: (dispatch) => ({
-        signInAsync(payload: LumWallet) {
-            dispatch.wallet.signIn(payload);
-        },
         async getWalletBalance(address: string) {
             const currentBalance = await WalletClient.getWalletBalance(address);
 
@@ -107,6 +116,84 @@ export const wallet = createModel<RootModel>()({
                 dispatch.wallet.getTransactions(address),
                 dispatch.wallet.getRewards(address),
             ]);
+        },
+        async signInWithKeplrAsync() {
+            const keplrWindow = window as KeplrWindow;
+            if (!keplrWindow.getOfflineSigner || !keplrWindow.keplr) {
+                showErrorToast('Please install keplr extension');
+            } else if (!keplrWindow.keplr.experimentalSuggestChain) {
+                showErrorToast('Please use and up to date version of the Keplr extension');
+            } else {
+                const chainId = await WalletClient.lumClient?.getChainId();
+                if (!chainId) {
+                    showErrorToast('Failed to connect to the network');
+                    return;
+                }
+                try {
+                    await keplrWindow.keplr.experimentalSuggestChain({
+                        chainId: chainId,
+                        chainName: chainId.includes('testnet') ? 'Lum Network [Test]' : 'Lum Network',
+                        rpc: process.env.REACT_APP_RPC_URL,
+                        rest: 'https://node0.testnet.lum.network/rest',
+                        stakeCurrency: {
+                            coinDenom: LumConstants.LumDenom.toUpperCase(),
+                            coinMinimalDenom: LumConstants.MicroLumDenom,
+                            coinDecimals: LumConstants.LumExponent,
+                        },
+                        walletUrlForStaking: 'https://wallet.lum.network',
+                        bip44: {
+                            coinType: 837,
+                        },
+                        bech32Config: {
+                            bech32PrefixAccAddr: LumConstants.LumBech32PrefixAccAddr,
+                            bech32PrefixAccPub: LumConstants.LumBech32PrefixAccPub,
+                            bech32PrefixValAddr: LumConstants.LumBech32PrefixValAddr,
+                            bech32PrefixValPub: LumConstants.LumBech32PrefixValPub,
+                            bech32PrefixConsAddr: LumConstants.LumBech32PrefixConsAddr,
+                            bech32PrefixConsPub: LumConstants.LumBech32PrefixConsPub,
+                        },
+                        currencies: [
+                            {
+                                coinDenom: LumConstants.LumDenom.toUpperCase(),
+                                coinMinimalDenom: LumConstants.MicroLumDenom,
+                                coinDecimals: LumConstants.LumExponent,
+                            },
+                        ],
+                        // List of coin/tokens used as a fee token in this chain.
+                        feeCurrencies: [
+                            {
+                                coinDenom: LumConstants.LumDenom.toUpperCase(),
+                                coinMinimalDenom: LumConstants.MicroLumDenom,
+                                coinDecimals: LumConstants.LumExponent,
+                            },
+                        ],
+                        coinType: 837,
+                        gasPriceStep: {
+                            low: 0.01,
+                            average: 0.025,
+                            high: 0.04,
+                        },
+                        beta: chainId.includes('testnet'),
+                    });
+                } catch {
+                    showErrorToast('Failed to add network to Keplr');
+                    return;
+                }
+
+                try {
+                    await keplrWindow.keplr.enable(chainId);
+                    const offlineSigner = keplrWindow.getOfflineSigner(chainId);
+                    LumWalletFactory.fromOfflineSigner(offlineSigner)
+                        .then((wallet) => {
+                            dispatch.wallet.signIn(wallet, true);
+                            dispatch.wallet.reloadWalletInfos(wallet.getAddress());
+                        })
+                        .catch((e) => showErrorToast(e.message));
+                } catch (e) {
+                    showErrorToast('Failed to connect to Keplr wallet');
+                    return;
+                }
+            }
         },
         signInWithMnemonicAsync(payload: string) {
             LumWalletFactory.fromMnemonic(payload)

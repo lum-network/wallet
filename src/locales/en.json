@@ -19,6 +19,12 @@
     },
     "welcome": {
         "title": "Access My Wallet",
+        "extension": {
+            "title": "Extension",
+            "description": "Keplr interchain wallet",
+            "longDescription": "Keplr is a chrome extension to allow you to handle a wallet on multiple chain on the Cosmos environment  including the Lum Network",
+            "info": "RECOMMENDED"
+        },
         "hardware": {
             "title": "Hardware",
             "description": "Ledger Wallet"
@@ -31,8 +37,8 @@
         "softwareModal": {
             "title": "Access your Wallet",
             "description": "Acquire a hardware wallet for the highest security when accessing your crypto.",
-            "notRecommanded": "EXPERIENCED USERS",
-            "notRecommandedDescription": "This is not a recommended way to access your wallet.\nDue to the sensitivity of the information involved, these options should only be used in offline settings by experienced users.",
+            "notRecommended": "EXPERIENCED USERS",
+            "notRecommendedDescription": "This is not a recommended way to access your wallet.\nDue to the sensitivity of the information involved, these options should only be used in offline settings by experienced users.",
             "types": {
                 "mnemonic": "Mnemonic phrase",
                 "keystore": "Keystore File",

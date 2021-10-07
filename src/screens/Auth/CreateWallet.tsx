@@ -9,7 +9,7 @@ import { LumUtils } from '@lum-network/sdk-javascript';
 import { Card, Button } from 'frontend-elements';
 import Assets from 'assets';
 import { Input, SwitchInput } from 'components';
-import { PasswordStrength, PasswordStrengthType, SoftwareType } from 'models';
+import { PasswordStrength, PasswordStrengthType, SoftwareMethod } from 'models';
 import { useRematchDispatch } from 'redux/hooks';
 import { RootDispatch, RootState } from 'redux/store';
 
@@ -22,7 +22,7 @@ import printJS from 'print-js';
 const CreateWallet = (): JSX.Element => {
     // State values
     const [introDone, setIntroDone] = useState(true);
-    const [creationType, setCreationType] = useState<SoftwareType>(SoftwareType.Mnemonic);
+    const [creationType, setCreationType] = useState<SoftwareMethod>(SoftwareMethod.Mnemonic);
     const [mnemonicLength, setMnemonicLength] = useState<MnemonicLength>(12);
     const [inputsValues, setInputsValues] = useState<string[]>([]);
     const [passwordStrength, setPasswordStrength] = useState<PasswordStrength>(PasswordStrengthType.Weak);
@@ -90,7 +90,7 @@ const CreateWallet = (): JSX.Element => {
     }, [history, wallet]);
 
     useEffect(() => {
-        if (creationType === SoftwareType.Mnemonic) {
+        if (creationType === SoftwareMethod.Mnemonic) {
             generateNewMnemonic();
         }
     }, [creationType, generateNewMnemonic]);
@@ -102,8 +102,8 @@ const CreateWallet = (): JSX.Element => {
     // Render content
     const mnemonicContent = (
         <div className="w-100 py-4 px-md-4">
-            <p className="not-recommanded">{t('welcome.softwareModal.notRecommanded')}</p>
-            <p className="auth-paragraph">{t('welcome.softwareModal.notRecommandedDescription')}</p>
+            <p className="not-recommended">{t('welcome.softwareModal.notRecommended')}</p>
+            <p className="auth-paragraph">{t('welcome.softwareModal.notRecommendedDescription')}</p>
             <h3 className="mt-4rem">{t('createWallet.mnemonic.title')}</h3>
             <div className="d-flex flex-row align-self-stretch align-items-center justify-content-between mt-4rem">
                 <div className="d-flex flex-row align-items-center">
@@ -181,8 +181,8 @@ const CreateWallet = (): JSX.Element => {
     const keystoreContent = (
         <div className="w-100 py-4 px-md-4">
             <div className="mb-4rem">
-                <p className="not-recommanded">{t('welcome.softwareModal.notRecommanded')}</p>
-                <p className="auth-paragraph">{t('welcome.softwareModal.notRecommandedDescription')}</p>
+                <p className="not-recommended">{t('welcome.softwareModal.notRecommended')}</p>
+                <p className="auth-paragraph">{t('welcome.softwareModal.notRecommendedDescription')}</p>
             </div>
             <div className="mb-4rem text-start">
                 <h3 className="text-center">{t('createWallet.keystore.title')}</h3>
@@ -249,12 +249,12 @@ const CreateWallet = (): JSX.Element => {
                             <ul className="row nav nav-tabs border-0 text-center">
                                 <li
                                     className={`col-6 nav-item pt-4 pb-2 ${
-                                        creationType === SoftwareType.Keystore ? 'active' : ''
+                                        creationType === SoftwareMethod.Keystore ? 'active' : ''
                                     }`}
                                 >
                                     <a
                                         className="nav-link fs-5 border-0"
-                                        onClick={() => setCreationType(SoftwareType.Keystore)}
+                                        onClick={() => setCreationType(SoftwareMethod.Keystore)}
                                     >
                                         <img src={Assets.images.fileIcon} width="25" height="34" className="me-4" />
                                         <span>{t('createWallet.keystoreTab')}</span>
@@ -262,12 +262,12 @@ const CreateWallet = (): JSX.Element => {
                                 </li>
                                 <li
                                     className={`col-6 nav-item pt-4 pb-2 ${
-                                        creationType === SoftwareType.Mnemonic ? 'active' : ''
+                                        creationType === SoftwareMethod.Mnemonic ? 'active' : ''
                                     }`}
                                 >
                                     <a
                                         className="nav-link fs-5 border-0"
-                                        onClick={() => setCreationType(SoftwareType.Mnemonic)}
+                                        onClick={() => setCreationType(SoftwareMethod.Mnemonic)}
                                     >
                                         <img src={Assets.images.bubbleIcon} width="39" height="34" className="me-4" />
                                         <span>{t('createWallet.mnemonicTab')}</span>
@@ -275,8 +275,8 @@ const CreateWallet = (): JSX.Element => {
                                 </li>
                             </ul>
                             <div className="d-flex flex-column align-self-center text-center align-items-center py-4">
-                                {creationType === SoftwareType.Mnemonic && mnemonicContent}
-                                {creationType === SoftwareType.Keystore && keystoreContent}
+                                {creationType === SoftwareMethod.Mnemonic && mnemonicContent}
+                                {creationType === SoftwareMethod.Keystore && keystoreContent}
                             </div>
                         </Card>
                     )
