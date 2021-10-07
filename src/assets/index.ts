@@ -6,6 +6,7 @@ import emailIcon from './images/email.png';
 import extensionIcon from './images/extension.svg';
 import keplrIcon from './images/keplr.svg';
 import telegramIcon from './images/telegram.png';
+import ledgerIcon from './images/ledger.svg';
 import lumWallet from './images/lum_wallet.png';
 import lumWalletMauve from './images/lum_wallet_mauve.png';
 import syncIcon from './images/sync.png';
@@ -46,6 +47,7 @@ export default {
         emailIcon,
         extensionIcon,
         keplrIcon,
+        ledgerIcon,
         lumWallet,
         lumWalletMauve,
         syncIcon,

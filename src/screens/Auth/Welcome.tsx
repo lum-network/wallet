@@ -36,8 +36,9 @@ const Welcome = (): JSX.Element => {
     const wallet = useSelector((state: RootState) => state.wallet.currentWallet);
     const isSigningWithKeplr = useSelector((state: RootState) => state.loading.effects.wallet.signInWithKeplrAsync);
 
-    const { signInWithKeplr } = useRematchDispatch((dispatch: RootDispatch) => ({
+    const { signInWithKeplr, signInWithLedger } = useRematchDispatch((dispatch: RootDispatch) => ({
         signInWithKeplr: dispatch.wallet.signInWithKeplrAsync,
+        signInWithLedger: dispatch.wallet.signInWithLedgerAsync,
     }));
 
     // Refs

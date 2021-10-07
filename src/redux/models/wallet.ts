@@ -3,6 +3,8 @@ import { createModel } from '@rematch/core';
 import { Window as KeplrWindow } from '@keplr-wallet/types';
 import { LumUtils, LumWalletFactory, LumWallet, LumConstants } from '@lum-network/sdk-javascript';
 
+import TransportNodeHid from '@ledgerhq/hw-transport-node-hid';
+
 import { Rewards, RootModel, Transaction, Wallet } from '../../models';
 import { showErrorToast, showSuccessToast, WalletClient } from 'utils';
 
@@ -193,6 +195,21 @@ export const wallet = createModel<RootModel>()({
                     showErrorToast('Failed to connect to Keplr wallet');
                     return;
                 }
+            }
+        },
+        async signInWithLedgerAsync() {
+            try {
+                /* const transport = await TransportNodeHid.create();
+
+                LumWalletFactory.fromLedgerTransport(transport, `m/44'/118'/0'/0/0`, 'lum')
+                    .then((wallet) => {
+                        //await wallet.useAccount(`m/44'/118'/0'/1/1`, 'lum')
+                        dispatch.wallet.signIn(wallet);
+                        dispatch.wallet.reloadWalletInfos(wallet.getAddress());
+                    })
+                    .catch((e) => showErrorToast(e.message)); */
+            } catch (e) {
+                console.log(e);
             }
         },
         signInWithMnemonicAsync(payload: string) {
