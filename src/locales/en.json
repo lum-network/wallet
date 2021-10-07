@@ -21,9 +21,7 @@
         "title": "Access My Wallet",
         "extension": {
             "title": "Extension",
-            "description": "Keplr interchain wallet",
-            "longDescription": "Keplr is a chrome extension to allow you to handle a wallet on multiple chain on the Cosmos environment  including the Lum Network",
-            "info": "RECOMMENDED"
+            "description": "Keplr interchain wallet"
         },
         "hardware": {
             "title": "Hardware",
@@ -35,7 +33,7 @@
         },
         "createWallet": "Create a Wallet",
         "softwareModal": {
-            "title": "Access your Wallet",
+            "title": "About your Wallet",
             "description": "Acquire a hardware wallet for the highest security when accessing your crypto.",
             "notRecommended": "EXPERIENCED USERS",
             "notRecommendedDescription": "This is not a recommended way to access your wallet.\nDue to the sensitivity of the information involved, these options should only be used in offline settings by experienced users.",
@@ -47,6 +45,21 @@
             "importMnemonic": "Access by Mnemonic",
             "importKeystore": "Access by Keystore",
             "importPrivateKey": "Access by Private Key"
+        },
+        "extensionModal": {
+            "title": "Access by an extension",
+            "description": "Keplr is a chrome extension to allow you to handle a wallet on multiple chain on the Cosmos environment  including the Lum Network",
+            "info": "RECOMMENDED",
+            "note": "You have to install Keplr extension first"
+        },
+        "hardwareModal": {
+            "title": "Access by hardware",
+            "description": "Choose the application you want to launch on your Ledger dongle",
+            "note": "Only Ledger dongles are compatible right now",
+            "types": {
+                "ledger": "Ledger app",
+                "lum": "Lum app"
+            }
         }
     },
     "createWallet": {

@@ -3,7 +3,7 @@ import { createModel } from '@rematch/core';
 import { Window as KeplrWindow } from '@keplr-wallet/types';
 import { LumUtils, LumWalletFactory, LumWallet, LumConstants } from '@lum-network/sdk-javascript';
 
-import TransportNodeHid from '@ledgerhq/hw-transport-node-hid';
+import TransportWebUsb from '@ledgerhq/hw-transport-webusb';
 
 import { Rewards, RootModel, Transaction, Wallet } from '../../models';
 import { showErrorToast, showSuccessToast, WalletClient } from 'utils';
@@ -199,17 +199,20 @@ export const wallet = createModel<RootModel>()({
         },
         async signInWithLedgerAsync() {
             try {
-                /* const transport = await TransportNodeHid.create();
+                const transport = await TransportWebUsb.create();
 
-                LumWalletFactory.fromLedgerTransport(transport, `m/44'/118'/0'/0/0`, 'lum')
-                    .then((wallet) => {
-                        //await wallet.useAccount(`m/44'/118'/0'/1/1`, 'lum')
+                LumWalletFactory.fromLedgerTransport(transport, `44'/118'/0'/0/0`, LumConstants.LumBech32PrefixAccAddr)
+                    .then(async (wallet) => {
+                        await wallet.useAccount(`44'/118'/0'/0/0`, LumConstants.LumBech32PrefixAccAddr);
                         dispatch.wallet.signIn(wallet);
                         dispatch.wallet.reloadWalletInfos(wallet.getAddress());
                     })
-                    .catch((e) => showErrorToast(e.message)); */
+                    .catch((e) => {
+                        console.error('[FACTORY LEDGER ERROR]', e);
+                        showErrorToast(e.message);
+                    });
             } catch (e) {
-                console.log(e);
+                console.error('[TRANSPORT LEDGER ERROR]', e);
             }
         },
         signInWithMnemonicAsync(payload: string) {

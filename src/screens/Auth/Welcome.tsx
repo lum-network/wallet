@@ -19,6 +19,7 @@ import ImportKeystoreModal from './components/ImportKeystoreModal';
 import { ExtensionMethod, HardwareMethod, SoftwareMethod } from 'models';
 import { useRematchDispatch } from 'redux/hooks';
 import ImportButton from './components/ImportButton';
+import { usePrevious } from 'utils';
 
 interface ImportType {
     type: 'software' | 'extension' | 'hardware';
@@ -33,13 +34,18 @@ const Welcome = (): JSX.Element => {
     const [softwareMethodModal, setSoftwareMethodModal] = useState<BSModal | null>(null);
 
     // Redux hooks
-    const wallet = useSelector((state: RootState) => state.wallet.currentWallet);
-    const isSigningWithKeplr = useSelector((state: RootState) => state.loading.effects.wallet.signInWithKeplrAsync);
+    const { wallet, isSigningWithKeplr, isSigningWithLedger } = useSelector((state: RootState) => ({
+        wallet: state.wallet.currentWallet,
+        isSigningWithKeplr: state.loading.effects.wallet.signInWithKeplrAsync,
+        isSigningWithLedger: state.loading.effects.wallet.signInWithLedgerAsync,
+    }));
 
     const { signInWithKeplr, signInWithLedger } = useRematchDispatch((dispatch: RootDispatch) => ({
         signInWithKeplr: dispatch.wallet.signInWithKeplrAsync,
         signInWithLedger: dispatch.wallet.signInWithLedgerAsync,
     }));
+
+    const prevIsSigningWithLedger = usePrevious(isSigningWithLedger);
 
     // Refs
     const importSoftwareModalRef = useRef<HTMLDivElement>(null);
@@ -99,6 +105,12 @@ const Welcome = (): JSX.Element => {
         }
     }, [softwareMethodModal, importSoftwareModal, wallet]);
 
+    useEffect(() => {
+        if (prevIsSigningWithLedger && !isSigningWithLedger && wallet) {
+            importSoftwareModal?.hide();
+        }
+    }, [prevIsSigningWithLedger, isSigningWithLedger, wallet, importSoftwareModal]);
+
     const renderImportTypeModal = () => {
         if (!selectedMethod) {
             return null;
@@ -113,7 +125,7 @@ const Welcome = (): JSX.Element => {
                         <p className="not-recommended">{t('welcome.softwareModal.notRecommended')}</p>
                         <h3 className="mt-4">{t('welcome.softwareModal.title')}</h3>
                         <p className="auth-paragraph">{t('welcome.softwareModal.notRecommendedDescription')}</p>
-                        <div className="d-flex flex-column my-4">
+                        <div className="d-flex flex-column my-5">
                             <button
                                 type="button"
                                 onClick={() => setSelectedMethod({ type: 'software', method: SoftwareMethod.Keystore })}
@@ -192,10 +204,10 @@ const Welcome = (): JSX.Element => {
             case 'extension':
                 return (
                     <>
-                        <p className="recommended">{t('welcome.extension.info')}</p>
-                        <h3 className="mt-4">{t('welcome.softwareModal.title')}</h3>
-                        <p className="auth-paragraph mb-2">{t('welcome.extension.longDescription')}</p>
-                        <div className="d-flex flex-column my-4">
+                        <p className="recommended">{t('welcome.extensionModal.info')}</p>
+                        <h3 className="mt-4">{t('welcome.extensionModal.title')}</h3>
+                        <p className="auth-paragraph mb-2">{t('welcome.extensionModal.description')}</p>
+                        <div className="d-flex flex-column my-5">
                             <button
                                 type="button"
                                 onClick={() => setSelectedMethod({ type: 'extension', method: ExtensionMethod.Keplr })}
@@ -209,12 +221,11 @@ const Welcome = (): JSX.Element => {
                                 </div>
                             </button>
                         </div>
-                        {!isKeplrInstalled && (
-                            <p className="not-recommended">You have to install Keplr extension first</p>
-                        )}
+                        {!isKeplrInstalled && <p className="not-recommended">{t('welcome.extensionModal.note')}</p>}
                         <Button
                             type="button"
                             disabled={!selectedMethod.method || !isKeplrInstalled}
+                            isLoading={isSigningWithKeplr}
                             onClick={() => {
                                 if (
                                     selectedMethod &&
@@ -232,6 +243,55 @@ const Welcome = (): JSX.Element => {
                     </>
                 );
             case 'hardware':
+                return (
+                    <>
+                        {!isSigningWithLedger ? (
+                            <>
+                                <h3 className="mt-4">{t('welcome.hardwareModal.title')}</h3>
+                                <p className="auth-paragraph mb-2">{t('welcome.hardwareModal.description')}</p>
+                                <div className="d-flex flex-column my-5">
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            setSelectedMethod({ type: 'hardware', method: HardwareMethod.Ledger })
+                                        }
+                                        className={`import-software-btn ${
+                                            selectedMethod?.method === HardwareMethod.Ledger && 'selected'
+                                        }`}
+                                    >
+                                        <div className="d-flex align-items-center justify-content-center">
+                                            <img src={Assets.images.ledgerIcon} height="28" className="me-3" />
+                                            {t('welcome.hardwareModal.types.ledger')}
+                                        </div>
+                                    </button>
+                                </div>
+                                <p className="not-recommended">{t('welcome.hardwareModal.note')}</p>
+                                <Button
+                                    type="button"
+                                    disabled={!selectedMethod.method || !isKeplrInstalled}
+                                    isLoading={isSigningWithLedger}
+                                    onClick={() => {
+                                        if (
+                                            selectedMethod &&
+                                            selectedMethod.method &&
+                                            selectedMethod.method === HardwareMethod.Ledger
+                                        ) {
+                                            signInWithLedger();
+                                        }
+                                    }}
+                                    className="my-4 w-100"
+                                >
+                                    {t('common.continue')}
+                                </Button>
+                            </>
+                        ) : (
+                            <>
+                                <h3 className="mt-4">Waiting for your Ledger</h3>
+                                <p className="auth-paragraph">Connecting to your Ledger</p>
+                            </>
+                        )}
+                    </>
+                );
             default:
                 return <h2>Coming Soon...</h2>;
         }
@@ -274,7 +334,7 @@ const Welcome = (): JSX.Element => {
                                 disabled={isSigningWithKeplr}
                                 title={t('welcome.extension.title')}
                                 description={t('welcome.extension.description')}
-                                note={t('welcome.extension.info')}
+                                note={t('welcome.extensionModal.info')}
                                 icon={Assets.images.extensionIcon}
                                 onClick={() => setSelectedMethod({ type: 'extension', method: null })}
                             />
@@ -285,7 +345,7 @@ const Welcome = (): JSX.Element => {
                                 disabled={isSigningWithKeplr}
                                 title={t('welcome.hardware.title')}
                                 description={t('welcome.hardware.description')}
-                                note="COMING SOON"
+                                note={t('welcome.extensionModal.info')}
                                 icon={Assets.images.hardwareIcon}
                                 onClick={() => setSelectedMethod({ type: 'hardware', method: null })}
                             />
