@@ -7,8 +7,9 @@ import extensionIcon from './images/extension.svg';
 import keplrIcon from './images/keplr.svg';
 import telegramIcon from './images/telegram.png';
 import ledgerIcon from './images/ledger.svg';
+import lumLogo from './images/lum_logo.svg';
+import lumTicker from './images/lum_ticker.png';
 import lumWallet from './images/lum_wallet.png';
-import lumWalletMauve from './images/lum_wallet_mauve.png';
 import syncIcon from './images/sync.png';
 import fileIcon from './images/file.png';
 import bubbleIcon from './images/bubble.png';
@@ -26,7 +27,6 @@ import dashboardIcon from './images/dashboard.png';
 import copyIcon from './images/copy.png';
 import qrIcon from './images/qr.png';
 import searchIcon from './images/search.svg';
-import lumTicker from './images/lum_ticker.png';
 import messageDelegate from './images/messageDelegate.svg';
 import messageCreateValidator from './images/messageCreateValidator.svg';
 import messageEditValidator from './images/messageEditValidator.svg';
@@ -48,8 +48,9 @@ export default {
         extensionIcon,
         keplrIcon,
         ledgerIcon,
+        lumLogo,
+        lumTicker,
         lumWallet,
-        lumWalletMauve,
         syncIcon,
         fileIcon,
         bubbleIcon,
@@ -66,7 +67,6 @@ export default {
         copyIcon,
         qrIcon,
         searchIcon,
-        lumTicker,
         logoutIcon,
         messageCreateValidator,
         messageDelegate,

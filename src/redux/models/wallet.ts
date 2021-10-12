@@ -5,7 +5,7 @@ import { LumUtils, LumWalletFactory, LumWallet, LumConstants } from '@lum-networ
 
 import TransportWebUsb from '@ledgerhq/hw-transport-webusb';
 
-import { Rewards, RootModel, Transaction, Wallet } from '../../models';
+import { HardwareMethod, Rewards, RootModel, Transaction, Wallet } from '../../models';
 import { showErrorToast, showSuccessToast, WalletClient } from 'utils';
 
 interface SendPayload {
@@ -177,42 +177,59 @@ export const wallet = createModel<RootModel>()({
                         },
                         beta: chainId.includes('testnet'),
                     });
-                } catch {
+                } catch (e) {
                     showErrorToast('Failed to add network to Keplr');
-                    return;
+                    throw e;
                 }
 
                 try {
                     await keplrWindow.keplr.enable(chainId);
                     const offlineSigner = keplrWindow.getOfflineSigner(chainId);
-                    LumWalletFactory.fromOfflineSigner(offlineSigner)
-                        .then((wallet) => {
-                            dispatch.wallet.signIn(wallet, true);
-                            dispatch.wallet.reloadWalletInfos(wallet.getAddress());
-                        })
-                        .catch((e) => showErrorToast(e.message));
+                    const wallet = await LumWalletFactory.fromOfflineSigner(offlineSigner);
+                    if (wallet) {
+                        dispatch.wallet.signIn(wallet, true);
+                        dispatch.wallet.reloadWalletInfos(wallet.getAddress());
+                    }
+                    return;
                 } catch (e) {
                     showErrorToast('Failed to connect to Keplr wallet');
-                    return;
+                    throw e;
                 }
             }
         },
-        async signInWithLedgerAsync() {
+        async signInWithLedgerAsync(app: string) {
             try {
                 const transport = await TransportWebUsb.create();
 
-                LumWalletFactory.fromLedgerTransport(transport, `44'/118'/0'/0/0`, LumConstants.LumBech32PrefixAccAddr)
-                    .then(async (wallet) => {
-                        await wallet.useAccount(`44'/118'/0'/0/0`, LumConstants.LumBech32PrefixAccAddr);
-                        dispatch.wallet.signIn(wallet);
-                        dispatch.wallet.reloadWalletInfos(wallet.getAddress());
-                    })
-                    .catch((e) => {
-                        console.error('[FACTORY LEDGER ERROR]', e);
-                        showErrorToast(e.message);
-                    });
+                let wallet = null;
+                let breakLoop = false;
+
+                // 10 sec timeout to let the user unlock his hardware
+                const to = setTimeout(() => (breakLoop = true), 10000);
+
+                while (!wallet && !breakLoop) {
+                    try {
+                        wallet = await LumWalletFactory.fromLedgerTransport(
+                            transport,
+                            app === HardwareMethod.Cosmos ? `44'/118'/0'/0/0` : LumConstants.getLumHdPath(),
+                            LumConstants.LumBech32PrefixAccAddr,
+                        );
+                    } catch (e) {}
+                }
+
+                clearTimeout(to);
+
+                if (wallet) {
+                    //await wallet.useAccount(`44'/118'/0'/0/0`, LumConstants.LumBech32PrefixAccAddr);
+                    dispatch.wallet.signIn(wallet);
+                    dispatch.wallet.reloadWalletInfos(wallet.getAddress());
+                    return;
+                } else {
+                    showErrorToast('Unable to connect to your wallet, check your Ledger connection');
+                    throw new Error('Wallet importation Error');
+                }
             } catch (e) {
-                console.error('[TRANSPORT LEDGER ERROR]', e);
+                throw e;
             }
         },
         signInWithMnemonicAsync(payload: string) {

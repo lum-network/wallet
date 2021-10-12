@@ -14,7 +14,7 @@ import { useRematchDispatch } from 'redux/hooks';
 import { BalanceCard, Button, Input, Modal } from 'components';
 import { UserValidator } from 'models';
 import { CLIENT_PRECISION } from 'constant';
-import { NumbersUtils } from 'utils';
+import { NumbersUtils, showErrorToast } from 'utils';
 import { Modal as BSModal } from 'bootstrap';
 
 import StakedCoinsCard from './components/Cards/StakedCoinsCard';
@@ -67,11 +67,11 @@ const Staking = (): JSX.Element => {
         unbondings: state.staking.unbondings,
         stakedCoins: state.staking.stakedCoins,
         unbondedTokens: state.staking.unbondedTokens,
-        loadingDelegate: state.loading.effects.wallet.delegate,
-        loadingUndelegate: state.loading.effects.wallet.undelegate,
+        loadingDelegate: state.loading.effects.wallet.delegate.loading,
+        loadingUndelegate: state.loading.effects.wallet.undelegate.loading,
     }));
 
-    const loadingAll = loadingDelegate | loadingUndelegate;
+    const loadingAll = loadingDelegate || loadingUndelegate;
 
     // Utils
     const modalRef = useRef<HTMLDivElement>(null);
@@ -170,18 +170,26 @@ const Staking = (): JSX.Element => {
 
     // Submit methods
     const onSubmitDelegate = async (validatorAddress: string, amount: string, memo: string) => {
-        const delegateResult = await delegate({ validatorAddress, amount, memo, from: wallet });
+        try {
+            const delegateResult = await delegate({ validatorAddress, amount, memo, from: wallet });
 
-        if (delegateResult) {
-            setTxResult({ hash: LumUtils.toHex(delegateResult.hash), error: delegateResult.error });
+            if (delegateResult) {
+                setTxResult({ hash: LumUtils.toHex(delegateResult.hash), error: delegateResult.error });
+            }
+        } catch (e) {
+            showErrorToast((e as Error).message);
         }
     };
 
     const onSubmitUndelegate = async (validatorAddress: string, amount: string, memo: string) => {
-        const undelegateResult = await undelegate({ validatorAddress, amount, memo, from: wallet });
+        try {
+            const undelegateResult = await undelegate({ validatorAddress, amount, memo, from: wallet });
 
-        if (undelegateResult) {
-            setTxResult({ hash: LumUtils.toHex(undelegateResult.hash), error: undelegateResult.error });
+            if (undelegateResult) {
+                setTxResult({ hash: LumUtils.toHex(undelegateResult.hash), error: undelegateResult.error });
+            }
+        } catch (e) {
+            showErrorToast((e as Error).message);
         }
     };
 
@@ -210,10 +218,10 @@ const Staking = (): JSX.Element => {
 
         switch (modalType.id) {
             case LumMessages.MsgDelegateUrl:
-                return <Delegate isLoading={loadingDelegate} form={delegateForm} />;
+                return <Delegate isLoading={!!loadingDelegate} form={delegateForm} />;
 
             case LumMessages.MsgUndelegateUrl:
-                return <Undelegate isLoading={loadingUndelegate} form={undelegateForm} />;
+                return <Undelegate isLoading={!!loadingUndelegate} form={undelegateForm} />;
 
             default:
                 return <div>Soon</div>;
@@ -281,14 +289,13 @@ const Staking = (): JSX.Element => {
                             <>
                                 <p className="color-success">Success</p>
                                 <Input
-                                    disabled
+                                    readOnly
                                     value={txResult.hash}
                                     label="Hash"
                                     className="text-start align-self-stretch mb-5"
                                 />
                                 <Button
                                     className="mt-5"
-                                    data-bs-target="modalSendTxs"
                                     data-bs-dismiss="modal"
                                     onClick={() => getWalletInfos(wallet.getAddress())}
                                 >

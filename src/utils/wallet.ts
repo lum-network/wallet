@@ -164,9 +164,7 @@ class WalletClient {
             ]);
 
             return { bonded: bondedValidators.validators, unbonded: unbondedValidators.validators };
-        } catch (e) {
-            console.log(e);
-        }
+        } catch (e) {}
     };
 
     getWalletBalance = async (address: string) => {
@@ -260,8 +258,6 @@ class WalletClient {
         // Verify the transaction was successfully broadcasted and made it into a block
         const broadcasted = LumUtils.broadcastTxCommitSuccess(broadcastResult);
 
-        console.log(`Broadcast success: ${broadcasted}`);
-
         return {
             hash: broadcastResult.hash,
             error: !broadcasted
@@ -327,8 +323,6 @@ class WalletClient {
         // Verify the transaction was successfully broadcasted and made it into a block
         const broadcasted = LumUtils.broadcastTxCommitSuccess(broadcastResult);
 
-        console.log(`Broadcast success: ${broadcasted}`);
-
         return {
             hash: broadcastResult.hash,
             error: !broadcasted
@@ -393,8 +387,6 @@ class WalletClient {
         // Verify the transaction was successfully broadcasted and made it into a block
         const broadcasted = LumUtils.broadcastTxCommitSuccess(broadcastResult);
 
-        console.log(`Broadcast success: ${broadcasted}`);
-
         return {
             hash: broadcastResult.hash,
             error: !broadcasted
@@ -450,8 +442,6 @@ class WalletClient {
         const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, doc);
         // Verify the transaction was successfully broadcasted and made it into a block
         const broadcasted = LumUtils.broadcastTxCommitSuccess(broadcastResult);
-
-        console.log(`Broadcast success: ${broadcasted}`);
 
         return {
             hash: broadcastResult.hash,
@@ -529,8 +519,6 @@ class WalletClient {
         // Verify the transaction was successfully broadcasted and made it into a block
         const broadcasted = LumUtils.broadcastTxCommitSuccess(broadcastResult);
 
-        console.log(`Broadcast success: ${broadcasted}`);
-
         return {
             hash: broadcastResult.hash,
             error: !broadcasted
@@ -585,9 +573,7 @@ class WalletClient {
                 stakedCoins,
                 unbondedTokens,
             };
-        } catch (e) {
-            console.error(e);
-        }
+        } catch (e) {}
     };
 }
 

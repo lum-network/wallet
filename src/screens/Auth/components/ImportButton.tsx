@@ -32,8 +32,6 @@ const ImportButton = ({
     return (
         <Button
             buttonType="custom"
-            data-bs-toggle="modal"
-            data-bs-target="#importSoftwareModal"
             disabled={disabled}
             onClick={onClick}
             className={`h-100 w-100 text-reset text-decoration-none ${className}`}

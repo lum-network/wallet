@@ -7,7 +7,7 @@ import { RootState } from '../redux/store';
 interface IProps {}
 
 const mapState = (state: RootState) => ({
-    loading: state.loading.global,
+    loading: state.loading.global.loading,
     transactions: state.wallet.transactions,
     wallet: state.wallet.currentWallet,
 });

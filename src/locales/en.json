@@ -52,14 +52,22 @@
             "info": "RECOMMENDED",
             "note": "You have to install Keplr extension first"
         },
+        "extensionModalLoading": {
+            "title": "Waiting for {{extension}}",
+            "description": "Processing in the {{extension}} extension"
+        },
         "hardwareModal": {
             "title": "Access by hardware",
             "description": "Choose the application you want to launch on your Ledger dongle",
             "note": "Only Ledger dongles are compatible right now",
             "types": {
-                "ledger": "Ledger app",
+                "cosmos": "Cosmos app",
                 "lum": "Lum app"
             }
+        },
+        "hardwareModalLoading": {
+            "title": "Waiting for your Ledger",
+            "description": "Connecting to your Ledger\nTurn on your Ledger, unlock it and open the {{app}} App"
         }
     },
     "createWallet": {

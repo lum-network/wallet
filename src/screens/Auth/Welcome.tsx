@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Link, Redirect } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Modal as BSModal } from 'bootstrap';
 import { Window as KeplrWindow } from '@keplr-wallet/types';
@@ -19,7 +19,6 @@ import ImportKeystoreModal from './components/ImportKeystoreModal';
 import { ExtensionMethod, HardwareMethod, SoftwareMethod } from 'models';
 import { useRematchDispatch } from 'redux/hooks';
 import ImportButton from './components/ImportButton';
-import { usePrevious } from 'utils';
 
 interface ImportType {
     type: 'software' | 'extension' | 'hardware';
@@ -30,22 +29,20 @@ const Welcome = (): JSX.Element => {
     // State
     const [selectedMethod, setSelectedMethod] = useState<ImportType | null>(null);
     const [keystoreFileData, setKeystoreFileData] = useState<string | null>(null);
-    const [importSoftwareModal, setImportSoftwareModal] = useState<BSModal | null>(null);
     const [softwareMethodModal, setSoftwareMethodModal] = useState<BSModal | null>(null);
+    const [modalShowed, setModalShowed] = useState(false);
 
     // Redux hooks
-    const { wallet, isSigningWithKeplr, isSigningWithLedger } = useSelector((state: RootState) => ({
+    const { wallet, keplrState, ledgerState } = useSelector((state: RootState) => ({
         wallet: state.wallet.currentWallet,
-        isSigningWithKeplr: state.loading.effects.wallet.signInWithKeplrAsync,
-        isSigningWithLedger: state.loading.effects.wallet.signInWithLedgerAsync,
+        keplrState: state.loading.effects.wallet.signInWithKeplrAsync,
+        ledgerState: state.loading.effects.wallet.signInWithLedgerAsync,
     }));
 
     const { signInWithKeplr, signInWithLedger } = useRematchDispatch((dispatch: RootDispatch) => ({
         signInWithKeplr: dispatch.wallet.signInWithKeplrAsync,
         signInWithLedger: dispatch.wallet.signInWithLedgerAsync,
     }));
-
-    const prevIsSigningWithLedger = usePrevious(isSigningWithLedger);
 
     // Refs
     const importSoftwareModalRef = useRef<HTMLDivElement>(null);
@@ -54,64 +51,75 @@ const Welcome = (): JSX.Element => {
 
     // Utils hooks
     const { t } = useTranslation();
+    const history = useHistory();
 
     // Callbacks
-    const importSoftwareModalHandler = useCallback(() => {
-        if (
-            softwareMethodModal &&
-            selectedMethod &&
-            !isSigningWithKeplr &&
-            ((selectedMethod.method && selectedMethod.method === SoftwareMethod.Keystore && keystoreFileData) ||
-                selectedMethod.method)
-        ) {
-            softwareMethodModal.show();
+    const showImportModal = useCallback(() => {
+        const modalElement = importSoftwareModalRef.current;
+
+        if (modalElement) {
+            const bsModal = BSModal.getOrCreateInstance(modalElement, { backdrop: 'static', keyboard: false });
+            bsModal.show();
+            setModalShowed(true);
         }
-    }, [softwareMethodModal, selectedMethod, keystoreFileData, isSigningWithKeplr]);
+    }, [importSoftwareModalRef]);
+
+    const hideImportModal = useCallback(() => {
+        const modalElement = importSoftwareModalRef.current;
+
+        if (modalElement) {
+            const bsModal = BSModal.getOrCreateInstance(modalElement, { backdrop: 'static', keyboard: false });
+            bsModal.hide();
+            setModalShowed(false);
+        }
+    }, [importSoftwareModalRef]);
 
     // Effects
     useEffect(() => {
-        const currentSoftwareModalRef = importSoftwareModalRef.current;
+        if (wallet) {
+            if (modalShowed) {
+                hideImportModal();
+                // 300ms is the modal transition duration
+                setTimeout(() => history.replace('/home'), 300);
+            } else {
+                history.replace('/home');
+            }
+        }
+    }, [wallet, history, modalShowed, hideImportModal]);
 
-        if (currentSoftwareModalRef) {
-            currentSoftwareModalRef.addEventListener('hidden.bs.modal', importSoftwareModalHandler);
+    useEffect(() => {
+        if (softwareMethodModalRef.current) {
+            setSoftwareMethodModal(BSModal.getOrCreateInstance(softwareMethodModalRef.current));
+        }
+    }, [softwareMethodModalRef]);
+
+    useEffect(() => {
+        const modalElement = importSoftwareModalRef.current;
+
+        const importSoftwareModalHandler = () => {
+            if (
+                softwareMethodModal &&
+                selectedMethod &&
+                selectedMethod.type === 'software' &&
+                ((selectedMethod.method && selectedMethod.method === SoftwareMethod.Keystore && keystoreFileData) ||
+                    selectedMethod.method)
+            ) {
+                softwareMethodModal.show();
+            }
+        };
+
+        if (modalElement) {
+            modalElement.addEventListener('hidden.bs.modal', importSoftwareModalHandler);
         }
 
         return () => {
-            if (currentSoftwareModalRef) {
-                currentSoftwareModalRef.removeEventListener('hidden.bs.modal', importSoftwareModalHandler);
+            if (modalElement) {
+                modalElement.removeEventListener('hidden.bs.modal', importSoftwareModalHandler);
             }
         };
-    }, [importSoftwareModalHandler]);
+    }, [history, keystoreFileData, selectedMethod, softwareMethodModal, wallet]);
 
-    useEffect(() => {
-        if (importSoftwareModalRef.current) {
-            setImportSoftwareModal(
-                new BSModal(importSoftwareModalRef.current, { backdrop: 'static', keyboard: false }),
-            );
-        }
-        if (softwareMethodModalRef.current) {
-            setSoftwareMethodModal(new BSModal(softwareMethodModalRef.current));
-        }
-    }, [importSoftwareModalRef, softwareMethodModalRef]);
-
-    useEffect(() => {
-        if (wallet) {
-            if (softwareMethodModal) {
-                softwareMethodModal.dispose();
-            }
-            if (importSoftwareModal) {
-                importSoftwareModal.dispose();
-            }
-        }
-    }, [softwareMethodModal, importSoftwareModal, wallet]);
-
-    useEffect(() => {
-        if (prevIsSigningWithLedger && !isSigningWithLedger && wallet) {
-            importSoftwareModal?.hide();
-        }
-    }, [prevIsSigningWithLedger, isSigningWithLedger, wallet, importSoftwareModal]);
-
-    const renderImportTypeModal = () => {
+    const renderImportTypeModalContent = () => {
         if (!selectedMethod) {
             return null;
         }
@@ -175,7 +183,7 @@ const Welcome = (): JSX.Element => {
                                         keystoreInputRef.current.click();
                                     }
                                 } else {
-                                    importSoftwareModal?.hide();
+                                    hideImportModal();
                                 }
                             }}
                             className="my-4 w-100"
@@ -193,7 +201,7 @@ const Welcome = (): JSX.Element => {
                                     if (event.target.files && event.target.files.length > 0) {
                                         event.target.files[0].text().then((data) => {
                                             setKeystoreFileData(data);
-                                            importSoftwareModal?.hide();
+                                            hideImportModal();
                                         });
                                     }
                                 }}
@@ -202,7 +210,27 @@ const Welcome = (): JSX.Element => {
                     </>
                 );
             case 'extension':
-                return (
+                return keplrState.loading ? (
+                    <>
+                        <h3 className="mt-4">
+                            {t('welcome.extensionModalLoading.title', {
+                                extension: selectedMethod.method
+                                    ? selectedMethod.method[0].toUpperCase() + selectedMethod.method.slice(1)
+                                    : 'Null',
+                            })}
+                        </h3>
+                        <p className="auth-paragraph">
+                            {t('welcome.extensionModalLoading.description', {
+                                app: selectedMethod.method
+                                    ? selectedMethod.method[0].toUpperCase() + selectedMethod.method.slice(1)
+                                    : 'Null',
+                            })}
+                        </p>
+                        <div className="spinner-border spinner my-4" role="extension import status">
+                            <span className="visually-hidden">Loading...</span>
+                        </div>
+                    </>
+                ) : (
                     <>
                         <p className="recommended">{t('welcome.extensionModal.info')}</p>
                         <h3 className="mt-4">{t('welcome.extensionModal.title')}</h3>
@@ -216,7 +244,7 @@ const Welcome = (): JSX.Element => {
                                 }`}
                             >
                                 <div className="d-flex align-items-center justify-content-center">
-                                    <img src={Assets.images.softwareIcon} height="28" className="me-3" />
+                                    <img src={Assets.images.keplrIcon} height="28" className="me-3" />
                                     Keplr extension
                                 </div>
                             </button>
@@ -225,16 +253,15 @@ const Welcome = (): JSX.Element => {
                         <Button
                             type="button"
                             disabled={!selectedMethod.method || !isKeplrInstalled}
-                            isLoading={isSigningWithKeplr}
+                            isLoading={keplrState.loading}
                             onClick={() => {
                                 if (
                                     selectedMethod &&
                                     selectedMethod.method &&
                                     selectedMethod.method === ExtensionMethod.Keplr
                                 ) {
-                                    signInWithKeplr();
+                                    signInWithKeplr().catch(() => null);
                                 }
-                                importSoftwareModal?.hide();
                             }}
                             className="my-4 w-100"
                         >
@@ -243,53 +270,69 @@ const Welcome = (): JSX.Element => {
                     </>
                 );
             case 'hardware':
-                return (
+                return !ledgerState.loading ? (
                     <>
-                        {!isSigningWithLedger ? (
-                            <>
-                                <h3 className="mt-4">{t('welcome.hardwareModal.title')}</h3>
-                                <p className="auth-paragraph mb-2">{t('welcome.hardwareModal.description')}</p>
-                                <div className="d-flex flex-column my-5">
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            setSelectedMethod({ type: 'hardware', method: HardwareMethod.Ledger })
-                                        }
-                                        className={`import-software-btn ${
-                                            selectedMethod?.method === HardwareMethod.Ledger && 'selected'
-                                        }`}
-                                    >
-                                        <div className="d-flex align-items-center justify-content-center">
-                                            <img src={Assets.images.ledgerIcon} height="28" className="me-3" />
-                                            {t('welcome.hardwareModal.types.ledger')}
-                                        </div>
-                                    </button>
+                        <h3 className="mt-4">{t('welcome.hardwareModal.title')}</h3>
+                        <p className="auth-paragraph mb-2">{t('welcome.hardwareModal.description')}</p>
+                        <div className="d-flex flex-column my-5">
+                            <button
+                                type="button"
+                                onClick={() => setSelectedMethod({ type: 'hardware', method: HardwareMethod.Cosmos })}
+                                className={`import-software-btn ${
+                                    selectedMethod?.method === HardwareMethod.Cosmos && 'selected'
+                                }`}
+                            >
+                                <div className="d-flex align-items-center justify-content-center">
+                                    <img src={Assets.images.ledgerIcon} height="28" className="me-3" />
+                                    {t('welcome.hardwareModal.types.cosmos')}
                                 </div>
-                                <p className="not-recommended">{t('welcome.hardwareModal.note')}</p>
-                                <Button
-                                    type="button"
-                                    disabled={!selectedMethod.method || !isKeplrInstalled}
-                                    isLoading={isSigningWithLedger}
-                                    onClick={() => {
-                                        if (
-                                            selectedMethod &&
-                                            selectedMethod.method &&
-                                            selectedMethod.method === HardwareMethod.Ledger
-                                        ) {
-                                            signInWithLedger();
-                                        }
-                                    }}
-                                    className="my-4 w-100"
-                                >
-                                    {t('common.continue')}
-                                </Button>
-                            </>
-                        ) : (
-                            <>
-                                <h3 className="mt-4">Waiting for your Ledger</h3>
-                                <p className="auth-paragraph">Connecting to your Ledger</p>
-                            </>
-                        )}
+                            </button>
+                            <button
+                                type="button"
+                                disabled
+                                onClick={() => setSelectedMethod({ type: 'hardware', method: HardwareMethod.Lum })}
+                                className={`import-software-btn mt-4 ${
+                                    selectedMethod?.method === HardwareMethod.Lum && 'selected'
+                                }`}
+                            >
+                                <div className="d-flex align-items-center justify-content-center">
+                                    <img src={Assets.images.lumLogo} height="28" className="me-3" />
+                                    {t('welcome.hardwareModal.types.lum')} (Coming soon)
+                                </div>
+                            </button>
+                        </div>
+                        <p className="not-recommended">{t('welcome.hardwareModal.note')}</p>
+                        <Button
+                            type="button"
+                            disabled={!selectedMethod.method}
+                            isLoading={ledgerState.loading}
+                            onClick={() => {
+                                if (
+                                    selectedMethod &&
+                                    selectedMethod.method &&
+                                    selectedMethod.method === HardwareMethod.Cosmos
+                                ) {
+                                    signInWithLedger(selectedMethod.method).catch(() => null);
+                                }
+                            }}
+                            className="my-4 w-100"
+                        >
+                            {t('common.continue')}
+                        </Button>
+                    </>
+                ) : (
+                    <>
+                        <h3 className="mt-4">{t('welcome.hardwareModalLoading.title')}</h3>
+                        <p className="auth-paragraph">
+                            {t('welcome.hardwareModalLoading.description', {
+                                app: selectedMethod.method
+                                    ? selectedMethod.method[0].toUpperCase() + selectedMethod.method.slice(1)
+                                    : 'Null',
+                            })}
+                        </p>
+                        <div className="spinner-border spinner my-4" role="ledger import status">
+                            <span className="visually-hidden">Loading...</span>
+                        </div>
                     </>
                 );
             default:
@@ -316,10 +359,6 @@ const Welcome = (): JSX.Element => {
         }
     };
 
-    if (wallet) {
-        return <Redirect to="/home" />;
-    }
-
     return (
         <>
             <AuthLayout>
@@ -331,36 +370,45 @@ const Welcome = (): JSX.Element => {
                         <div className="col-12 col-lg-3">
                             <ImportButton
                                 method="extension"
-                                disabled={isSigningWithKeplr}
+                                disabled={keplrState.loading || ledgerState.loading}
                                 title={t('welcome.extension.title')}
                                 description={t('welcome.extension.description')}
                                 note={t('welcome.extensionModal.info')}
                                 icon={Assets.images.extensionIcon}
-                                onClick={() => setSelectedMethod({ type: 'extension', method: null })}
+                                onClick={() => {
+                                    showImportModal();
+                                    setSelectedMethod({ type: 'extension', method: null });
+                                }}
                             />
                         </div>
                         <div className="col-12 col-lg-3">
                             <ImportButton
                                 method="hardware"
-                                disabled={isSigningWithKeplr}
+                                disabled={keplrState.loading || ledgerState.loading}
                                 title={t('welcome.hardware.title')}
                                 description={t('welcome.hardware.description')}
-                                note={t('welcome.extensionModal.info')}
+                                note=""
                                 icon={Assets.images.hardwareIcon}
-                                onClick={() => setSelectedMethod({ type: 'hardware', method: null })}
+                                onClick={() => {
+                                    showImportModal();
+                                    setSelectedMethod({ type: 'hardware', method: null });
+                                }}
                             />
                         </div>
                         <div className="col-12 col-lg-3">
                             <ImportButton
                                 method="software"
-                                disabled={isSigningWithKeplr}
+                                disabled={keplrState.loading || ledgerState.loading}
                                 title={t('welcome.software.title')}
                                 description={t('welcome.software.description')}
                                 note={t('welcome.softwareModal.notRecommended')}
                                 icon={Assets.images.softwareIcon}
                                 iconWidth="57"
                                 iconHeight="76"
-                                onClick={() => setSelectedMethod({ type: 'software', method: null })}
+                                onClick={() => {
+                                    showImportModal();
+                                    setSelectedMethod({ type: 'software', method: null });
+                                }}
                             />
                         </div>
                         <div className="col-12 col-lg-3">
@@ -379,16 +427,16 @@ const Welcome = (): JSX.Element => {
             <Modal
                 id="importSoftwareModal"
                 ref={importSoftwareModalRef}
+                withCloseButton={!ledgerState.loading && !keplrState.loading}
                 onCloseButtonPress={() => setTimeout(() => setSelectedMethod(null), 300)}
                 bodyClassName="px-4"
                 contentClassName="px-3 import-modal-content"
             >
-                {renderImportTypeModal()}
+                {renderImportTypeModalContent()}
             </Modal>
             <Modal id="softwareMethodModal" ref={softwareMethodModalRef}>
                 {renderSoftwareImportModalContent()}
             </Modal>
-            {isSigningWithKeplr && <div className="w-100 h-100 position-absolute opacity-50 bg-black on-top" />}
         </>
     );
 };
