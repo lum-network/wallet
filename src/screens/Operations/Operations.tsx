@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { Redirect } from 'react-router';
 import { useTranslation } from 'react-i18next';
@@ -90,31 +90,6 @@ const Operations = (): JSX.Element => {
         },
     ];
 
-    useEffect(() => {
-        if (modalRef.current) {
-            modalRef.current.addEventListener('hidden.bs.modal', () => {
-                if (sendForm.touched.address || sendForm.touched.amount || sendForm.touched.memo) {
-                    sendForm.resetForm();
-                }
-                if (delegateForm.touched.address || delegateForm.touched.amount || delegateForm.touched.memo) {
-                    delegateForm.resetForm();
-                }
-                if (undelegateForm.touched.address || undelegateForm.touched.amount || undelegateForm.touched.memo) {
-                    undelegateForm.resetForm();
-                }
-                if (getRewardForm.touched.address || getRewardForm.touched.memo) {
-                    getRewardForm.resetForm();
-                }
-                if (confirming) {
-                    setConfirming(false);
-                }
-                if (txResult) {
-                    setTxResult(null);
-                }
-            });
-        }
-    });
-
     const sendForm = useFormik({
         initialValues: { address: '', amount: '', memo: '' },
         validationSchema: yup.object().shape({
@@ -186,6 +161,41 @@ const Operations = (): JSX.Element => {
         }),
         onSubmit: (values) => onSubmitGetReward(values.address, values.memo),
     });
+
+    useEffect(() => {
+        const ref = modalRef.current;
+
+        const handler = () => {
+            if (sendForm.touched.address || sendForm.touched.amount || sendForm.touched.memo) {
+                sendForm.resetForm();
+            }
+            if (delegateForm.touched.address || delegateForm.touched.amount || delegateForm.touched.memo) {
+                delegateForm.resetForm();
+            }
+            if (undelegateForm.touched.address || undelegateForm.touched.amount || undelegateForm.touched.memo) {
+                undelegateForm.resetForm();
+            }
+            if (getRewardForm.touched.address || getRewardForm.touched.memo) {
+                getRewardForm.resetForm();
+            }
+            if (confirming) {
+                setConfirming(false);
+            }
+            if (txResult) {
+                setTxResult(null);
+            }
+        };
+
+        if (ref) {
+            ref.addEventListener('hidden.bs.modal', handler);
+        }
+
+        return () => {
+            if (ref) {
+                ref.removeEventListener('hidden.bs.modal', handler);
+            }
+        };
+    }, [confirming, delegateForm, getRewardForm, modalRef, sendForm, txResult, undelegateForm]);
 
     if (!wallet) {
         return <Redirect to="/welcome" />;

@@ -146,23 +146,33 @@ const Staking = (): JSX.Element => {
     }, []);
 
     useEffect(() => {
-        if (modalRef.current) {
-            modalRef.current.addEventListener('hidden.bs.modal', () => {
-                if (delegateForm.touched.address || delegateForm.touched.amount || delegateForm.touched.memo) {
-                    delegateForm.resetForm();
-                }
-                if (undelegateForm.touched.address || undelegateForm.touched.amount || undelegateForm.touched.memo) {
-                    undelegateForm.resetForm();
-                }
-                if (confirming) {
-                    setConfirming(false);
-                }
-                if (txResult) {
-                    setTxResult(null);
-                }
-            });
+        const ref = modalRef.current;
+
+        const handler = () => {
+            if (delegateForm.touched.address || delegateForm.touched.amount || delegateForm.touched.memo) {
+                delegateForm.resetForm();
+            }
+            if (undelegateForm.touched.address || undelegateForm.touched.amount || undelegateForm.touched.memo) {
+                undelegateForm.resetForm();
+            }
+            if (confirming) {
+                setConfirming(false);
+            }
+            if (txResult) {
+                setTxResult(null);
+            }
+        };
+
+        if (ref) {
+            ref.addEventListener('hidden.bs.modal', handler);
         }
-    });
+
+        return () => {
+            if (ref) {
+                ref.removeEventListener('hidden.bs.modal', handler);
+            }
+        };
+    }, [confirming, delegateForm, txResult, undelegateForm]);
 
     if (!wallet) {
         return <Redirect to="/welcome" />;
