@@ -117,6 +117,7 @@ export const wallet = createModel<RootModel>()({
                 dispatch.wallet.getWalletBalance(address),
                 dispatch.wallet.getTransactions(address),
                 dispatch.wallet.getRewards(address),
+                dispatch.staking.getValidatorsInfosAsync(address),
             ]);
         },
         async signInWithKeplrAsync() {
@@ -281,6 +282,7 @@ export const wallet = createModel<RootModel>()({
             }
 
             dispatch.wallet.reloadWalletInfos(payload.from.getAddress());
+            dispatch.staking.getValidatorsInfosAsync(payload.from.getAddress());
             return result;
         },
         async undelegate(payload: DelegatePayload) {
@@ -296,6 +298,7 @@ export const wallet = createModel<RootModel>()({
             }
 
             dispatch.wallet.reloadWalletInfos(payload.from.getAddress());
+            dispatch.staking.getValidatorsInfosAsync(payload.from.getAddress());
             return result;
         },
         async getReward(payload: GetRewardPayload) {
@@ -321,6 +324,7 @@ export const wallet = createModel<RootModel>()({
             }
 
             dispatch.wallet.reloadWalletInfos(payload.from.getAddress());
+            dispatch.staking.getValidatorsInfosAsync(payload.from.getAddress());
             return result;
         },
         async mintFaucet(address: string) {
