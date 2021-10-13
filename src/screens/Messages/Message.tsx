@@ -302,7 +302,9 @@ const Message = (): JSX.Element => {
                             rows={15}
                         />
                         {ClipboardJS.isSupported() && (
-                            <p>Copy this payload to share it so anyone can verify its integrity</p>
+                            <p className="auth-paragraph">
+                                Copy this payload to share it so anyone can verify its integrity
+                            </p>
                         )}
                         <CustomButton
                             id="signature"

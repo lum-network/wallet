@@ -199,9 +199,7 @@ export const wallet = createModel<RootModel>()({
         },
         async signInWithLedgerAsync(app: string) {
             try {
-                const transport = await TransportWebUsb.create();
-
-                let wallet = null;
+                let wallet: null | LumWallet = null;
                 let breakLoop = false;
 
                 // 10 sec timeout to let the user unlock his hardware
@@ -209,6 +207,8 @@ export const wallet = createModel<RootModel>()({
 
                 while (!wallet && !breakLoop) {
                     try {
+                        const transport = await TransportWebUsb.create();
+
                         wallet = await LumWalletFactory.fromLedgerTransport(
                             transport,
                             app === HardwareMethod.Cosmos ? `44'/118'/0'/0/0` : LumConstants.getLumHdPath(),

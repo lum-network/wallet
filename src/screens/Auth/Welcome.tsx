@@ -310,7 +310,8 @@ const Welcome = (): JSX.Element => {
                                 if (
                                     selectedMethod &&
                                     selectedMethod.method &&
-                                    selectedMethod.method === HardwareMethod.Cosmos
+                                    (selectedMethod.method === HardwareMethod.Cosmos ||
+                                        selectedMethod.method === HardwareMethod.Lum)
                                 ) {
                                     signInWithLedger(selectedMethod.method).catch(() => null);
                                 }
