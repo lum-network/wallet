@@ -8,7 +8,7 @@ import { Window as KeplrWindow } from '@keplr-wallet/types';
 import { RootDispatch, RootState } from 'redux/store';
 
 import Assets from 'assets';
-import { COSMOS_LEDGER_APP_INSTALL_LINK, LUM_LEDGER_APP_INSTALL_LINK } from 'constant';
+import { COSMOS_LEDGER_APP_INSTALL_LINK } from 'constant';
 import { Modal, Button } from 'components';
 import { ExtensionMethod, HardwareMethod, SoftwareMethod } from 'models';
 import { useRematchDispatch } from 'redux/hooks';
