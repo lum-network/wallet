@@ -315,6 +315,8 @@ const Welcome = (): JSX.Element => {
                                     {t('welcome.hardwareModal.types.lum')} (Coming soon)
                                 </div>
                             </button>
+                            {/* 
+                                DEACTIVATED -> Waiting for Lum ledger app release
                             <a
                                 className="align-self-center mt-2"
                                 href={LUM_LEDGER_APP_INSTALL_LINK}
@@ -328,7 +330,7 @@ const Welcome = (): JSX.Element => {
                                         })}
                                     </u>
                                 </small>
-                            </a>
+                            </a> */}
                         </div>
                         <p className="not-recommended">{t('welcome.hardwareModal.note')}</p>
                         <Button
