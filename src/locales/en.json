@@ -63,7 +63,8 @@
             "types": {
                 "cosmos": "Cosmos app",
                 "lum": "Lum app"
-            }
+            },
+            "howTo": "How to install {{app}}"
         },
         "hardwareModalLoading": {
             "title": "Waiting for your Ledger",

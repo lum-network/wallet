@@ -7,8 +7,11 @@ import { Window as KeplrWindow } from '@keplr-wallet/types';
 
 import { RootDispatch, RootState } from 'redux/store';
 
-import { Modal, Button } from 'components';
 import Assets from 'assets';
+import { COSMOS_LEDGER_APP_INSTALL_LINK, LUM_LEDGER_APP_INSTALL_LINK } from 'constant';
+import { Modal, Button } from 'components';
+import { ExtensionMethod, HardwareMethod, SoftwareMethod } from 'models';
+import { useRematchDispatch } from 'redux/hooks';
 
 import './styles/Auth.scss';
 
@@ -16,8 +19,6 @@ import AuthLayout from './components/AuthLayout';
 import ImportMnemonicModal from './components/ImportMnemonicModal';
 import ImportPrivateKeyModal from './components/ImportPrivateKeyModal';
 import ImportKeystoreModal from './components/ImportKeystoreModal';
-import { ExtensionMethod, HardwareMethod, SoftwareMethod } from 'models';
-import { useRematchDispatch } from 'redux/hooks';
 import ImportButton from './components/ImportButton';
 
 interface ImportType {
@@ -283,10 +284,24 @@ const Welcome = (): JSX.Element => {
                                 }`}
                             >
                                 <div className="d-flex align-items-center justify-content-center">
-                                    <img src={Assets.images.ledgerIcon} height="28" className="me-3" />
+                                    <img src={Assets.images.cosmosIcon} height="28" className="me-3" />
                                     {t('welcome.hardwareModal.types.cosmos')}
                                 </div>
                             </button>
+                            <a
+                                className="align-self-center mt-2"
+                                href={COSMOS_LEDGER_APP_INSTALL_LINK}
+                                target="_blank"
+                                rel="noreferrer"
+                            >
+                                <small>
+                                    <u>
+                                        {t('welcome.hardwareModal.howTo', {
+                                            app: t('welcome.hardwareModal.types.cosmos'),
+                                        })}
+                                    </u>
+                                </small>
+                            </a>
                             <button
                                 type="button"
                                 disabled
@@ -300,6 +315,20 @@ const Welcome = (): JSX.Element => {
                                     {t('welcome.hardwareModal.types.lum')} (Coming soon)
                                 </div>
                             </button>
+                            <a
+                                className="align-self-center mt-2"
+                                href={LUM_LEDGER_APP_INSTALL_LINK}
+                                target="_blank"
+                                rel="noreferrer"
+                            >
+                                <small>
+                                    <u>
+                                        {t('welcome.hardwareModal.howTo', {
+                                            app: t('welcome.hardwareModal.types.lum'),
+                                        })}
+                                    </u>
+                                </small>
+                            </a>
                         </div>
                         <p className="not-recommended">{t('welcome.hardwareModal.note')}</p>
                         <Button

@@ -1,6 +1,7 @@
 import hardwareIcon from './images/hardware.png';
 import softwareIcon from './images/software.png';
 import addIcon from './images/add.png';
+import cosmosIcon from './images/cosmos.svg';
 import githubIcon from './images/github.png';
 import emailIcon from './images/email.png';
 import extensionIcon from './images/extension.svg';
@@ -42,6 +43,7 @@ export default {
         hardwareIcon,
         softwareIcon,
         addIcon,
+        cosmosIcon,
         githubIcon,
         telegramIcon,
         emailIcon,
