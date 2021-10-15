@@ -45,7 +45,7 @@ const Operations = (): JSX.Element => {
     const loadingRedelegate = useSelector((state: RootState) => state.loading.effects.wallet.redelegate);
     const loadingGetReward = useSelector((state: RootState) => state.loading.effects.wallet.getReward);
 
-    const loadingAll = loadingSend | loadingDelegate | loadingUndelegate | loadingGetReward;
+    const loadingAll = loadingSend || loadingDelegate || loadingUndelegate || loadingGetReward;
 
     const { t } = useTranslation();
     const modalRef = useRef<HTMLDivElement>(null);
@@ -341,7 +341,7 @@ const Operations = (): JSX.Element => {
                                     data-bs-dismiss="modal"
                                     onClick={() => getWalletInfos(wallet.getAddress())}
                                 >
-                                    Close
+                                    {t('common.close')}
                                 </CustomButton>
                             </>
                         )}

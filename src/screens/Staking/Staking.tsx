@@ -71,7 +71,7 @@ const Staking = (): JSX.Element => {
         loadingUndelegate: state.loading.effects.wallet.undelegate,
     }));
 
-    const loadingAll = loadingDelegate | loadingUndelegate;
+    const loadingAll = loadingDelegate || loadingUndelegate;
 
     // Utils
     const modalRef = useRef<HTMLDivElement>(null);
@@ -292,7 +292,7 @@ const Staking = (): JSX.Element => {
                                     data-bs-dismiss="modal"
                                     onClick={() => getWalletInfos(wallet.getAddress())}
                                 >
-                                    Close
+                                    {t('common.close')}
                                 </Button>
                             </>
                         )}

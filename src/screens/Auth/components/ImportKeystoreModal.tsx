@@ -39,9 +39,9 @@ const ImportKeystoreModal = (props: { fileData: string; onSubmit: () => void }):
     });
 
     // Methods
-    const onSubmitPassword = async (password: string) => {
+    const onSubmitPassword = (password: string) => {
         onSubmit();
-        await signInWithKeystoreFile({ data: fileData, password });
+        signInWithKeystoreFile({ data: fileData, password });
     };
 
     return (
@@ -64,9 +64,10 @@ const ImportKeystoreModal = (props: { fileData: string; onSubmit: () => void }):
                 {t('common.continue')}
             </Button>
             <p className="auth-paragraph mt-5 mb-3">
-                <span className="fw-bold danger-text">DO NOT FORGET</span> to save your password. <br />
-                You will need this <span className="fw-bold danger-text">Password + Keystore</span> file to access your
-                wallet.
+                <span className="fw-bold danger-text">{t('createWallet.doNotForget')}</span>
+                {t('createWallet.keystore.warningDescription1')}
+                <span className="fw-bold danger-text">{t('createWallet.keystore.pwdPlusKeystore')}</span>
+                {t('createWallet.keystore.warningDescription2')}
             </p>
         </>
     );

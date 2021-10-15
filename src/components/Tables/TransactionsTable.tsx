@@ -109,7 +109,7 @@ const TransactionsTable = (props: TransactionsTableProps): JSX.Element => {
                     }}
                 />
             </div>
-            No transactions yet
+            {t('dashboard.noTx')}
         </div>
     );
 };

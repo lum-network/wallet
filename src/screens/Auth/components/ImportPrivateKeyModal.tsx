@@ -47,7 +47,7 @@ const ImportPrivateKeyModal = (): JSX.Element => {
                 <Input
                     {...formik.getFieldProps('privateKey')}
                     type="password"
-                    placeholder="Enter your private key"
+                    placeholder={t('welcome.softwareModal.privateKey.placeholder')}
                     required
                     className="text-start mt-4"
                 />
