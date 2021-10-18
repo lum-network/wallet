@@ -42,6 +42,7 @@
                 "generic": "An error occured when minting faucet",
                 "address": "Mint faucet error\nUnknown address"
             },
+            "client": "Unable to connect the lum client with the blockchain, try again later",
             "generic": "An unknown error has occured, please try again later"
         }
     },
