@@ -14,7 +14,10 @@
         "values": "Values",
         "copyAddress": "Address copied to clipboard!",
         "refreshBalance": "Refresh balance",
-        "mintFaucet": "Mint faucet"
+        "mintFaucet": "Mint faucet",
+        "success": "Success",
+        "failure": "Failure",
+        "retry": "Retry"
     },
     "navbar": {
         "dashboard": "Dashboard",
@@ -38,7 +41,8 @@
             "faucet": {
                 "generic": "An error occured when minting faucet",
                 "address": "Mint faucet error\nUnknown address"
-            }
+            },
+            "generic": "An unknown error has occured, please try again later"
         }
     },
     "logout": {
@@ -154,7 +158,7 @@
             "openBeam": "Open Beam"
         }
     },
-    "send": {
+    "operations": {
         "types": {
             "send": {
                 "name": "Send",
@@ -176,6 +180,38 @@
                 "name": "Redelegate",
                 "description": "Redelegate LUM from one network validator to another"
             }
+        },
+        "confirmation": "Confirmation",
+        "modify": "Modify",
+        "inputs": {
+            "amount": {
+                "label": "Amount"
+            },
+            "recipient": {
+                "label": "To Address"
+            },
+            "validator": {
+                "label": "Validator address"
+            },
+            "validatorSrc": {
+                "label": "Source validator address"
+            },
+            "validatorDest": {
+                "label": "Destination validator address"
+            },
+            "memo": {
+                "label": "Memo",
+                "placeholder": "Memo (optional)"
+            }
+        },
+        "defaultMemo": {
+            "delegate": "Delegated",
+            "undelegate": "Undelegated",
+            "redelegate": "Redelegate",
+            "getReward": "Get Reward"
+        },
+        "errors": {
+            "address": "Wrong address format"
         }
     },
     "staking": {
@@ -201,7 +237,8 @@
             "stakedCoins": "Staked Coins",
             "rewards": "Rewards"
         },
-        "status": ["Unspecified", "Unbonded", "Unbonding", "Bonded"]
+        "status": ["Unspecified", "Unbonded", "Unbonding", "Bonded"],
+        "claim": "Claim"
     },
     "messages": {
         "sign": {
