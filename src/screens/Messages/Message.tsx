@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Redirect } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import ClipboardJS from 'clipboard';
 import { Modal as BSModal } from 'bootstrap';
 import { LumUtils, LumTypes } from '@lum-network/sdk-javascript';
@@ -12,7 +13,6 @@ import { Button as CustomButton } from 'components';
 import { showErrorToast, showSuccessToast, WalletUtils } from 'utils';
 
 import './styles/Messages.scss';
-import { useTranslation } from 'react-i18next';
 
 interface VerifyMessageResult {
     result: boolean;
@@ -231,14 +231,14 @@ const Message = (): JSX.Element => {
                                 </div>
                                 {verifyMessage && (
                                     <div
-                                        className={`p-4 mt-2 result-box text-truncate ${
+                                        className={`p-4 mt-2 result-box ${
                                             verifyMessage.result ? 'success' : 'failure'
                                         }`}
                                     >
                                         {t('messages.verify.resultText', {
                                             address: verifyMessage.address,
                                             did: verifyMessage.result ? 'did' : 'did not',
-                                            message: verifyMessage.message,
+                                            message: decodeURI(verifyMessage.message),
                                         })}
                                     </div>
                                 )}
@@ -275,7 +275,7 @@ const Message = (): JSX.Element => {
                 <Input disabled value={message} label={t('messages.confirmationModal.messageLabel')} className="mb-4" />
                 <Input
                     disabled
-                    value={LumUtils.keyToHex(LumUtils.toAscii(message), true)}
+                    value={LumUtils.keyToHex(LumUtils.toUtf8(encodeURI(message)), true)}
                     label={t('messages.confirmationModal.messageInHexLabel')}
                     className="mb-4"
                 />

@@ -128,7 +128,7 @@ export const formatTxs = async (rawTxs: TxResponse[], client: LumClient): Promis
 };
 
 export const generateSignedMessage = async (wallet: Wallet, message: string): Promise<LumTypes.SignMsg> => {
-    return await wallet.signMessage(message);
+    return await wallet.signMessage(encodeURI(message));
 };
 
 export const validateSignMessage = async (msg: LumTypes.SignMsg): Promise<boolean> => {

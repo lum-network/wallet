@@ -265,7 +265,7 @@
             "title": "Verify Message",
             "inputLabel": "Signature",
             "button": "Verify",
-            "resultText": "{{address}}\n{{did}} sign the message: {{message}}"
+            "resultText": "{{address}} {{did}} sign the message: {{message}}"
         },
         "clear": "Clear",
         "clearAll": "Clear All",
