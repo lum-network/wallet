@@ -3,9 +3,12 @@ import { createModel } from '@rematch/core';
 import { Window as KeplrWindow } from '@keplr-wallet/types';
 import { LumUtils, LumWalletFactory, LumWallet, LumConstants } from '@lum-network/sdk-javascript';
 
-import { Rewards, RootModel, Transaction, Wallet } from '../../models';
 import { showErrorToast, showSuccessToast, WalletClient } from 'utils';
+
 import i18n from 'locales';
+import { LUM_WALLET } from 'constant';
+
+import { Rewards, RootModel, Transaction, Wallet } from '../../models';
 
 interface SendPayload {
     to: string;
@@ -136,7 +139,7 @@ export const wallet = createModel<RootModel>()({
                             coinMinimalDenom: LumConstants.MicroLumDenom,
                             coinDecimals: LumConstants.LumExponent,
                         },
-                        walletUrlForStaking: 'https://wallet.lum.network',
+                        walletUrlForStaking: LUM_WALLET,
                         bip44: {
                             coinType: 837,
                         },
