@@ -49,7 +49,7 @@ const BalanceCard = ({ balance, address }: { balance: number; address: string })
                     onClick={() => getWalletInfos(address)}
                     data-bs-toggle="tooltip"
                     data-bs-placement="top"
-                    title="Refresh balance"
+                    title={t('common.refreshBalance')}
                 >
                     <img src={assets.images.syncIcon} className={`tint-white refresh-img ${isLoading && 'loading'}`} />
                 </button>
@@ -60,7 +60,7 @@ const BalanceCard = ({ balance, address }: { balance: number; address: string })
                         onClick={() => mintFaucet(address)}
                         data-bs-toggle="tooltip"
                         data-bs-placement="top"
-                        title="Mint Faucet"
+                        title={t('common.mintFaucet')}
                     >
                         <img src={assets.images.addIcon} className="tint-white" />
                     </button>

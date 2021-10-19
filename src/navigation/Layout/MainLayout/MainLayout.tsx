@@ -28,7 +28,7 @@ class MainLayout extends PureComponent<Props> {
     componentDidMount() {
         window.addEventListener('keplr_keystorechange', () => {
             if (this.props.wallet && this.props.wallet.isExtensionImport) {
-                showInfoToast('Keplr Key store/account has changed, you have been logged out');
+                showInfoToast(this.props.t('logout.keplrKeystoreChange'));
                 store.dispatch({ type: LOGOUT });
             }
         });

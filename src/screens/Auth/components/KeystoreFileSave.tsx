@@ -1,13 +1,15 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { LumUtils } from '@lum-network/sdk-javascript';
 
-import Assets from 'assets';
 import { Card, Button } from 'components';
 import assets from 'assets';
 import { useRematchDispatch } from 'redux/hooks';
 import { RootDispatch } from 'redux/store';
 
 const KeystoreFileSave = (props: { data: LumUtils.KeyStore; password: string }): JSX.Element => {
+    const { t } = useTranslation();
+
     const { signInWithKeystorefile } = useRematchDispatch((dispatch: RootDispatch) => ({
         signInWithKeystorefile: dispatch.wallet.signInWithKeystoreAsync,
     }));
@@ -33,19 +35,19 @@ const KeystoreFileSave = (props: { data: LumUtils.KeyStore; password: string }):
     return (
         <Card className="import-card d-flex justify-content-center">
             <div className="w-75 d-flex flex-column align-items-center">
-                <img className="my-5" src={Assets.images.softwareIcon} />
-                <h3>Save My Keystore File</h3>
+                <img className="my-5" src={assets.images.softwareIcon} />
+                <h3>{t('welcome.keystoreFileSave.title')}</h3>
                 <div className="container my-4">
                     <div className="row gy-4">
                         <div className="col-12">
                             <div className="keystore-step-container d-flex flex-row">
                                 <img src={assets.images.shieldIcon} width="50" />
                                 <div className="me-5">
-                                    <h4 className="keystore-step-title mb-1">{"Don't Lose It"}</h4>
+                                    <h4 className="keystore-step-title mb-1">
+                                        {t('welcome.keystoreFileSave.lose.title')}
+                                    </h4>
                                     <p className="auth-paragraph p-0">
-                                        Be careful, it can not be recovered
-                                        <br />
-                                        if you lose it.
+                                        {t('welcome.keystoreFileSave.lose.description')}
                                     </p>
                                 </div>
                             </div>
@@ -54,9 +56,11 @@ const KeystoreFileSave = (props: { data: LumUtils.KeyStore; password: string }):
                             <div className="keystore-step-container d-flex flex-row">
                                 <img src={assets.images.anonymousIcon} width="50" />
                                 <div>
-                                    <h4 className="keystore-step-title mb-1">{"Don't Share It"}</h4>
+                                    <h4 className="keystore-step-title mb-1">
+                                        {t('welcome.keystoreFileSave.share.title')}
+                                    </h4>
                                     <p className="auth-paragraph p-0">
-                                        Your funds will be stolen if you use this file on a malicious phishing site.
+                                        {t('welcome.keystoreFileSave.share.description')}
                                     </p>
                                 </div>
                             </div>
@@ -65,11 +69,11 @@ const KeystoreFileSave = (props: { data: LumUtils.KeyStore; password: string }):
                             <div className="keystore-step-container d-flex flex-row">
                                 <img src={assets.images.cloudIcon} width="50" />
                                 <div>
-                                    <h4 className="keystore-step-title mb-1">{'Make a Backup'}</h4>
+                                    <h4 className="keystore-step-title mb-1">
+                                        {t('welcome.keystoreFileSave.backup.title')}
+                                    </h4>
                                     <p className="auth-paragraph p-0">
-                                        Secure it like the millions of dollars
-                                        <br />
-                                        it may one day be worth.
+                                        {t('welcome.keystoreFileSave.backup.description')}
                                     </p>
                                 </div>
                             </div>
@@ -77,7 +81,7 @@ const KeystoreFileSave = (props: { data: LumUtils.KeyStore; password: string }):
                     </div>
                 </div>
                 <Button type="button" onClick={downloadKeystoreFile}>
-                    Download
+                    {t('welcome.keystoreFileSave.download')}
                 </Button>
             </div>
         </Card>

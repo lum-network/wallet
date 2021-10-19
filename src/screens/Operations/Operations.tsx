@@ -45,7 +45,7 @@ const Operations = (): JSX.Element => {
     const loadingRedelegate = useSelector((state: RootState) => state.loading.effects.wallet.redelegate);
     const loadingGetReward = useSelector((state: RootState) => state.loading.effects.wallet.getReward);
 
-    const loadingAll = loadingSend | loadingDelegate | loadingUndelegate | loadingGetReward;
+    const loadingAll = loadingSend || loadingDelegate || loadingUndelegate || loadingGetReward;
 
     const { t } = useTranslation();
     const modalRef = useRef<HTMLDivElement>(null);
@@ -57,34 +57,34 @@ const Operations = (): JSX.Element => {
     const buttons: MsgType[] = [
         {
             id: LumMessages.MsgSendUrl,
-            name: t('send.types.send.name'),
+            name: t('operations.types.send.name'),
             icon: assets.images.messageSend,
             iconClassName: 'send-icon',
-            description: t('send.types.send.description'),
+            description: t('operations.types.send.description'),
         },
         {
             id: LumMessages.MsgDelegateUrl,
-            name: t('send.types.delegate.name'),
+            name: t('operations.types.delegate.name'),
             icon: assets.images.messageDelegate,
-            description: t('send.types.delegate.description'),
+            description: t('operations.types.delegate.description'),
         },
         {
             id: LumMessages.MsgUndelegateUrl,
-            name: t('send.types.undelegate.name'),
+            name: t('operations.types.undelegate.name'),
             icon: assets.images.messageUndelegate,
-            description: t('send.types.undelegate.description'),
+            description: t('operations.types.undelegate.description'),
         },
         {
             id: LumMessages.MsgBeginRedelegateUrl,
-            name: t('send.types.redelegate.name'),
+            name: t('operations.types.redelegate.name'),
             icon: assets.images.messageRedelegate,
-            description: t('send.types.redelegate.description'),
+            description: t('operations.types.redelegate.description'),
         },
         {
             id: LumMessages.MsgWithdrawDelegatorRewardUrl,
-            name: t('send.types.getRewards.name'),
+            name: t('operations.types.getRewards.name'),
             icon: assets.images.messageGetReward,
-            description: t('send.types.getRewards.description'),
+            description: t('operations.types.getRewards.description'),
         },
     ];
 
@@ -119,7 +119,9 @@ const Operations = (): JSX.Element => {
             address: yup
                 .string()
                 .required(t('common.required'))
-                .matches(new RegExp(`^${LumConstants.LumBech32PrefixAccAddr}`), { message: 'Check address' }),
+                .matches(new RegExp(`^${LumConstants.LumBech32PrefixAccAddr}`), {
+                    message: t('operations.errors.address'),
+                }),
             amount: yup.string().required(t('common.required')),
             memo: yup.string(),
         }),
@@ -127,12 +129,14 @@ const Operations = (): JSX.Element => {
     });
 
     const delegateForm = useFormik({
-        initialValues: { address: '', amount: '', memo: 'Delegated' },
+        initialValues: { address: '', amount: '', memo: t('operations.defaultMemo.delegate') },
         validationSchema: yup.object().shape({
             address: yup
                 .string()
                 .required(t('common.required'))
-                .matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`), { message: 'Check validator address' }),
+                .matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`), {
+                    message: t('operations.errors.address'),
+                }),
             amount: yup.string().required(t('common.required')),
             memo: yup.string(),
         }),
@@ -140,12 +144,14 @@ const Operations = (): JSX.Element => {
     });
 
     const undelegateForm = useFormik({
-        initialValues: { address: '', amount: '', memo: 'Undelegated' },
+        initialValues: { address: '', amount: '', memo: t('operations.defaultMemo.undelegate') },
         validationSchema: yup.object().shape({
             address: yup
                 .string()
                 .required(t('common.required'))
-                .matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`), { message: 'Check validator address' }),
+                .matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`), {
+                    message: t('operations.errors.address'),
+                }),
             amount: yup.string().required(t('common.required')),
             memo: yup.string(),
         }),
@@ -153,19 +159,19 @@ const Operations = (): JSX.Element => {
     });
 
     const redelegateForm = useFormik({
-        initialValues: { fromAddress: '', toAddress: '', amount: '', memo: 'Redelegated' },
+        initialValues: { fromAddress: '', toAddress: '', amount: '', memo: t('operations.defaultMemo.redelegate') },
         validationSchema: yup.object().shape({
             fromAddress: yup
                 .string()
                 .required(t('common.required'))
                 .matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`), {
-                    message: 'Check source validator address',
+                    message: t('operations.errors.address'),
                 }),
             toAddress: yup
                 .string()
                 .required(t('common.required'))
                 .matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`), {
-                    message: 'Check destination validator address',
+                    message: t('operations.errors.address'),
                 }),
             amount: yup.string().required(t('common.required')),
             memo: yup.string(),
@@ -174,12 +180,14 @@ const Operations = (): JSX.Element => {
     });
 
     const getRewardForm = useFormik({
-        initialValues: { address: '', amount: '', memo: 'Get reward' },
+        initialValues: { address: '', amount: '', memo: t('operations.defaultMemo.getReward') },
         validationSchema: yup.object().shape({
             address: yup
                 .string()
                 .required(t('common.required'))
-                .matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`), { message: 'Check validator address' }),
+                .matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`), {
+                    message: t('operations.errors.address'),
+                }),
             memo: yup.string(),
         }),
         onSubmit: (values) => onSubmitGetReward(values.address, values.memo),
@@ -318,17 +326,17 @@ const Operations = (): JSX.Element => {
                             renderModal()
                         ) : txResult.error !== null ? (
                             <>
-                                <p className="color-error">Failure</p>
+                                <p className="color-error">{t('common.failure')}</p>
                                 <p className="color-error my-5 text-start">
-                                    {txResult.error || 'An unknown error has occured, please try again later'}
+                                    {txResult.error || t('wallet.errors.generic')}
                                 </p>
                                 <CustomButton className="mt-5" onClick={() => setTxResult(null)}>
-                                    Retry
+                                    {t('common.retry')}
                                 </CustomButton>
                             </>
                         ) : (
                             <>
-                                <p className="color-success">Success</p>
+                                <p className="color-success">{t('common.success')}</p>
                                 <Input
                                     disabled
                                     value={txResult.hash}
@@ -341,7 +349,7 @@ const Operations = (): JSX.Element => {
                                     data-bs-dismiss="modal"
                                     onClick={() => getWalletInfos(wallet.getAddress())}
                                 >
-                                    Close
+                                    {t('common.close')}
                                 </CustomButton>
                             </>
                         )}

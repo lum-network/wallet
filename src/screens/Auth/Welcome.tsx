@@ -204,12 +204,12 @@ const Welcome = (): JSX.Element => {
                             >
                                 <div className="d-flex align-items-center justify-content-center">
                                     <img src={Assets.images.softwareIcon} height="28" className="me-3" />
-                                    Keplr extension
+                                    {t('welcome.extensionModal.types.keplr.title')}
                                 </div>
                             </button>
                         </div>
                         {!isKeplrInstalled && (
-                            <p className="not-recommended">You have to install Keplr extension first</p>
+                            <p className="not-recommended">{t('welcome.extensionModal.types.keplr.notInstalled')}</p>
                         )}
                         <Button
                             type="button"

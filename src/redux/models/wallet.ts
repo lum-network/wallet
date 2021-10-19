@@ -4,6 +4,8 @@ import { Window as KeplrWindow } from '@keplr-wallet/types';
 import { LumUtils, LumWalletFactory, LumWallet, LumConstants } from '@lum-network/sdk-javascript';
 
 import { showErrorToast, showSuccessToast, WalletClient } from 'utils';
+
+import i18n from 'locales';
 import { LUM_WALLET } from 'constant';
 
 import { Rewards, RootModel, Transaction, Wallet } from '../../models';
@@ -61,33 +63,28 @@ export const wallet = createModel<RootModel>()({
     } as WalletState,
     reducers: {
         signIn(state, wallet: LumWallet, isExtensionImport?: boolean) {
-            state.currentWallet = {
-                useAccount: wallet.useAccount,
-                sign: wallet.sign,
-                signMessage: wallet.signMessage,
-                signTransaction: wallet.signTransaction,
-                signingMode: wallet.signingMode,
-                canChangeAccount: wallet.canChangeAccount,
-                getPublicKey: wallet.getPublicKey,
-                getAddress: wallet.getAddress,
-                isExtensionImport,
+            return {
+                ...state,
+                currentWallet: {
+                    useAccount: wallet.useAccount,
+                    sign: wallet.sign,
+                    signMessage: wallet.signMessage,
+                    signTransaction: wallet.signTransaction,
+                    signingMode: wallet.signingMode,
+                    canChangeAccount: wallet.canChangeAccount,
+                    getPublicKey: wallet.getPublicKey,
+                    getAddress: wallet.getAddress,
+                    isExtensionImport,
+                },
             };
-            return state;
         },
         setWalletData(state, data: { transactions?: Transaction[]; currentBalance?: number; rewards?: Rewards }) {
-            if (data.currentBalance) {
-                state.currentBalance = data.currentBalance;
-            }
-
-            if (data.transactions) {
-                state.transactions = [...data.transactions];
-            }
-
-            if (data.rewards) {
-                state.rewards = data.rewards;
-            }
-
-            return state;
+            return {
+                ...state,
+                rewards: data.rewards || state.rewards,
+                currentBalance: data.currentBalance || state.currentBalance,
+                transactions: data.transactions || state.transactions,
+            };
         },
     },
     effects: (dispatch) => ({
@@ -122,13 +119,13 @@ export const wallet = createModel<RootModel>()({
         async signInWithKeplrAsync() {
             const keplrWindow = window as KeplrWindow;
             if (!keplrWindow.getOfflineSigner || !keplrWindow.keplr) {
-                showErrorToast('Please install keplr extension');
+                showErrorToast(i18n.t('wallet.errors.keplr.notInstalled'));
             } else if (!keplrWindow.keplr.experimentalSuggestChain) {
-                showErrorToast('Please use and up to date version of the Keplr extension');
+                showErrorToast(i18n.t('wallet.errors.keplr.notLatest'));
             } else {
                 const chainId = await WalletClient.lumClient?.getChainId();
                 if (!chainId) {
-                    showErrorToast('Failed to connect to the network');
+                    showErrorToast(i18n.t('wallet.errors.keplr.network'));
                     return;
                 }
                 try {
@@ -178,7 +175,7 @@ export const wallet = createModel<RootModel>()({
                         beta: chainId.includes('testnet'),
                     });
                 } catch {
-                    showErrorToast('Failed to add network to Keplr');
+                    showErrorToast(i18n.t('wallet.errors.keplr.networkAdd'));
                     return;
                 }
 
@@ -192,7 +189,7 @@ export const wallet = createModel<RootModel>()({
                         })
                         .catch((e) => showErrorToast(e.message));
                 } catch (e) {
-                    showErrorToast('Failed to connect to Keplr wallet');
+                    showErrorToast(i18n.t('wallet.errors.keplr.wallet'));
                     return;
                 }
             }
@@ -292,14 +289,14 @@ export const wallet = createModel<RootModel>()({
             if (address) {
                 const res = await axios.get(`https://bridge.testnet.lum.network/faucet/${address}`);
 
-                if (res.data.code === 200) {
-                    showSuccessToast('Successfully minted faucet');
+                if (res.status === 200) {
+                    showSuccessToast(i18n.t('wallet.success.faucet'));
                     dispatch.wallet.reloadWalletInfos(address);
                 } else {
-                    showErrorToast('An error occured when minting faucet');
+                    showErrorToast(i18n.t('wallet.errors.keplr.generic'));
                 }
             } else {
-                showErrorToast('Mint faucet error: Unknown address');
+                showErrorToast(i18n.t('wallet.errors.keplr.address'));
             }
         },
     }),

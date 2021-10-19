@@ -42,14 +42,20 @@ export const staking = createModel<RootModel>()({
                 stakedCoins: number;
             },
         ) {
-            state.validators.bonded = data.bonded;
-            state.validators.unbonded = data.unbonded;
-            state.delegations = data.delegations;
-            state.unbondings = data.unbondings;
-            state.stakedCoins = data.stakedCoins;
-            state.unbondedTokens = data.unbondedTokens;
+            const { bonded, unbonded, delegations, unbondings, unbondedTokens, stakedCoins } = data;
 
-            return state;
+            return {
+                ...state,
+                bonded,
+                unbondedTokens,
+                delegations,
+                unbondings,
+                stakedCoins,
+                validators: {
+                    bonded,
+                    unbonded,
+                },
+            };
         },
     },
     effects: (dispatch) => ({

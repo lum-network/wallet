@@ -6,16 +6,56 @@
         "required": "Required",
         "lengthError": "Please enter at least {{ count }} characters",
         "testnetBanner": "⚠️ You are connected to the Testnet ⚠️",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "close": "Close",
+        "copy": "Copy",
+        "print": "Print",
+        "qr": "QR Code",
+        "values": "Values",
+        "copyAddress": "Address copied to clipboard!",
+        "refreshBalance": "Refresh balance",
+        "mintFaucet": "Mint faucet",
+        "success": "Success",
+        "failure": "Failure",
+        "retry": "Retry"
+    },
+    "navbar": {
+        "dashboard": "Dashboard",
+        "transactions": "Operations",
+        "staking": "Staking",
+        "message": "Messages",
+        "logout": "Logout"
+    },
+    "wallet": {
+        "success": {
+            "faucet": "Successfully minted faucet"
+        },
+        "errors": {
+            "keplr": {
+                "notInstalled": "Please install keplr extension",
+                "notLatest": "Please use an up to date version of the Keplr extension",
+                "network": "Failed to connect to the network",
+                "networkAdd": "Failed to add network to Keplr",
+                "wallet": "Failed to connect to Keplr wallet"
+            },
+            "faucet": {
+                "generic": "An error occured when minting faucet",
+                "address": "Mint faucet error\nUnknown address"
+            },
+            "client": "Unable to connect the lum client with the blockchain, try again later",
+            "generic": "An unknown error has occured, please try again later"
+        }
     },
     "logout": {
         "title": "Are you sure you want\nto log out ?",
-        "logoutBtn": "Log out"
+        "logoutBtn": "Log out",
+        "keplrKeystoreChange": "Keplr Key store/account has changed, you have been logged out"
     },
     "dashboard": {
         "latestTx": "Latest Transactions",
         "currentBalance": "Current balance",
-        "followTwitter": "Follow us on Twitter"
+        "followTwitter": "Follow us on Twitter",
+        "noTx": "No transactions yet"
     },
     "welcome": {
         "title": "Access My Wallet",
@@ -46,7 +86,34 @@
             },
             "importMnemonic": "Access by Mnemonic",
             "importKeystore": "Access by Keystore",
-            "importPrivateKey": "Access by Private Key"
+            "importPrivateKey": "Access by Private Key",
+            "privateKey": {
+                "placeholder": "Enter your private key"
+            }
+        },
+        "extensionModal": {
+            "types": {
+                "keplr": {
+                    "title": "Keplr extension",
+                    "notInstalled": "You have to install Keplr extension first"
+                }
+            }
+        },
+        "keystoreFileSave": {
+            "title": "Save My Keystore File",
+            "lose": {
+                "title": "Don't Lose It",
+                "description": "Be careful, it can not be recovered\nif you lose it"
+            },
+            "share": {
+                "title": "Don't Share It",
+                "description": "Your funds will be stolen if you use this file on a malicious phishing site."
+            },
+            "backup": {
+                "title": "Make a Backup",
+                "description": "Secure it like the millions of dollars\nit may one day be worth."
+            },
+            "download": "Download"
         }
     },
     "createWallet": {
@@ -76,7 +143,8 @@
         "table": {
             "to": "To",
             "from": "From",
-            "amount": "Amount"
+            "amount": "Amount",
+            "time": "Time"
         },
         "types": {
             "send": "Send",
@@ -92,7 +160,7 @@
             "openBeam": "Open Beam"
         }
     },
-    "send": {
+    "operations": {
         "types": {
             "send": {
                 "name": "Send",
@@ -114,14 +182,39 @@
                 "name": "Redelegate",
                 "description": "Redelegate LUM from one network validator to another"
             }
+        },
+        "confirmation": "Confirmation",
+        "modify": "Modify",
+        "inputs": {
+            "amount": {
+                "label": "Amount"
+            },
+            "recipient": {
+                "label": "To Address"
+            },
+            "validator": {
+                "label": "Validator address"
+            },
+            "validatorSrc": {
+                "label": "Source validator address"
+            },
+            "validatorDest": {
+                "label": "Destination validator address"
+            },
+            "memo": {
+                "label": "Memo",
+                "placeholder": "Memo (optional)"
+            }
+        },
+        "defaultMemo": {
+            "delegate": "Delegated",
+            "undelegate": "Undelegated",
+            "redelegate": "Redelegate",
+            "getReward": "Get Reward"
+        },
+        "errors": {
+            "address": "Wrong address format"
         }
-    },
-    "navbar": {
-        "dashboard": "Dashboard",
-        "transactions": "Operations",
-        "staking": "Staking",
-        "message": "Messages",
-        "logout": "Logout"
     },
     "staking": {
         "stakedCoins": "Staked Coins",
@@ -146,6 +239,37 @@
             "stakedCoins": "Staked Coins",
             "rewards": "Rewards"
         },
-        "status": ["Unspecified", "Unbonded", "Unbonding", "Bonded"]
+        "status": ["Unspecified", "Unbonded", "Unbonding", "Bonded"],
+        "claim": "Claim"
+    },
+    "messages": {
+        "sign": {
+            "title": "Sign Message",
+            "description": "Enter a message you want to sign using your wallet. If you share the resulting payload, the receiver will be able to verify that your wallet address signed this message.",
+            "disabled": "SIGN MESSAGE IS DISABLED FOR EXTENSION WALLETS FOR NOW",
+            "inputLabel": "Message",
+            "button": "Sign"
+        },
+        "confirmationModal": {
+            "title": "Confirmation",
+            "addressLabel": "Signing Address",
+            "messageLabel": "Message",
+            "messageInHexLabel": "Message in hex",
+            "button": "Confirm Signing"
+        },
+        "signatureModal": {
+            "title": "Signature",
+            "copyPayload": "Copy this payload to share it so anyone can verify its integrity"
+        },
+        "verify": {
+            "title": "Verify Message",
+            "inputLabel": "Signature",
+            "button": "Verify",
+            "resultText": "{{address}} {{did}} sign the message: {{message}}"
+        },
+        "clear": "Clear",
+        "clearAll": "Clear All",
+        "messageCopied": "Message payload copied!",
+        "invalidMessage": "Invalid message payload"
     }
 }

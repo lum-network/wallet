@@ -97,7 +97,7 @@ const ImportMnemonicModal = (): JSX.Element => {
                         checked={mnemonic.length === 24}
                         onChange={(event) => onLengthChange(event.target.checked ? 24 : 12)}
                     />
-                    <h6>Values</h6>
+                    <h6>{t('common.values')}</h6>
                 </div>
             </div>
             <div className="container-fluid py-4">

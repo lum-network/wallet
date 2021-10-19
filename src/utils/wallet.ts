@@ -2,6 +2,7 @@ import { LumClient, LumConstants, LumMessages, LumRegistry, LumTypes, LumUtils }
 import { TxResponse } from '@cosmjs/tendermint-rpc';
 import { PasswordStrengthType, PasswordStrength, Transaction, Wallet } from 'models';
 import { dateFromNow, showErrorToast } from 'utils';
+import i18n from 'locales';
 
 export type MnemonicLength = 12 | 24;
 
@@ -127,7 +128,7 @@ export const formatTxs = async (rawTxs: TxResponse[], client: LumClient): Promis
 };
 
 export const generateSignedMessage = async (wallet: Wallet, message: string): Promise<LumTypes.SignMsg> => {
-    return await wallet.signMessage(message);
+    return await wallet.signMessage(encodeURI(message));
 };
 
 export const validateSignMessage = async (msg: LumTypes.SignMsg): Promise<boolean> => {
@@ -140,7 +141,7 @@ class WalletClient {
     init = () => {
         LumClient.connect(process.env.REACT_APP_RPC_URL)
             .then((client) => (this.lumClient = client))
-            .catch(() => showErrorToast('Unable to connect to the blockchain'));
+            .catch(() => showErrorToast(i18n.t('wallet.errors.client')));
     };
 
     private getAccountAndChainId = (fromWallet: Wallet) => {
