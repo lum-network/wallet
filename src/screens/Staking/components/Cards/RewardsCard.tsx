@@ -32,7 +32,7 @@ const RewardsCard = ({ rewards }: Props): JSX.Element => {
             if (wallet && delegation.delegation) {
                 getReward({
                     validatorAddress: delegation.delegation?.validatorAddress,
-                    memo: 'Claim Reward',
+                    memo: t('operations.defaultMemo.getReward'),
                     from: wallet,
                 });
             }
@@ -55,7 +55,7 @@ const RewardsCard = ({ rewards }: Props): JSX.Element => {
                 </div>
             </div>
             <Button loading={isLoading} onPress={claimRewards} className="claim-reward-btn fs-4 p-4 rounded-pill">
-                Claim
+                {t('staking.claim')}
             </Button>
         </Card>
     );

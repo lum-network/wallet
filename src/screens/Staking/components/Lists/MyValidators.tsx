@@ -98,20 +98,20 @@ const MyValidators = ({ validators, onDelegate, onUndelegate }: Props): JSX.Elem
                     isLoading={loadingClaim || loadingDelegate || loadingUndelegate}
                     items={[
                         {
-                            title: 'Claim',
+                            title: t('staking.claim'),
                             onPress: () =>
                                 getReward({
                                     from: wallet,
-                                    memo: 'Claim Reward',
+                                    memo: t('operations.defaultMemo.getReward'),
                                     validatorAddress: validator.operatorAddress,
                                 }),
                         },
                         {
-                            title: 'Undelegate',
+                            title: t('operations.types.undelegate.name'),
                             onPress: () => onUndelegate(validator),
                         },
                         {
-                            title: 'Delegate',
+                            title: t('operations.types.delegate.name'),
                             onPress: () => onDelegate(validator),
                         },
                     ]}

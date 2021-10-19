@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import './Modals.scss';
 
@@ -29,6 +30,8 @@ const Modal = React.forwardRef<HTMLDivElement, Props>(
     ) => {
         const [buttonEnabled, setButtonEnabled] = useState(false);
 
+        const { t } = useTranslation();
+
         useEffect(() => {
             setTimeout(() => setButtonEnabled(true), 300);
         }, []);
@@ -54,7 +57,7 @@ const Modal = React.forwardRef<HTMLDivElement, Props>(
                                 className="close-btn bg-white rounded-circle align-self-center"
                                 data-bs-dismiss="modal"
                                 data-bs-target={id}
-                                aria-label="Close"
+                                aria-label={t('common.close')}
                             >
                                 <div className="btn-close mx-auto" />
                             </button>
