@@ -421,7 +421,7 @@ const Welcome = (): JSX.Element => {
                                 disabled={keplrState.loading || ledgerState.loading}
                                 title={t('welcome.hardware.title')}
                                 description={t('welcome.hardware.description')}
-                                note=""
+                                note={t('welcome.extensionModal.info')}
                                 icon={Assets.images.hardwareIcon}
                                 onClick={() => {
                                     showImportModal();
