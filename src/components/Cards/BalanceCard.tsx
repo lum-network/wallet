@@ -9,7 +9,7 @@ import { useRematchDispatch } from 'redux/hooks';
 import { RootDispatch, RootState } from 'redux/store';
 
 import './Cards.scss';
-import { IS_TESTNET } from 'utils/wallet';
+import { IS_TESTNET } from 'constant';
 import { NumbersUtils } from 'utils';
 
 const BalanceCard = ({ balance, address }: { balance: number; address: string }): JSX.Element => {

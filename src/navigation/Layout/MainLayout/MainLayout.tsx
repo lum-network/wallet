@@ -8,7 +8,7 @@ import { LOGOUT } from 'redux/constants';
 import { Footer, Modal, Button } from 'components';
 
 import './MainLayout.scss';
-import { IS_TESTNET } from 'utils/wallet';
+import { IS_TESTNET } from 'constant';
 import { showInfoToast } from 'utils';
 
 interface IProps {

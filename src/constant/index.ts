@@ -1,4 +1,4 @@
-import { IS_TESTNET } from '../utils/wallet';
+export const IS_TESTNET = process.env.REACT_APP_RPC_URL.includes('testnet');
 
 export const LUM_WALLET_GITHUB = 'https://github.com/lum-network/wallet';
 export const LUM_MAIL = 'contact@lum.network';

@@ -47,6 +47,7 @@ const Message = (): JSX.Element => {
     const [showTooltip, setShowTooltip] = useState(false);
     const [signMessage, setSignMessage] = useState<LumTypes.SignMsg | null>(null);
     const [verifyMessage, setVerifyMessage] = useState<VerifyMessageResult | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     // Redux hooks
     const { wallet, currentBalance } = useSelector((state: RootState) => ({
@@ -99,6 +100,7 @@ const Message = (): JSX.Element => {
 
     // Methods
     const handleSign = async () => {
+        setIsLoading(true);
         try {
             const json = await WalletUtils.generateSignedMessage(wallet, message);
             setSignMessage(json);
@@ -107,6 +109,7 @@ const Message = (): JSX.Element => {
         } catch (e) {
             showErrorToast((e as Error).message);
         }
+        setIsLoading(false);
     };
 
     const handleVerify = async () => {
@@ -283,7 +286,7 @@ const Message = (): JSX.Element => {
                     label={t('messages.confirmationModal.messageInHexLabel')}
                     className="mb-4"
                 />
-                <CustomButton onClick={handleSign} className="mt-5 w-100">
+                <CustomButton onClick={handleSign} isLoading={isLoading} className="mt-5 w-100">
                     {t('messages.confirmationModal.button')}
                 </CustomButton>
             </Modal>
