@@ -70,6 +70,6 @@ export enum ExtensionMethod {
 }
 
 export enum HardwareMethod {
-    Ledger = 'ledger',
-    Lum = 'lumapp',
+    Cosmos = 'cosmos',
+    Lum = 'lum',
 }

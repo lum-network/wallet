@@ -8,7 +8,7 @@ import assets from 'assets';
 import { Card, CodeQr } from 'frontend-elements';
 
 import Modal from '../Modals/Modal';
-import { showSuccessToast } from 'utils';
+import { showErrorToast, showSuccessToast } from 'utils';
 import { LUM_EXPLORER } from 'constant';
 
 const AddressCard = ({ address }: { address: string }): JSX.Element => {
@@ -20,8 +20,8 @@ const AddressCard = ({ address }: { address: string }): JSX.Element => {
             e.clearSelection();
             showSuccessToast(t('common.copyAddress'));
         });
-        clipboard.on('error', (e) => {
-            console.log(e);
+        clipboard.on('error', () => {
+            showErrorToast('An error occured when copying your address, try again');
         });
 
         const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));

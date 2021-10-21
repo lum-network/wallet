@@ -10,6 +10,7 @@ import assets from 'assets';
 import { AddressCard, BalanceCard, Input, Modal, Button as CustomButton } from 'components';
 import { RootDispatch, RootState } from 'redux/store';
 import { useRematchDispatch } from 'redux/hooks';
+import { showErrorToast } from 'utils';
 
 import MessageButton from './components/MessageButton/MessageButton';
 import Delegate from './components/Forms/Delegate';
@@ -45,7 +46,8 @@ const Operations = (): JSX.Element => {
     const loadingRedelegate = useSelector((state: RootState) => state.loading.effects.wallet.redelegate);
     const loadingGetReward = useSelector((state: RootState) => state.loading.effects.wallet.getReward);
 
-    const loadingAll = loadingSend || loadingDelegate || loadingUndelegate || loadingGetReward;
+    const loadingAll =
+        loadingSend.loading || loadingDelegate.loading || loadingUndelegate.loading || loadingGetReward.loading;
 
     const { t } = useTranslation();
     const modalRef = useRef<HTMLDivElement>(null);
@@ -87,31 +89,6 @@ const Operations = (): JSX.Element => {
             description: t('operations.types.getRewards.description'),
         },
     ];
-
-    useEffect(() => {
-        if (modalRef.current) {
-            modalRef.current.addEventListener('hidden.bs.modal', () => {
-                if (sendForm.touched.address || sendForm.touched.amount || sendForm.touched.memo) {
-                    sendForm.resetForm();
-                }
-                if (delegateForm.touched.address || delegateForm.touched.amount || delegateForm.touched.memo) {
-                    delegateForm.resetForm();
-                }
-                if (undelegateForm.touched.address || undelegateForm.touched.amount || undelegateForm.touched.memo) {
-                    undelegateForm.resetForm();
-                }
-                if (getRewardForm.touched.address || getRewardForm.touched.memo) {
-                    getRewardForm.resetForm();
-                }
-                if (confirming) {
-                    setConfirming(false);
-                }
-                if (txResult) {
-                    setTxResult(null);
-                }
-            });
-        }
-    });
 
     const sendForm = useFormik({
         initialValues: { address: '', amount: '', memo: '' },
@@ -193,32 +170,79 @@ const Operations = (): JSX.Element => {
         onSubmit: (values) => onSubmitGetReward(values.address, values.memo),
     });
 
+    useEffect(() => {
+        const ref = modalRef.current;
+
+        const handler = () => {
+            if (sendForm.touched.address || sendForm.touched.amount || sendForm.touched.memo) {
+                sendForm.resetForm();
+            }
+            if (delegateForm.touched.address || delegateForm.touched.amount || delegateForm.touched.memo) {
+                delegateForm.resetForm();
+            }
+            if (undelegateForm.touched.address || undelegateForm.touched.amount || undelegateForm.touched.memo) {
+                undelegateForm.resetForm();
+            }
+            if (getRewardForm.touched.address || getRewardForm.touched.memo) {
+                getRewardForm.resetForm();
+            }
+            if (confirming) {
+                setConfirming(false);
+            }
+            if (txResult) {
+                setTxResult(null);
+            }
+        };
+
+        if (ref) {
+            ref.addEventListener('hidden.bs.modal', handler);
+        }
+
+        return () => {
+            if (ref) {
+                ref.removeEventListener('hidden.bs.modal', handler);
+            }
+        };
+    }, [confirming, delegateForm, getRewardForm, modalRef, sendForm, txResult, undelegateForm]);
+
     if (!wallet) {
         return <Redirect to="/welcome" />;
     }
 
     const onSubmitSend = async (toAddress: string, amount: string, memo: string) => {
-        const sendResult = await sendTx({ from: wallet, to: toAddress, amount, memo });
+        try {
+            const sendResult = await sendTx({ from: wallet, to: toAddress, amount, memo });
 
-        if (sendResult) {
-            setConfirming(false);
-            setTxResult({ hash: LumUtils.toHex(sendResult.hash), error: sendResult.error });
+            if (sendResult) {
+                setConfirming(false);
+                setTxResult({ hash: LumUtils.toHex(sendResult.hash), error: sendResult.error });
+            }
+        } catch (e) {
+            showErrorToast((e as Error).message);
         }
     };
 
     const onSubmitDelegate = async (validatorAddress: string, amount: string, memo: string) => {
-        const delegateResult = await delegate({ validatorAddress, amount, memo, from: wallet });
+        try {
+            const delegateResult = await delegate({ validatorAddress, amount, memo, from: wallet });
 
-        if (delegateResult) {
-            setTxResult({ hash: LumUtils.toHex(delegateResult.hash), error: delegateResult.error });
+            if (delegateResult) {
+                setTxResult({ hash: LumUtils.toHex(delegateResult.hash), error: delegateResult.error });
+            }
+        } catch (e) {
+            showErrorToast((e as Error).message);
         }
     };
 
     const onSubmitUndelegate = async (validatorAddress: string, amount: string, memo: string) => {
-        const undelegateResult = await undelegate({ validatorAddress, amount, memo, from: wallet });
+        try {
+            const undelegateResult = await undelegate({ validatorAddress, amount, memo, from: wallet });
 
-        if (undelegateResult) {
-            setTxResult({ hash: LumUtils.toHex(undelegateResult.hash), error: undelegateResult.error });
+            if (undelegateResult) {
+                setTxResult({ hash: LumUtils.toHex(undelegateResult.hash), error: undelegateResult.error });
+            }
+        } catch (e) {
+            showErrorToast((e as Error).message);
         }
     };
 
@@ -228,24 +252,32 @@ const Operations = (): JSX.Element => {
         amount: string,
         memo: string,
     ) => {
-        const redelegateResult = await redelegate({
-            validatorSrcAddress,
-            validatorDestAddress,
-            amount,
-            memo,
-            from: wallet,
-        });
+        try {
+            const redelegateResult = await redelegate({
+                validatorSrcAddress,
+                validatorDestAddress,
+                amount,
+                memo,
+                from: wallet,
+            });
 
-        if (redelegateResult) {
-            setTxResult({ hash: LumUtils.toHex(redelegateResult.hash), error: redelegateResult.error });
+            if (redelegateResult) {
+                setTxResult({ hash: LumUtils.toHex(redelegateResult.hash), error: redelegateResult.error });
+            }
+        } catch (e) {
+            showErrorToast((e as Error).message);
         }
     };
 
     const onSubmitGetReward = async (validatorAddress: string, memo: string) => {
-        const getRewardResult = await getReward({ validatorAddress, memo, from: wallet });
+        try {
+            const getRewardResult = await getReward({ validatorAddress, memo, from: wallet });
 
-        if (getRewardResult) {
-            setTxResult({ hash: LumUtils.toHex(getRewardResult.hash), error: getRewardResult.error });
+            if (getRewardResult) {
+                setTxResult({ hash: LumUtils.toHex(getRewardResult.hash), error: getRewardResult.error });
+            }
+        } catch (e) {
+            showErrorToast((e as Error).message);
         }
     };
 
@@ -260,19 +292,19 @@ const Operations = (): JSX.Element => {
 
         switch (modal.id) {
             case LumMessages.MsgSendUrl:
-                return <Send isLoading={loadingSend} form={sendForm} />;
+                return <Send isLoading={!!loadingSend.loading} form={sendForm} />;
 
             case LumMessages.MsgDelegateUrl:
-                return <Delegate isLoading={loadingDelegate} form={delegateForm} />;
+                return <Delegate isLoading={!!loadingDelegate.loading} form={delegateForm} />;
 
             case LumMessages.MsgUndelegateUrl:
-                return <Undelegate isLoading={loadingUndelegate} form={undelegateForm} />;
+                return <Undelegate isLoading={!!loadingUndelegate.loading} form={undelegateForm} />;
 
             case LumMessages.MsgBeginRedelegateUrl:
-                return <Redelegate isLoading={loadingRedelegate} form={redelegateForm} />;
+                return <Redelegate isLoading={!!loadingRedelegate.loading} form={redelegateForm} />;
 
             case LumMessages.MsgWithdrawDelegatorRewardUrl:
-                return <GetRewards isLoading={loadingGetReward} form={getRewardForm} />;
+                return <GetRewards isLoading={!!loadingGetReward.loading} form={getRewardForm} />;
 
             default:
                 return <div>Soon</div>;
@@ -338,7 +370,7 @@ const Operations = (): JSX.Element => {
                             <>
                                 <p className="color-success">{t('common.success')}</p>
                                 <Input
-                                    disabled
+                                    readOnly
                                     value={txResult.hash}
                                     label="Hash"
                                     className="text-start align-self-stretch mb-5"

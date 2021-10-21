@@ -3,12 +3,14 @@ import { createModel } from '@rematch/core';
 import { Window as KeplrWindow } from '@keplr-wallet/types';
 import { LumUtils, LumWalletFactory, LumWallet, LumConstants } from '@lum-network/sdk-javascript';
 
+import TransportWebUsb from '@ledgerhq/hw-transport-webusb';
+
 import { showErrorToast, showSuccessToast, WalletClient } from 'utils';
 
 import i18n from 'locales';
 import { LUM_WALLET } from 'constant';
 
-import { Rewards, RootModel, Transaction, Wallet } from '../../models';
+import { HardwareMethod, Rewards, RootModel, Transaction, Wallet } from '../../models';
 
 interface SendPayload {
     to: string;
@@ -114,6 +116,7 @@ export const wallet = createModel<RootModel>()({
                 dispatch.wallet.getWalletBalance(address),
                 dispatch.wallet.getTransactions(address),
                 dispatch.wallet.getRewards(address),
+                dispatch.staking.getValidatorsInfosAsync(address),
             ]);
         },
         async signInWithKeplrAsync() {
@@ -182,16 +185,50 @@ export const wallet = createModel<RootModel>()({
                 try {
                     await keplrWindow.keplr.enable(chainId);
                     const offlineSigner = keplrWindow.getOfflineSigner(chainId);
-                    LumWalletFactory.fromOfflineSigner(offlineSigner)
-                        .then((wallet) => {
-                            dispatch.wallet.signIn(wallet, true);
-                            dispatch.wallet.reloadWalletInfos(wallet.getAddress());
-                        })
-                        .catch((e) => showErrorToast(e.message));
+                    const wallet = await LumWalletFactory.fromOfflineSigner(offlineSigner);
+                    if (wallet) {
+                        dispatch.wallet.signIn(wallet, true);
+                        dispatch.wallet.reloadWalletInfos(wallet.getAddress());
+                    }
+                    return;
                 } catch (e) {
                     showErrorToast(i18n.t('wallet.errors.keplr.wallet'));
-                    return;
+                    throw e;
                 }
+            }
+        },
+        async signInWithLedgerAsync(app: string) {
+            try {
+                let wallet: null | LumWallet = null;
+                let breakLoop = false;
+
+                // 10 sec timeout to let the user unlock his hardware
+                const to = setTimeout(() => (breakLoop = true), 10000);
+
+                while (!wallet && !breakLoop) {
+                    try {
+                        const transport = await TransportWebUsb.create();
+
+                        wallet = await LumWalletFactory.fromLedgerTransport(
+                            transport,
+                            app === HardwareMethod.Cosmos ? `44'/118'/0'/0/0` : LumConstants.getLumHdPath(),
+                            LumConstants.LumBech32PrefixAccAddr,
+                        );
+                    } catch (e) {}
+                }
+
+                clearTimeout(to);
+
+                if (wallet) {
+                    dispatch.wallet.signIn(wallet);
+                    dispatch.wallet.reloadWalletInfos(wallet.getAddress());
+                    return;
+                } else {
+                    showErrorToast(i18n.t('wallet.errors.ledger'));
+                    throw new Error('Ledger wallet importation');
+                }
+            } catch (e) {
+                throw e;
             }
         },
         signInWithMnemonicAsync(payload: string) {
@@ -243,6 +280,7 @@ export const wallet = createModel<RootModel>()({
             }
 
             dispatch.wallet.reloadWalletInfos(payload.from.getAddress());
+            dispatch.staking.getValidatorsInfosAsync(payload.from.getAddress());
             return result;
         },
         async undelegate(payload: DelegatePayload) {
@@ -258,6 +296,7 @@ export const wallet = createModel<RootModel>()({
             }
 
             dispatch.wallet.reloadWalletInfos(payload.from.getAddress());
+            dispatch.staking.getValidatorsInfosAsync(payload.from.getAddress());
             return result;
         },
         async getReward(payload: GetRewardPayload) {
@@ -283,6 +322,7 @@ export const wallet = createModel<RootModel>()({
             }
 
             dispatch.wallet.reloadWalletInfos(payload.from.getAddress());
+            dispatch.staking.getValidatorsInfosAsync(payload.from.getAddress());
             return result;
         },
         async mintFaucet(address: string) {

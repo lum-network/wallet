@@ -3,7 +3,7 @@ import loadingPlugin, { ExtraModelsFromLoading } from '@rematch/loading';
 
 import { RootModel, reduxModels } from 'models';
 
-type FullModel = ExtraModelsFromLoading<RootModel>;
+type FullModel = ExtraModelsFromLoading<RootModel, { type: 'full' }>;
 
 const store = init<RootModel, FullModel>({
     models: reduxModels,
@@ -12,7 +12,7 @@ const store = init<RootModel, FullModel>({
             LOGOUT: () => undefined,
         },
     },
-    plugins: [loadingPlugin()],
+    plugins: [loadingPlugin({ type: 'full' })],
 });
 
 export type Store = typeof store;

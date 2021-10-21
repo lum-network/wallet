@@ -23,9 +23,9 @@ interface Props {
 const MyValidators = ({ validators, onDelegate, onUndelegate }: Props): JSX.Element => {
     const { wallet, loadingClaim, loadingDelegate, loadingUndelegate } = useSelector((state: RootState) => ({
         wallet: state.wallet.currentWallet,
-        loadingClaim: state.loading.effects.wallet.getReward,
-        loadingDelegate: state.loading.effects.wallet.delegate,
-        loadingUndelegate: state.loading.effects.wallet.undelegate,
+        loadingClaim: state.loading.effects.wallet.getReward.loading,
+        loadingDelegate: state.loading.effects.wallet.delegate.loading,
+        loadingUndelegate: state.loading.effects.wallet.undelegate.loading,
     }));
 
     const { getReward } = useRematchDispatch((dispatch: RootDispatch) => ({

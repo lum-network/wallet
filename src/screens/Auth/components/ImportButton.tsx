@@ -32,8 +32,6 @@ const ImportButton = ({
     return (
         <Button
             buttonType="custom"
-            data-bs-toggle="modal"
-            data-bs-target="#importSoftwareModal"
             disabled={disabled}
             onClick={onClick}
             className={`h-100 w-100 text-reset text-decoration-none ${className}`}
@@ -49,15 +47,7 @@ const ImportButton = ({
                 <h3 className="mt-4">{title}</h3>
                 <p className="auth-paragraph">{description}</p>
                 <br />
-                <p
-                    className={
-                        method === 'extension'
-                            ? 'recommended'
-                            : method === 'software'
-                            ? 'not-recommended'
-                            : 'auth-paragraph'
-                    }
-                >
+                <p className={method === 'extension' || method === 'hardware' ? 'recommended' : 'not-recommended'}>
                     {note}
                 </p>
             </Card>

@@ -20,7 +20,7 @@ const RewardsCard = ({ rewards }: Props): JSX.Element => {
     const { delegations, wallet, isLoading } = useSelector((state: RootState) => ({
         delegations: state.staking.delegations,
         wallet: state.wallet.currentWallet,
-        isLoading: state.loading.effects.wallet.getReward,
+        isLoading: state.loading.effects.wallet.getReward.loading,
     }));
 
     const { getReward } = useRematchDispatch((dispatch: RootDispatch) => ({

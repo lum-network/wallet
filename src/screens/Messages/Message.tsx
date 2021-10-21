@@ -47,6 +47,7 @@ const Message = (): JSX.Element => {
     const [showTooltip, setShowTooltip] = useState(false);
     const [signMessage, setSignMessage] = useState<LumTypes.SignMsg | null>(null);
     const [verifyMessage, setVerifyMessage] = useState<VerifyMessageResult | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     // Redux hooks
     const { wallet, currentBalance } = useSelector((state: RootState) => ({
@@ -69,8 +70,8 @@ const Message = (): JSX.Element => {
             setShowTooltip(true);
             setTimeout(() => setShowTooltip(false), 1000);
         });
-        clipboard.on('error', (e) => {
-            console.log(e);
+        clipboard.on('error', () => {
+            showErrorToast('An error occured when copying the message, try again');
         });
 
         return () => {
@@ -84,9 +85,8 @@ const Message = (): JSX.Element => {
             e.clearSelection();
             showSuccessToast(t('messages.messageCopied'));
         });
-        signatureClipboard.on('error', (e) => {
-            console.log(e);
-            signatureClipboard.destroy();
+        signatureClipboard.on('error', () => {
+            showErrorToast('An error occured when copying the signature, try again');
         });
 
         return () => {
@@ -100,9 +100,16 @@ const Message = (): JSX.Element => {
 
     // Methods
     const handleSign = async () => {
-        const json = await WalletUtils.generateSignedMessage(wallet, message);
-        setSignMessage(json);
-        showModal('signature', true);
+        setIsLoading(true);
+        try {
+            const json = await WalletUtils.generateSignedMessage(wallet, message);
+            setSignMessage(json);
+            showModal('confirmation', false);
+            showModal('signature', true);
+        } catch (e) {
+            showErrorToast((e as Error).message);
+        }
+        setIsLoading(false);
     };
 
     const handleVerify = async () => {
@@ -135,10 +142,10 @@ const Message = (): JSX.Element => {
 
     const showModal = (id: 'signature' | 'confirmation', toggle: boolean) => {
         if (id === 'confirmation' && confirmModalRef.current) {
-            const modal = new BSModal(confirmModalRef.current);
+            const modal = BSModal.getOrCreateInstance(confirmModalRef.current);
             return toggle ? modal.show() : modal.hide();
         } else if (id === 'signature' && signatureModalRef.current) {
-            const modal = new BSModal(signatureModalRef.current);
+            const modal = BSModal.getOrCreateInstance(signatureModalRef.current);
             return toggle ? modal.show() : modal.hide();
         }
     };
@@ -279,7 +286,7 @@ const Message = (): JSX.Element => {
                     label={t('messages.confirmationModal.messageInHexLabel')}
                     className="mb-4"
                 />
-                <CustomButton data-bs-dismiss="modal" onClick={handleSign} className="mt-5 w-100">
+                <CustomButton onClick={handleSign} isLoading={isLoading} className="mt-5 w-100">
                     {t('messages.confirmationModal.button')}
                 </CustomButton>
             </Modal>

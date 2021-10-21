@@ -17,7 +17,7 @@ const ImportKeystoreModal = (props: { fileData: string; onSubmit: () => void }):
         signInWithKeystoreFile: dispatch.wallet.signInWithKeystoreAsync,
     }));
 
-    const isLoading = useSelector((state: RootState) => state.loading.effects.wallet.signInWithKeystoreAsync);
+    const isLoading = useSelector((state: RootState) => state.loading.effects.wallet.signInWithKeystoreAsync.loading);
 
     // Utils hooks
     const { t } = useTranslation();

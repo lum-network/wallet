@@ -15,7 +15,7 @@ import { useRematchDispatch } from 'redux/hooks';
 const Dashboard = (): JSX.Element => {
     // Redux hooks
     const { transactions, balance, wallet } = useSelector((state: RootState) => ({
-        loading: state.loading.global,
+        loading: state.loading.global.loading,
         transactions: state.wallet.transactions,
         balance: state.wallet.currentBalance,
         wallet: state.wallet.currentWallet,

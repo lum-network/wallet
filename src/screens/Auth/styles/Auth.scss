@@ -181,6 +181,12 @@ h1.display-5 {
     z-index: $zindex-popover;
 }
 
+.ledger-spinner {
+    color: $color-primary;
+    width: 5rem;
+    height: 3rem;
+}
+
 @media (prefers-color-scheme: dark) {
     .auth-header > img,
     .scale-anim > img,
@@ -190,9 +196,6 @@ h1.display-5 {
     .keystore-step-container > img {
         filter: brightness(0) invert(1);
     }
-    .auth-layout {
-        background: $color-primary;
-    }
     .create-btn {
         background: #000;
     }
@@ -200,7 +203,8 @@ h1.display-5 {
     h6,
     .display-5,
     .input-group .normal-input,
-    .input-group > label {
+    .input-group > label,
+    .spinner {
         color: white;
     }
     .auth-card,
