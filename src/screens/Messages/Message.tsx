@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Redirect } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import ClipboardJS from 'clipboard';
 import { Modal as BSModal } from 'bootstrap';
 import { LumUtils, LumTypes } from '@lum-network/sdk-javascript';
@@ -46,12 +47,16 @@ const Message = (): JSX.Element => {
     const [showTooltip, setShowTooltip] = useState(false);
     const [signMessage, setSignMessage] = useState<LumTypes.SignMsg | null>(null);
     const [verifyMessage, setVerifyMessage] = useState<VerifyMessageResult | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     // Redux hooks
     const { wallet, currentBalance } = useSelector((state: RootState) => ({
         wallet: state.wallet.currentWallet,
         currentBalance: state.wallet.currentBalance,
     }));
+
+    // Utils
+    const { t } = useTranslation();
 
     // Refs
     const confirmModalRef = useRef<HTMLDivElement>(null);
@@ -65,8 +70,8 @@ const Message = (): JSX.Element => {
             setShowTooltip(true);
             setTimeout(() => setShowTooltip(false), 1000);
         });
-        clipboard.on('error', (e) => {
-            console.log(e);
+        clipboard.on('error', () => {
+            showErrorToast('An error occured when copying the message, try again');
         });
 
         return () => {
@@ -78,11 +83,10 @@ const Message = (): JSX.Element => {
         const signatureClipboard = new ClipboardJS('#signature');
         signatureClipboard.on('success', (e) => {
             e.clearSelection();
-            showSuccessToast('Message payload copied!');
+            showSuccessToast(t('messages.messageCopied'));
         });
-        signatureClipboard.on('error', (e) => {
-            console.log(e);
-            signatureClipboard.destroy();
+        signatureClipboard.on('error', () => {
+            showErrorToast('An error occured when copying the signature, try again');
         });
 
         return () => {
@@ -96,9 +100,16 @@ const Message = (): JSX.Element => {
 
     // Methods
     const handleSign = async () => {
-        const json = await WalletUtils.generateSignedMessage(wallet, message);
-        setSignMessage(json);
-        showModal('signature', true);
+        setIsLoading(true);
+        try {
+            const json = await WalletUtils.generateSignedMessage(wallet, message);
+            setSignMessage(json);
+            showModal('confirmation', false);
+            showModal('signature', true);
+        } catch (e) {
+            showErrorToast((e as Error).message);
+        }
+        setIsLoading(false);
     };
 
     const handleVerify = async () => {
@@ -116,7 +127,7 @@ const Message = (): JSX.Element => {
                 })
                 .catch((error) => showErrorToast(error.message));
         } else {
-            showErrorToast('Invalid message payload');
+            showErrorToast(t('messages.invalidMessage'));
         }
     };
 
@@ -131,10 +142,10 @@ const Message = (): JSX.Element => {
 
     const showModal = (id: 'signature' | 'confirmation', toggle: boolean) => {
         if (id === 'confirmation' && confirmModalRef.current) {
-            const modal = new BSModal(confirmModalRef.current);
+            const modal = BSModal.getOrCreateInstance(confirmModalRef.current);
             return toggle ? modal.show() : modal.hide();
         } else if (id === 'signature' && signatureModalRef.current) {
-            const modal = new BSModal(signatureModalRef.current);
+            const modal = BSModal.getOrCreateInstance(signatureModalRef.current);
             return toggle ? modal.show() : modal.hide();
         }
     };
@@ -153,15 +164,15 @@ const Message = (): JSX.Element => {
                         <div className="col-lg-6 col-12">
                             <Card className="d-flex flex-column h-100 justify-content-between">
                                 <div>
-                                    <h2>Sign Message</h2>
-                                    <div className="my-4">
-                                        Enter a message you want to sign using your wallet. If you share the resulting
-                                        payload, the receiver will be able to verify that your wallet address signed
-                                        this message.
-                                    </div>
+                                    <h2>{t('messages.sign.title')}</h2>
+                                    <div className="my-4">{t('messages.sign.description')}</div>
+                                    {wallet.isExtensionImport && (
+                                        <div className="mb-3 not-recommended">{t('messages.sign.disabled')}</div>
+                                    )}
                                     <div>
-                                        <h4 className="mb-3">Message</h4>
+                                        <h4 className="mb-3">{t('messages.sign.inputLabel')}</h4>
                                         <textarea
+                                            disabled={wallet.isExtensionImport}
                                             className="w-100 p-2"
                                             value={message}
                                             rows={10}
@@ -176,10 +187,10 @@ const Message = (): JSX.Element => {
                                         data-bs-toggle="modal"
                                         disabled={!message}
                                     >
-                                        Sign
+                                        {t('messages.sign.button')}
                                     </CustomButton>
                                     <CustomButton className="bg-transparent text-btn mt-2 mx-auto" onClick={onClearAll}>
-                                        Clear All
+                                        {t('messages.clearAll')}
                                     </CustomButton>
                                 </div>
                             </Card>
@@ -187,16 +198,16 @@ const Message = (): JSX.Element => {
                         <div className="col-lg-6 col-12">
                             <Card className="d-flex flex-column h-100 justify-content-between">
                                 <div>
-                                    <h2>Verify Message</h2>
+                                    <h2>{t('messages.verify.title')}</h2>
                                     <div className="mt-4">
                                         <div className="d-flex flex-row justify-content-between mb-2">
-                                            <h4>Signature:</h4>
+                                            <h4>{t('messages.verify.inputLabel')}</h4>
                                             <div className="d-flex flex-row align-items-center">
                                                 <Button
                                                     onPress={onClearVerify}
                                                     className="bg-transparent text-btn p-0 me-4 h-auto"
                                                 >
-                                                    Clear
+                                                    {t('messages.clear')}
                                                 </Button>
                                                 {ClipboardJS.isSupported() && (
                                                     <Tooltip show={showTooltip} content="Copied!" direction="top">
@@ -207,7 +218,7 @@ const Message = (): JSX.Element => {
                                                             id="copy-verify-message"
                                                             className="bg-transparent text-btn p-0 h-auto"
                                                         >
-                                                            Copy
+                                                            {t('common.copy')}
                                                         </CustomButton>
                                                     </Tooltip>
                                                 )}
@@ -227,14 +238,15 @@ const Message = (): JSX.Element => {
                                 </div>
                                 {verifyMessage && (
                                     <div
-                                        className={`p-4 mt-2 result-box text-truncate ${
+                                        className={`p-4 mt-2 result-box ${
                                             verifyMessage.result ? 'success' : 'failure'
                                         }`}
                                     >
-                                        {verifyMessage.address} <br />
-                                        {`${verifyMessage.result ? 'did' : 'did not'} sign the message: ${
-                                            verifyMessage.message
-                                        }`}
+                                        {t('messages.verify.resultText', {
+                                            address: verifyMessage.address,
+                                            did: verifyMessage.result ? 'did' : 'did not',
+                                            message: decodeURI(verifyMessage.message),
+                                        })}
                                     </div>
                                 )}
                                 <div className="d-flex flex-column">
@@ -243,10 +255,10 @@ const Message = (): JSX.Element => {
                                         onClick={handleVerify}
                                         disabled={!messageToVerify}
                                     >
-                                        Verify Message
+                                        {t('messages.verify.button')}
                                     </CustomButton>
                                     <CustomButton className="bg-transparent text-btn mt-2 mx-auto" onClick={onClearAll}>
-                                        Clear All
+                                        {t('messages.clearAll')}
                                     </CustomButton>
                                 </div>
                             </Card>
@@ -260,21 +272,26 @@ const Message = (): JSX.Element => {
                 bodyClassName="w-100 px-4 pb-4 text-start"
                 contentClassName="px-2"
             >
-                <h3 className="my-4 text-center fw-bolder">Confirmation</h3>
-                <Input disabled value={wallet.getAddress()} label="Signing Address" className="mb-4" />
-                <Input disabled value={message} label="Message" className="mb-4" />
+                <h3 className="my-4 text-center fw-bolder">{t('messages.confirmationModal.title')}</h3>
                 <Input
                     disabled
-                    value={LumUtils.keyToHex(LumUtils.toAscii(message), true)}
-                    label="Message in hex"
+                    value={wallet.getAddress()}
+                    label={t('messages.confirmationModal.addressLabel')}
                     className="mb-4"
                 />
-                <CustomButton data-bs-dismiss="modal" onClick={handleSign} className="mt-5 w-100">
-                    Confirm Signing
+                <Input disabled value={message} label={t('messages.confirmationModal.messageLabel')} className="mb-4" />
+                <Input
+                    disabled
+                    value={LumUtils.keyToHex(LumUtils.toUtf8(encodeURI(message)), true)}
+                    label={t('messages.confirmationModal.messageInHexLabel')}
+                    className="mb-4"
+                />
+                <CustomButton onClick={handleSign} isLoading={isLoading} className="mt-5 w-100">
+                    {t('messages.confirmationModal.button')}
                 </CustomButton>
             </Modal>
             <Modal id="signature-modal" ref={signatureModalRef} bodyClassName="w-100 px-4 pb-4" contentClassName="px-2">
-                <h3 className="my-4 text-center fw-bolder">Signature</h3>
+                <h3 className="my-4 text-center fw-bolder">{t('messages.signatureModal.title')}</h3>
                 {signMessage && (
                     <>
                         <textarea
@@ -291,9 +308,7 @@ const Message = (): JSX.Element => {
                             )}
                             rows={15}
                         />
-                        {ClipboardJS.isSupported() && (
-                            <p>Copy this payload to share it so anyone can verify its integrity</p>
-                        )}
+                        {ClipboardJS.isSupported() && <p>{t('messages.signatureModal.copyPayload')}</p>}
                         <CustomButton
                             id="signature"
                             data-bs-target="#signature-modal"
@@ -312,7 +327,7 @@ const Message = (): JSX.Element => {
                             })}
                             className="mt-5 w-100"
                         >
-                            {ClipboardJS.isSupported() ? 'Copy' : 'Back'}
+                            {ClipboardJS.isSupported() ? t('common.copy') : t('common.close')}
                         </CustomButton>
                     </>
                 )}

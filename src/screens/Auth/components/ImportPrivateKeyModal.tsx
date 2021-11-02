@@ -39,15 +39,15 @@ const ImportPrivateKeyModal = (): JSX.Element => {
     return (
         <>
             <div className="mb-4rem">
-                <p className="not-recommanded mb-2">{t('welcome.softwareModal.notRecommanded')}</p>
+                <p className="not-recommended mb-2">{t('welcome.softwareModal.notRecommended')}</p>
                 <h3 className="text-center">{t('welcome.softwareModal.importPrivateKey')}</h3>
-                <p className="auth-paragraph">{t('welcome.softwareModal.notRecommandedDescription')}</p>
+                <p className="auth-paragraph">{t('welcome.softwareModal.notRecommendedDescription')}</p>
             </div>
             <div className="text-start mb-4rem">
                 <Input
                     {...formik.getFieldProps('privateKey')}
                     type="password"
-                    placeholder="Enter your private key"
+                    placeholder={t('welcome.softwareModal.privateKey.placeholder')}
                     required
                     className="text-start mt-4"
                 />

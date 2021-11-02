@@ -9,9 +9,19 @@ import { useRematchDispatch } from 'redux/hooks';
 import { RootDispatch, RootState } from 'redux/store';
 
 import './Cards.scss';
-import { IS_TESTNET } from 'utils/wallet';
+import { IS_TESTNET } from 'constant';
+import { NumbersUtils } from 'utils';
 
 const BalanceCard = ({ balance, address }: { balance: number; address: string }): JSX.Element => {
+    const isLoading = useSelector((state: RootState) => state.loading.effects.wallet.reloadWalletInfos.loading);
+
+    const { mintFaucet, getWalletInfos } = useRematchDispatch((dispatch: RootDispatch) => ({
+        mintFaucet: dispatch.wallet.mintFaucet,
+        getWalletInfos: dispatch.wallet.reloadWalletInfos,
+    }));
+
+    const { t } = useTranslation();
+
     useEffect(() => {
         const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
         const tooltips = tooltipTriggerList.map((tooltipTriggerEl) => {
@@ -23,20 +33,13 @@ const BalanceCard = ({ balance, address }: { balance: number; address: string })
         };
     }, []);
 
-    const { t } = useTranslation();
-
-    const isLoading = useSelector((state: RootState) => state.loading.effects.wallet.getWalletInfos);
-
-    const { mintFaucet, getWalletInfos } = useRematchDispatch((dispatch: RootDispatch) => ({
-        mintFaucet: dispatch.wallet.mintFaucet,
-        getWalletInfos: dispatch.wallet.getWalletInfos,
-    }));
-
     return (
         <Card withoutPadding className="h-100 dashboard-card balance-card p-4">
             <h2 className="ps-2 pt-3 text-white">{t('dashboard.currentBalance')}</h2>
             <div className="ps-2 my-3 d-flex flex-row align-items-baseline w-100">
-                <h1 className="display-6 fw-normal me-2 me-sm-3 text-white text-truncate">{balance}</h1>
+                <h1 className="display-6 fw-normal me-2 me-sm-3 text-white text-truncate">
+                    {NumbersUtils.formatTo6digit(balance)}
+                </h1>
                 <img src={assets.images.lumTicker} className="ticker" />
             </div>
             <div>
@@ -46,7 +49,7 @@ const BalanceCard = ({ balance, address }: { balance: number; address: string })
                     onClick={() => getWalletInfos(address)}
                     data-bs-toggle="tooltip"
                     data-bs-placement="top"
-                    title="Refresh balance"
+                    title={t('common.refreshBalance')}
                 >
                     <img src={assets.images.syncIcon} className={`tint-white refresh-img ${isLoading && 'loading'}`} />
                 </button>
@@ -57,7 +60,7 @@ const BalanceCard = ({ balance, address }: { balance: number; address: string })
                         onClick={() => mintFaucet(address)}
                         data-bs-toggle="tooltip"
                         data-bs-placement="top"
-                        title="Mint Faucet"
+                        title={t('common.mintFaucet')}
                     >
                         <img src={assets.images.addIcon} className="tint-white" />
                     </button>

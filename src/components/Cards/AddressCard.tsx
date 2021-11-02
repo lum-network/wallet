@@ -8,18 +8,20 @@ import assets from 'assets';
 import { Card, CodeQr } from 'frontend-elements';
 
 import Modal from '../Modals/Modal';
-import { showSuccessToast } from 'utils';
+import { showErrorToast, showSuccessToast } from 'utils';
 import { LUM_EXPLORER } from 'constant';
 
 const AddressCard = ({ address }: { address: string }): JSX.Element => {
+    const { t } = useTranslation();
+
     useEffect(() => {
         const clipboard = new ClipboardJS('#copy-btn');
         clipboard.on('success', (e) => {
             e.clearSelection();
-            showSuccessToast('Address copied to clipboard!');
+            showSuccessToast(t('common.copyAddress'));
         });
-        clipboard.on('error', (e) => {
-            console.log(e);
+        clipboard.on('error', () => {
+            showErrorToast('An error occured when copying your address, try again');
         });
 
         const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -33,9 +35,7 @@ const AddressCard = ({ address }: { address: string }): JSX.Element => {
             clipboard.destroy();
             tooltips.forEach((tip) => tip.dispose());
         };
-    }, []);
-
-    const { t } = useTranslation();
+    }, [t]);
 
     const printAddress = () => {
         printJS({
@@ -63,7 +63,7 @@ const AddressCard = ({ address }: { address: string }): JSX.Element => {
                             src={assets.images.qrIcon}
                             data-bs-toggle="tooltip"
                             data-bs-placement="top"
-                            title="QR Code"
+                            title={t('common.qr')}
                         />
                     </button>
                     {ClipboardJS.isSupported() && (
@@ -72,7 +72,7 @@ const AddressCard = ({ address }: { address: string }): JSX.Element => {
                                 src={assets.images.copyIcon}
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="top"
-                                title="Copy"
+                                title={t('common.copy')}
                             />
                         </button>
                     )}
@@ -82,7 +82,7 @@ const AddressCard = ({ address }: { address: string }): JSX.Element => {
                         onClick={printAddress}
                         data-bs-toggle="tooltip"
                         data-bs-placement="top"
-                        title="Print"
+                        title={t('common.print')}
                     >
                         <img src={assets.images.printIcon} />
                     </button>

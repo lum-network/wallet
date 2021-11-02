@@ -15,7 +15,7 @@ This wallet is backed with Lum Network's Javascript SDK. You can find it [here](
   - **`Keystore`**, upload your keystore file and secure your access by providing the corresponding passsword.
   - **`Private Key`**, enter your wallet private key to directly access it.
 
-**Note: Software methods are not recommanded as they are not secured and can be easily lost so use it at your own risks**
+**Note: Software methods are not recommended as they are not secured and can be easily lost so use it at your own risks**
 
 - View your recent transactions
 

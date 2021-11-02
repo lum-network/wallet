@@ -1,17 +1,14 @@
 @import '../../../frontend-elements/styles/main.scss';
 
-.auth-layout,
-.main-layout {
+.layout {
     display: flex;
     flex-direction: column;
-    //justify-content: space-between;
     background-color: $color-background;
     flex: 1;
     min-height: 100vh;
 }
 
-.auth-layout footer,
-.main-layout footer {
+.layout footer {
     bottom: 0;
 }
 
@@ -31,7 +28,7 @@
     min-height: 100px;
 }
 
-.main-layout nav.bottom-navbar {
+.layout nav.bottom-navbar {
     display: none;
 }
 
@@ -122,16 +119,16 @@ a:focus {
         padding-top: 100px;
     }
 
-    .main-layout {
+    .layout:not(.auth-layout) {
         padding-bottom: 100px;
     }
-    .main-layout nav ul {
+    .layout nav ul {
         display: none;
     }
-    .main-layout nav ul.lum-logo {
+    .layout nav ul.lum-logo {
         display: initial;
     }
-    .main-layout nav.bottom-navbar {
+    .layout nav.bottom-navbar {
         display: flex;
         flex-direction: row;
         height: 100px;
@@ -143,17 +140,17 @@ a:focus {
         padding-top: 16px;
         box-shadow: 0px -4px 10px rgba(205, 205, 205, 0.25);
     }
-    .main-layout nav.bottom-navbar ul.navbar-nav {
+    .layout nav.bottom-navbar ul.navbar-nav {
         display: flex;
         flex-direction: row;
         flex: 1;
         align-items: center;
         justify-content: space-evenly;
     }
-    .main-layout nav.bottom-navbar ul.navbar-nav li .navbar-item {
+    .layout nav.bottom-navbar ul.navbar-nav li .navbar-item {
         font-size: $primary-fs;
     }
-    .main-layout nav.bottom-navbar ul.navbar-nav li img.nav-icon {
+    .layout nav.bottom-navbar ul.navbar-nav li img.nav-icon {
         width: 25px;
         height: 25px;
         margin-bottom: 3px;
@@ -169,20 +166,20 @@ a:focus {
         padding-top: 40px;
     }
 
-    .main-layout nav {
+    .layout nav {
         display: none;
     }
 
-    .main-layout nav.bottom-navbar {
+    .layout nav.bottom-navbar {
         height: 90px;
     }
 
-    .main-layout nav.bottom-navbar ul.navbar-nav li img.nav-icon {
+    .layout nav.bottom-navbar ul.navbar-nav li img.nav-icon {
         width: 18px;
         height: 18px;
     }
 
-    .main-layout nav.bottom-navbar ul.navbar-nav li .navbar-item {
+    .layout nav.bottom-navbar ul.navbar-nav li .navbar-item {
         font-size: $font-xs;
     }
 }
@@ -192,11 +189,11 @@ a:focus {
         background: $color-primary;
         box-shadow: none;
     }
+    .layout {
+        background-color: #000;
+    }
     .auth-layout {
         background-color: $color-primary;
-    }
-    .main-layout {
-        background-color: #000;
     }
     .navbar-item {
         color: #fff !important;
@@ -229,14 +226,5 @@ a:focus {
     }
     .logout-modal-title {
         color: $color-white;
-    }
-
-    .dropdown-menu {
-        background-color: $color-primary !important;
-    }
-    .dropdown-item {
-        &:hover {
-            background-color: #000 !important;
-        }
     }
 }

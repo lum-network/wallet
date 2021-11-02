@@ -8,14 +8,15 @@ import { LOGOUT } from 'redux/constants';
 import { Footer, Modal, Button } from 'components';
 
 import './MainLayout.scss';
-import { IS_TESTNET } from 'utils/wallet';
+import { IS_TESTNET } from 'constant';
+import { showInfoToast } from 'utils';
 
 interface IProps {
     children: React.ReactNode;
 }
 
 const mapState = (state: RootState) => ({
-    loading: state.loading.models.wallet,
+    loading: state.loading.models.wallet.loading,
     wallet: state.wallet.currentWallet,
 });
 
@@ -24,8 +25,21 @@ type StateProps = ReturnType<typeof mapState>;
 type Props = IProps & StateProps & WithTranslation;
 
 class MainLayout extends PureComponent<Props> {
+    componentDidMount() {
+        window.addEventListener('keplr_keystorechange', () => {
+            if (this.props.wallet && this.props.wallet.isExtensionImport) {
+                showInfoToast(this.props.t('logout.keplrKeystoreChange'));
+                store.dispatch({ type: LOGOUT });
+            }
+        });
+    }
+
     renderNavbar(bottom?: boolean) {
         const { t } = this.props;
+
+        if (!this.props.wallet) {
+            return null;
+        }
 
         return (
             <div className="navbar-container position-fixed w-100">
@@ -123,38 +137,39 @@ class MainLayout extends PureComponent<Props> {
     }
     render(): JSX.Element {
         const { children, wallet, t } = this.props;
-        return wallet ? (
-            <div className="main-layout">
-                <div className="d-flex flex-column">
-                    {this.renderNavbar()}
-                    <div className={`content ${IS_TESTNET && 'testnet'}`}>{children}</div>
-                </div>
-                <footer className="mt-auto">
-                    <Footer />
-                </footer>
-                {this.renderNavbar(true)}
-                <Modal id="logoutModal" dataBsBackdrop="static" contentClassName="p-3" withCloseButton={false}>
-                    <h1 className="logout-modal-title">{t('logout.title')}</h1>
-                    <div className="d-flex flex-column flex-sm-row  justify-content-between mt-5">
-                        <Button className="logout-modal-cancel-btn me-sm-4 mb-4 mb-sm-0" data-bs-dismiss="modal">
-                            <div className="px-sm-2">{t('common.cancel')}</div>
-                        </Button>
-                        <Button
-                            className="logout-modal-logout-btn text-white"
-                            data-bs-dismiss="modal"
-                            onClick={() => store.dispatch({ type: LOGOUT })}
-                        >
-                            <div className="px-sm-2">{t('logout.logoutBtn')}</div>
-                        </Button>
-                    </div>
-                </Modal>
-            </div>
-        ) : (
-            <div className="auth-layout">
-                {IS_TESTNET && (
+
+        return (
+            <div className={`layout ${!wallet && 'auth-layout'}`}>
+                {this.renderNavbar()}
+                {IS_TESTNET && !wallet && (
                     <div className="sticky-top vw-100 warning-bar text-center py-2">{t('common.testnetBanner')}</div>
                 )}
-                {children}
+                <div className={`d-flex flex-column flex-grow-1 ${wallet && 'content'} ${IS_TESTNET && 'testnet'}`}>
+                    {children}
+                </div>
+                {wallet && (
+                    <footer className="mt-auto">
+                        <Footer />
+                    </footer>
+                )}
+                {this.renderNavbar(true)}
+                {wallet && (
+                    <Modal id="logoutModal" dataBsBackdrop="static" contentClassName="p-3" withCloseButton={false}>
+                        <h1 className="logout-modal-title">{t('logout.title')}</h1>
+                        <div className="d-flex flex-column flex-sm-row  justify-content-between mt-5">
+                            <Button className="logout-modal-cancel-btn me-sm-4 mb-4 mb-sm-0" data-bs-dismiss="modal">
+                                <div className="px-sm-2">{t('common.cancel')}</div>
+                            </Button>
+                            <Button
+                                className="logout-modal-logout-btn text-white"
+                                data-bs-dismiss="modal"
+                                onClick={() => store.dispatch({ type: LOGOUT })}
+                            >
+                                <div className="px-sm-2">{t('logout.logoutBtn')}</div>
+                            </Button>
+                        </div>
+                    </Modal>
+                )}
             </div>
         );
     }

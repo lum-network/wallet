@@ -3,6 +3,8 @@ import React from 'react';
 import './Inputs.scss';
 
 interface InputProps extends React.ComponentPropsWithRef<'input'> {
+    icon?: string;
+    iconClass?: string;
     label?: string;
     description?: string;
     inputClass?: string;
@@ -10,23 +12,24 @@ interface InputProps extends React.ComponentPropsWithRef<'input'> {
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>((props, ref) => {
-    const { className, inputClass, label, description, inputStyle = 'input', ...rest } = props;
+    const { className, inputClass, label, icon, iconClass, description, inputStyle = 'input', ...rest } = props;
 
     if (inputStyle === 'input') {
         return (
-            <div className={`normal-input-container d-flex flex-column ${className}`}>
+            <div className={`d-flex flex-column ${className}`}>
                 {label && (
                     <label htmlFor={rest.id} className="form-label">
                         <p className="ms-2">{label}</p>
                     </label>
                 )}
-                <input
-                    ref={ref}
-                    className={`normal-input border-0 ${
-                        !rest.readOnly ? 'rounded-pill py-2 px-3' : 'ps-2'
+                <div
+                    className={`normal-input ${
+                        !rest.readOnly ? 'rounded-pill py-2 px-3' : 'read-only ps-2'
                     } ${inputClass}`}
-                    {...rest}
-                />
+                >
+                    {icon && <img src={icon} className={iconClass} />}
+                    <input ref={ref} className={`w-100 border-0`} {...rest} />
+                </div>
                 {description && <div className="form-text">{description}</div>}
             </div>
         );

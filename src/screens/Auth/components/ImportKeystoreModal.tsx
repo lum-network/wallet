@@ -17,7 +17,7 @@ const ImportKeystoreModal = (props: { fileData: string; onSubmit: () => void }):
         signInWithKeystoreFile: dispatch.wallet.signInWithKeystoreAsync,
     }));
 
-    const isLoading = useSelector((state: RootState) => state.loading.effects.wallet.signInWithKeystoreAsync);
+    const isLoading = useSelector((state: RootState) => state.loading.effects.wallet.signInWithKeystoreAsync.loading);
 
     // Utils hooks
     const { t } = useTranslation();
@@ -39,17 +39,17 @@ const ImportKeystoreModal = (props: { fileData: string; onSubmit: () => void }):
     });
 
     // Methods
-    const onSubmitPassword = async (password: string) => {
+    const onSubmitPassword = (password: string) => {
         onSubmit();
-        await signInWithKeystoreFile({ data: fileData, password });
+        signInWithKeystoreFile({ data: fileData, password });
     };
 
     return (
         <>
             <div className="mb-4rem">
-                <p className="not-recommanded mb-2">{t('welcome.softwareModal.notRecommanded')}</p>
+                <p className="not-recommended mb-2">{t('welcome.softwareModal.notRecommended')}</p>
                 <h3 className="text-center">{t('welcome.softwareModal.importKeystore')}</h3>
-                <p className="auth-paragraph">{t('welcome.softwareModal.notRecommandedDescription')}</p>
+                <p className="auth-paragraph">{t('welcome.softwareModal.notRecommendedDescription')}</p>
             </div>
             <div className="mb-4rem text-start">
                 <Input
@@ -64,9 +64,10 @@ const ImportKeystoreModal = (props: { fileData: string; onSubmit: () => void }):
                 {t('common.continue')}
             </Button>
             <p className="auth-paragraph mt-5 mb-3">
-                <span className="fw-bold danger-text">DO NOT FORGET</span> to save your password. <br />
-                You will need this <span className="fw-bold danger-text">Password + Keystore</span> file to access your
-                wallet.
+                <span className="fw-bold danger-text">{t('createWallet.doNotForget')}</span>
+                {t('createWallet.keystore.warningDescription1')}
+                <span className="fw-bold danger-text">{t('createWallet.keystore.pwdPlusKeystore')}</span>
+                {t('createWallet.keystore.warningDescription2')}
             </p>
         </>
     );

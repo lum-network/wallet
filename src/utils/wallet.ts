@@ -1,19 +1,10 @@
-import {
-    LumClient,
-    LumConstants,
-    LumMessages,
-    LumRegistry,
-    LumTypes,
-    LumUtils,
-    LumWallet,
-} from '@lum-network/sdk-javascript';
+import { LumClient, LumConstants, LumMessages, LumRegistry, LumTypes, LumUtils } from '@lum-network/sdk-javascript';
 import { TxResponse } from '@cosmjs/tendermint-rpc';
-import { PasswordStrengthType, PasswordStrength, Transaction } from 'models';
+import { PasswordStrengthType, PasswordStrength, Transaction, Wallet } from 'models';
 import { dateFromNow, showErrorToast } from 'utils';
+import i18n from 'locales';
 
 export type MnemonicLength = 12 | 24;
-
-export const IS_TESTNET = process.env.REACT_APP_RPC_URL.includes('testnet');
 
 export const checkMnemonicLength = (length: number): length is MnemonicLength => {
     return length === 12 || length === 24;
@@ -80,6 +71,10 @@ const isStakingTxInfo = (
     return !!(info && info.validatorAddress && info.delegatorAddress && info.amount);
 };
 
+const alreadyExists = (array: Transaction[], value: Transaction) => {
+    return array.length === 0 ? false : array.findIndex((val) => val.hash === value.hash) > -1;
+};
+
 export const formatTxs = async (rawTxs: TxResponse[], client: LumClient): Promise<Transaction[]> => {
     const formattedTxs: Transaction[] = [];
 
@@ -94,18 +89,21 @@ export const formatTxs = async (rawTxs: TxResponse[], client: LumClient): Promis
                     const block = await client.getBlock(rawTx.height);
 
                     if (isSendTxInfo(txInfos)) {
-                        formattedTxs.push({
+                        const tx: Transaction = {
                             ...txInfos,
                             type: msg.typeUrl,
                             height: rawTx.height,
                             hash: LumUtils.toHex(rawTx.hash).toUpperCase(),
                             time: dateFromNow(block.block.header.time.getTime()),
-                        });
+                        };
+                        if (!alreadyExists(formattedTxs, tx)) {
+                            formattedTxs.push(tx);
+                        }
                     } else if (isStakingTxInfo(txInfos)) {
                         const fromAddress = txInfos.delegatorAddress;
                         const toAddress = txInfos.validatorAddress;
 
-                        formattedTxs.push({
+                        const tx: Transaction = {
                             fromAddress,
                             toAddress,
                             type: msg.typeUrl,
@@ -113,7 +111,11 @@ export const formatTxs = async (rawTxs: TxResponse[], client: LumClient): Promis
                             height: rawTx.height,
                             hash: LumUtils.toHex(rawTx.hash).toUpperCase(),
                             time: dateFromNow(block.block.header.time.getTime()),
-                        });
+                        };
+
+                        if (!alreadyExists(formattedTxs, tx)) {
+                            formattedTxs.push(tx);
+                        }
                     }
                 }
             }
@@ -123,8 +125,8 @@ export const formatTxs = async (rawTxs: TxResponse[], client: LumClient): Promis
     return formattedTxs;
 };
 
-export const generateSignedMessage = async (wallet: LumWallet, message: string): Promise<LumTypes.SignMsg> => {
-    return await wallet.signMessage(message);
+export const generateSignedMessage = async (wallet: Wallet, message: string): Promise<LumTypes.SignMsg> => {
+    return await wallet.signMessage(encodeURI(message));
 };
 
 export const validateSignMessage = async (msg: LumTypes.SignMsg): Promise<boolean> => {
@@ -137,10 +139,10 @@ class WalletClient {
     init = () => {
         LumClient.connect(process.env.REACT_APP_RPC_URL)
             .then((client) => (this.lumClient = client))
-            .catch(() => showErrorToast('Unable to connect to the blockchain'));
+            .catch(() => showErrorToast(i18n.t('wallet.errors.client')));
     };
 
-    private getAccountAndChainId = (fromWallet: LumWallet) => {
+    private getAccountAndChainId = (fromWallet: Wallet) => {
         if (this.lumClient === null) {
             return;
         }
@@ -148,43 +150,61 @@ class WalletClient {
         return Promise.all([this.lumClient.getAccount(fromWallet.getAddress()), this.lumClient.getChainId()]);
     };
 
-    getWalletInformations = async (address: string) => {
+    private getValidators = async () => {
+        if (this.lumClient === null) {
+            return null;
+        }
+        const { validators } = this.lumClient.queryClient.staking;
+
+        try {
+            const [bondedValidators, unbondedValidators] = await Promise.all([
+                validators('BOND_STATUS_BONDED'),
+                validators('BOND_STATUS_UNBONDED'),
+            ]);
+
+            return { bonded: bondedValidators.validators, unbonded: unbondedValidators.validators };
+        } catch (e) {}
+    };
+
+    getWalletBalance = async (address: string) => {
         if (this.lumClient === null) {
             return null;
         }
 
-        try {
-            const account = await this.lumClient.getAccount(address);
-            if (account === null) {
-                return null;
+        let currentBalance = 0;
+
+        const balances = await this.lumClient.getAllBalances(address);
+        if (balances.length > 0) {
+            for (const balance of balances) {
+                currentBalance += Number(LumUtils.convertUnit(balance, LumConstants.LumDenom));
             }
-            let currentBalance = 0;
-
-            this.lumClient
-                .getAllBalances(address)
-                .then((balances) => {
-                    if (balances.length > 0) {
-                        for (const balance of balances) {
-                            currentBalance += Number(LumUtils.convertUnit(balance, LumConstants.LumDenom));
-                        }
-                    }
-                })
-                .catch((e) => console.log(e));
-
-            const transactions = await this.lumClient.searchTx([
-                LumUtils.searchTxByTags([{ key: 'transfer.recipient', value: address }]),
-                LumUtils.searchTxByTags([{ key: 'transfer.sender', value: address }]),
-            ]);
-
-            const formattedTxs = await formatTxs(transactions, this.lumClient);
-
-            return { ...account, currentBalance, transactions: formattedTxs };
-        } catch (e) {
-            console.log(e);
         }
+
+        return currentBalance;
     };
 
-    sendTx = async (fromWallet: LumWallet, toAddress: string, lumAmount: string, memo = '') => {
+    getTransactions = async (address: string) => {
+        if (this.lumClient === null) {
+            return null;
+        }
+
+        const transactions = await this.lumClient.searchTx([
+            LumUtils.searchTxByTags([{ key: 'transfer.recipient', value: address }]),
+            LumUtils.searchTxByTags([{ key: 'transfer.sender', value: address }]),
+        ]);
+
+        return await formatTxs(transactions, this.lumClient);
+    };
+
+    getRewards = async (address: string) => {
+        if (this.lumClient === null) {
+            return null;
+        }
+
+        return await this.lumClient.queryClient.distribution.delegationTotalRewards(address);
+    };
+
+    sendTx = async (fromWallet: Wallet, toAddress: string, lumAmount: string, memo = '') => {
         if (this.lumClient === null) {
             return null;
         }
@@ -201,7 +221,7 @@ class WalletClient {
         ]);
         // Define fees (5 LUM)
         const fee = {
-            amount: [{ denom: LumConstants.MicroLumDenom, amount: '100' }],
+            amount: [{ denom: LumConstants.MicroLumDenom, amount: '1000' }],
             gas: '100000',
         };
         // Fetch account number and sequence and chain id
@@ -237,8 +257,6 @@ class WalletClient {
         // Verify the transaction was successfully broadcasted and made it into a block
         const broadcasted = LumUtils.broadcastTxCommitSuccess(broadcastResult);
 
-        console.log(`Broadcast success: ${broadcasted}`);
-
         return {
             hash: broadcastResult.hash,
             error: !broadcasted
@@ -249,7 +267,7 @@ class WalletClient {
         };
     };
 
-    delegate = async (fromWallet: LumWallet, validatorAddress: string, lumAmount: string, memo: string) => {
+    delegate = async (fromWallet: Wallet, validatorAddress: string, lumAmount: string, memo: string) => {
         if (this.lumClient === null) {
             return null;
         }
@@ -304,8 +322,6 @@ class WalletClient {
         // Verify the transaction was successfully broadcasted and made it into a block
         const broadcasted = LumUtils.broadcastTxCommitSuccess(broadcastResult);
 
-        console.log(`Broadcast success: ${broadcasted}`);
-
         return {
             hash: broadcastResult.hash,
             error: !broadcasted
@@ -316,7 +332,7 @@ class WalletClient {
         };
     };
 
-    undelegate = async (fromWallet: LumWallet, validatorAddress: string, lumAmount: string, memo: string) => {
+    undelegate = async (fromWallet: Wallet, validatorAddress: string, lumAmount: string, memo: string) => {
         if (this.lumClient === null) {
             return null;
         }
@@ -357,7 +373,6 @@ class WalletClient {
             fee,
             memo,
             messages: [undelegateMsg],
-
             signers: [
                 {
                     accountNumber,
@@ -371,8 +386,6 @@ class WalletClient {
         // Verify the transaction was successfully broadcasted and made it into a block
         const broadcasted = LumUtils.broadcastTxCommitSuccess(broadcastResult);
 
-        console.log(`Broadcast success: ${broadcasted}`);
-
         return {
             hash: broadcastResult.hash,
             error: !broadcasted
@@ -383,7 +396,7 @@ class WalletClient {
         };
     };
 
-    getReward = async (fromWallet: LumWallet, validatorAddress: string, memo: string) => {
+    getReward = async (fromWallet: Wallet, validatorAddress: string, memo: string) => {
         if (this.lumClient === null) {
             return null;
         }
@@ -429,8 +442,6 @@ class WalletClient {
         // Verify the transaction was successfully broadcasted and made it into a block
         const broadcasted = LumUtils.broadcastTxCommitSuccess(broadcastResult);
 
-        console.log(`Broadcast success: ${broadcasted}`);
-
         return {
             hash: broadcastResult.hash,
             error: !broadcasted
@@ -442,7 +453,7 @@ class WalletClient {
     };
 
     redelegate = async (
-        fromWallet: LumWallet,
+        fromWallet: Wallet,
         validatorScrAddress: string,
         validatorDestAddress: string,
         lumAmount: string,
@@ -507,8 +518,6 @@ class WalletClient {
         // Verify the transaction was successfully broadcasted and made it into a block
         const broadcasted = LumUtils.broadcastTxCommitSuccess(broadcastResult);
 
-        console.log(`Broadcast success: ${broadcasted}`);
-
         return {
             hash: broadcastResult.hash,
             error: !broadcasted
@@ -517,6 +526,53 @@ class WalletClient {
                     : broadcastResult.checkTx.log
                 : null,
         };
+    };
+
+    getValidatorsInfos = async (address: string) => {
+        if (!this.lumClient) {
+            return null;
+        }
+
+        try {
+            const validators = await this.getValidators();
+
+            const [delegation, unbonding] = await Promise.all([
+                this.lumClient.queryClient.staking.delegatorDelegations(address),
+                this.lumClient.queryClient.staking.delegatorUnbondingDelegations(address),
+            ]);
+
+            const delegations = delegation.delegationResponses;
+            const unbondings = unbonding.unbondingResponses;
+
+            let unbondedTokens = 0;
+            let stakedCoins = 0;
+
+            for (const delegation of delegations) {
+                if (delegation.balance) {
+                    stakedCoins += Number(LumUtils.convertUnit(delegation.balance, LumConstants.LumDenom));
+                }
+            }
+
+            for (const unbonding of unbondings) {
+                for (const entry of unbonding.entries) {
+                    unbondedTokens += Number(
+                        LumUtils.convertUnit(
+                            { amount: entry.balance, denom: LumConstants.MicroLumDenom },
+                            LumConstants.LumDenom,
+                        ),
+                    );
+                }
+            }
+
+            return {
+                bonded: validators?.bonded || [],
+                unbonded: validators?.unbonded || [],
+                delegations,
+                unbondings,
+                stakedCoins,
+                unbondedTokens,
+            };
+        } catch (e) {}
     };
 }
 

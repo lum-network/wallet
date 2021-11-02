@@ -15,14 +15,14 @@ import { useRematchDispatch } from 'redux/hooks';
 const Dashboard = (): JSX.Element => {
     // Redux hooks
     const { transactions, balance, wallet } = useSelector((state: RootState) => ({
-        loading: state.loading.global,
+        loading: state.loading.global.loading,
         transactions: state.wallet.transactions,
         balance: state.wallet.currentBalance,
         wallet: state.wallet.currentWallet,
     }));
 
     const { getWalletInfos } = useRematchDispatch((dispatch: RootDispatch) => ({
-        getWalletInfos: dispatch.wallet.getWalletInfos,
+        getWalletInfos: dispatch.wallet.reloadWalletInfos,
     }));
 
     // Utils hooks
@@ -64,8 +64,10 @@ const Dashboard = (): JSX.Element => {
                 <div className="row mt-4">
                     <div className="col">
                         <Card withoutPadding>
-                            <h2 className="ps-5 pt-5 pb-1">{t('dashboard.latestTx')}</h2>
-                            <TransactionsTable transactions={transactions.slice(0, 5)} />
+                            <div className="ps-4">
+                                <h2 className="ps-2 pt-5 pb-1">{t('dashboard.latestTx')}</h2>
+                            </div>
+                            <TransactionsTable transactions={transactions} wallet={wallet} />
                         </Card>
                     </div>
                 </div>
