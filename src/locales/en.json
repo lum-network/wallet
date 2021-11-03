@@ -97,7 +97,7 @@
             "types": {
                 "keplr": {
                     "title": "Keplr extension",
-                    "notInstalled": "You have to install Keplr extension first"
+                    "notInstalled": "You have to <u>install</u> Keplr extension first"
                 }
             }
         },
