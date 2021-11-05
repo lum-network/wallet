@@ -1,14 +1,14 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link, useHistory } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { Modal as BSModal } from 'bootstrap';
 import { Window as KeplrWindow } from '@keplr-wallet/types';
 
 import { RootDispatch, RootState } from 'redux/store';
 
 import Assets from 'assets';
-import { COSMOS_LEDGER_APP_INSTALL_LINK } from 'constant';
+import { COSMOS_LEDGER_APP_INSTALL_LINK, KEPLR_INSTALL_LINK } from 'constant';
 import { Modal, Button } from 'components';
 import { ExtensionMethod, HardwareMethod, SoftwareMethod } from 'models';
 import { useRematchDispatch } from 'redux/hooks';
@@ -239,19 +239,36 @@ const Welcome = (): JSX.Element => {
                         <div className="d-flex flex-column my-5">
                             <button
                                 type="button"
-                                onClick={() => setSelectedMethod({ type: 'extension', method: ExtensionMethod.Keplr })}
+                                onClick={() =>
+                                    isKeplrInstalled
+                                        ? setSelectedMethod({ type: 'extension', method: ExtensionMethod.Keplr })
+                                        : window.open(KEPLR_INSTALL_LINK, '_blank')
+                                }
                                 className={`import-software-btn ${
                                     selectedMethod?.method === ExtensionMethod.Keplr && 'selected'
                                 }`}
                             >
                                 <div className="d-flex align-items-center justify-content-center">
-                                    <img src={Assets.images.softwareIcon} height="28" className="me-3" />
+                                    <img src={Assets.images.keplrIcon} height="28" className="me-3" />
                                     {t('welcome.extensionModal.types.keplr.title')}
                                 </div>
                             </button>
                         </div>
                         {!isKeplrInstalled && (
-                            <p className="not-recommended">{t('welcome.extensionModal.types.keplr.notInstalled')}</p>
+                            <p className="not-recommended">
+                                <Trans
+                                    t={t}
+                                    components={{
+                                        u: (
+                                            <u
+                                                onClick={() => window.open(KEPLR_INSTALL_LINK, '_blank')}
+                                                style={{ cursor: 'pointer', color: '#f3b265' }}
+                                            />
+                                        ),
+                                    }}
+                                    i18nKey="welcome.extensionModal.types.keplr.notInstalled"
+                                />
+                            </p>
                         )}
                         <Button
                             type="button"
