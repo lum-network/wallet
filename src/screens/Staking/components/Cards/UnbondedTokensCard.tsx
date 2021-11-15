@@ -2,8 +2,9 @@ import assets from 'assets';
 import { Card } from 'frontend-elements';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { dateFromNow } from 'utils';
 
-const UnbondedTokensCard = ({ amount }: { amount: number }): JSX.Element => {
+const UnbondedTokensCard = ({ amount, timeRemaining }: { amount: number; timeRemaining?: string }): JSX.Element => {
     const { t } = useTranslation();
 
     return (
@@ -13,6 +14,11 @@ const UnbondedTokensCard = ({ amount }: { amount: number }): JSX.Element => {
                 <h1 className="display-6 fw-normal me-2 me-sm-3 text-white text-truncate">{amount}</h1>
                 <img src={assets.images.lumTicker} className="ticker" />
             </div>
+            {timeRemaining ? (
+                <p className="align-self-end text-white">
+                    {t('staking.timeRemaining', { date: dateFromNow(timeRemaining) })}
+                </p>
+            ) : null}
         </Card>
     );
 };

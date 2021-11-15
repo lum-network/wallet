@@ -20,6 +20,8 @@ import { Modal as BSModal } from 'bootstrap';
 import StakedCoinsCard from './components/Cards/StakedCoinsCard';
 import UnbondedTokensCard from './components/Cards/UnbondedTokensCard';
 import RewardsCard from './components/Cards/RewardsCard';
+import VestedTokensCard from './components/Cards/VestedTokensCard';
+
 import MyValidators from './components/Lists/MyValidators';
 import AvailableValidators from './components/Lists/AvailableValidators';
 
@@ -242,11 +244,18 @@ const Staking = (): JSX.Element => {
         }
     };
 
+    const vestings = 10;
+
     return (
         <>
             <div className="mt-4">
                 <div className="container">
                     <div className="row gy-4">
+                        {vestings ? (
+                            <div className="col-12">
+                                <RewardsCard rewards={rewards} />
+                            </div>
+                        ) : null}
                         <div className="col-lg-6">
                             <StakedCoinsCard amount={stakedCoins} />
                         </div>
@@ -257,7 +266,7 @@ const Staking = (): JSX.Element => {
                             <UnbondedTokensCard amount={unbondedTokens} />
                         </div>
                         <div className="col-lg-6">
-                            <RewardsCard rewards={rewards} />
+                            {vestings ? <VestedTokensCard amount={vestings} /> : <RewardsCard rewards={rewards} />}
                         </div>
                         <div className="col-12">
                             <Card withoutPadding className="pb-2">
