@@ -1,15 +1,16 @@
-import assets from 'assets';
 import React, { PureComponent } from 'react';
 import { withTranslation, WithTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
 import { NavLink } from 'react-router-dom';
+
+import assets from 'assets';
+import { Footer, Modal, Button } from 'components';
+import { IS_TESTNET } from 'constant';
 import store, { RootState } from 'redux/store';
 import { LOGOUT } from 'redux/constants';
-import { Footer, Modal, Button } from 'components';
+import { showInfoToast } from 'utils';
 
 import './MainLayout.scss';
-import { IS_TESTNET } from 'constant';
-import { showInfoToast } from 'utils';
 
 interface IProps {
     children: React.ReactNode;
@@ -26,13 +27,35 @@ type Props = IProps & StateProps & WithTranslation;
 
 class MainLayout extends PureComponent<Props> {
     componentDidMount() {
-        window.addEventListener('keplr_keystorechange', () => {
-            if (this.props.wallet && this.props.wallet.isExtensionImport) {
-                showInfoToast(this.props.t('logout.keplrKeystoreChange'));
-                store.dispatch({ type: LOGOUT });
-            }
-        });
+        window.addEventListener('keplr_keystorechange', this.keplrAccountChange);
     }
+
+    componentWillUnmount() {
+        window.removeEventListener('keplr_keystorechange', this.keplrAccountChange);
+    }
+
+    componentDidUpdate(prevProps: Props) {
+        if (prevProps.wallet !== this.props.wallet) {
+            if (this.props.wallet) {
+                if (window.onbeforeunload) {
+                    window.onbeforeunload = (event) => {
+                        const e = event || window.event;
+
+                        return (e.returnValue = '');
+                    };
+                }
+            } else {
+                window.onbeforeunload = null;
+            }
+        }
+    }
+
+    keplrAccountChange = () => {
+        if (this.props.wallet && this.props.wallet.isExtensionImport) {
+            showInfoToast(this.props.t('logout.keplrKeystoreChange'));
+            store.dispatch({ type: LOGOUT });
+        }
+    };
 
     renderNavbar(bottom?: boolean) {
         const { t } = this.props;

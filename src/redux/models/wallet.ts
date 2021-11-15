@@ -214,7 +214,9 @@ export const wallet = createModel<RootModel>()({
                             app === HardwareMethod.Cosmos ? `44'/118'/0'/0/0` : LumConstants.getLumHdPath(),
                             LumConstants.LumBech32PrefixAccAddr,
                         );
-                    } catch (e) {}
+                    } catch (e) {
+                        console.log(e);
+                    }
                 }
 
                 clearTimeout(to);
