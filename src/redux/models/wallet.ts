@@ -144,7 +144,7 @@ export const wallet = createModel<RootModel>()({
                         },
                         walletUrlForStaking: LUM_WALLET,
                         bip44: {
-                            coinType: 837,
+                            coinType: 880,
                         },
                         bech32Config: {
                             bech32PrefixAccAddr: LumConstants.LumBech32PrefixAccAddr,
@@ -169,7 +169,7 @@ export const wallet = createModel<RootModel>()({
                                 coinDecimals: LumConstants.LumExponent,
                             },
                         ],
-                        coinType: 837,
+                        coinType: 880,
                         gasPriceStep: {
                             low: 0.01,
                             average: 0.025,
