@@ -39,7 +39,7 @@
                 "wallet": "Failed to connect to Keplr wallet"
             },
             "faucet": {
-                "generic": "An error occured when minting faucet",
+                "generic": "Faucet not available",
                 "address": "Mint faucet error\nUnknown address"
             },
             "ledger": "Unable to connect to your wallet, check your Ledger connection",

@@ -24,4 +24,4 @@ export const formatUnit = (coin: LumTypes.Coin, moreDecimal?: boolean): string =
     return numeral(LumUtils.convertUnit(coin, LumConstants.LumDenom)).format(moreDecimal ? '0,0.000000' : '0,0.000');
 };
 
-export const formatTo6digit = (number: number): string => numeral(number).format('0,0.000000');
+export const formatTo6digit = (number: number): string => (number > 0 ? numeral(number).format('0,0.000000') : '0');
