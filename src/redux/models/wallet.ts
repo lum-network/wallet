@@ -333,7 +333,7 @@ export const wallet = createModel<RootModel>()({
                     showSuccessToast(i18n.t('wallet.success.faucet'));
                     dispatch.wallet.reloadWalletInfos(address);
                 } else {
-                    showErrorToast(i18n.t('wallet.errors.keplr.generic'));
+                    showErrorToast(i18n.t('wallet.errors.faucet.generic'));
                 }
             } else {
                 showErrorToast(i18n.t('wallet.errors.keplr.address'));
