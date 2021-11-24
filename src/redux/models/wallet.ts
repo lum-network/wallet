@@ -201,6 +201,7 @@ export const wallet = createModel<RootModel>()({
             try {
                 let wallet: null | LumWallet = null;
                 let breakLoop = false;
+                let userCancelled = false;
 
                 // 10 sec timeout to let the user unlock his hardware
                 const to = setTimeout(() => (breakLoop = true), 10000);
@@ -214,7 +215,12 @@ export const wallet = createModel<RootModel>()({
                             app === HardwareMethod.Cosmos ? `44'/118'/0'/0/0` : LumConstants.getLumHdPath(),
                             LumConstants.LumBech32PrefixAccAddr,
                         );
-                    } catch (e) {}
+                    } catch (e) {
+                        if ((e as Error).name === 'TransportOpenUserCancelled') {
+                            breakLoop = true;
+                            userCancelled = true;
+                        }
+                    }
                 }
 
                 clearTimeout(to);
@@ -224,7 +230,9 @@ export const wallet = createModel<RootModel>()({
                     dispatch.wallet.reloadWalletInfos(wallet.getAddress());
                     return;
                 } else {
-                    showErrorToast(i18n.t('wallet.errors.ledger'));
+                    if (!userCancelled) {
+                        showErrorToast(i18n.t('wallet.errors.ledger'));
+                    }
                     throw new Error('Ledger wallet importation');
                 }
             } catch (e) {
