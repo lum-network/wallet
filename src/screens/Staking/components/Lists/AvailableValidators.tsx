@@ -6,7 +6,7 @@ import { Table } from 'frontend-elements';
 
 import { Button, Input } from 'components';
 import { CLIENT_PRECISION, LUM_EXPLORER } from 'constant';
-import { trunc, NumbersUtils, calculateTotalVotingPower } from 'utils';
+import { trunc, NumbersUtils, calculateTotalVotingPower, sortByVotingPower } from 'utils';
 
 import placeholderValidator from 'assets/images/placeholderValidator.svg';
 import searchIcon from 'assets/images/search.svg';
@@ -71,8 +71,8 @@ const AvailableValidators = ({ validators, onDelegate }: Props): JSX.Element => 
                     >
                         <img src={placeholderValidator} width={34} height={34} className="me-2 validator-logo" />
                         <span>
-                            {validator.description?.identity ||
-                                validator.description?.moniker ||
+                            {validator.description?.moniker ||
+                                validator.description?.identity ||
                                 trunc(validator.operatorAddress)}
                         </span>
                     </a>
@@ -127,7 +127,7 @@ const AvailableValidators = ({ validators, onDelegate }: Props): JSX.Element => 
             </div>
             {vals.length > 0 ? (
                 <Table className="validators-table" head={headers}>
-                    {vals.map((val, index) => renderRow(val, index))}
+                    {sortByVotingPower(vals, totalVotingPower).map((val, index) => renderRow(val, index))}
                 </Table>
             ) : (
                 <div className="d-flex flex-column align-items-center p-5">
