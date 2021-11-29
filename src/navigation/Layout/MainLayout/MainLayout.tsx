@@ -47,10 +47,17 @@ class MainLayout extends PureComponent<Props> {
                     <div className="warning-bar text-center py-2">{t('common.testnetBanner')}</div>
                 )}
                 <nav
-                    className={`ps-lg-2 pe-lg-4 py-3 justify-content-center justify-content-lg-between navbar navbar-expand-lg ${
+                    className={`px-3 ps-lg-2 pe-lg-4 py-0 py-lg-3 justify-content-between justify-content-lg-between navbar navbar-expand-lg ${
                         bottom ? 'position-fixed w-100 bottom-navbar' : ''
                     }`}
                 >
+                    {!bottom && (
+                        <ul className="navbar-nav navbar-spacer">
+                            <li>
+                                <div style={{ width: 24 }} />
+                            </li>
+                        </ul>
+                    )}
                     {!bottom && (
                         <ul className="navbar-nav lum-logo">
                             <li>
@@ -118,7 +125,7 @@ class MainLayout extends PureComponent<Props> {
                         </li>
                     </ul>
                     {!bottom && (
-                        <ul className="navbar-nav">
+                        <ul className="navbar-nav navbar-logout-btn">
                             <li>
                                 <a
                                     role="button"
@@ -126,7 +133,7 @@ class MainLayout extends PureComponent<Props> {
                                     data-bs-target="#logoutModal"
                                     className="navbar-item selected-navbar-item"
                                 >
-                                    <img src={assets.images.logoutIcon} width="50" height="50" className="nav-icon" />
+                                    <img src={assets.images.logoutIcon} className="nav-icon logout-icon" />
                                 </a>
                             </li>
                         </ul>
