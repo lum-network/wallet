@@ -6,7 +6,7 @@ import numeral from 'numeral';
 import { Table } from 'frontend-elements';
 
 import { CLIENT_PRECISION, LUM_EXPLORER } from 'constant';
-import { calculateTotalVotingPower, NumbersUtils, trunc } from 'utils';
+import { calculateTotalVotingPower, NumbersUtils, sortByVotingPower, trunc } from 'utils';
 import { UserValidator } from 'models';
 import { DropdownButton, SmallerDecimal } from 'components';
 import { useSelector } from 'react-redux';
@@ -55,8 +55,8 @@ const MyValidators = ({ validators, onDelegate, onUndelegate }: Props): JSX.Elem
         <tr key={index} className="validators-table-row">
             <td data-label={headers[0]}>
                 <a href={`${LUM_EXPLORER}/validators/${validator.operatorAddress}`} target="_blank" rel="noreferrer">
-                    {validator.description?.identity ||
-                        validator.description?.moniker ||
+                    {validator.description?.moniker ||
+                        validator.description?.identity ||
                         trunc(validator.operatorAddress)}
                 </a>
             </td>
@@ -129,7 +129,9 @@ const MyValidators = ({ validators, onDelegate, onUndelegate }: Props): JSX.Elem
             </div>
             {validators.length > 0 ? (
                 <Table className="validators-table overflow-visible" head={headers}>
-                    {validators.map((val, index) => renderRow(val, index))}
+                    {sortByVotingPower(validators, totalVotingPower).map((val, index) =>
+                        renderRow(val as UserValidator, index),
+                    )}
                 </Table>
             ) : (
                 <div className="d-flex flex-column align-items-center p-5">

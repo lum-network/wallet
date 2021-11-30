@@ -2,13 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Validator } from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
 import numeral from 'numeral';
-import { Table } from 'frontend-elements';
+import { Table, ValidatorLogo } from 'frontend-elements';
 
 import { Button, Input } from 'components';
-import { CLIENT_PRECISION, LUM_EXPLORER } from 'constant';
-import { trunc, NumbersUtils, calculateTotalVotingPower } from 'utils';
+import { CLIENT_PRECISION, LUM_ASSETS_GITHUB, LUM_EXPLORER } from 'constant';
+import { trunc, NumbersUtils, calculateTotalVotingPower, sortByVotingPower, WalletClient } from 'utils';
 
-import placeholderValidator from 'assets/images/placeholderValidator.svg';
 import searchIcon from 'assets/images/search.svg';
 
 import './styles/Lists.scss';
@@ -21,6 +20,8 @@ interface Props {
 const AvailableValidators = ({ validators, onDelegate }: Props): JSX.Element => {
     const [vals, setVals] = useState([...validators]);
     const [searchText, setSearchText] = useState('');
+    const [chainId, setChainId] = useState('');
+
     const { t } = useTranslation();
 
     const headers = [
@@ -35,6 +36,14 @@ const AvailableValidators = ({ validators, onDelegate }: Props): JSX.Element => 
     ];
 
     const totalVotingPower = NumbersUtils.convertUnitNumber(calculateTotalVotingPower(validators));
+
+    useEffect(() => {
+        (async () => {
+            const id = await WalletClient.lumClient?.getChainId();
+
+            setChainId(id || '');
+        })();
+    }, []);
 
     useEffect(() => {
         if (searchText) {
@@ -69,10 +78,17 @@ const AvailableValidators = ({ validators, onDelegate }: Props): JSX.Element => 
                         target="_blank"
                         rel="noreferrer"
                     >
-                        <img src={placeholderValidator} width={34} height={34} className="me-2 validator-logo" />
+                        <ValidatorLogo
+                            width={34}
+                            height={34}
+                            githubUrl={LUM_ASSETS_GITHUB}
+                            validatorAddress={validator.operatorAddress}
+                            chainId={chainId}
+                            className="me-2 me-sm-3"
+                        />
                         <span>
-                            {validator.description?.identity ||
-                                validator.description?.moniker ||
+                            {validator.description?.moniker ||
+                                validator.description?.identity ||
                                 trunc(validator.operatorAddress)}
                         </span>
                     </a>
@@ -127,7 +143,7 @@ const AvailableValidators = ({ validators, onDelegate }: Props): JSX.Element => 
             </div>
             {vals.length > 0 ? (
                 <Table className="validators-table" head={headers}>
-                    {vals.map((val, index) => renderRow(val, index))}
+                    {sortByVotingPower(vals, totalVotingPower).map((val, index) => renderRow(val, index))}
                 </Table>
             ) : (
                 <div className="d-flex flex-column align-items-center p-5">

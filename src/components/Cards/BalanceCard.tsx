@@ -8,9 +8,11 @@ import { Tooltip } from 'bootstrap';
 import { useRematchDispatch } from 'redux/hooks';
 import { RootDispatch, RootState } from 'redux/store';
 
-import './Cards.scss';
 import { IS_TESTNET } from 'constant';
 import { NumbersUtils } from 'utils';
+
+import SmallerDecimal from '../SmallerDecimal/SmallerDecimal';
+import './Cards.scss';
 
 const BalanceCard = ({ balance, address }: { balance: number; address: string }): JSX.Element => {
     const isLoading = useSelector((state: RootState) => state.loading.effects.wallet.reloadWalletInfos.loading);
@@ -37,9 +39,9 @@ const BalanceCard = ({ balance, address }: { balance: number; address: string })
         <Card withoutPadding className="h-100 dashboard-card balance-card p-4">
             <h2 className="ps-2 pt-3 text-white">{t('dashboard.currentBalance')}</h2>
             <div className="ps-2 my-3 d-flex flex-row align-items-baseline w-100">
-                <h1 className="display-6 fw-normal me-2 me-sm-3 text-white text-truncate">
-                    {NumbersUtils.formatTo6digit(balance)}
-                </h1>
+                <div className="me-2 me-sm-3 text-white text-truncate">
+                    <SmallerDecimal nb={NumbersUtils.formatTo6digit(balance)} big />
+                </div>
                 <img src={assets.images.lumTicker} className="ticker" />
             </div>
             <div>
