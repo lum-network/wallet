@@ -40,7 +40,7 @@ const BalanceCard = ({ balance, address }: { balance: number; address: string })
             <h2 className="ps-2 pt-3 text-white">{t('dashboard.currentBalance')}</h2>
             <div className="ps-2 my-3 d-flex flex-row align-items-baseline w-100">
                 <div className="me-2 me-sm-3 text-white text-truncate">
-                    <SmallerDecimal nb={NumbersUtils.formatTo6digit(balance)} big />
+                    <SmallerDecimal nb={NumbersUtils.formatTo6digit(balance < 0 ? 0 : balance)} big />
                 </div>
                 <img src={assets.images.lumTicker} className="ticker" />
             </div>

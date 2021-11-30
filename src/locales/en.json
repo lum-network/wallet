@@ -239,6 +239,7 @@
     "staking": {
         "stakedCoins": "Staked Coins",
         "unbondedTokens": "Unbonded Tokens",
+        "vestedTokens": "Vested tokens",
         "rewards": "Rewards",
         "myValidators": {
             "title": "My validators",
@@ -260,7 +261,8 @@
             "rewards": "Rewards"
         },
         "status": ["Unspecified", "Unbonded", "Unbonding", "Bonded"],
-        "claim": "Claim"
+        "claim": "Claim",
+        "timeRemaining": "{{ date }} remaining"
     },
     "messages": {
         "sign": {

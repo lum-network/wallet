@@ -73,3 +73,9 @@ export enum HardwareMethod {
     Cosmos = 'cosmos',
     Lum = 'lum',
 }
+
+export interface Vestings {
+    endsAt: Date;
+    lockedCoins: LumTypes.Coin;
+    lockedBankCoins: LumTypes.Coin;
+}

@@ -1,4 +1,4 @@
-import { Validator } from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
+import { UnbondingDelegation, Validator } from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
 import { NumbersUtils } from '.';
 
 export const calculateTotalVotingPower = (validators: Validator[]): number => {
@@ -19,4 +19,22 @@ export const sortByVotingPower = (validators: Validator[], totalVotingPower: num
         }
         return 0;
     });
+};
+
+export const unbondingsTimeRemaining = (unbondings: UnbondingDelegation[]): Date | undefined => {
+    let time = undefined;
+
+    for (const unbonding of unbondings) {
+        for (const entry of unbonding.entries) {
+            if (!time) {
+                time = entry.completionTime;
+            } else {
+                if (entry.completionTime && entry.completionTime < time) {
+                    time = entry.completionTime;
+                }
+            }
+        }
+    }
+
+    return time;
 };
