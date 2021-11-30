@@ -5,7 +5,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { NumbersUtils, dateFromNow } from 'utils';
 
-const UnbondedTokensCard = ({ amount, timeRemaining }: { amount: number; timeRemaining?: string }): JSX.Element => {
+const UnbondedTokensCard = ({ amount, endsAt }: { amount: number; endsAt?: Date }): JSX.Element => {
     const { t } = useTranslation();
 
     return (
@@ -17,10 +17,8 @@ const UnbondedTokensCard = ({ amount, timeRemaining }: { amount: number; timeRem
                 </div>
                 <img src={assets.images.lumTicker} className="ticker" />
             </div>
-            {timeRemaining ? (
-                <p className="align-self-end text-white">
-                    {t('staking.timeRemaining', { date: dateFromNow(timeRemaining) })}
-                </p>
+            {endsAt ? (
+                <p className="align-self-end text-white">{t('staking.timeRemaining', { date: dateFromNow(endsAt) })}</p>
             ) : null}
         </Card>
     );

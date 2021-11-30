@@ -183,6 +183,26 @@ class WalletClient {
         return currentBalance;
     };
 
+    getVestingsInfos = async (address: string) => {
+        if (this.lumClient === null) {
+            return null;
+        }
+
+        try {
+            const account = await this.lumClient.getAccount(address);
+
+            if (account) {
+                const { lockedBankCoins, lockedCoins, endsAt } = LumUtils.estimatedVesting(account);
+
+                return { lockedBankCoins, lockedCoins, endsAt };
+            }
+
+            return null;
+        } catch {
+            return null;
+        }
+    };
+
     getTransactions = async (address: string) => {
         if (this.lumClient === null) {
             return null;

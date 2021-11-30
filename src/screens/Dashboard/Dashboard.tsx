@@ -11,14 +11,16 @@ import { RootDispatch, RootState } from 'redux/store';
 import './styles/Dashboard.scss';
 import { usePrevious } from 'utils';
 import { useRematchDispatch } from 'redux/hooks';
+import { LumConstants, LumUtils } from '@lum-network/sdk-javascript';
 
 const Dashboard = (): JSX.Element => {
     // Redux hooks
-    const { transactions, balance, wallet } = useSelector((state: RootState) => ({
+    const { transactions, balance, wallet, vestings } = useSelector((state: RootState) => ({
         loading: state.loading.global.loading,
         transactions: state.wallet.transactions,
         balance: state.wallet.currentBalance,
         wallet: state.wallet.currentWallet,
+        vestings: state.wallet.vestings,
     }));
 
     const { getWalletInfos } = useRematchDispatch((dispatch: RootDispatch) => ({
@@ -50,7 +52,15 @@ const Dashboard = (): JSX.Element => {
                         <AddressCard address={wallet.getAddress()} />
                     </div>
                     <div className="col-lg-5 col-md-6 col-12">
-                        <BalanceCard balance={balance} address={wallet.getAddress()} />
+                        <BalanceCard
+                            balance={
+                                vestings
+                                    ? balance -
+                                      Number(LumUtils.convertUnit(vestings.lockedBankCoins, LumConstants.LumDenom))
+                                    : balance
+                            }
+                            address={wallet.getAddress()}
+                        />
                     </div>
                     <div className="col-lg-2 col-12 scale-animation">
                         <a href={LUM_TWITTER} target="_blank" rel="noreferrer">

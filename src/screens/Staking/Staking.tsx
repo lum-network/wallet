@@ -14,7 +14,7 @@ import { useRematchDispatch } from 'redux/hooks';
 import { BalanceCard, Button, Input, Modal } from 'components';
 import { UserValidator } from 'models';
 import { CLIENT_PRECISION } from 'constant';
-import { NumbersUtils, showErrorToast } from 'utils';
+import { NumbersUtils, showErrorToast, unbondingsTimeRemaining } from 'utils';
 import { Modal as BSModal } from 'bootstrap';
 
 import StakedCoinsCard from './components/Cards/StakedCoinsCard';
@@ -53,6 +53,7 @@ const Staking = (): JSX.Element => {
         stakedCoins,
         unbondedTokens,
         wallet,
+        vestings,
         rewards,
         balance,
         delegations,
@@ -61,6 +62,7 @@ const Staking = (): JSX.Element => {
         loadingUndelegate,
     } = useSelector((state: RootState) => ({
         wallet: state.wallet.currentWallet,
+        vestings: state.wallet.vestings,
         balance: state.wallet.currentBalance,
         rewards: state.wallet.rewards,
         bondedValidators: state.staking.validators.bonded,
@@ -244,8 +246,6 @@ const Staking = (): JSX.Element => {
         }
     };
 
-    const vestings = 10;
-
     return (
         <>
             <div className="mt-4">
@@ -260,13 +260,21 @@ const Staking = (): JSX.Element => {
                             <StakedCoinsCard amount={stakedCoins} />
                         </div>
                         <div className="col-lg-6">
-                            <BalanceCard balance={balance} address={wallet.getAddress()} />
+                            <BalanceCard
+                                balance={
+                                    vestings
+                                        ? balance -
+                                          Number(LumUtils.convertUnit(vestings.lockedBankCoins, LumConstants.LumDenom))
+                                        : balance
+                                }
+                                address={wallet.getAddress()}
+                            />
                         </div>
                         <div className="col-lg-6">
-                            <UnbondedTokensCard amount={unbondedTokens} />
+                            <UnbondedTokensCard amount={unbondedTokens} endsAt={unbondingsTimeRemaining(unbondings)} />
                         </div>
                         <div className="col-lg-6">
-                            {vestings ? <VestedTokensCard amount={vestings} /> : <RewardsCard rewards={rewards} />}
+                            {vestings ? <VestedTokensCard vestings={vestings} /> : <RewardsCard rewards={rewards} />}
                         </div>
                         <div className="col-12">
                             <Card withoutPadding className="pb-2">
