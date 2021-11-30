@@ -24,8 +24,11 @@ import './Operations.scss';
 type MsgType = { name: string; icon: string; iconClassName?: string; id: string; description: string };
 
 const Operations = (): JSX.Element => {
-    const wallet = useSelector((state: RootState) => state.wallet.currentWallet);
-    const balance = useSelector((state: RootState) => state.wallet.currentBalance);
+    const { wallet, balance, vestings } = useSelector((state: RootState) => ({
+        wallet: state.wallet.currentWallet,
+        balance: state.wallet.currentBalance,
+        vestings: state.wallet.vestings,
+    }));
 
     // Rematch effects
     const { sendTx, undelegate, delegate, redelegate, getReward, getWalletInfos } = useRematchDispatch(
@@ -337,7 +340,15 @@ const Operations = (): JSX.Element => {
                             <AddressCard address={wallet.getAddress()} />
                         </div>
                         <div className="col-md-6">
-                            <BalanceCard balance={balance} address={wallet.getAddress()} />
+                            <BalanceCard
+                                balance={
+                                    vestings
+                                        ? balance -
+                                          Number(LumUtils.convertUnit(vestings.lockedBankCoins, LumConstants.LumDenom))
+                                        : balance
+                                }
+                                address={wallet.getAddress()}
+                            />
                         </div>
                     </div>
                     {renderButtons}

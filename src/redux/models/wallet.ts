@@ -10,7 +10,7 @@ import { showErrorToast, showSuccessToast, WalletClient } from 'utils';
 import i18n from 'locales';
 import { LUM_WALLET } from 'constant';
 
-import { HardwareMethod, Rewards, RootModel, Transaction, Wallet } from '../../models';
+import { HardwareMethod, Rewards, RootModel, Transaction, Vestings, Wallet } from '../../models';
 
 interface SendPayload {
     to: string;
@@ -50,6 +50,7 @@ interface WalletState {
     currentBalance: number;
     transactions: Transaction[];
     rewards: Rewards;
+    vestings: Vestings | null;
 }
 
 export const wallet = createModel<RootModel>()({
@@ -62,6 +63,7 @@ export const wallet = createModel<RootModel>()({
             rewards: [],
             total: [],
         },
+        vestings: null,
     } as WalletState,
     reducers: {
         signIn(state, wallet: LumWallet, isExtensionImport?: boolean) {
@@ -80,12 +82,16 @@ export const wallet = createModel<RootModel>()({
                 },
             };
         },
-        setWalletData(state, data: { transactions?: Transaction[]; currentBalance?: number; rewards?: Rewards }) {
+        setWalletData(
+            state,
+            data: { transactions?: Transaction[]; currentBalance?: number; rewards?: Rewards; vestings?: Vestings },
+        ) {
             return {
                 ...state,
                 rewards: data.rewards || state.rewards,
                 currentBalance: data.currentBalance || state.currentBalance,
                 transactions: data.transactions || state.transactions,
+                vestings: data.vestings || state.vestings,
             };
         },
     },
@@ -111,11 +117,19 @@ export const wallet = createModel<RootModel>()({
                 dispatch.wallet.setWalletData({ rewards });
             }
         },
+        async getVestings(address: string) {
+            const vestings = await WalletClient.getVestingsInfos(address);
+
+            if (vestings) {
+                dispatch.wallet.setWalletData({ vestings });
+            }
+        },
         async reloadWalletInfos(address: string) {
             await Promise.all([
                 dispatch.wallet.getWalletBalance(address),
                 dispatch.wallet.getTransactions(address),
                 dispatch.wallet.getRewards(address),
+                dispatch.wallet.getVestings(address),
                 dispatch.staking.getValidatorsInfosAsync(address),
             ]);
         },

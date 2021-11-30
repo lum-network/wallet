@@ -80,6 +80,11 @@ a:focus {
     width: 50px;
 }
 
+.logout-icon {
+    width: 50px;
+    height: 50px;
+}
+
 .logout-modal-title {
     color: $color-primary;
     white-space: pre-line;
@@ -125,7 +130,9 @@ a:focus {
     .layout nav ul {
         display: none;
     }
-    .layout nav ul.lum-logo {
+    .layout nav ul.lum-logo,
+    .layout nav ul.navbar-logout-btn,
+    .layout nav ul.navbar-spacer {
         display: initial;
     }
     .layout nav.bottom-navbar {
@@ -155,21 +162,14 @@ a:focus {
         height: 25px;
         margin-bottom: 3px;
     }
+
+    .logout-icon {
+        width: 35px;
+        height: 35px;
+    }
 }
 
 @include media-breakpoint-down(sm) {
-    .content {
-        padding-top: 20px;
-    }
-
-    .content.testnet {
-        padding-top: 40px;
-    }
-
-    .layout nav {
-        display: none;
-    }
-
     .layout nav.bottom-navbar {
         height: 90px;
     }

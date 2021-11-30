@@ -3,9 +3,9 @@ import { SmallerDecimal } from 'components';
 import { Card } from 'frontend-elements';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { NumbersUtils } from 'utils';
+import { NumbersUtils, dateFromNow } from 'utils';
 
-const UnbondedTokensCard = ({ amount }: { amount: number }): JSX.Element => {
+const UnbondedTokensCard = ({ amount, endsAt }: { amount: number; endsAt?: Date }): JSX.Element => {
     const { t } = useTranslation();
 
     return (
@@ -17,6 +17,9 @@ const UnbondedTokensCard = ({ amount }: { amount: number }): JSX.Element => {
                 </div>
                 <img src={assets.images.lumTicker} className="ticker" />
             </div>
+            {endsAt ? (
+                <p className="align-self-end text-white">{t('staking.timeRemaining', { date: dateFromNow(endsAt) })}</p>
+            ) : null}
         </Card>
     );
 };
