@@ -3,12 +3,24 @@ import Assets from 'assets';
 import { LUM_WALLET_GITHUB, LUM_DISCORD /* LUM_MAIL, LUM_TELEGRAM */ } from 'constant';
 
 import './Footer.scss';
+import { DropdownButton } from 'components';
 
 const Footer = (): JSX.Element => {
     return (
         <div className="d-flex w-100 justify-content-sm-end justify-content-center align-items-center flex-column flex-sm-row p-4">
-            <div>
-                <a href={LUM_WALLET_GITHUB} target="_blank" rel="noreferrer">
+            <div className="d-flex flex-row align-items-center">
+                <DropdownButton
+                    title="node0.testnet.lum.network"
+                    direction="up"
+                    items={[
+                        {
+                            title: 'node0.testnet.lum.network',
+                            // eslint-disable-next-line @typescript-eslint/no-empty-function
+                            onPress: () => {},
+                        },
+                    ]}
+                />
+                <a href={LUM_WALLET_GITHUB} target="_blank" rel="noreferrer" className="ms-4">
                     <img src={Assets.images.githubIcon} className="footer-icon" />
                 </a>
                 <a href={LUM_DISCORD} target="_blank" rel="noreferrer" className="ms-4">

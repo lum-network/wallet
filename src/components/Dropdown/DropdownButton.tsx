@@ -30,7 +30,10 @@ const DropdownButton = ({ items, title, className, disabled, isLoading, directio
             >
                 {title}
             </Button>
-            <ul className="dropdown-menu dropdown-menu-end text-center border-0 mb-3" aria-labelledby="dropdownMenu">
+            <ul
+                className="dropdown-menu dropdown-menu-end text-center border-0 mb-3 w-100"
+                aria-labelledby="dropdownMenu"
+            >
                 {items.map((item, index) => (
                     <li key={index}>
                         <a type="button" className="dropdown-item" onClick={item.onPress}>
