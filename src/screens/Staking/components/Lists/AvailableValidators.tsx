@@ -20,7 +20,6 @@ interface Props {
 const AvailableValidators = ({ validators, onDelegate }: Props): JSX.Element => {
     const [vals, setVals] = useState([...validators]);
     const [searchText, setSearchText] = useState('');
-    const [chainId, setChainId] = useState('');
 
     const { t } = useTranslation();
 
@@ -36,14 +35,6 @@ const AvailableValidators = ({ validators, onDelegate }: Props): JSX.Element => 
     ];
 
     const totalVotingPower = NumbersUtils.convertUnitNumber(calculateTotalVotingPower(validators));
-
-    useEffect(() => {
-        (async () => {
-            const id = await WalletClient.lumClient?.getChainId();
-
-            setChainId(id || '');
-        })();
-    }, []);
 
     useEffect(() => {
         if (searchText) {
@@ -83,7 +74,7 @@ const AvailableValidators = ({ validators, onDelegate }: Props): JSX.Element => 
                             height={34}
                             githubUrl={LUM_ASSETS_GITHUB}
                             validatorAddress={validator.operatorAddress}
-                            chainId={chainId}
+                            chainId={WalletClient.chainId || ''}
                             className="me-2 me-sm-3"
                         />
                         <span>

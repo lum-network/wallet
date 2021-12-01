@@ -140,7 +140,8 @@ export const wallet = createModel<RootModel>()({
             } else if (!keplrWindow.keplr.experimentalSuggestChain) {
                 showErrorToast(i18n.t('wallet.errors.keplr.notLatest'));
             } else {
-                const chainId = await WalletClient.lumClient?.getChainId();
+                const { chainId } = WalletClient;
+
                 if (!chainId) {
                     showErrorToast(i18n.t('wallet.errors.keplr.network'));
                     return;
