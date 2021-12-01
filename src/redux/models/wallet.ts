@@ -348,7 +348,7 @@ export const wallet = createModel<RootModel>()({
             return result;
         },
         async mintFaucet(address: string) {
-            if (address) {
+            try {
                 const res = await axios.get(`https://bridge.testnet.lum.network/faucet/${address}`);
 
                 if (res.status === 200) {
@@ -357,8 +357,8 @@ export const wallet = createModel<RootModel>()({
                 } else {
                     showErrorToast(i18n.t('wallet.errors.faucet.generic'));
                 }
-            } else {
-                showErrorToast(i18n.t('wallet.errors.keplr.address'));
+            } catch {
+                showErrorToast(i18n.t('wallet.errors.faucet.generic'));
             }
         },
     }),
