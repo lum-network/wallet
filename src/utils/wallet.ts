@@ -203,6 +203,42 @@ class WalletClient {
         }
     };
 
+    getAirdropInfos = async (address: string) => {
+        if (this.lumClient === null) {
+            return null;
+        }
+
+        try {
+            const airdrop = await this.lumClient.queryClient.airdrop.claimRecord(address);
+
+            if (airdrop.claimRecord) {
+                const { initialClaimableAmount, actionCompleted } = airdrop.claimRecord;
+                const [vote, delegate] = actionCompleted;
+
+                let amount = initialClaimableAmount.reduce(
+                    (acc, coin) => acc + Number(LumUtils.convertUnit(coin, LumConstants.LumDenom)),
+                    0,
+                );
+
+                if (vote && delegate) {
+                    amount = 0;
+                } else if (vote || delegate) {
+                    amount = amount / 2;
+                }
+
+                return {
+                    amount,
+                    vote,
+                    delegate,
+                };
+            }
+
+            return null;
+        } catch {
+            return null;
+        }
+    };
+
     getTransactions = async (address: string) => {
         if (this.lumClient === null) {
             return null;

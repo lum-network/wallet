@@ -79,3 +79,9 @@ export interface Vestings {
     lockedCoins: LumTypes.Coin;
     lockedBankCoins: LumTypes.Coin;
 }
+
+export interface Airdrop {
+    amount: number;
+    vote: boolean;
+    delegate: boolean;
+}
