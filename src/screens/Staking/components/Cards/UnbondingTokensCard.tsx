@@ -5,7 +5,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { NumbersUtils, dateFromNow } from 'utils';
 
-const UnbondedTokensCard = ({ amount, endsAt }: { amount: number; endsAt?: Date }): JSX.Element => {
+const UnbondingTokensCard = ({ amount, endsAt }: { amount: number; endsAt?: Date }): JSX.Element => {
     const { t } = useTranslation();
 
     return (
@@ -24,4 +24,4 @@ const UnbondedTokensCard = ({ amount, endsAt }: { amount: number; endsAt?: Date 
     );
 };
 
-export default UnbondedTokensCard;
+export default UnbondingTokensCard;

@@ -196,9 +196,10 @@ class WalletClient {
             const account = await this.lumClient.getAccount(address);
 
             if (account) {
-                const { lockedBankCoins, lockedCoins, endsAt } = LumUtils.estimatedVesting(account);
+                const { lockedBankCoins, lockedDelegatedCoins, lockedCoins, endsAt } =
+                    LumUtils.estimatedVesting(account);
 
-                return { lockedBankCoins, lockedCoins, endsAt };
+                return { lockedBankCoins, lockedDelegatedCoins, lockedCoins, endsAt };
             }
 
             return null;
