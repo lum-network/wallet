@@ -239,7 +239,7 @@
     "staking": {
         "stakedCoins": "Staked Coins",
         "unbondedTokens": "Unbonding Tokens",
-        "vestedTokens": "Vesting tokens",
+        "vestedTokens": "Vesting Tokens",
         "rewards": "Rewards",
         "myValidators": {
             "title": "My validators",
