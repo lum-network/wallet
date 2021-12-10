@@ -7,7 +7,7 @@ import { NumbersUtils } from 'utils';
 
 import './styles/Cards.scss';
 
-const StakedCoinsCard = ({ amount }: { amount: number }): JSX.Element => {
+const StakedCoinsCard = ({ amount, amountVesting }: { amount: number; amountVesting: number }): JSX.Element => {
     const { t } = useTranslation();
 
     return (
@@ -19,6 +19,15 @@ const StakedCoinsCard = ({ amount }: { amount: number }): JSX.Element => {
                 </div>
                 <img src={assets.images.lumTicker} className="ticker" />
             </div>
+            {amountVesting ? (
+                <p className="align-self-end text-white">
+                    {t('staking.includingVesting', { returnObjects: true })[0]}
+                    <span>
+                        <SmallerDecimal nb={NumbersUtils.formatTo6digit(amountVesting)} />
+                    </span>
+                    {t('staking.includingVesting', { returnObjects: true })[1]}
+                </p>
+            ) : null}
         </Card>
     );
 };
