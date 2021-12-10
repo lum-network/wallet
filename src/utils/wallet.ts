@@ -244,9 +244,9 @@ class WalletClient {
         const sendMsg = LumMessages.BuildMsgSend(fromWallet.getAddress(), toAddress, [
             { denom: LumConstants.MicroLumDenom, amount },
         ]);
-        // Define fees (5 LUM)
+        // Define fees
         const fee = {
-            amount: [{ denom: LumConstants.MicroLumDenom, amount: '1000' }],
+            amount: [{ denom: LumConstants.MicroLumDenom, amount: '25000' }],
             gas: '100000',
         };
         // Fetch account number and sequence and chain id
@@ -308,9 +308,9 @@ class WalletClient {
             amount,
         });
 
-        // Define fees (5 LUM)
+        // Define fees
         const fee = {
-            amount: [{ denom: LumConstants.MicroLumDenom, amount: '5' }],
+            amount: [{ denom: LumConstants.MicroLumDenom, amount: '25000' }],
             gas: '200000',
         };
 
@@ -373,9 +373,9 @@ class WalletClient {
             amount,
         });
 
-        // Define fees (5 LUM)
+        // Define fees
         const fee = {
-            amount: [{ denom: LumConstants.MicroLumDenom, amount: '5' }],
+            amount: [{ denom: LumConstants.MicroLumDenom, amount: '25000' }],
             gas: '200000',
         };
 
@@ -428,9 +428,9 @@ class WalletClient {
 
         const getRewardMsg = LumMessages.BuildMsgWithdrawDelegatorReward(fromWallet.getAddress(), validatorAddress);
 
-        // Define fees (5 LUM)
+        // Define fees
         const fee = {
-            amount: [{ denom: LumConstants.MicroLumDenom, amount: '1' }],
+            amount: [{ denom: LumConstants.MicroLumDenom, amount: '25000' }],
             gas: '140000',
         };
 
@@ -504,9 +504,9 @@ class WalletClient {
             },
         );
 
-        // Define fees (5 LUM)
+        // Define fees
         const fee = {
-            amount: [{ denom: LumConstants.MicroLumDenom, amount: '1' }],
+            amount: [{ denom: LumConstants.MicroLumDenom, amount: '25000' }],
             gas: '300000',
         };
 
