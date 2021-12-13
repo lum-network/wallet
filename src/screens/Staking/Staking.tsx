@@ -18,9 +18,9 @@ import { NumbersUtils, showErrorToast, unbondingsTimeRemaining } from 'utils';
 import { Modal as BSModal } from 'bootstrap';
 
 import StakedCoinsCard from './components/Cards/StakedCoinsCard';
-import UnbondedTokensCard from './components/Cards/UnbondedTokensCard';
+import UnbondingTokensCard from './components/Cards/UnbondingTokensCard';
 import RewardsCard from './components/Cards/RewardsCard';
-import VestedTokensCard from './components/Cards/VestedTokensCard';
+import VestingTokensCard from './components/Cards/VestingTokensCard';
 
 import MyValidators from './components/Lists/MyValidators';
 import AvailableValidators from './components/Lists/AvailableValidators';
@@ -257,7 +257,19 @@ const Staking = (): JSX.Element => {
                             </div>
                         ) : null}
                         <div className="col-lg-6">
-                            <StakedCoinsCard amount={stakedCoins} />
+                            <StakedCoinsCard
+                                amount={stakedCoins}
+                                amountVesting={
+                                    vestings
+                                        ? Number(
+                                              LumUtils.convertUnit(
+                                                  vestings.lockedDelegatedCoins,
+                                                  LumConstants.LumDenom,
+                                              ),
+                                          )
+                                        : 0
+                                }
+                            />
                         </div>
                         <div className="col-lg-6">
                             <BalanceCard
@@ -271,10 +283,10 @@ const Staking = (): JSX.Element => {
                             />
                         </div>
                         <div className="col-lg-6">
-                            <UnbondedTokensCard amount={unbondedTokens} endsAt={unbondingsTimeRemaining(unbondings)} />
+                            <UnbondingTokensCard amount={unbondedTokens} endsAt={unbondingsTimeRemaining(unbondings)} />
                         </div>
                         <div className="col-lg-6">
-                            {vestings ? <VestedTokensCard vestings={vestings} /> : <RewardsCard rewards={rewards} />}
+                            {vestings ? <VestingTokensCard vestings={vestings} /> : <RewardsCard rewards={rewards} />}
                         </div>
                         <div className="col-12">
                             <Card withoutPadding className="pb-2">

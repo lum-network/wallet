@@ -2,7 +2,7 @@
 # It's performing unit and interface tests, and deploying on preview channels
 
 name: Lint, format, test and deploy the explorer on pull request events
-on: 
+on:
   pull_request:
     types: [opened, edited, synchronize, reopened]
 
@@ -10,6 +10,11 @@ jobs:
   build_and_preview:
     runs-on: ubuntu-latest
     steps:
+      - name: Set up Node version to 14
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
       - name: Checkout repository and submodules
         uses: actions/checkout@v2
         with:

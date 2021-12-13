@@ -156,7 +156,8 @@ export const wallet = createModel<RootModel>()({
             } else if (!keplrWindow.keplr.experimentalSuggestChain) {
                 showErrorToast(i18n.t('wallet.errors.keplr.notLatest'));
             } else {
-                const chainId = await WalletClient.lumClient?.getChainId();
+                const { chainId } = WalletClient;
+
                 if (!chainId) {
                     showErrorToast(i18n.t('wallet.errors.keplr.network'));
                     return;
@@ -364,7 +365,7 @@ export const wallet = createModel<RootModel>()({
             return result;
         },
         async mintFaucet(address: string) {
-            if (address) {
+            try {
                 const res = await axios.get(`https://bridge.testnet.lum.network/faucet/${address}`);
 
                 if (res.status === 200) {
@@ -373,8 +374,8 @@ export const wallet = createModel<RootModel>()({
                 } else {
                     showErrorToast(i18n.t('wallet.errors.faucet.generic'));
                 }
-            } else {
-                showErrorToast(i18n.t('wallet.errors.keplr.address'));
+            } catch {
+                showErrorToast(i18n.t('wallet.errors.faucet.generic'));
             }
         },
     }),

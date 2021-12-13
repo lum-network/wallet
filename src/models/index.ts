@@ -78,6 +78,7 @@ export interface Vestings {
     endsAt: Date;
     lockedCoins: LumTypes.Coin;
     lockedBankCoins: LumTypes.Coin;
+    lockedDelegatedCoins: LumTypes.Coin;
 }
 
 export interface Airdrop {
