@@ -30,7 +30,7 @@ const AirdropCard = ({ airdrop }: { airdrop: Airdrop }): JSX.Element => {
                     {!airdrop.delegate && t('airdrop.actionsToClaim.delegate')}
                 </div>
                 <a href={MEDIUM_AIRDROP_ARTICLE} target="_blank" rel="noreferrer">
-                    More informations
+                    {t('airdrop.moreInformations')}
                 </a>
             </div>
         </Card>
