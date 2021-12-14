@@ -151,7 +151,7 @@ export const wallet = createModel<RootModel>()({
                         chainId: chainId,
                         chainName: chainId.includes('testnet') ? 'Lum Network [Test]' : 'Lum Network',
                         rpc: process.env.REACT_APP_RPC_URL,
-                        rest: 'https://node0.testnet.lum.network/rest',
+                        rest: process.env.REACT_APP_RPC_URL.replace('rpc', 'rest'),
                         stakeCurrency: {
                             coinDenom: LumConstants.LumDenom.toUpperCase(),
                             coinMinimalDenom: LumConstants.MicroLumDenom,
