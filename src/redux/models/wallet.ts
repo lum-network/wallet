@@ -10,7 +10,7 @@ import { showErrorToast, showSuccessToast, WalletClient } from 'utils';
 import i18n from 'locales';
 import { LUM_WALLET } from 'constant';
 
-import { HardwareMethod, Rewards, RootModel, Transaction, Vestings, Wallet } from '../../models';
+import { Airdrop, HardwareMethod, Rewards, RootModel, Transaction, Vestings, Wallet } from '../../models';
 
 interface SendPayload {
     to: string;
@@ -45,12 +45,21 @@ interface SignInKeystorePayload {
     password: string;
 }
 
+interface SetWalletDataPayload {
+    transactions?: Transaction[];
+    currentBalance?: number;
+    rewards?: Rewards;
+    vestings?: Vestings;
+    airdrop?: Airdrop;
+}
+
 interface WalletState {
     currentWallet: Wallet | null;
     currentBalance: number;
     transactions: Transaction[];
     rewards: Rewards;
     vestings: Vestings | null;
+    airdrop: Airdrop | null;
 }
 
 export const wallet = createModel<RootModel>()({
@@ -64,6 +73,7 @@ export const wallet = createModel<RootModel>()({
             total: [],
         },
         vestings: null,
+        airdrop: null,
     } as WalletState,
     reducers: {
         signIn(state, wallet: LumWallet, isExtensionImport?: boolean) {
@@ -82,16 +92,14 @@ export const wallet = createModel<RootModel>()({
                 },
             };
         },
-        setWalletData(
-            state,
-            data: { transactions?: Transaction[]; currentBalance?: number; rewards?: Rewards; vestings?: Vestings },
-        ) {
+        setWalletData(state, data: SetWalletDataPayload) {
             return {
                 ...state,
                 rewards: data.rewards || state.rewards,
                 currentBalance: data.currentBalance || state.currentBalance,
                 transactions: data.transactions || state.transactions,
                 vestings: data.vestings || state.vestings,
+                airdrop: data.airdrop || state.airdrop,
             };
         },
     },
@@ -124,12 +132,20 @@ export const wallet = createModel<RootModel>()({
                 dispatch.wallet.setWalletData({ vestings });
             }
         },
+        async getAirdrop(address: string) {
+            const airdrop = await WalletClient.getAirdropInfos(address);
+
+            if (airdrop) {
+                dispatch.wallet.setWalletData({ airdrop });
+            }
+        },
         async reloadWalletInfos(address: string) {
             await Promise.all([
                 dispatch.wallet.getWalletBalance(address),
                 dispatch.wallet.getTransactions(address),
                 dispatch.wallet.getRewards(address),
                 dispatch.wallet.getVestings(address),
+                dispatch.wallet.getAirdrop(address),
                 dispatch.staking.getValidatorsInfosAsync(address),
             ]);
         },

@@ -12,15 +12,17 @@ import './styles/Dashboard.scss';
 import { usePrevious } from 'utils';
 import { useRematchDispatch } from 'redux/hooks';
 import { LumConstants, LumUtils } from '@lum-network/sdk-javascript';
+import AirdropCard from 'components/Cards/AirdropCard';
 
 const Dashboard = (): JSX.Element => {
     // Redux hooks
-    const { transactions, balance, wallet, vestings } = useSelector((state: RootState) => ({
+    const { transactions, balance, wallet, vestings, airdrop } = useSelector((state: RootState) => ({
         loading: state.loading.global.loading,
         transactions: state.wallet.transactions,
         balance: state.wallet.currentBalance,
         wallet: state.wallet.currentWallet,
         vestings: state.wallet.vestings,
+        airdrop: state.wallet.airdrop,
     }));
 
     const { getWalletInfos } = useRematchDispatch((dispatch: RootDispatch) => ({
@@ -48,6 +50,11 @@ const Dashboard = (): JSX.Element => {
         <div className="mt-4">
             <div className="container">
                 <div className="row gy-4">
+                    {airdrop && airdrop.amount > 0 ? (
+                        <div className="col-12">
+                            <AirdropCard airdrop={airdrop} />
+                        </div>
+                    ) : null}
                     <div className="col-lg-5 col-md-6 col-12">
                         <AddressCard address={wallet.getAddress()} />
                     </div>
