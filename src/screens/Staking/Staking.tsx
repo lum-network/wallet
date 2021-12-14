@@ -11,7 +11,7 @@ import * as yup from 'yup';
 import { Card } from 'frontend-elements';
 import { RootDispatch, RootState } from 'redux/store';
 import { useRematchDispatch } from 'redux/hooks';
-import { BalanceCard, Button, Input, Modal } from 'components';
+import { AirdropCard, BalanceCard, Button, Input, Modal } from 'components';
 import { UserValidator } from 'models';
 import { CLIENT_PRECISION } from 'constant';
 import { NumbersUtils, showErrorToast, unbondingsTimeRemaining } from 'utils';
@@ -48,6 +48,7 @@ const Staking = (): JSX.Element => {
 
     // Redux state values
     const {
+        airdrop,
         bondedValidators,
         unbondedValidators,
         stakedCoins,
@@ -62,6 +63,7 @@ const Staking = (): JSX.Element => {
         loadingUndelegate,
     } = useSelector((state: RootState) => ({
         wallet: state.wallet.currentWallet,
+        airdrop: state.wallet.airdrop,
         vestings: state.wallet.vestings,
         balance: state.wallet.currentBalance,
         rewards: state.wallet.rewards,
@@ -251,6 +253,11 @@ const Staking = (): JSX.Element => {
             <div className="mt-4">
                 <div className="container">
                     <div className="row gy-4">
+                        {airdrop && airdrop.amount > 0 ? (
+                            <div className="col-12">
+                                <AirdropCard airdrop={airdrop} />
+                            </div>
+                        ) : null}
                         {vestings ? (
                             <div className="col-12">
                                 <RewardsCard rewards={rewards} />

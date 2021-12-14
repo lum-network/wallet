@@ -1,5 +1,6 @@
 export { default as AddressCard } from './Cards/AddressCard';
 export { default as BalanceCard } from './Cards/BalanceCard';
+export { default as AirdropCard } from './Cards/AirdropCard';
 export { default as Card } from './Cards/Card';
 export { default as TransactionsTable } from './Tables/TransactionsTable';
 export { default as Input } from './Inputs/Input';

@@ -7,7 +7,7 @@ import { LumConstants, LumMessages, LumUtils } from '@lum-network/sdk-javascript
 import * as yup from 'yup';
 
 import assets from 'assets';
-import { AddressCard, BalanceCard, Input, Modal, Button as CustomButton } from 'components';
+import { AddressCard, BalanceCard, Input, Modal, Button as CustomButton, AirdropCard } from 'components';
 import { RootDispatch, RootState } from 'redux/store';
 import { useRematchDispatch } from 'redux/hooks';
 import { showErrorToast } from 'utils';
@@ -24,10 +24,11 @@ import './Operations.scss';
 type MsgType = { name: string; icon: string; iconClassName?: string; id: string; description: string };
 
 const Operations = (): JSX.Element => {
-    const { wallet, balance, vestings } = useSelector((state: RootState) => ({
+    const { wallet, balance, vestings, airdrop } = useSelector((state: RootState) => ({
         wallet: state.wallet.currentWallet,
         balance: state.wallet.currentBalance,
         vestings: state.wallet.vestings,
+        airdrop: state.wallet.airdrop,
     }));
 
     // Rematch effects
@@ -336,6 +337,11 @@ const Operations = (): JSX.Element => {
             <div className="mt-4">
                 <div className="container">
                     <div className="row gy-4">
+                        {airdrop && airdrop.amount > 0 ? (
+                            <div className="col-12">
+                                <AirdropCard airdrop={airdrop} />
+                            </div>
+                        ) : null}
                         <div className="col-md-6">
                             <AddressCard address={wallet.getAddress()} />
                         </div>

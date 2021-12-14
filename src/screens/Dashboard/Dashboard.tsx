@@ -50,7 +50,7 @@ const Dashboard = (): JSX.Element => {
         <div className="mt-4">
             <div className="container">
                 <div className="row gy-4">
-                    {airdrop ? (
+                    {airdrop && airdrop.amount > 0 ? (
                         <div className="col-12">
                             <AirdropCard airdrop={airdrop} />
                         </div>

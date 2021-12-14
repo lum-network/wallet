@@ -5,6 +5,7 @@ import { Airdrop } from 'models';
 import { Card } from 'frontend-elements';
 import { SmallerDecimal } from 'components';
 import { NumbersUtils } from 'utils';
+import { MEDIUM_AIRDROP_ARTICLE } from 'constant';
 
 const AirdropCard = ({ airdrop }: { airdrop: Airdrop }): JSX.Element => {
     const { t } = useTranslation();
@@ -16,16 +17,21 @@ const AirdropCard = ({ airdrop }: { airdrop: Airdrop }): JSX.Element => {
                 <SmallerDecimal nb={NumbersUtils.formatTo6digit(airdrop.amount)} />
                 {t('airdrop.amountToClaim', { returnObjects: true })[1]}
             </div>
-            <div className="px-2">
-                {t('airdrop.actionsToClaim.info')}
-                <br />
-                {!airdrop.vote && (
-                    <>
-                        {t('airdrop.actionsToClaim.vote')}
-                        <br />
-                    </>
-                )}
-                {!airdrop.delegate && t('airdrop.actionsToClaim.delegate')}
+            <div className="d-flex flex-row w-100 justify-content-between align-items-end px-2">
+                <div>
+                    {t('airdrop.actionsToClaim.info')}
+                    <br />
+                    {!airdrop.vote && (
+                        <>
+                            {t('airdrop.actionsToClaim.vote')}
+                            <br />
+                        </>
+                    )}
+                    {!airdrop.delegate && t('airdrop.actionsToClaim.delegate')}
+                </div>
+                <a href={MEDIUM_AIRDROP_ARTICLE} target="_blank" rel="noreferrer">
+                    More informations
+                </a>
             </div>
         </Card>
     );

@@ -301,7 +301,7 @@
         "actionsToClaim": {
             "info": "To claim all your tokens, you need to:",
             "delegate": "• Delegate to a validator",
-            "vote": "• Vote on proposal"
+            "vote": "• Vote on a proposal"
         }
     }
 }
