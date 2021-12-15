@@ -687,7 +687,7 @@ class WalletClient {
             chainId,
             fee,
             messages: [voteMsg],
-            memo: 'Vote',
+            memo: '',
             signers: [
                 {
                     accountNumber,
