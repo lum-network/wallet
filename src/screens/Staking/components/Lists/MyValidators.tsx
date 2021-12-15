@@ -3,10 +3,10 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { LumConstants } from '@lum-network/sdk-javascript';
 import numeral from 'numeral';
-import { Table } from 'frontend-elements';
+import { Table, ValidatorLogo } from 'frontend-elements';
 
-import { CLIENT_PRECISION, LUM_EXPLORER } from 'constant';
-import { calculateTotalVotingPower, NumbersUtils, sortByVotingPower, trunc } from 'utils';
+import { CLIENT_PRECISION, LUM_ASSETS_GITHUB, LUM_EXPLORER } from 'constant';
+import { calculateTotalVotingPower, NumbersUtils, sortByVotingPower, trunc, WalletClient } from 'utils';
 import { UserValidator } from 'models';
 import { DropdownButton, SmallerDecimal } from 'components';
 import { useSelector } from 'react-redux';
@@ -55,9 +55,19 @@ const MyValidators = ({ validators, onDelegate, onUndelegate }: Props): JSX.Elem
         <tr key={index} className="validators-table-row">
             <td data-label={headers[0]}>
                 <a href={`${LUM_EXPLORER}/validators/${validator.operatorAddress}`} target="_blank" rel="noreferrer">
-                    {validator.description?.moniker ||
-                        validator.description?.identity ||
-                        trunc(validator.operatorAddress)}
+                    <ValidatorLogo
+                        width={34}
+                        height={34}
+                        githubUrl={LUM_ASSETS_GITHUB}
+                        validatorAddress={validator.operatorAddress}
+                        chainId={WalletClient.chainId || ''}
+                        className="me-2 me-sm-3"
+                    />
+                    <span>
+                        {validator.description?.moniker ||
+                            validator.description?.identity ||
+                            trunc(validator.operatorAddress)}
+                    </span>
                 </a>
             </td>
             <td data-label={headers[1]}>
