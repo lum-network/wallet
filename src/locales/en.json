@@ -201,6 +201,9 @@
             "redelegate": {
                 "name": "Redelegate",
                 "description": "Redelegate LUM from one network validator to another"
+            },
+            "getAllRewards": {
+                "name": "Get All Rewards"
             }
         },
         "confirmation": "Confirmation",
@@ -224,13 +227,17 @@
             "memo": {
                 "label": "Memo",
                 "placeholder": "Memo (optional)"
+            },
+            "rewards": {
+                "label": "Rewards amount"
             }
         },
         "defaultMemo": {
             "delegate": "Delegated",
             "undelegate": "Undelegated",
             "redelegate": "Redelegate",
-            "getReward": "Get Reward"
+            "getReward": "Get Reward",
+            "getAllRewards": "Get All Rewards"
         },
         "errors": {
             "address": "Wrong address format"
