@@ -81,6 +81,10 @@ input[type='checkbox'] {
     }
 }
 
+.select-container {
+    color: $color-primary;
+}
+
 @media (prefers-color-scheme: dark) {
     label.form-label {
         color: white;
@@ -94,6 +98,9 @@ input[type='checkbox'] {
             box-shadow: 0 0 0 30px $color-primary inset !important;
             -webkit-text-fill-color: white;
         }
+        color: white;
+    }
+    .select-container {
         color: white;
     }
 }
