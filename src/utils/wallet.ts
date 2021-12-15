@@ -521,15 +521,19 @@ class WalletClient {
         }
 
         const messages = [];
+        let gas = 140000;
 
-        for (const valAdd of validatorsAddresses) {
+        for (const [index, valAdd] of validatorsAddresses.entries()) {
             messages.push(LumMessages.BuildMsgWithdrawDelegatorReward(fromWallet.getAddress(), valAdd));
+            if (index > 0) {
+                gas += 80000;
+            }
         }
 
         // Define fees
         const fee = {
             amount: [{ denom: LumConstants.MicroLumDenom, amount: '25000' }],
-            gas: '140000',
+            gas: gas.toString(),
         };
 
         // Fetch account number and sequence and chain id
