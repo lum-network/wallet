@@ -1,4 +1,10 @@
-import { UnbondingDelegation, Validator } from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
+import {
+    DelegationResponse,
+    UnbondingDelegation,
+    Validator,
+} from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
+import { CLIENT_PRECISION } from 'constant';
+import { Rewards, UserValidator } from 'models';
 import { NumbersUtils } from '.';
 
 export const calculateTotalVotingPower = (validators: Validator[]): number => {
@@ -37,4 +43,35 @@ export const unbondingsTimeRemaining = (unbondings: UnbondingDelegation[]): Date
     }
 
     return time;
+};
+
+export const getUserValidators = (
+    bondedValidators: Validator[],
+    delegations: DelegationResponse[],
+    rewards: Rewards,
+): UserValidator[] => {
+    const validators = [];
+
+    for (const delegation of delegations) {
+        for (const reward of rewards.rewards) {
+            if (delegation.delegation && reward.validatorAddress === delegation.delegation.validatorAddress) {
+                const validator = bondedValidators.find(
+                    (bondedVal) =>
+                        delegation.delegation && bondedVal.operatorAddress === delegation.delegation.validatorAddress,
+                );
+
+                if (validator) {
+                    validators.push({
+                        ...validator,
+                        reward: parseFloat(reward.reward.length > 0 ? reward.reward[0].amount : '0') / CLIENT_PRECISION,
+                        stakedCoins: NumbersUtils.formatTo6digit(
+                            NumbersUtils.convertUnitNumber(delegation.delegation.shares || 0) / CLIENT_PRECISION,
+                        ),
+                    });
+                }
+            }
+        }
+    }
+
+    return validators;
 };

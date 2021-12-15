@@ -32,6 +32,12 @@ interface GetRewardPayload {
     memo: string;
 }
 
+interface GetAllRewardsPayload {
+    validatorsAddresses: string[];
+    from: Wallet;
+    memo: string;
+}
+
 interface RedelegatePayload {
     from: Wallet;
     memo: string;
@@ -340,6 +346,16 @@ export const wallet = createModel<RootModel>()({
         },
         async getReward(payload: GetRewardPayload) {
             const result = await WalletClient.getReward(payload.from, payload.validatorAddress, payload.memo);
+
+            if (!result) {
+                return null;
+            }
+
+            dispatch.wallet.reloadWalletInfos(payload.from.getAddress());
+            return result;
+        },
+        async getAllRewards(payload: GetAllRewardsPayload) {
+            const result = await WalletClient.getAllRewards(payload.from, payload.validatorsAddresses, payload.memo);
 
             if (!result) {
                 return null;

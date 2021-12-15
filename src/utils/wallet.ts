@@ -513,6 +513,66 @@ class WalletClient {
         };
     };
 
+    getAllRewards = async (fromWallet: Wallet, validatorsAddresses: string[], memo: string) => {
+        if (this.lumClient === null) {
+            return null;
+        }
+
+        const messages = [];
+
+        for (const valAdd of validatorsAddresses) {
+            messages.push(LumMessages.BuildMsgWithdrawDelegatorReward(fromWallet.getAddress(), valAdd));
+        }
+
+        // Define fees
+        const fee = {
+            amount: [{ denom: LumConstants.MicroLumDenom, amount: '25000' }],
+            gas: '140000',
+        };
+
+        // Fetch account number and sequence and chain id
+        const result = await this.getAccountAndChainId(fromWallet);
+
+        if (!result) {
+            return null;
+        }
+
+        const [account, chainId] = result;
+
+        if (!account || !chainId) {
+            return null;
+        }
+
+        const { accountNumber, sequence } = account;
+
+        const doc: LumTypes.Doc = {
+            chainId,
+            fee,
+            memo,
+            messages,
+            signers: [
+                {
+                    accountNumber,
+                    sequence,
+                    publicKey: fromWallet.getPublicKey(),
+                },
+            ],
+        };
+
+        const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, doc);
+        // Verify the transaction was successfully broadcasted and made it into a block
+        const broadcasted = LumUtils.broadcastTxCommitSuccess(broadcastResult);
+
+        return {
+            hash: broadcastResult.hash,
+            error: !broadcasted
+                ? broadcastResult.deliverTx && broadcastResult.deliverTx.log
+                    ? broadcastResult.deliverTx.log
+                    : broadcastResult.checkTx.log
+                : null,
+        };
+    };
+
     redelegate = async (
         fromWallet: Wallet,
         validatorScrAddress: string,
