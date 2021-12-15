@@ -29,15 +29,19 @@ import dashboardIcon from './images/dashboard.png';
 import copyIcon from './images/copy.png';
 import qrIcon from './images/qr.png';
 import searchIcon from './images/search.svg';
-import messageDelegate from './images/messageDelegate.svg';
-import messageCreateValidator from './images/messageCreateValidator.svg';
-import messageEditValidator from './images/messageEditValidator.svg';
-import messageGetReward from './images/messageGetReward.svg';
-import messageMultiSend from './images/messageMultiSend.svg';
-import messageSend from './images/messageSend.svg';
-import messageUndelegate from './images/messageUndelegate.svg';
-import messageWithdrawAddress from './images/messageWithdrawAddress.svg';
-import messageRedelegate from './images/messageRedelegate.svg';
+import messageDelegate from './images/messageTypes/delegate.svg';
+import messageCreateValidator from './images/messageTypes/createValidator.svg';
+import messageEditValidator from './images/messageTypes/editValidator.svg';
+import messageGetReward from './images/messageTypes/getReward.svg';
+import messageMultiSend from './images/messageTypes/multiSend.svg';
+import messageSend from './images/messageTypes/send.svg';
+import messageUndelegate from './images/messageTypes/undelegate.svg';
+import messageRedelegate from './images/messageTypes/redelegate.svg';
+import messageVote from './images/messageTypes/vote.svg';
+import messageBeam from './images/messageTypes/beam.svg';
+import messageOpenBeam from './images/messageTypes/openBeam.svg';
+import messageUpdateBeam from './images/messageTypes/updateBeam.svg';
+import messageClaimBeam from './images/messageTypes/claimBeam.svg';
 
 export default {
     images: {
@@ -79,7 +83,11 @@ export default {
         messageSend,
         messageUndelegate,
         messageMultiSend,
-        messageWithdrawAddress,
         messageRedelegate,
+        messageVote,
+        messageBeam,
+        messageOpenBeam,
+        messageUpdateBeam,
+        messageClaimBeam,
     },
 };

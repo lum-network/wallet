@@ -11,6 +11,7 @@ import i18n from 'locales';
 import { LUM_WALLET } from 'constant';
 
 import { Airdrop, HardwareMethod, Rewards, RootModel, Transaction, Vestings, Wallet } from '../../models';
+import { VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
 
 interface SendPayload {
     to: string;
@@ -57,6 +58,12 @@ interface SetWalletDataPayload {
     rewards?: Rewards;
     vestings?: Vestings;
     airdrop?: Airdrop;
+}
+
+interface VotePayload {
+    voter: Wallet;
+    proposalId: string;
+    vote: VoteOption;
 }
 
 interface WalletState {
@@ -378,6 +385,16 @@ export const wallet = createModel<RootModel>()({
 
             dispatch.wallet.reloadWalletInfos(payload.from.getAddress());
             dispatch.staking.getValidatorsInfosAsync(payload.from.getAddress());
+            return result;
+        },
+        async vote(payload: VotePayload) {
+            const result = await WalletClient.vote(payload.voter, payload.proposalId, payload.vote);
+
+            if (!result) {
+                return null;
+            }
+
+            dispatch.wallet.reloadWalletInfos(payload.voter.getAddress());
             return result;
         },
         async mintFaucet(address: string) {

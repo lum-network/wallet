@@ -177,7 +177,8 @@
             "createValidator": "Create Validator",
             "editValidator": "Edit Validator",
             "getReward": "Get Reward",
-            "openBeam": "Open Beam"
+            "openBeam": "Open Beam",
+            "vote": "Vote"
         }
     },
     "operations": {
@@ -204,6 +205,10 @@
             },
             "getAllRewards": {
                 "name": "Get All Rewards"
+            },
+            "vote": {
+                "name": "Vote",
+                "description": "Vote on a governance proposal"
             }
         },
         "confirmation": "Confirmation",
@@ -230,6 +235,19 @@
             },
             "rewards": {
                 "label": "Rewards amount"
+            },
+            "proposalId": {
+                "label": "Proposal ID"
+            },
+            "vote": {
+                "label": "Vote",
+                "values": {
+                    "yes": "Yes",
+                    "no": "No",
+                    "abstain": "Abstain",
+                    "noWithVeto": "No With Veto",
+                    "placeholder": "--"
+                }
             }
         },
         "defaultMemo": {
