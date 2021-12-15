@@ -3,6 +3,8 @@ import { TxResponse } from '@cosmjs/tendermint-rpc';
 import { PasswordStrengthType, PasswordStrength, Transaction, Wallet } from 'models';
 import { dateFromNow, showErrorToast } from 'utils';
 import i18n from 'locales';
+import { VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
+import Long from 'long';
 
 export type MnemonicLength = 12 | 24;
 
@@ -519,15 +521,19 @@ class WalletClient {
         }
 
         const messages = [];
+        let gas = 140000;
 
-        for (const valAdd of validatorsAddresses) {
+        for (const [index, valAdd] of validatorsAddresses.entries()) {
             messages.push(LumMessages.BuildMsgWithdrawDelegatorReward(fromWallet.getAddress(), valAdd));
+            if (index > 0) {
+                gas += 80000;
+            }
         }
 
         // Define fees
         const fee = {
             amount: [{ denom: LumConstants.MicroLumDenom, amount: '25000' }],
-            gas: '140000',
+            gas: gas.toString(),
         };
 
         // Fetch account number and sequence and chain id
@@ -626,6 +632,61 @@ class WalletClient {
             fee,
             memo,
             messages: [redelegateMsg],
+            signers: [
+                {
+                    accountNumber,
+                    sequence,
+                    publicKey: fromWallet.getPublicKey(),
+                },
+            ],
+        };
+
+        const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, doc);
+        // Verify the transaction was successfully broadcasted and made it into a block
+        const broadcasted = LumUtils.broadcastTxCommitSuccess(broadcastResult);
+
+        return {
+            hash: broadcastResult.hash,
+            error: !broadcasted
+                ? broadcastResult.deliverTx && broadcastResult.deliverTx.log
+                    ? broadcastResult.deliverTx.log
+                    : broadcastResult.checkTx.log
+                : null,
+        };
+    };
+
+    vote = async (fromWallet: Wallet, proposalId: string, vote: VoteOption) => {
+        if (this.lumClient === null) {
+            return null;
+        }
+
+        const voteMsg = LumMessages.BuildMsgVote(new Long(Number(proposalId)), fromWallet.getAddress(), vote);
+
+        // Define fees
+        const fee = {
+            amount: [{ denom: LumConstants.MicroLumDenom, amount: '25000' }],
+            gas: '100000',
+        };
+
+        // Fetch account number and sequence and chain id
+        const result = await this.getAccountAndChainId(fromWallet);
+
+        if (!result) {
+            return null;
+        }
+
+        const [account, chainId] = result;
+
+        if (!account || !chainId) {
+            return null;
+        }
+
+        const { accountNumber, sequence } = account;
+
+        const doc: LumTypes.Doc = {
+            chainId,
+            fee,
+            messages: [voteMsg],
             signers: [
                 {
                     accountNumber,

@@ -18,8 +18,10 @@ import Send from './components/Forms/Send';
 import Undelegate from './components/Forms/Undelegate';
 import GetRewards from './components/Forms/GetRewards';
 import Redelegate from './components/Forms/Redelegate';
+import Vote from './components/Forms/Vote';
 
 import './Operations.scss';
+import { VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
 
 type MsgType = { name: string; icon: string; iconClassName?: string; id: string; description: string };
 
@@ -32,13 +34,14 @@ const Operations = (): JSX.Element => {
     }));
 
     // Rematch effects
-    const { sendTx, undelegate, delegate, redelegate, getReward, getWalletInfos } = useRematchDispatch(
+    const { sendTx, undelegate, delegate, redelegate, getReward, vote, getWalletInfos } = useRematchDispatch(
         (dispatch: RootDispatch) => ({
             sendTx: dispatch.wallet.sendTx,
             delegate: dispatch.wallet.delegate,
             getReward: dispatch.wallet.getReward,
             undelegate: dispatch.wallet.undelegate,
             redelegate: dispatch.wallet.redelegate,
+            vote: dispatch.wallet.vote,
             getWalletInfos: dispatch.wallet.reloadWalletInfos,
         }),
     );
@@ -49,6 +52,7 @@ const Operations = (): JSX.Element => {
     const loadingUndelegate = useSelector((state: RootState) => state.loading.effects.wallet.undelegate);
     const loadingRedelegate = useSelector((state: RootState) => state.loading.effects.wallet.redelegate);
     const loadingGetReward = useSelector((state: RootState) => state.loading.effects.wallet.getReward);
+    const loadingVote = useSelector((state: RootState) => state.loading.effects.wallet.vote);
 
     const loadingAll =
         loadingSend.loading || loadingDelegate.loading || loadingUndelegate.loading || loadingGetReward.loading;
@@ -91,6 +95,12 @@ const Operations = (): JSX.Element => {
             name: t('operations.types.getRewards.name'),
             icon: assets.images.messageGetReward,
             description: t('operations.types.getRewards.description'),
+        },
+        {
+            id: LumMessages.MsgVoteUrl,
+            name: t('operations.types.vote.name'),
+            description: t('operations.types.vote.description'),
+            icon: assets.images.messageVote,
         },
     ];
 
@@ -172,6 +182,15 @@ const Operations = (): JSX.Element => {
             memo: yup.string(),
         }),
         onSubmit: (values) => onSubmitGetReward(values.address, values.memo),
+    });
+
+    const voteForm = useFormik({
+        initialValues: { proposalId: '', vote: VoteOption.UNRECOGNIZED },
+        validationSchema: yup.object().shape({
+            proposalId: yup.string().required(t('common.required')),
+            vote: yup.number().required(t('common.required')),
+        }),
+        onSubmit: (values) => onSubmitVote(values.proposalId, values.vote),
     });
 
     useEffect(() => {
@@ -285,6 +304,18 @@ const Operations = (): JSX.Element => {
         }
     };
 
+    const onSubmitVote = async (proposalId: string, voteOption: VoteOption) => {
+        try {
+            const voteResult = await vote({ voter: wallet, proposalId, vote: voteOption });
+
+            if (voteResult) {
+                setTxResult({ hash: LumUtils.toHex(voteResult.hash), error: voteResult.error });
+            }
+        } catch (e) {
+            showErrorToast((e as Error).message);
+        }
+    };
+
     const onClickButton = (msg: MsgType) => {
         setModal(msg);
     };
@@ -309,6 +340,9 @@ const Operations = (): JSX.Element => {
 
             case LumMessages.MsgWithdrawDelegatorRewardUrl:
                 return <GetRewards isLoading={!!loadingGetReward.loading} form={getRewardForm} />;
+
+            case LumMessages.MsgVoteUrl:
+                return <Vote isLoading={!!loadingVote.loading} form={voteForm} />;
 
             default:
                 return <div>Soon</div>;

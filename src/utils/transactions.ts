@@ -1,16 +1,6 @@
 import { LumMessages } from '@lum-network/sdk-javascript';
 
-import createLogo from 'assets/images/messageTypes/create.svg';
-import editLogo from 'assets/images/messageTypes/edit.svg';
-import delegateLogo from 'assets/images/messageTypes/delegate.svg';
-import undelegateLogo from 'assets/images/messageTypes/undelegate.svg';
-import sendLogo from 'assets/images/messageTypes/send.svg';
-import multiSendLogo from 'assets/images/messageTypes/multiSend.svg';
-import getRewardLogo from 'assets/images/messageTypes/reward.svg';
-import beamLogo from 'assets/images/messageTypes/beam.svg';
-import beamOpenLogo from 'assets/images/messageTypes/openBeam.svg';
-import beamUpdateLogo from 'assets/images/messageTypes/updateBeam.svg';
-import beamClaimLogo from 'assets/images/messageTypes/claimBeam.svg';
+import assets from 'assets';
 
 import i18n from 'locales';
 
@@ -23,27 +13,29 @@ export const getTxTypeInfos = (
         case LumMessages.MsgSendUrl:
             return {
                 name: i18n.t(toAddress === userAddress ? 'transactions.types.receive' : 'transactions.types.send'),
-                icon: sendLogo,
+                icon: assets.images.messageSend,
             };
         case LumMessages.MsgDelegateUrl:
-            return { name: i18n.t('transactions.types.delegate'), icon: delegateLogo };
+            return { name: i18n.t('transactions.types.delegate'), icon: assets.images.messageDelegate };
         case LumMessages.MsgUndelegateUrl:
-            return { name: i18n.t('transactions.types.undelegate'), icon: undelegateLogo };
-        case LumMessages.MsgClaimBeamUrl:
-            return { name: i18n.t('transactions.types.claimBeam'), icon: beamClaimLogo };
+            return { name: i18n.t('transactions.types.undelegate'), icon: assets.images.messageUndelegate };
         case LumMessages.MsgMultiSendUrl:
-            return { name: i18n.t('transactions.types.multiSend'), icon: multiSendLogo };
+            return { name: i18n.t('transactions.types.multiSend'), icon: assets.images.messageMultiSend };
         case LumMessages.MsgCreateValidatorUrl:
-            return { name: i18n.t('transactions.types.createValidator'), icon: createLogo };
+            return { name: i18n.t('transactions.types.createValidator'), icon: assets.images.messageCreateValidator };
         case LumMessages.MsgEditValidatorUrl:
-            return { name: i18n.t('transactions.types.editValidator'), icon: editLogo };
+            return { name: i18n.t('transactions.types.editValidator'), icon: assets.images.messageEditValidator };
         case LumMessages.MsgWithdrawDelegatorRewardUrl:
-            return { name: i18n.t('transactions.types.getReward'), icon: getRewardLogo };
+            return { name: i18n.t('transactions.types.getReward'), icon: assets.images.messageGetReward };
         case LumMessages.MsgOpenBeamUrl:
-            return { name: i18n.t('transactions.types.openBeam'), icon: beamOpenLogo };
+            return { name: i18n.t('transactions.types.openBeam'), icon: assets.images.messageOpenBeam };
         case LumMessages.MsgUpdateBeamUrl:
-            return { name: i18n.t('transactions.types.updateBeam'), icon: beamUpdateLogo };
+            return { name: i18n.t('transactions.types.updateBeam'), icon: assets.images.messageUpdateBeam };
+        case LumMessages.MsgClaimBeamUrl:
+            return { name: i18n.t('transactions.types.claimBeam'), icon: assets.images.messageClaimBeam };
+        case LumMessages.MsgVoteUrl:
+            return { name: i18n.t('transactions.types.vote'), icon: assets.images.messageVote };
         default:
-            return { name: type, icon: beamLogo };
+            return { name: type, icon: assets.images.messageBeam };
     }
 };
