@@ -660,7 +660,10 @@ class WalletClient {
             return null;
         }
 
-        const voteMsg = LumMessages.BuildMsgVote(new Long(Number(proposalId)), fromWallet.getAddress(), vote);
+        // Fixme: Update JS SDK to use right type
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        //@ts-ignore
+        const voteMsg = LumMessages.BuildMsgVote(new Long(Number(proposalId)), fromWallet.getAddress(), Number(vote));
 
         // Define fees
         const fee = {
