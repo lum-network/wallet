@@ -32,11 +32,20 @@ interface Props {
     rewards: Rewards;
     delegations: DelegationResponse[];
     onDelegate: (val: Validator) => void;
+    onRedelegate: (val: Validator) => void;
     onUndelegate: (val: Validator) => void;
     onClaim: (val: Validator) => void;
 }
 
-const MyValidators = ({ validators, delegations, rewards, onDelegate, onUndelegate, onClaim }: Props): JSX.Element => {
+const MyValidators = ({
+    validators,
+    delegations,
+    rewards,
+    onDelegate,
+    onRedelegate,
+    onUndelegate,
+    onClaim,
+}: Props): JSX.Element => {
     const [userValidators] = useState(getUserValidators(validators.bonded, validators.unbonded, delegations, rewards));
 
     const { wallet, loadingClaim, loadingDelegate, loadingUndelegate } = useSelector((state: RootState) => ({
@@ -134,6 +143,10 @@ const MyValidators = ({ validators, delegations, rewards, onDelegate, onUndelega
                         {
                             title: t('operations.types.delegate.name'),
                             onPress: () => onDelegate(validator),
+                        },
+                        {
+                            title: t('operations.types.redelegate.name'),
+                            onPress: () => onRedelegate(validator),
                         },
                     ]}
                 />

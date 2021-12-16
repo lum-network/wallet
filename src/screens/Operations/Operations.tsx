@@ -203,6 +203,14 @@ const Operations = (): JSX.Element => {
             if (delegateForm.touched.address || delegateForm.touched.amount || delegateForm.touched.memo) {
                 delegateForm.resetForm();
             }
+            if (
+                redelegateForm.touched.amount ||
+                redelegateForm.touched.toAddress ||
+                redelegateForm.touched.fromAddress ||
+                redelegateForm.touched.memo
+            ) {
+                redelegateForm.resetForm();
+            }
             if (undelegateForm.touched.address || undelegateForm.touched.amount || undelegateForm.touched.memo) {
                 undelegateForm.resetForm();
             }
@@ -226,7 +234,7 @@ const Operations = (): JSX.Element => {
                 ref.removeEventListener('hidden.bs.modal', handler);
             }
         };
-    }, [confirming, delegateForm, getRewardForm, modalRef, sendForm, txResult, undelegateForm]);
+    }, [confirming, delegateForm, redelegateForm, getRewardForm, modalRef, sendForm, txResult, undelegateForm]);
 
     if (!wallet) {
         return <Redirect to="/welcome" />;
