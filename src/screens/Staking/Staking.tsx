@@ -12,7 +12,6 @@ import { Card } from 'frontend-elements';
 import { RootDispatch, RootState } from 'redux/store';
 import { useRematchDispatch } from 'redux/hooks';
 import { AirdropCard, BalanceCard, Button, Input, Modal } from 'components';
-import { UserValidator } from 'models';
 import { getUserValidators, showErrorToast, unbondingsTimeRemaining } from 'utils';
 import { Modal as BSModal } from 'bootstrap';
 
@@ -26,26 +25,28 @@ import AvailableValidators from './components/Lists/AvailableValidators';
 
 import Delegate from '../Operations/components/Forms/Delegate';
 import Undelegate from '../Operations/components/Forms/Undelegate';
+import GetReward from '../Operations/components/Forms/GetReward';
 import GetAllRewards from '../Operations/components/Forms/GetAllRewards';
+import Redelegate from 'screens/Operations/components/Forms/Redelegate';
 
 const Staking = (): JSX.Element => {
     // State
-    const [userValidators, setUserValidators] = useState<UserValidator[]>([]);
     const [txResult, setTxResult] = useState<{ hash: string; error?: string | null } | null>(null);
     const [modalType, setModalType] = useState<{ id: string; name: string } | null>(null);
     const [confirming, setConfirming] = useState(false);
     const [operationModal, setOperationModal] = useState<BSModal | null>(null);
 
     // Dispatch methods
-    const { getValidatorsInfos, delegate, undelegate, getWalletInfos, getAllRewards } = useRematchDispatch(
-        (dispatch: RootDispatch) => ({
+    const { getValidatorsInfos, delegate, redelegate, undelegate, getWalletInfos, getAllRewards, getReward } =
+        useRematchDispatch((dispatch: RootDispatch) => ({
             getValidatorsInfos: dispatch.staking.getValidatorsInfosAsync,
             delegate: dispatch.wallet.delegate,
+            redelegate: dispatch.wallet.redelegate,
             undelegate: dispatch.wallet.undelegate,
             getWalletInfos: dispatch.wallet.reloadWalletInfos,
+            getReward: dispatch.wallet.getReward,
             getAllRewards: dispatch.wallet.getAllRewards,
-        }),
-    );
+        }));
 
     // Redux state values
     const {
@@ -61,7 +62,9 @@ const Staking = (): JSX.Element => {
         delegations,
         unbondings,
         loadingDelegate,
+        loadingRedelegate,
         loadingUndelegate,
+        loadingClaim,
         loadingClaimAll,
     } = useSelector((state: RootState) => ({
         wallet: state.wallet.currentWallet,
@@ -76,7 +79,9 @@ const Staking = (): JSX.Element => {
         stakedCoins: state.staking.stakedCoins,
         unbondedTokens: state.staking.unbondedTokens,
         loadingDelegate: state.loading.effects.wallet.delegate.loading,
+        loadingRedelegate: state.loading.effects.wallet.redelegate.loading,
         loadingUndelegate: state.loading.effects.wallet.undelegate.loading,
+        loadingClaim: state.loading.effects.wallet.getReward.loading,
         loadingClaimAll: state.loading.effects.wallet.getAllRewards.loading,
     }));
 
@@ -102,6 +107,27 @@ const Staking = (): JSX.Element => {
         onSubmit: (values) => onSubmitDelegate(values.address, values.amount, values.memo),
     });
 
+    const redelegateForm = useFormik({
+        initialValues: { fromAddress: '', toAddress: '', amount: '', memo: t('operations.defaultMemo.redelegate') },
+        validationSchema: yup.object().shape({
+            fromAddress: yup
+                .string()
+                .required(t('common.required'))
+                .matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`), {
+                    message: t('operations.errors.address'),
+                }),
+            toAddress: yup
+                .string()
+                .required(t('common.required'))
+                .matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`), {
+                    message: t('operations.errors.address'),
+                }),
+            amount: yup.string().required(t('common.required')),
+            memo: yup.string(),
+        }),
+        onSubmit: (values) => onSubmitRedelegate(values.fromAddress, values.toAddress, values.amount, values.memo),
+    });
+
     const undelegateForm = useFormik({
         initialValues: { address: '', amount: '', memo: t('operations.defaultMemo.undelegate') },
         validationSchema: yup.object().shape({
@@ -115,6 +141,17 @@ const Staking = (): JSX.Element => {
             memo: yup.string(),
         }),
         onSubmit: (values) => onSubmitUndelegate(values.address, values.amount, values.memo),
+    });
+
+    const claimForm = useFormik({
+        initialValues: { amount: '', address: '', memo: t('operations.defaultMemo.getReward') },
+        validationSchema: yup.object().shape({
+            address: yup
+                .string()
+                .required(t('common.required'))
+                .matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`)),
+        }),
+        onSubmit: (values) => onSubmitClaim(values.address, values.memo),
     });
 
     const getAllRewardsForm = useFormik({
@@ -133,10 +170,6 @@ const Staking = (): JSX.Element => {
     }, [getValidatorsInfos, wallet]);
 
     useEffect(() => {
-        setUserValidators(getUserValidators(bondedValidators, delegations, rewards));
-    }, [delegations, unbondings, bondedValidators, unbondedValidators, rewards]);
-
-    useEffect(() => {
         if (modalRef && modalRef.current) {
             setOperationModal(new BSModal(modalRef.current, { backdrop: 'static', keyboard: false }));
         }
@@ -148,6 +181,14 @@ const Staking = (): JSX.Element => {
         const handler = () => {
             if (delegateForm.touched.address || delegateForm.touched.amount || delegateForm.touched.memo) {
                 delegateForm.resetForm();
+            }
+            if (
+                redelegateForm.touched.amount ||
+                redelegateForm.touched.toAddress ||
+                redelegateForm.touched.fromAddress ||
+                redelegateForm.touched.memo
+            ) {
+                redelegateForm.resetForm();
             }
             if (undelegateForm.touched.address || undelegateForm.touched.amount || undelegateForm.touched.memo) {
                 undelegateForm.resetForm();
@@ -169,7 +210,7 @@ const Staking = (): JSX.Element => {
                 ref.removeEventListener('hidden.bs.modal', handler);
             }
         };
-    }, [confirming, delegateForm, txResult, undelegateForm]);
+    }, [confirming, delegateForm, redelegateForm, txResult, undelegateForm]);
 
     if (!wallet) {
         return <Redirect to="/welcome" />;
@@ -188,6 +229,29 @@ const Staking = (): JSX.Element => {
         }
     };
 
+    const onSubmitRedelegate = async (
+        validatorSrcAddress: string,
+        validatorDestAddress: string,
+        amount: string,
+        memo: string,
+    ) => {
+        try {
+            const redelegateResult = await redelegate({
+                validatorSrcAddress,
+                validatorDestAddress,
+                amount,
+                memo,
+                from: wallet,
+            });
+
+            if (redelegateResult) {
+                setTxResult({ hash: LumUtils.toHex(redelegateResult.hash), error: redelegateResult.error });
+            }
+        } catch (e) {
+            showErrorToast((e as Error).message);
+        }
+    };
+
     const onSubmitUndelegate = async (validatorAddress: string, amount: string, memo: string) => {
         try {
             const undelegateResult = await undelegate({ validatorAddress, amount, memo, from: wallet });
@@ -200,9 +264,25 @@ const Staking = (): JSX.Element => {
         }
     };
 
+    const onSubmitClaim = async (validatorAddress: string, memo: string) => {
+        try {
+            const claimResult = await getReward({
+                from: wallet,
+                memo,
+                validatorAddress,
+            });
+
+            if (claimResult) {
+                setTxResult({ hash: LumUtils.toHex(claimResult.hash), error: claimResult.error });
+            }
+        } catch (e) {
+            showErrorToast((e as Error).message);
+        }
+    };
+
     const onSubmitGetAllRewards = async (memo: string) => {
         try {
-            const validatorsAddresses = getUserValidators(bondedValidators, delegations, rewards).map(
+            const validatorsAddresses = getUserValidators(bondedValidators, [], delegations, rewards).map(
                 (val) => val.operatorAddress,
             );
 
@@ -237,10 +317,29 @@ const Staking = (): JSX.Element => {
         }
     };
 
+    const onRedelegate = (validator: Validator) => {
+        if (operationModal) {
+            redelegateForm.initialValues.fromAddress = validator.operatorAddress;
+            setModalType({ id: LumMessages.MsgBeginRedelegateUrl, name: t('operations.types.redelegate.name') });
+            operationModal.show();
+        }
+    };
+
+    const onClaim = (validator: Validator) => {
+        if (operationModal) {
+            claimForm.initialValues.address = validator.operatorAddress;
+            setModalType({
+                id: LumMessages.MsgWithdrawDelegatorRewardUrl,
+                name: t('operations.types.getRewards.name'),
+            });
+            operationModal.show();
+        }
+    };
+
     const onClaimAll = () => {
         if (operationModal) {
             setModalType({
-                id: LumMessages.MsgWithdrawDelegatorRewardUrl,
+                id: LumMessages.MsgWithdrawDelegatorRewardUrl + '/all',
                 name: t('operations.types.getAllRewards.name'),
             });
             operationModal.show();
@@ -257,10 +356,16 @@ const Staking = (): JSX.Element => {
             case LumMessages.MsgDelegateUrl:
                 return <Delegate isLoading={!!loadingDelegate} form={delegateForm} />;
 
+            case LumMessages.MsgBeginRedelegateUrl:
+                return <Redelegate isLoading={!!loadingRedelegate} form={redelegateForm} />;
+
             case LumMessages.MsgUndelegateUrl:
                 return <Undelegate isLoading={!!loadingUndelegate} form={undelegateForm} />;
 
             case LumMessages.MsgWithdrawDelegatorRewardUrl:
+                return <GetReward isLoading={!!loadingClaim} form={claimForm} />;
+
+            case LumMessages.MsgWithdrawDelegatorRewardUrl + '/all':
                 return <GetAllRewards isLoading={!!loadingClaimAll} form={getAllRewardsForm} rewards={rewards} />;
 
             default:
@@ -323,8 +428,12 @@ const Staking = (): JSX.Element => {
                             <Card withoutPadding className="pb-2">
                                 <MyValidators
                                     onDelegate={onDelegate}
+                                    onRedelegate={onRedelegate}
                                     onUndelegate={onUndelegate}
-                                    validators={userValidators}
+                                    onClaim={onClaim}
+                                    delegations={delegations}
+                                    rewards={rewards}
+                                    validators={{ bonded: bondedValidators, unbonded: unbondedValidators }}
                                 />
                             </Card>
                         </div>

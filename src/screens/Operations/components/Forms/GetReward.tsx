@@ -13,7 +13,7 @@ interface Props {
     }>;
 }
 
-const GetRewards = ({ form, isLoading }: Props): JSX.Element => {
+const GetReward = ({ form, isLoading }: Props): JSX.Element => {
     const [confirming, setConfirming] = useState(false);
 
     const { t } = useTranslation();
@@ -64,4 +64,4 @@ const GetRewards = ({ form, isLoading }: Props): JSX.Element => {
     );
 };
 
-export default GetRewards;
+export default GetReward;
