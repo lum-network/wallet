@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { LumConstants } from '@lum-network/sdk-javascript';
@@ -6,30 +6,44 @@ import numeral from 'numeral';
 import { Table, ValidatorLogo } from 'frontend-elements';
 
 import { CLIENT_PRECISION, LUM_ASSETS_GITHUB, LUM_EXPLORER } from 'constant';
-import { calculateTotalVotingPower, NumbersUtils, sortByVotingPower, trunc, WalletClient } from 'utils';
-import { UserValidator } from 'models';
+import {
+    calculateTotalVotingPower,
+    getUserValidators,
+    NumbersUtils,
+    sortByVotingPower,
+    trunc,
+    WalletClient,
+} from 'utils';
+import { Rewards, UserValidator } from 'models';
 import { DropdownButton, SmallerDecimal } from 'components';
 import { useSelector } from 'react-redux';
-import { RootDispatch, RootState } from 'redux/store';
-import { useRematchDispatch } from 'redux/hooks';
-import { BondStatus, Validator } from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
+import { RootState } from 'redux/store';
+import {
+    BondStatus,
+    DelegationResponse,
+    Validator,
+} from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
 
 interface Props {
-    validators: UserValidator[];
+    validators: {
+        bonded: Validator[];
+        unbonded: Validator[];
+    };
+    rewards: Rewards;
+    delegations: DelegationResponse[];
     onDelegate: (val: Validator) => void;
     onUndelegate: (val: Validator) => void;
+    onClaim: (val: Validator) => void;
 }
 
-const MyValidators = ({ validators, onDelegate, onUndelegate }: Props): JSX.Element => {
+const MyValidators = ({ validators, delegations, rewards, onDelegate, onUndelegate, onClaim }: Props): JSX.Element => {
+    const [userValidators] = useState(getUserValidators(validators.bonded, validators.unbonded, delegations, rewards));
+
     const { wallet, loadingClaim, loadingDelegate, loadingUndelegate } = useSelector((state: RootState) => ({
         wallet: state.wallet.currentWallet,
         loadingClaim: state.loading.effects.wallet.getReward.loading,
         loadingDelegate: state.loading.effects.wallet.delegate.loading,
         loadingUndelegate: state.loading.effects.wallet.undelegate.loading,
-    }));
-
-    const { getReward } = useRematchDispatch((dispatch: RootDispatch) => ({
-        getReward: dispatch.wallet.getReward,
     }));
 
     const { t } = useTranslation();
@@ -44,7 +58,9 @@ const MyValidators = ({ validators, onDelegate, onUndelegate }: Props): JSX.Elem
         '',
     ];
 
-    const totalVotingPower = NumbersUtils.convertUnitNumber(calculateTotalVotingPower(validators));
+    const totalVotingPower = NumbersUtils.convertUnitNumber(
+        calculateTotalVotingPower([...validators.bonded, ...validators.unbonded]),
+    );
     const statuses = t('staking.status', { returnObjects: true });
 
     if (!wallet) {
@@ -109,12 +125,7 @@ const MyValidators = ({ validators, onDelegate, onUndelegate }: Props): JSX.Elem
                     items={[
                         {
                             title: t('staking.claim'),
-                            onPress: () =>
-                                getReward({
-                                    from: wallet,
-                                    memo: t('operations.defaultMemo.getReward'),
-                                    validatorAddress: validator.operatorAddress,
-                                }),
+                            onPress: () => onClaim(validator),
                         },
                         {
                             title: t('operations.types.undelegate.name'),
@@ -137,9 +148,9 @@ const MyValidators = ({ validators, onDelegate, onUndelegate }: Props): JSX.Elem
             <div className="ps-4">
                 <h2 className="ps-2 pt-5 pb-1">{t('staking.myValidators.title')}</h2>
             </div>
-            {validators.length > 0 ? (
+            {userValidators.length > 0 ? (
                 <Table className="validators-table overflow-visible" head={headers}>
-                    {sortByVotingPower(validators, totalVotingPower).map((val, index) =>
+                    {sortByVotingPower(userValidators, totalVotingPower).map((val, index) =>
                         renderRow(val as UserValidator, index),
                     )}
                 </Table>

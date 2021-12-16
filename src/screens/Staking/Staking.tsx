@@ -12,7 +12,6 @@ import { Card } from 'frontend-elements';
 import { RootDispatch, RootState } from 'redux/store';
 import { useRematchDispatch } from 'redux/hooks';
 import { AirdropCard, BalanceCard, Button, Input, Modal } from 'components';
-import { UserValidator } from 'models';
 import { getUserValidators, showErrorToast, unbondingsTimeRemaining } from 'utils';
 import { Modal as BSModal } from 'bootstrap';
 
@@ -26,23 +25,24 @@ import AvailableValidators from './components/Lists/AvailableValidators';
 
 import Delegate from '../Operations/components/Forms/Delegate';
 import Undelegate from '../Operations/components/Forms/Undelegate';
+import GetReward from '../Operations/components/Forms/GetReward';
 import GetAllRewards from '../Operations/components/Forms/GetAllRewards';
 
 const Staking = (): JSX.Element => {
     // State
-    const [userValidators, setUserValidators] = useState<UserValidator[]>([]);
     const [txResult, setTxResult] = useState<{ hash: string; error?: string | null } | null>(null);
     const [modalType, setModalType] = useState<{ id: string; name: string } | null>(null);
     const [confirming, setConfirming] = useState(false);
     const [operationModal, setOperationModal] = useState<BSModal | null>(null);
 
     // Dispatch methods
-    const { getValidatorsInfos, delegate, undelegate, getWalletInfos, getAllRewards } = useRematchDispatch(
+    const { getValidatorsInfos, delegate, undelegate, getWalletInfos, getAllRewards, getReward } = useRematchDispatch(
         (dispatch: RootDispatch) => ({
             getValidatorsInfos: dispatch.staking.getValidatorsInfosAsync,
             delegate: dispatch.wallet.delegate,
             undelegate: dispatch.wallet.undelegate,
             getWalletInfos: dispatch.wallet.reloadWalletInfos,
+            getReward: dispatch.wallet.getReward,
             getAllRewards: dispatch.wallet.getAllRewards,
         }),
     );
@@ -62,6 +62,7 @@ const Staking = (): JSX.Element => {
         unbondings,
         loadingDelegate,
         loadingUndelegate,
+        loadingClaim,
         loadingClaimAll,
     } = useSelector((state: RootState) => ({
         wallet: state.wallet.currentWallet,
@@ -77,6 +78,7 @@ const Staking = (): JSX.Element => {
         unbondedTokens: state.staking.unbondedTokens,
         loadingDelegate: state.loading.effects.wallet.delegate.loading,
         loadingUndelegate: state.loading.effects.wallet.undelegate.loading,
+        loadingClaim: state.loading.effects.wallet.getReward.loading,
         loadingClaimAll: state.loading.effects.wallet.getAllRewards.loading,
     }));
 
@@ -117,6 +119,17 @@ const Staking = (): JSX.Element => {
         onSubmit: (values) => onSubmitUndelegate(values.address, values.amount, values.memo),
     });
 
+    const claimForm = useFormik({
+        initialValues: { amount: '', address: '', memo: t('operations.defaultMemo.getReward') },
+        validationSchema: yup.object().shape({
+            address: yup
+                .string()
+                .required(t('common.required'))
+                .matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`)),
+        }),
+        onSubmit: (values) => onSubmitClaim(values.address, values.memo),
+    });
+
     const getAllRewardsForm = useFormik({
         initialValues: { memo: t('operations.defaultMemo.getAllRewards') },
         validationSchema: yup.object().shape({
@@ -131,10 +144,6 @@ const Staking = (): JSX.Element => {
             getValidatorsInfos(wallet.getAddress());
         }
     }, [getValidatorsInfos, wallet]);
-
-    useEffect(() => {
-        setUserValidators(getUserValidators(bondedValidators, delegations, rewards));
-    }, [delegations, unbondings, bondedValidators, unbondedValidators, rewards]);
 
     useEffect(() => {
         if (modalRef && modalRef.current) {
@@ -200,9 +209,25 @@ const Staking = (): JSX.Element => {
         }
     };
 
+    const onSubmitClaim = async (validatorAddress: string, memo: string) => {
+        try {
+            const claimResult = await getReward({
+                from: wallet,
+                memo,
+                validatorAddress,
+            });
+
+            if (claimResult) {
+                setTxResult({ hash: LumUtils.toHex(claimResult.hash), error: claimResult.error });
+            }
+        } catch (e) {
+            showErrorToast((e as Error).message);
+        }
+    };
+
     const onSubmitGetAllRewards = async (memo: string) => {
         try {
-            const validatorsAddresses = getUserValidators(bondedValidators, delegations, rewards).map(
+            const validatorsAddresses = getUserValidators(bondedValidators, [], delegations, rewards).map(
                 (val) => val.operatorAddress,
             );
 
@@ -237,10 +262,21 @@ const Staking = (): JSX.Element => {
         }
     };
 
+    const onClaim = (validator: Validator) => {
+        if (operationModal) {
+            claimForm.initialValues.address = validator.operatorAddress;
+            setModalType({
+                id: LumMessages.MsgWithdrawDelegatorRewardUrl,
+                name: t('operations.types.getRewards.name'),
+            });
+            operationModal.show();
+        }
+    };
+
     const onClaimAll = () => {
         if (operationModal) {
             setModalType({
-                id: LumMessages.MsgWithdrawDelegatorRewardUrl,
+                id: LumMessages.MsgWithdrawDelegatorRewardUrl + '/all',
                 name: t('operations.types.getAllRewards.name'),
             });
             operationModal.show();
@@ -261,6 +297,9 @@ const Staking = (): JSX.Element => {
                 return <Undelegate isLoading={!!loadingUndelegate} form={undelegateForm} />;
 
             case LumMessages.MsgWithdrawDelegatorRewardUrl:
+                return <GetReward isLoading={!!loadingClaim} form={claimForm} />;
+
+            case LumMessages.MsgWithdrawDelegatorRewardUrl + '/all':
                 return <GetAllRewards isLoading={!!loadingClaimAll} form={getAllRewardsForm} rewards={rewards} />;
 
             default:
@@ -324,7 +363,10 @@ const Staking = (): JSX.Element => {
                                 <MyValidators
                                     onDelegate={onDelegate}
                                     onUndelegate={onUndelegate}
-                                    validators={userValidators}
+                                    onClaim={onClaim}
+                                    delegations={delegations}
+                                    rewards={rewards}
+                                    validators={{ bonded: bondedValidators, unbonded: unbondedValidators }}
                                 />
                             </Card>
                         </div>
