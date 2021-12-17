@@ -18,7 +18,7 @@ const UnbondingTokensCard = ({ amount, endsAt }: { amount: number; endsAt?: Date
                 <img src={assets.images.lumTicker} className="ticker" />
             </div>
             {endsAt ? (
-                <p className="align-self-end text-white">{t('staking.timeRemaining', { date: dateFromNow(endsAt) })}</p>
+                <p className="align-self-end text-white">{t('staking.timeRemaining', { time: dateFromNow(endsAt) })}</p>
             ) : null}
         </Card>
     );
