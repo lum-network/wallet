@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { LumConstants } from '@lum-network/sdk-javascript';
@@ -46,7 +46,9 @@ const MyValidators = ({
     onUndelegate,
     onClaim,
 }: Props): JSX.Element => {
-    const [userValidators] = useState(getUserValidators(validators.bonded, validators.unbonded, delegations, rewards));
+    const [userValidators, setUserValidators] = useState(
+        getUserValidators(validators.bonded, validators.unbonded, delegations, rewards),
+    );
 
     const { wallet, loadingClaim, loadingDelegate, loadingUndelegate } = useSelector((state: RootState) => ({
         wallet: state.wallet.currentWallet,
@@ -56,6 +58,10 @@ const MyValidators = ({
     }));
 
     const { t } = useTranslation();
+
+    useEffect(() => {
+        setUserValidators(getUserValidators(validators.bonded, validators.unbonded, delegations, rewards));
+    }, [validators.bonded, validators.unbonded, delegations, rewards]);
 
     const headers = [
         t('staking.tableLabels.validator'),
