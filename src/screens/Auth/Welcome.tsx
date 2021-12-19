@@ -125,7 +125,7 @@ const Welcome = (): JSX.Element => {
             return null;
         }
 
-        const isKeplrInstalled = !!(window as KeplrWindow).getOfflineSigner && !!(window as KeplrWindow).keplr;
+        const isKeplrInstalled = !!(window as KeplrWindow).getOfflineSignerAuto && !!(window as KeplrWindow).keplr;
 
         switch (selectedMethod.type) {
             case 'software':

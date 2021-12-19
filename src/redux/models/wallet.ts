@@ -164,7 +164,7 @@ export const wallet = createModel<RootModel>()({
         },
         async signInWithKeplrAsync() {
             const keplrWindow = window as KeplrWindow;
-            if (!keplrWindow.getOfflineSigner || !keplrWindow.keplr) {
+            if (!keplrWindow.getOfflineSignerAuto || !keplrWindow.keplr) {
                 showErrorToast(i18n.t('wallet.errors.keplr.notInstalled'));
             } else if (!keplrWindow.keplr.experimentalSuggestChain) {
                 showErrorToast(i18n.t('wallet.errors.keplr.notLatest'));
@@ -228,7 +228,7 @@ export const wallet = createModel<RootModel>()({
 
                 try {
                     await keplrWindow.keplr.enable(chainId);
-                    const offlineSigner = keplrWindow.getOfflineSigner(chainId);
+                    const offlineSigner = await keplrWindow.getOfflineSignerAuto(chainId);
                     const wallet = await LumWalletFactory.fromOfflineSigner(offlineSigner);
                     if (wallet) {
                         dispatch.wallet.signIn(wallet, true);
