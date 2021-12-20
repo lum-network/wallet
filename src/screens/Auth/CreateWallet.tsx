@@ -131,7 +131,7 @@ const CreateWallet = (): JSX.Element => {
                             <Input
                                 value={input}
                                 disabled
-                                inputStyle="custom"
+                                inputStyle="default"
                                 name={`mnemonicInput${index}`}
                                 id={`mnemonicInput${index}`}
                                 type="form"

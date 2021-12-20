@@ -17,7 +17,9 @@
         "mintFaucet": "Mint faucet",
         "success": "Success",
         "failure": "Failure",
-        "retry": "Retry"
+        "retry": "Retry",
+        "advanced": "Advanced",
+        "reset": "Reset"
     },
     "navbar": {
         "dashboard": "Dashboard",
@@ -97,7 +99,11 @@
             "types": {
                 "keplr": {
                     "title": "Keplr extension",
-                    "notInstalled": "You have to <u>install</u> Keplr extension first"
+                    "notInstalled": "You have to <u>install</u> Keplr extension first",
+                    "advanced": {
+                        "title": "Coin Type",
+                        "description": "You will need to remove the current chain first, if already added, to apply the changes"
+                    }
                 }
             }
         },
@@ -112,6 +118,9 @@
             "types": {
                 "cosmos": "Cosmos app",
                 "lum": "Lum app"
+            },
+            "advanced": {
+                "title": "HD Derivation Path"
             },
             "howTo": "How to install {{app}}"
         },

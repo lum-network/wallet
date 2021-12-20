@@ -9,8 +9,6 @@ import { RootDispatch, RootState } from 'redux/store';
 import { useSelector } from 'react-redux';
 import { Button } from 'frontend-elements';
 
-import '../styles/Auth.scss';
-
 const ImportKeystoreModal = (props: { fileData: string; onSubmit: () => void }): JSX.Element => {
     // Redux hooks
     const { signInWithKeystoreFile } = useRematchDispatch((dispatch: RootDispatch) => ({

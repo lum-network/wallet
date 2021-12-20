@@ -7,7 +7,6 @@ import { RootDispatch } from 'redux/store';
 import { Input, SwitchInput, Button } from 'components';
 
 import { MnemonicLength, WalletUtils } from 'utils';
-import '../styles/Auth.scss';
 
 const defaultMnemonicState: { length: MnemonicLength; values: string[] } = {
     length: 12,
@@ -109,7 +108,7 @@ const ImportMnemonicModal = (): JSX.Element => {
                                 required
                                 onPaste={handlePaste}
                                 onChange={(event) => onInputChange(event.target.value, index)}
-                                inputStyle="custom"
+                                inputStyle="default"
                                 name={`mnemonicInput${index}`}
                                 id={`mnemonicInput${index}`}
                                 type="form"
