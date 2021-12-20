@@ -3,7 +3,7 @@ import { SmallerDecimal } from 'components';
 import { Card } from 'frontend-elements';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { NumbersUtils, dateFromNow } from 'utils';
+import { NumbersUtils, dateToNow } from 'utils';
 
 const UnbondingTokensCard = ({ amount, endsAt }: { amount: number; endsAt?: Date }): JSX.Element => {
     const { t } = useTranslation();
@@ -18,7 +18,9 @@ const UnbondingTokensCard = ({ amount, endsAt }: { amount: number; endsAt?: Date
                 <img src={assets.images.lumTicker} className="ticker" />
             </div>
             {endsAt ? (
-                <p className="align-self-end text-white">{t('staking.timeRemaining', { time: dateFromNow(endsAt) })}</p>
+                <p className="align-self-end text-white">
+                    {t('staking.timeRemaining', { time: dateToNow(endsAt, true) })}
+                </p>
             ) : null}
         </Card>
     );
