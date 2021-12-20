@@ -20,7 +20,7 @@ const VestingTokensCard = ({ vestings }: { vestings: Vestings }): JSX.Element =>
                 <img src={assets.images.lumTicker} className="ticker" />
             </div>
             <p className="align-self-end text-white">
-                {t('staking.timeRemaining', { time: dateToNow(vestings.endsAt) })}
+                {t('staking.timeRemaining', { time: dateToNow(vestings.endsAt, true) })}
             </p>
         </Card>
     );

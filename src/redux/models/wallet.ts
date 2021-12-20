@@ -332,7 +332,6 @@ export const wallet = createModel<RootModel>()({
             }
 
             dispatch.wallet.reloadWalletInfos(payload.from.getAddress());
-            dispatch.staking.getValidatorsInfosAsync(payload.from.getAddress());
             return result;
         },
         async undelegate(payload: DelegatePayload) {
@@ -348,7 +347,6 @@ export const wallet = createModel<RootModel>()({
             }
 
             dispatch.wallet.reloadWalletInfos(payload.from.getAddress());
-            dispatch.staking.getValidatorsInfosAsync(payload.from.getAddress());
             return result;
         },
         async getReward(payload: GetRewardPayload) {
