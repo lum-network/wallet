@@ -13,5 +13,6 @@ export { default as DropdownButton } from './Dropdown/DropdownButton';
 export { default as Modal } from './Modals/Modal';
 export { default as Footer } from './Footer/Footer';
 export { default as Tooltip } from './Tooltip/Tooltip';
+export { default as HoverTooltip } from './Tooltip/HoverTooltip';
 export { default as SmallerDecimal } from './SmallerDecimal/SmallerDecimal';
 export { default as TransactionTypeBadge } from './TransactionTypeBadge/TransactionTypeBadge';

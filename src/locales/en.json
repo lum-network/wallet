@@ -19,6 +19,7 @@
         "failure": "Failure",
         "retry": "Retry",
         "advanced": "Advanced",
+        "advancedTooltip": "Be careful when using advanced options, use these at your own risks",
         "reset": "Reset"
     },
     "navbar": {

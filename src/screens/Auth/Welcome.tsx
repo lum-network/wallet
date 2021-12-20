@@ -10,7 +10,7 @@ import { RootDispatch, RootState } from 'redux/store';
 
 import Assets from 'assets';
 import { COSMOS_LEDGER_APP_INSTALL_LINK, KEPLR_DEFAULT_COIN_TYPE, KEPLR_INSTALL_LINK } from 'constant';
-import { Modal, Button, SwitchInput, Input, HdPathInput } from 'components';
+import { Modal, Button, SwitchInput, Input, HdPathInput, HoverTooltip } from 'components';
 import { ExtensionMethod, HardwareMethod, SoftwareMethod } from 'models';
 import { useRematchDispatch } from 'redux/hooks';
 
@@ -391,12 +391,9 @@ const Welcome = (): JSX.Element => {
                                 <p className="p-0 m-0">
                                     {t('common.advanced')}
                                     <span className="ms-2">
-                                        <img
-                                            src={Assets.images.warningHoverIcon}
-                                            title="Be careful when using advanced options, use these at your own risks"
-                                            data-bs-toggle="tooltip"
-                                            data-bs-placement="top"
-                                        />
+                                        <HoverTooltip text={t('common.advancedTooltip')}>
+                                            <img src={Assets.images.warningHoverIcon} />
+                                        </HoverTooltip>
                                     </span>
                                 </p>
                                 <SwitchInput onChange={(event) => setShowAdvanced(event.target.checked)} />

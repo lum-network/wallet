@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LumConstants } from '@lum-network/sdk-javascript';
-import { Tooltip } from 'bootstrap';
 
 import { useRematchDispatch } from 'redux/hooks';
 import { RootDispatch } from 'redux/store';
 import { Button as FEButton } from 'frontend-elements';
-import { Input, SwitchInput, Button, HdPathInput } from 'components';
+import { Input, SwitchInput, Button, HdPathInput, HoverTooltip } from 'components';
 
 import { MnemonicLength, WalletUtils } from 'utils';
 import assets from 'assets';
@@ -37,19 +36,6 @@ const ImportMnemonicModal = (): JSX.Element => {
 
     // Utils hooks
     const { t } = useTranslation();
-
-    useEffect(() => {
-        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        const tooltips = tooltipTriggerList.map((tooltipTriggerEl) => {
-            return new Tooltip(tooltipTriggerEl, {
-                trigger: 'hover',
-            });
-        });
-
-        return () => {
-            tooltips.forEach((tip) => tip.dispose());
-        };
-    }, []);
 
     // Methods
     const handlePaste: React.ClipboardEventHandler<HTMLInputElement> = (event) => {
@@ -145,12 +131,9 @@ const ImportMnemonicModal = (): JSX.Element => {
                 <p className="p-0 m-0">
                     {t('common.advanced')}
                     <span className="ms-2">
-                        <img
-                            src={assets.images.warningHoverIcon}
-                            title="Be careful when using advanced options, use these at your own risks"
-                            data-bs-toggle="tooltip"
-                            data-bs-placement="top"
-                        />
+                        <HoverTooltip text={t('common.advancedTooltip')}>
+                            <img src={assets.images.warningHoverIcon} />
+                        </HoverTooltip>
                     </span>
                 </p>
                 <SwitchInput onChange={(event) => setShowAdvanced(event.target.checked)} />
