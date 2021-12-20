@@ -1,6 +1,7 @@
 import hardwareIcon from './images/hardware.png';
 import softwareIcon from './images/software.png';
 import addIcon from './images/add.png';
+import checkmarkIcon from './images/checkmark.svg';
 import cosmosIcon from './images/cosmos.svg';
 import discordIcon from './images/discord.svg';
 import githubIcon from './images/github.svg';
@@ -42,12 +43,15 @@ import messageBeam from './images/messageTypes/beam.svg';
 import messageOpenBeam from './images/messageTypes/openBeam.svg';
 import messageUpdateBeam from './images/messageTypes/updateBeam.svg';
 import messageClaimBeam from './images/messageTypes/claimBeam.svg';
+import airdropCoins from './images/airdrop_coins.png';
 
 export default {
     images: {
+        airdropCoins,
         hardwareIcon,
         softwareIcon,
         addIcon,
+        checkmarkIcon,
         cosmosIcon,
         discordIcon,
         githubIcon,
