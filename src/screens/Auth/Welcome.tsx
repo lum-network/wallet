@@ -32,7 +32,7 @@ const Welcome = (): JSX.Element => {
     const [selectedMethod, setSelectedMethod] = useState<ImportType | null>(null);
     const [keystoreFileData, setKeystoreFileData] = useState<string | null>(null);
     const [softwareMethodModal, setSoftwareMethodModal] = useState<BSModal | null>(null);
-    const [showAdvanced, setAdvanced] = useState(false);
+    const [showAdvanced, setShowAdvanced] = useState(false);
     const [customHdPath, setCustomHdPath] = useState(LumConstants.getLumHdPath());
     const [isCustomPathValid, setIsCustomPathValid] = useState(true);
     const [isCustomCoinTypeValid, setIsCustomCoinTypeValid] = useState(true);
@@ -104,7 +104,7 @@ const Welcome = (): JSX.Element => {
         const modalElement = importSoftwareModalRef.current;
 
         const importSoftwareModalHandler = () => {
-            setAdvanced(false);
+            setShowAdvanced(false);
             if (
                 softwareMethodModal &&
                 selectedMethod &&
@@ -280,10 +280,7 @@ const Welcome = (): JSX.Element => {
                             <>
                                 <div className="d-flex flex-row justify-content-between align-self-stretch align-items-center my-4">
                                     <p className="p-0 m-0">{t('common.advanced')}</p>
-                                    <SwitchInput
-                                        id="isExtraWord"
-                                        onChange={(event) => setAdvanced(event.target.checked)}
-                                    />
+                                    <SwitchInput onChange={(event) => setShowAdvanced(event.target.checked)} />
                                 </div>
                                 {showAdvanced && (
                                     <div className="mb-4rem">
@@ -391,8 +388,18 @@ const Welcome = (): JSX.Element => {
                                 </small>
                             </a> */}
                             <div className="d-flex flex-row justify-content-between align-self-stretch align-items-center my-4">
-                                <p className="p-0 m-0">{t('common.advanced')}</p>
-                                <SwitchInput id="isExtraWord" onChange={(event) => setAdvanced(event.target.checked)} />
+                                <p className="p-0 m-0">
+                                    {t('common.advanced')}
+                                    <span className="ms-2">
+                                        <img
+                                            src={Assets.images.warningHoverIcon}
+                                            title="Be careful when using advanced options, use these at your own risks"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
+                                        />
+                                    </span>
+                                </p>
+                                <SwitchInput onChange={(event) => setShowAdvanced(event.target.checked)} />
                             </div>
                             {showAdvanced && (
                                 <div className="mb-4rem">

@@ -289,10 +289,13 @@ export const wallet = createModel<RootModel>()({
                 throw e;
             }
         },
-        signInWithMnemonicAsync(payload: string) {
-            LumWalletFactory.fromMnemonic(payload)
+        signInWithMnemonicAsync(payload: { mnemonic: string; customHdPath?: string }) {
+            LumWalletFactory.fromMnemonic(payload.mnemonic)
                 .then((wallet) => {
                     dispatch.wallet.signIn(wallet);
+                    if (payload.customHdPath) {
+                        wallet.useAccount(payload.customHdPath, LumConstants.LumBech32PrefixAccAddr);
+                    }
                     dispatch.wallet.reloadWalletInfos(wallet.getAddress());
                 })
                 .catch((e) => showErrorToast(e.message));

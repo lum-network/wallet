@@ -71,7 +71,7 @@ const CreateWallet = (): JSX.Element => {
     const continueWithMnemonic = () => {
         const mnemonic = inputsValues.join(' ');
 
-        signInWithMnemonic(mnemonic);
+        signInWithMnemonic({ mnemonic });
     };
 
     const printMnemonic = () => {

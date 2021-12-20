@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { LumConstants } from '@lum-network/sdk-javascript';
+import { Tooltip } from 'bootstrap';
 
 import { useRematchDispatch } from 'redux/hooks';
 import { RootDispatch } from 'redux/store';
-
-import { Input, SwitchInput, Button } from 'components';
+import { Button as FEButton } from 'frontend-elements';
+import { Input, SwitchInput, Button, HdPathInput } from 'components';
 
 import { MnemonicLength, WalletUtils } from 'utils';
+import assets from 'assets';
 
 const defaultMnemonicState: { length: MnemonicLength; values: string[] } = {
     length: 12,
@@ -17,6 +20,10 @@ const ImportMnemonicModal = (): JSX.Element => {
     // State
     const [mnemonic, setMnemonic] = useState(defaultMnemonicState);
     const [pasteHandled, setPasteHandled] = useState(false);
+    const [showAdvanced, setShowAdvanced] = useState(false);
+
+    const [customHdPath, setCustomHdPath] = useState(LumConstants.getLumHdPath());
+    const [isCustomPathValid, setIsCustomPathValid] = useState(true);
 
     /* CODE RELATED TO EXTRA WORD FOR FUTURE IMPLEMENTATION
 
@@ -30,6 +37,19 @@ const ImportMnemonicModal = (): JSX.Element => {
 
     // Utils hooks
     const { t } = useTranslation();
+
+    useEffect(() => {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        const tooltips = tooltipTriggerList.map((tooltipTriggerEl) => {
+            return new Tooltip(tooltipTriggerEl, {
+                trigger: 'hover',
+            });
+        });
+
+        return () => {
+            tooltips.forEach((tip) => tip.dispose());
+        };
+    }, []);
 
     // Methods
     const handlePaste: React.ClipboardEventHandler<HTMLInputElement> = (event) => {
@@ -73,7 +93,7 @@ const ImportMnemonicModal = (): JSX.Element => {
             mnemonic += ' ' + extraWord;
         } */
 
-        signInWithMnemonic(mnemonicString);
+        signInWithMnemonic({ mnemonic: mnemonicString, customHdPath });
     };
 
     const isEmptyField = () => {
@@ -121,6 +141,40 @@ const ImportMnemonicModal = (): JSX.Element => {
                     ))}
                 </div>
             </div>
+            <div className="d-flex flex-row justify-content-between align-self-stretch align-items-center my-4">
+                <p className="p-0 m-0">
+                    {t('common.advanced')}
+                    <span className="ms-2">
+                        <img
+                            src={assets.images.warningHoverIcon}
+                            title="Be careful when using advanced options, use these at your own risks"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="top"
+                        />
+                    </span>
+                </p>
+                <SwitchInput onChange={(event) => setShowAdvanced(event.target.checked)} />
+            </div>
+            {showAdvanced && (
+                <div className="mb-4rem">
+                    <div className="d-flex flex-row justify-content-between align-items-center mb-3">
+                        <h4>{t('welcome.hardwareModal.advanced.title')}</h4>
+                        <FEButton
+                            onPress={() => {
+                                setCustomHdPath(LumConstants.getLumHdPath());
+                            }}
+                            className="bg-transparent text-btn p-0 me-2 h-auto"
+                        >
+                            {t('common.reset')}
+                        </FEButton>
+                    </div>
+                    <HdPathInput
+                        value={customHdPath}
+                        onChange={(value) => setCustomHdPath(value)}
+                        onCheck={(valid) => setIsCustomPathValid(valid)}
+                    />
+                </div>
+            )}
             {/* 
                 // EXTRA WORD PART COMMENTED FOR NOW
                 
@@ -151,7 +205,7 @@ const ImportMnemonicModal = (): JSX.Element => {
                 type="submit"
                 onClick={onSubmit}
                 data-bs-dismiss="modal"
-                disabled={isEmptyField()}
+                disabled={isEmptyField() || (showAdvanced && !isCustomPathValid)}
                 className="mt-4 w-100"
             >
                 {t('common.continue')}
