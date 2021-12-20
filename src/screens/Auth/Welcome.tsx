@@ -279,7 +279,14 @@ const Welcome = (): JSX.Element => {
                         ) : (
                             <>
                                 <div className="d-flex flex-row justify-content-between align-self-stretch align-items-center my-4">
-                                    <p className="p-0 m-0">{t('common.advanced')}</p>
+                                    <p className="p-0 m-0">
+                                        {t('common.advanced')}
+                                        <span className="ms-2">
+                                            <HoverTooltip text={t('common.advancedTooltip')}>
+                                                <img src={Assets.images.warningHoverIcon} />
+                                            </HoverTooltip>
+                                        </span>
+                                    </p>
                                     <SwitchInput onChange={(event) => setShowAdvanced(event.target.checked)} />
                                 </div>
                                 {showAdvanced && (
