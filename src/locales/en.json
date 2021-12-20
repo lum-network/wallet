@@ -330,12 +330,10 @@
         "invalidMessage": "Invalid message payload"
     },
     "airdrop": {
-        "title": "Airdrop",
-        "amountToClaim": ["You have ", " lum to claim from the airdrop"],
+        "title": "Airdrop Lum to claim",
         "actionsToClaim": {
-            "info": "To claim all your tokens, you need to:",
-            "delegate": "• Delegate to a validator",
-            "vote": "• Vote on a proposal"
+            "delegate": "Stake Lum",
+            "vote": "Vote on a proposal"
         },
         "moreInformations": "More informations"
     }
