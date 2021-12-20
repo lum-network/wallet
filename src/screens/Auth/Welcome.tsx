@@ -35,6 +35,7 @@ const Welcome = (): JSX.Element => {
     const [showAdvanced, setAdvanced] = useState(false);
     const [customHdPath, setCustomHdPath] = useState(LumConstants.getLumHdPath());
     const [isCustomPathValid, setIsCustomPathValid] = useState(true);
+    const [isCustomCoinTypeValid, setIsCustomCoinTypeValid] = useState(true);
     const [keplrCoinType, setKeplrCoinType] = useState(KEPLR_DEFAULT_COIN_TYPE);
     const [modalShowed, setModalShowed] = useState(false);
 
@@ -293,7 +294,12 @@ const Welcome = (): JSX.Element => {
                                             defaultValue={KEPLR_DEFAULT_COIN_TYPE}
                                             type="number"
                                             min="0"
-                                            onChange={(event) => setKeplrCoinType(Number(event.target.value))}
+                                            onChange={(event) => {
+                                                const newCoinType = Number(event.target.value);
+
+                                                setKeplrCoinType(newCoinType);
+                                                setIsCustomCoinTypeValid(newCoinType !== NaN && newCoinType > 0);
+                                            }}
                                         />
                                         <p className="pt-3 not-recommended">
                                             {t('welcome.extensionModal.types.keplr.advanced.description')}
@@ -304,7 +310,9 @@ const Welcome = (): JSX.Element => {
                         )}
                         <Button
                             type="button"
-                            disabled={!selectedMethod.method || !isKeplrInstalled}
+                            disabled={
+                                !selectedMethod.method || !isKeplrInstalled || (showAdvanced && !isCustomCoinTypeValid)
+                            }
                             isLoading={keplrState.loading}
                             onClick={() => {
                                 if (

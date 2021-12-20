@@ -102,7 +102,7 @@
                     "notInstalled": "You have to <u>install</u> Keplr extension first",
                     "advanced": {
                         "title": "Coin Type",
-                        "description": "You will need to remove the current chain first, if already added, to apply the changes"
+                        "description": "If already added, you will need to remove the current chain first to apply the changes"
                     }
                 }
             }
