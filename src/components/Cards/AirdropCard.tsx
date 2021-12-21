@@ -59,7 +59,7 @@ const AirdropCard = ({ airdrop }: { airdrop: Airdrop }): JSX.Element => {
                     <CheckBox
                         className="ms-lg-3 mt-2 mt-lg-0"
                         action={{
-                            done: true,
+                            done: airdrop.vote,
                             title: t('airdrop.actionsToClaim.vote'),
                             icon: assets.images.messageVote,
                         }}
