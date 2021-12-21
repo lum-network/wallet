@@ -305,9 +305,12 @@ const Welcome = (): JSX.Element => {
                                                 setIsCustomCoinTypeValid(newCoinType !== NaN && newCoinType > 0);
                                             }}
                                         />
-                                        <p className="pt-3 not-recommended">
-                                            {t('welcome.extensionModal.types.keplr.advanced.description')}
-                                        </p>
+                                        <p
+                                            className="pt-3 not-recommended"
+                                            dangerouslySetInnerHTML={{
+                                                __html: t('welcome.extensionModal.types.keplr.advanced.description'),
+                                            }}
+                                        ></p>
                                     </div>
                                 )}
                             </>

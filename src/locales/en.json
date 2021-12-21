@@ -19,7 +19,7 @@
         "failure": "Failure",
         "retry": "Retry",
         "advanced": "Advanced",
-        "advancedTooltip": "Be careful when using advanced options, use these at your own risks",
+        "advancedTooltip": "Be careful when using advanced options",
         "reset": "Reset"
     },
     "navbar": {
@@ -103,7 +103,7 @@
                     "notInstalled": "You have to <u>install</u> Keplr extension first",
                     "advanced": {
                         "title": "Coin Type",
-                        "description": "If already added, you will need to remove the current chain first to apply the changes"
+                        "description": "You will need to remove the current network from Keplr first (if already added) to apply the changes, you can <a target='_blank' rel='noreferrer' href='https://medium.com/lum-network/tutorial-keplr-custom-derivation-path-46fd1f337889'>follow this tutorial</a> for detailed steps"
                     }
                 }
             }
