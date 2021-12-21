@@ -162,7 +162,7 @@ export const wallet = createModel<RootModel>()({
                 dispatch.staking.getValidatorsInfosAsync(address),
             ]);
         },
-        async signInWithKeplrAsync() {
+        async signInWithKeplrAsync(coinType: number) {
             const keplrWindow = window as KeplrWindow;
             if (!keplrWindow.getOfflineSigner || !keplrWindow.keplr) {
                 showErrorToast(i18n.t('wallet.errors.keplr.notInstalled'));
@@ -188,7 +188,7 @@ export const wallet = createModel<RootModel>()({
                         },
                         walletUrlForStaking: LUM_WALLET,
                         bip44: {
-                            coinType: 118,
+                            coinType,
                         },
                         bech32Config: {
                             bech32PrefixAccAddr: LumConstants.LumBech32PrefixAccAddr,
@@ -213,7 +213,7 @@ export const wallet = createModel<RootModel>()({
                                 coinDecimals: LumConstants.LumExponent,
                             },
                         ],
-                        coinType: 118,
+                        coinType,
                         gasPriceStep: {
                             low: 0.01,
                             average: 0.025,
@@ -241,7 +241,7 @@ export const wallet = createModel<RootModel>()({
                 }
             }
         },
-        async signInWithLedgerAsync(app: string) {
+        async signInWithLedgerAsync(payload: { app: string; customHdPath?: string }) {
             try {
                 let wallet: null | LumWallet = null;
                 let breakLoop = false;
@@ -250,13 +250,19 @@ export const wallet = createModel<RootModel>()({
                 // 10 sec timeout to let the user unlock his hardware
                 const to = setTimeout(() => (breakLoop = true), 10000);
 
+                const HDPath = payload.customHdPath
+                    ? payload.customHdPath
+                    : payload.app === HardwareMethod.Cosmos
+                    ? `44'/118'/0'/0/0`
+                    : LumConstants.getLumHdPath();
+
                 while (!wallet && !breakLoop) {
                     try {
                         const transport = await TransportWebUsb.create();
 
                         wallet = await LumWalletFactory.fromLedgerTransport(
                             transport,
-                            app === HardwareMethod.Cosmos ? `44'/118'/0'/0/0` : LumConstants.getLumHdPath(),
+                            HDPath,
                             LumConstants.LumBech32PrefixAccAddr,
                         );
                     } catch (e) {
@@ -283,10 +289,13 @@ export const wallet = createModel<RootModel>()({
                 throw e;
             }
         },
-        signInWithMnemonicAsync(payload: string) {
-            LumWalletFactory.fromMnemonic(payload)
+        signInWithMnemonicAsync(payload: { mnemonic: string; customHdPath?: string }) {
+            LumWalletFactory.fromMnemonic(payload.mnemonic)
                 .then((wallet) => {
                     dispatch.wallet.signIn(wallet);
+                    if (payload.customHdPath) {
+                        wallet.useAccount(payload.customHdPath, LumConstants.LumBech32PrefixAccAddr);
+                    }
                     dispatch.wallet.reloadWalletInfos(wallet.getAddress());
                 })
                 .catch((e) => showErrorToast(e.message));
