@@ -71,7 +71,7 @@ const CreateWallet = (): JSX.Element => {
     const continueWithMnemonic = () => {
         const mnemonic = inputsValues.join(' ');
 
-        signInWithMnemonic(mnemonic);
+        signInWithMnemonic({ mnemonic });
     };
 
     const printMnemonic = () => {
@@ -131,7 +131,7 @@ const CreateWallet = (): JSX.Element => {
                             <Input
                                 value={input}
                                 disabled
-                                inputStyle="custom"
+                                inputStyle="default"
                                 name={`mnemonicInput${index}`}
                                 id={`mnemonicInput${index}`}
                                 type="form"

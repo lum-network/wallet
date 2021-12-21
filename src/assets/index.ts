@@ -44,6 +44,7 @@ import messageOpenBeam from './images/messageTypes/openBeam.svg';
 import messageUpdateBeam from './images/messageTypes/updateBeam.svg';
 import messageClaimBeam from './images/messageTypes/claimBeam.svg';
 import airdropCoins from './images/airdrop_coins.png';
+import warningHoverIcon from './images/warningHoverIcon.svg';
 
 export default {
     images: {
@@ -93,5 +94,6 @@ export default {
         messageOpenBeam,
         messageUpdateBeam,
         messageClaimBeam,
+        warningHoverIcon,
     },
 };
