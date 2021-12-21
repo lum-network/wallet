@@ -12,7 +12,13 @@ import { Card } from 'frontend-elements';
 import { RootDispatch, RootState } from 'redux/store';
 import { useRematchDispatch } from 'redux/hooks';
 import { AirdropCard, BalanceCard, Button, Input, Modal } from 'components';
-import { getUserValidators, showErrorToast, unbondingsTimeRemaining } from 'utils';
+import {
+    calculateTotalVotingPower,
+    getUserValidators,
+    NumbersUtils,
+    showErrorToast,
+    unbondingsTimeRemaining,
+} from 'utils';
 import { Modal as BSModal } from 'bootstrap';
 
 import StakedCoinsCard from './components/Cards/StakedCoinsCard';
@@ -29,12 +35,18 @@ import GetReward from '../Operations/components/Forms/GetReward';
 import GetAllRewards from '../Operations/components/Forms/GetAllRewards';
 import Redelegate from 'screens/Operations/components/Forms/Redelegate';
 
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+const noop = () => {};
+
 const Staking = (): JSX.Element => {
     // State
     const [txResult, setTxResult] = useState<{ hash: string; error?: string | null } | null>(null);
     const [modalType, setModalType] = useState<{ id: string; name: string } | null>(null);
     const [confirming, setConfirming] = useState(false);
     const [operationModal, setOperationModal] = useState<BSModal | null>(null);
+    const [topValidatorConfirmationModal, setTopValidatorConfirmationModal] = useState<BSModal | null>(null);
+    const [onConfirmOperation, setOnConfirmOperation] = useState<() => void>(() => noop);
+    const [totalVotingPower, setTotalVotingPower] = useState(0);
 
     // Dispatch methods
     const { getValidatorsInfos, delegate, redelegate, undelegate, getWalletInfos, getAllRewards, getReward } =
@@ -89,6 +101,7 @@ const Staking = (): JSX.Element => {
 
     // Utils
     const modalRef = useRef<HTMLDivElement>(null);
+    const topValidatorConfirmationModalRef = useRef<HTMLDivElement>(null);
 
     const { t } = useTranslation();
 
@@ -170,8 +183,17 @@ const Staking = (): JSX.Element => {
     }, [getValidatorsInfos, wallet]);
 
     useEffect(() => {
+        setTotalVotingPower(
+            NumbersUtils.convertUnitNumber(calculateTotalVotingPower([...bondedValidators, ...unbondedValidators])),
+        );
+    }, [bondedValidators, unbondedValidators]);
+
+    useEffect(() => {
         if (modalRef && modalRef.current) {
-            setOperationModal(new BSModal(modalRef.current, { backdrop: 'static', keyboard: false }));
+            setOperationModal(BSModal.getOrCreateInstance(modalRef.current, { backdrop: 'static', keyboard: false }));
+        }
+        if (topValidatorConfirmationModalRef && topValidatorConfirmationModalRef.current) {
+            setTopValidatorConfirmationModal(BSModal.getOrCreateInstance(topValidatorConfirmationModalRef.current));
         }
     }, []);
 
@@ -301,8 +323,13 @@ const Staking = (): JSX.Element => {
     };
 
     // Click methods
-    const onDelegate = (validator: Validator) => {
-        if (operationModal) {
+    const onDelegate = (validator: Validator, totalVotingPower: number, force = false) => {
+        if (!force && NumbersUtils.convertUnitNumber(validator.tokens || 0) / totalVotingPower >= 0.1) {
+            if (topValidatorConfirmationModal) {
+                topValidatorConfirmationModal.show();
+                setOnConfirmOperation(() => () => onDelegate(validator, totalVotingPower, true));
+            }
+        } else if (operationModal) {
             delegateForm.initialValues.address = validator.operatorAddress;
             setModalType({ id: LumMessages.MsgDelegateUrl, name: t('operations.types.delegate.name') });
             operationModal.show();
@@ -431,6 +458,7 @@ const Staking = (): JSX.Element => {
                                     onRedelegate={onRedelegate}
                                     onUndelegate={onUndelegate}
                                     onClaim={onClaim}
+                                    totalVotingPower={totalVotingPower}
                                     delegations={delegations}
                                     rewards={rewards}
                                     validators={{ bonded: bondedValidators, unbonded: unbondedValidators }}
@@ -439,7 +467,11 @@ const Staking = (): JSX.Element => {
                         </div>
                         <div className="col-12">
                             <Card withoutPadding className="pb-2">
-                                <AvailableValidators onDelegate={onDelegate} validators={bondedValidators} />
+                                <AvailableValidators
+                                    onDelegate={onDelegate}
+                                    validators={bondedValidators}
+                                    totalVotingPower={totalVotingPower}
+                                />
                             </Card>
                         </div>
                     </div>
@@ -488,6 +520,34 @@ const Staking = (): JSX.Element => {
                         )}
                     </div>
                 )}
+            </Modal>
+            <Modal
+                id="topValidatorConfirmation"
+                ref={topValidatorConfirmationModalRef}
+                withCloseButton={false}
+                contentClassName="p-3"
+            >
+                <h1 className="logout-modal-title">{t('staking.topValidatorModal.title')}</h1>
+                <div className="d-flex flex-column flex-sm-row justify-content-center mt-5">
+                    <Button
+                        className="logout-modal-cancel-btn me-sm-4 mb-4 mb-sm-0"
+                        data-bs-dismiss="modal"
+                        onClick={() => {
+                            setOnConfirmOperation(() => noop);
+                        }}
+                    >
+                        <div className="px-sm-2">{t('common.cancel')}</div>
+                    </Button>
+                    <Button
+                        className="logout-modal-logout-btn text-white"
+                        data-bs-dismiss="modal"
+                        onClick={() => {
+                            onConfirmOperation();
+                        }}
+                    >
+                        <div className="px-sm-2">{t('staking.topValidatorModal.go')}</div>
+                    </Button>
+                </div>
             </Modal>
         </>
     );

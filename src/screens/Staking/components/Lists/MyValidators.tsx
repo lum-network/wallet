@@ -6,14 +6,7 @@ import numeral from 'numeral';
 import { Table, ValidatorLogo } from 'frontend-elements';
 
 import { CLIENT_PRECISION, LUM_ASSETS_GITHUB, LUM_EXPLORER } from 'constant';
-import {
-    calculateTotalVotingPower,
-    getUserValidators,
-    NumbersUtils,
-    sortByVotingPower,
-    trunc,
-    WalletClient,
-} from 'utils';
+import { getUserValidators, NumbersUtils, sortByVotingPower, trunc, WalletClient } from 'utils';
 import { Rewards, UserValidator } from 'models';
 import { DropdownButton, SmallerDecimal } from 'components';
 import { useSelector } from 'react-redux';
@@ -31,7 +24,8 @@ interface Props {
     };
     rewards: Rewards;
     delegations: DelegationResponse[];
-    onDelegate: (val: Validator) => void;
+    totalVotingPower: number;
+    onDelegate: (val: Validator, totalVotingPower: number) => void;
     onRedelegate: (val: Validator) => void;
     onUndelegate: (val: Validator) => void;
     onClaim: (val: Validator) => void;
@@ -41,6 +35,7 @@ const MyValidators = ({
     validators,
     delegations,
     rewards,
+    totalVotingPower,
     onDelegate,
     onRedelegate,
     onUndelegate,
@@ -73,9 +68,6 @@ const MyValidators = ({
         '',
     ];
 
-    const totalVotingPower = NumbersUtils.convertUnitNumber(
-        calculateTotalVotingPower([...validators.bonded, ...validators.unbonded]),
-    );
     const statuses = t('staking.status', { returnObjects: true });
 
     if (!wallet) {
@@ -148,7 +140,7 @@ const MyValidators = ({
                         },
                         {
                             title: t('operations.types.delegate.name'),
-                            onPress: () => onDelegate(validator),
+                            onPress: () => onDelegate(validator, totalVotingPower),
                         },
                         {
                             title: t('operations.types.redelegate.name'),

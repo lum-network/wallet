@@ -298,7 +298,11 @@
         "status": ["Unspecified", "Unbonded", "Unbonding", "Bonded"],
         "claim": "Claim",
         "timeRemaining": "{{ time }} remaining",
-        "includingVesting": ["Including ", " vesting"]
+        "includingVesting": ["Including ", " vesting"],
+        "topValidatorModal": {
+            "title": "Delegations to top validators with more than 10% of voting power are strongly discouraged",
+            "go": "Go anyway"
+        }
     },
     "messages": {
         "sign": {
