@@ -250,11 +250,9 @@ export const wallet = createModel<RootModel>()({
                 // 10 sec timeout to let the user unlock his hardware
                 const to = setTimeout(() => (breakLoop = true), 10000);
 
-                const HDPath = payload.customHdPath
-                    ? payload.customHdPath
-                    : payload.app === HardwareMethod.Cosmos
-                    ? `44'/118'/0'/0/0`
-                    : LumConstants.getLumHdPath();
+                const HDPath =
+                    payload.customHdPath ||
+                    (payload.app === HardwareMethod.Cosmos ? `44'/118'/0'/0/0` : LumConstants.getLumHdPath());
 
                 while (!wallet && !breakLoop) {
                     try {

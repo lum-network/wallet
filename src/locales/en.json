@@ -121,7 +121,8 @@
                 "lum": "Lum app"
             },
             "advanced": {
-                "title": "HD Derivation Path"
+                "title": "HD Derivation Path",
+                "description": "Make sure to have an account on your Ledger with the corresponding derivation path"
             },
             "howTo": "How to install {{app}}"
         },
