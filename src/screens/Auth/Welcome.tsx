@@ -287,7 +287,10 @@ const Welcome = (): JSX.Element => {
                                             </HoverTooltip>
                                         </span>
                                     </p>
-                                    <SwitchInput onChange={(event) => setShowAdvanced(event.target.checked)} />
+                                    <SwitchInput
+                                        checked={showAdvanced}
+                                        onChange={(event) => setShowAdvanced(event.target.checked)}
+                                    />
                                 </div>
                                 {showAdvanced && (
                                     <div className="mb-4rem">
@@ -406,7 +409,10 @@ const Welcome = (): JSX.Element => {
                                         </HoverTooltip>
                                     </span>
                                 </p>
-                                <SwitchInput onChange={(event) => setShowAdvanced(event.target.checked)} />
+                                <SwitchInput
+                                    checked={showAdvanced}
+                                    onChange={(event) => setShowAdvanced(event.target.checked)}
+                                />
                             </div>
                             {showAdvanced && (
                                 <div className="mb-4rem">
@@ -426,6 +432,7 @@ const Welcome = (): JSX.Element => {
                                         onChange={(value) => setCustomHdPath(value)}
                                         onCheck={(valid) => setIsCustomPathValid(valid)}
                                     />
+                                    <p className="auth-paragraph">{t('welcome.hardwareModal.advanced.description')}</p>
                                 </div>
                             )}
                         </div>

@@ -6,7 +6,7 @@ import { Table, ValidatorLogo } from 'frontend-elements';
 
 import { Button, Input } from 'components';
 import { CLIENT_PRECISION, LUM_ASSETS_GITHUB, LUM_EXPLORER } from 'constant';
-import { trunc, NumbersUtils, calculateTotalVotingPower, sortByVotingPower, WalletClient } from 'utils';
+import { trunc, NumbersUtils, sortByVotingPower, WalletClient } from 'utils';
 
 import searchIcon from 'assets/images/search.svg';
 
@@ -14,10 +14,11 @@ import './styles/Lists.scss';
 
 interface Props {
     validators: Validator[];
-    onDelegate: (val: Validator) => void;
+    totalVotingPower: number;
+    onDelegate: (val: Validator, totalVotingPower: number) => void;
 }
 
-const AvailableValidators = ({ validators, onDelegate }: Props): JSX.Element => {
+const AvailableValidators = ({ validators, totalVotingPower, onDelegate }: Props): JSX.Element => {
     const [vals, setVals] = useState([...validators]);
     const [searchText, setSearchText] = useState('');
 
@@ -33,8 +34,6 @@ const AvailableValidators = ({ validators, onDelegate }: Props): JSX.Element => 
         t('staking.tableLabels.commission'),
         '',
     ];
-
-    const totalVotingPower = NumbersUtils.convertUnitNumber(calculateTotalVotingPower(validators));
 
     useEffect(() => {
         if (searchText) {
@@ -108,7 +107,7 @@ const AvailableValidators = ({ validators, onDelegate }: Props): JSX.Element => 
                 <td data-label={headers[6]} className="text-end">
                     <Button
                         buttonType="custom"
-                        onClick={() => onDelegate(validator)}
+                        onClick={() => onDelegate(validator, totalVotingPower)}
                         className="delegate-btn ms-auto me-lg-4 rounded-pill"
                     >
                         Delegate
