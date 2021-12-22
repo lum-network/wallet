@@ -324,7 +324,7 @@ const Staking = (): JSX.Element => {
 
     // Click methods
     const onDelegate = (validator: Validator, totalVotingPower: number, force = false) => {
-        if (!force && NumbersUtils.convertUnitNumber(validator.tokens || 0) / totalVotingPower >= 0.1) {
+        if (!force && NumbersUtils.convertUnitNumber(validator.tokens || 0) / totalVotingPower > 0.08) {
             if (topValidatorConfirmationModal) {
                 topValidatorConfirmationModal.show();
                 setOnConfirmOperation(() => () => onDelegate(validator, totalVotingPower, true));

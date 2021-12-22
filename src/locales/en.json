@@ -301,8 +301,8 @@
         "timeRemaining": "{{ time }} remaining",
         "includingVesting": ["Including ", " vesting"],
         "topValidatorModal": {
-            "title": "Delegations to top validators with more than 10% of voting power are strongly discouraged",
-            "go": "Go anyway"
+            "title": "Warning: This validator already has more than 8% of the voting power, you should chose another validator in order to help decentralization and better secure the network.",
+            "go": "Delegate anyway"
         }
     },
     "messages": {
