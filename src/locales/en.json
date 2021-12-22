@@ -121,7 +121,8 @@
                 "lum": "Lum app"
             },
             "advanced": {
-                "title": "HD Derivation Path"
+                "title": "HD Derivation Path",
+                "description": "Make sure to have an account on your Ledger with the corresponding derivation path"
             },
             "howTo": "How to install {{app}}"
         },
@@ -298,7 +299,11 @@
         "status": ["Unspecified", "Unbonded", "Unbonding", "Bonded"],
         "claim": "Claim",
         "timeRemaining": "{{ time }} remaining",
-        "includingVesting": ["Including ", " vesting"]
+        "includingVesting": ["Including ", " vesting"],
+        "topValidatorModal": {
+            "title": "Warning: This validator already has more than 8% of the voting power, you should chose another validator in order to help decentralization and better secure the network.",
+            "go": "Delegate anyway"
+        }
     },
     "messages": {
         "sign": {
