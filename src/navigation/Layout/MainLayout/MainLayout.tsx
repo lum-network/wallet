@@ -62,7 +62,7 @@ class MainLayout extends PureComponent<Props> {
                         <ul className="navbar-nav lum-logo">
                             <li>
                                 <NavLink to="/home" className="navbar-item me-lg-5 ms-lg-4 selected-navbar-item">
-                                    <img src={assets.images.lumWallet} width="107" height="28" className="lum-logo" />
+                                    <img src={assets.images.lumWallet} width="117" height="38" className="lum-logo" />
                                 </NavLink>
                             </li>
                         </ul>
@@ -75,7 +75,7 @@ class MainLayout extends PureComponent<Props> {
                                 activeClassName="selected-navbar-item"
                             >
                                 <img
-                                    src={assets.images.dashboardIcon}
+                                    src={assets.images.navbarIcons.dashboard}
                                     width="20"
                                     height="20"
                                     className="me-md-2 nav-icon"
@@ -89,7 +89,12 @@ class MainLayout extends PureComponent<Props> {
                                 className="navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4"
                                 activeClassName="selected-navbar-item"
                             >
-                                <img src={assets.images.sendIcon} width="20" height="20" className="me-md-2 nav-icon" />
+                                <img
+                                    src={assets.images.navbarIcons.operations}
+                                    width="20"
+                                    height="20"
+                                    className="me-md-2 nav-icon"
+                                />
                                 {t('navbar.transactions')}
                             </NavLink>
                         </li>
@@ -100,7 +105,7 @@ class MainLayout extends PureComponent<Props> {
                                 activeClassName="selected-navbar-item"
                             >
                                 <img
-                                    src={assets.images.stakeIcon}
+                                    src={assets.images.navbarIcons.staking}
                                     width="20"
                                     height="20"
                                     className="me-md-2 nav-icon"
@@ -115,12 +120,27 @@ class MainLayout extends PureComponent<Props> {
                                 activeClassName="selected-navbar-item"
                             >
                                 <img
-                                    src={assets.images.messageMauveIcon}
+                                    src={assets.images.navbarIcons.messages}
                                     width="20"
                                     height="20"
                                     className="me-md-2 nav-icon"
                                 />
                                 {t('navbar.message')}
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink
+                                to="/governance"
+                                className="navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4"
+                                activeClassName="selected-navbar-item"
+                            >
+                                <img
+                                    src={assets.images.navbarIcons.governance}
+                                    width="20"
+                                    height="20"
+                                    className="me-md-2 nav-icon"
+                                />
+                                {t('navbar.governance')}
                             </NavLink>
                         </li>
                     </ul>
@@ -133,7 +153,7 @@ class MainLayout extends PureComponent<Props> {
                                     data-bs-target="#logoutModal"
                                     className="navbar-item selected-navbar-item"
                                 >
-                                    <img src={assets.images.logoutIcon} className="nav-icon logout-icon" />
+                                    <img src={assets.images.navbarIcons.logout} className="nav-icon logout-icon" />
                                 </a>
                             </li>
                         </ul>

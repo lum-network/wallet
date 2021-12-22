@@ -27,6 +27,7 @@
         "transactions": "Operations",
         "staking": "Staking",
         "message": "Messages",
+        "governance": "Governance",
         "logout": "Logout"
     },
     "wallet": {
