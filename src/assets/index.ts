@@ -17,7 +17,7 @@ import beam from './images/messageTypes/beam.svg';
 import openBeam from './images/messageTypes/openBeam.svg';
 import updateBeam from './images/messageTypes/updateBeam.svg';
 import claimBeam from './images/messageTypes/claimBeam.svg';
-import hardwareIcon from './images/hardware.png';
+import hardwareIcon from './images/hardware.svg';
 import softwareIcon from './images/software.png';
 import addIcon from './images/add.png';
 import checkmarkIcon from './images/checkmark.svg';
