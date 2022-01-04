@@ -229,7 +229,7 @@ export const wallet = createModel<RootModel>()({
                 try {
                     await keplrWindow.keplr.enable(chainId);
                     if (!keplrWindow.getOfflineSignerAuto) {
-                        throw 'Cannot fetch offline signer'
+                        throw 'Cannot fetch offline signer';
                     }
                     const offlineSigner = await keplrWindow.getOfflineSignerAuto(chainId);
                     const wallet = await LumWalletFactory.fromOfflineSigner(offlineSigner);
