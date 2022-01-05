@@ -4,7 +4,7 @@
     "private": true,
     "dependencies": {
         "@ledgerhq/hw-transport-webusb": "^6.7.0",
-        "@lum-network/sdk-javascript": "^0.7.2",
+        "@lum-network/sdk-javascript": "^0.7.3",
         "@popperjs/core": "^2.10.2",
         "@rematch/core": "^2.1.0",
         "@rematch/loading": "^2.1.1",
