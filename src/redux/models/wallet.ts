@@ -261,7 +261,10 @@ export const wallet = createModel<RootModel>()({
                     try {
                         const transport = await TransportWebUsb.create();
 
+                        //FIXME: Remove ts-ignore
                         wallet = await LumWalletFactory.fromLedgerTransport(
+                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                            // @ts-ignore
                             transport,
                             HDPath,
                             LumConstants.LumBech32PrefixAccAddr,
