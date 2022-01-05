@@ -228,7 +228,10 @@ export const wallet = createModel<RootModel>()({
 
                 try {
                     await keplrWindow.keplr.enable(chainId);
-                    const offlineSigner = keplrWindow.getOfflineSigner(chainId);
+                    if (!keplrWindow.getOfflineSignerAuto) {
+                        throw 'Cannot fetch offline signer';
+                    }
+                    const offlineSigner = await keplrWindow.getOfflineSignerAuto(chainId);
                     const wallet = await LumWalletFactory.fromOfflineSigner(offlineSigner);
                     if (wallet) {
                         dispatch.wallet.signIn(wallet, true);
@@ -258,7 +261,10 @@ export const wallet = createModel<RootModel>()({
                     try {
                         const transport = await TransportWebUsb.create();
 
+                        //FIXME: Remove ts-ignore
                         wallet = await LumWalletFactory.fromLedgerTransport(
+                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                            // @ts-ignore
                             transport,
                             HDPath,
                             LumConstants.LumBech32PrefixAccAddr,
