@@ -49,6 +49,9 @@ import qrIcon from './images/qr.png';
 import searchIcon from './images/search.svg';
 import airdropCoins from './images/airdrop_coins.png';
 import warningHoverIcon from './images/warningHoverIcon.svg';
+import crossIcon from './images/cross.svg';
+import votePeriod from './images/votePeriod.svg';
+import depositPeriod from './images/depositPeriod.svg';
 
 export default {
     images: {
@@ -57,6 +60,7 @@ export default {
         softwareIcon,
         addIcon,
         checkmarkIcon,
+        crossIcon,
         cosmosIcon,
         discordIcon,
         githubIcon,
@@ -84,6 +88,8 @@ export default {
         qrIcon,
         searchIcon,
         warningHoverIcon,
+        votePeriod,
+        depositPeriod,
         messageTypes: {
             createValidator,
             delegate,

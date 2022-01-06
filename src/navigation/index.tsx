@@ -28,7 +28,7 @@ const RootNavigator = (): JSX.Element => {
                     <PrivateRoute exact path="/staking">
                         <Staking />
                     </PrivateRoute>
-                    <PrivateRoute exact path="/governance">
+                    <PrivateRoute exact path={['/governance', '/governance/proposal/:proposalId']}>
                         <Governance />
                     </PrivateRoute>
                     <Route path="*">

@@ -1,6 +1,6 @@
 import { LumClient, LumConstants, LumMessages, LumRegistry, LumTypes, LumUtils } from '@lum-network/sdk-javascript';
 import { TxResponse } from '@cosmjs/tendermint-rpc';
-import { PasswordStrengthType, PasswordStrength, Transaction, Wallet } from 'models';
+import { PasswordStrengthType, PasswordStrength, Transaction, Wallet, Proposal } from 'models';
 import { dateFromNow, showErrorToast } from 'utils';
 import i18n from 'locales';
 import { ProposalStatus, VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
@@ -318,7 +318,7 @@ class WalletClient {
         return await this.lumClient.queryClient.distribution.delegationTotalRewards(address);
     };
 
-    getProposals = async () => {
+    getProposals = async (): Promise<Proposal[] | null> => {
         if (this.lumClient === null) {
             return null;
         }
@@ -335,7 +335,35 @@ class WalletClient {
             '',
         );
 
-        return result.proposals;
+        return result.proposals.map((proposal) => ({
+            ...proposal,
+            content: proposal.content ? LumRegistry.decode(proposal.content) : proposal.content,
+            finalResult: {
+                yes: Number(proposal.finalTallyResult?.yes) || 0,
+                no: Number(proposal.finalTallyResult?.no) || 0,
+                noWithVeto: Number(proposal.finalTallyResult?.noWithVeto) || 0,
+                abstain: Number(proposal.finalTallyResult?.abstain) || 0,
+            },
+        }));
+    };
+
+    getProposalTally = async (id: string) => {
+        if (this.lumClient === null) {
+            return null;
+        }
+
+        const result = await this.lumClient.queryClient.gov.tally(id);
+
+        if (!result || !result.tally) {
+            return null;
+        }
+
+        return {
+            yes: Number(result.tally.yes),
+            no: Number(result.tally.no),
+            noWithVeto: Number(result.tally.noWithVeto),
+            abstain: Number(result.tally.abstain),
+        };
     };
 
     // Operations

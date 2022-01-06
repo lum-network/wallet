@@ -1,0 +1,22 @@
+@import 'main';
+
+.dot-size {
+    font-size: 20px;
+    font-weight: 300;
+}
+
+.vote-option-green {
+    color: $color-vote-green;
+}
+
+.vote-option-red {
+    color: $color-vote-red;
+}
+
+.vote-option-yellow {
+    color: $color-vote-yellow;
+}
+
+.vote-option-grey {
+    color: $color-vote-grey;
+}

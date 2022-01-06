@@ -1,0 +1,24 @@
+@import 'main';
+
+.vote-bar {
+    height: 14px;
+    border-radius: 75px;
+    overflow: hidden;
+    background-color: $color-vote-grey;
+}
+
+.vote-bar .green {
+    background-color: $color-vote-green;
+}
+
+.vote-bar .red {
+    background-color: $color-vote-red;
+}
+
+.vote-bar .yellow {
+    background-color: $color-vote-yellow;
+}
+
+.vote-bar .grey {
+    background-color: $color-vote-grey;
+}

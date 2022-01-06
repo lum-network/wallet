@@ -1,8 +1,9 @@
-export { default as WalletClient } from './wallet';
-export type { MnemonicLength } from './wallet';
-export * as WalletUtils from './wallet';
+export { default as WalletClient } from './client';
+export type { MnemonicLength } from './client';
+export * as WalletUtils from './client';
 export * as NumbersUtils from './numbers';
 export * as TransactionsUtils from './transactions';
+export * as GovernanceUtils from './governance';
 export * from './toasts';
 export * from './date';
 export * from './strings';

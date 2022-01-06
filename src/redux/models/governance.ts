@@ -1,6 +1,5 @@
-import { Proposal } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
 import { createModel } from '@rematch/core';
-import { RootModel } from 'models';
+import { Proposal, RootModel } from 'models';
 import { WalletClient } from 'utils';
 
 interface GovernanceState {
@@ -27,6 +26,11 @@ export const governance = createModel<RootModel>()({
             if (proposals) {
                 dispatch.governance.setProposals(proposals);
             }
+        },
+        async getTally(id: string) {
+            const result = await WalletClient.getProposalTally(id);
+
+            return result;
         },
     }),
 });

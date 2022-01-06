@@ -1,9 +1,11 @@
 import dayjs from 'dayjs';
 import utcPlugin from 'dayjs/plugin/utc';
+import tzPlugin from 'dayjs/plugin/timezone';
 import relativeTimePlugin from 'dayjs/plugin/relativeTime';
 import localizedFormatPLugin from 'dayjs/plugin/localizedFormat';
 
 dayjs.extend(utcPlugin);
+dayjs.extend(tzPlugin);
 dayjs.extend(relativeTimePlugin);
 dayjs.extend(localizedFormatPLugin);
 

@@ -1,0 +1,28 @@
+@import 'main';
+
+.list-transition-enter,
+.proposal-details-transition-enter {
+    opacity: 0;
+}
+.list-transition-exit,
+.proposal-details-transition-exit {
+    opacity: 1;
+}
+.list-transition-enter-active,
+.proposal-details-transition-enter-active {
+    opacity: 1;
+}
+.list-transition-exit-active,
+.proposal-details-transition-exit-active {
+    opacity: 0;
+}
+.list-transition-enter-active,
+.list-transition-exit-active,
+.proposal-details-transition-enter-active,
+.proposal-details-transition-exit-active {
+    transition: opacity 300ms;
+}
+
+.proposal-title {
+    font-size: 1.25rem;
+}

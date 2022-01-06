@@ -343,5 +343,25 @@
             "vote": "Vote on a proposal"
         },
         "moreInformations": "More informations"
+    },
+    "governance": {
+        "statusBadge": {
+            "rejected": "Rejected",
+            "passed": "Passed",
+            "voting": "Voting Period",
+            "deposit": "Deposit Period"
+        },
+        "votes": {
+            "yes": "Yes",
+            "no": "No",
+            "noWithVeto": "No with veto",
+            "abstain": "Abstain"
+        },
+        "mostVotedOn": "Most voted on",
+        "noVoteYet": "No vote yet",
+        "submitTime": "Submit time",
+        "depositEnd": "Deposit end",
+        "votingStart": "Voting start",
+        "votingEnd": "Voting end"
     }
 }

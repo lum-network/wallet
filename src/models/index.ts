@@ -1,5 +1,6 @@
 import { LumTypes, LumWallet } from '@lum-network/sdk-javascript';
 import { Validator } from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
+import { Proposal as BaseProposal } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
 import { Models } from '@rematch/core';
 import { governance } from '../redux/models/governance';
 import { staking } from '../redux/models/staking';
@@ -87,4 +88,19 @@ export interface Airdrop {
     amount: number;
     vote: boolean;
     delegate: boolean;
+}
+
+export interface VotesResult {
+    yes: number;
+    no: number;
+    noWithVeto: number;
+    abstain: number;
+}
+
+export interface Proposal extends Omit<BaseProposal, 'content'> {
+    content: {
+        title: string;
+        description: string;
+    };
+    finalResult: VotesResult;
 }
