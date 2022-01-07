@@ -4,6 +4,8 @@ import { Button } from 'components';
 import { Button as FEButton } from 'frontend-elements';
 import { Proposal } from 'models';
 import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
+import { RootState } from 'redux/store';
 
 interface Props {
     proposal: Proposal;
@@ -13,9 +15,13 @@ interface Props {
 }
 
 const VoteButton = ({ proposal, onVote, className, small }: Props): JSX.Element => {
-    let buttonText;
+    const { loadingVote } = useSelector((state: RootState) => ({
+        loadingVote: state.loading.effects.wallet.vote.loading,
+    }));
 
     const { t } = useTranslation();
+
+    let buttonText;
 
     switch (proposal.status) {
         case ProposalStatus.PROPOSAL_STATUS_VOTING_PERIOD:
@@ -34,17 +40,24 @@ const VoteButton = ({ proposal, onVote, className, small }: Props): JSX.Element 
             break;
     }
 
+    const isDisabled = !!loadingVote || !(proposal.status === ProposalStatus.PROPOSAL_STATUS_VOTING_PERIOD);
+
     if (small) {
         return (
             <div
                 className={className}
-                onClick={() => onVote(proposal)}
-                data-bs-target="#voteModal"
-                data-bs-toggle="modal"
                 role="button"
+                {...(isDisabled
+                    ? {}
+                    : {
+                          onClick: () => onVote(proposal),
+                          'data-bs-target': '#voteModal',
+                          'data-bs-toggle': 'modal',
+                      })}
             >
                 <FEButton
-                    disabled={!(proposal.status === ProposalStatus.PROPOSAL_STATUS_VOTING_PERIOD)}
+                    disabled={isDisabled}
+                    loading={!!loadingVote}
                     // eslint-disable-next-line @typescript-eslint/no-empty-function
                     onPress={() => {}}
                 >
@@ -59,7 +72,7 @@ const VoteButton = ({ proposal, onVote, className, small }: Props): JSX.Element 
             className={className}
             data-bs-target="#voteModal"
             data-bs-toggle="modal"
-            disabled={!(proposal.status === ProposalStatus.PROPOSAL_STATUS_VOTING_PERIOD)}
+            disabled={isDisabled}
             onClick={() => onVote(proposal)}
         >
             {buttonText}
