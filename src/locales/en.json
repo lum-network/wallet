@@ -241,8 +241,8 @@
                 "label": "Destination validator address"
             },
             "memo": {
-                "label": "Memo",
-                "placeholder": "Memo (optional)"
+                "label": "Note",
+                "placeholder": "Note (optional)"
             },
             "rewards": {
                 "label": "Rewards amount"
@@ -341,6 +341,6 @@
             "delegate": "Stake Lum",
             "vote": "Vote on a proposal"
         },
-        "moreInformations": "More informations"
+        "moreInformations": "More information"
     }
 }
