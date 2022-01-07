@@ -102,7 +102,7 @@ const Governance = (): JSX.Element => {
                     if (voteResult.error) {
                         showErrorToast(voteResult.error);
                     } else {
-                        showSuccessToast('You have successfully voted');
+                        showSuccessToast(t('governance.voteSuccess'));
                     }
                 }
             } catch (e) {
@@ -197,13 +197,15 @@ const Governance = (): JSX.Element => {
                             {confirming && vote ? (
                                 <>
                                     <h3 className="fw-bolder mx-3">
-                                        {t('governance.confirmingVote', {
+                                        {t('governance.confirmingTitle', {
                                             proposal: `#${proposalToVote.proposalId.toString()} ${
                                                 proposalToVote.content.title
                                             }`,
                                         })}
                                     </h3>
-                                    <div className="my-4">Your vote: {GovernanceUtils.getVoteName(vote)}</div>
+                                    <div className="my-4">
+                                        {t('governance.confirmingVote', { vote: GovernanceUtils.getVoteName(vote) })}
+                                    </div>
                                 </>
                             ) : (
                                 <>
@@ -261,7 +263,7 @@ const Governance = (): JSX.Element => {
                             )}
                             <div className="d-flex flex-row justify-content-between mb-4">
                                 <Button outline data-bs-dismiss="modal" className="me-4">
-                                    Cancel
+                                    {t('common.cancel')}
                                 </Button>
                                 <Button
                                     disabled={vote === null}
@@ -274,7 +276,9 @@ const Governance = (): JSX.Element => {
                                             : () => setConfirming(true)
                                     }
                                 >
-                                    {confirming ? 'Confirm' : 'Vote'}
+                                    {confirming
+                                        ? t('common.confirm')
+                                        : t('governance.proposalCard.voteButtonStates.active')}
                                 </Button>
                             </div>
                         </>

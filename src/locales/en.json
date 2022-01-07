@@ -7,6 +7,7 @@
         "lengthError": "Please enter at least {{ count }} characters",
         "testnetBanner": "⚠️ You are connected to the Testnet ⚠️",
         "cancel": "Cancel",
+        "confirm": "Confirm",
         "close": "Close",
         "copy": "Copy",
         "print": "Print",
@@ -362,18 +363,26 @@
             "noWithVeto": "No with veto",
             "abstain": "Abstain"
         },
-        "mostVotedOn": "Most voted on",
-        "noVoteYet": "No vote yet",
-        "submitTime": "Submit time",
-        "depositEnd": "Deposit end",
-        "votingStart": "Voting start",
-        "votingEnd": "Voting end",
-        "voteButtonStates": {
-            "notStarted": "Vote not started",
-            "ended": "Vote Ended",
-            "active": "Vote",
-            "disabled": "Vote Disabled"
+        "proposalCard": {
+            "title": "Title",
+            "status": "Status",
+            "proposerName": "Proposer Name",
+            "mostVotedOn": "Most voted on",
+            "noVoteYet": "No vote yet",
+            "submitTime": "Submit time",
+            "depositEnd": "Deposit end",
+            "votingStart": "Voting start",
+            "votingEnd": "Voting end",
+            "details": "Details",
+            "voteButtonStates": {
+                "notStarted": "Vote not started",
+                "ended": "Vote Ended",
+                "active": "Vote",
+                "disabled": "Vote Disabled"
+            }
         },
-        "confirmingVote": "Are you sure of your vote on proposal {{ proposal }} ?"
+        "confirmingTitle": "Are you sure of your vote on proposal {{ proposal }} ?",
+        "confirmingVote": "Your vote: {{ vote }}",
+        "voteSuccess": "You have successfully voted"
     }
 }

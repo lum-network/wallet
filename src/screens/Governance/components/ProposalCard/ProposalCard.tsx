@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { Namespace, TFunction, useTranslation } from 'react-i18next';
+import { LumConstants } from '@lum-network/sdk-javascript';
 import { ProposalStatus } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
 import numeral from 'numeral';
 import dayjs from 'dayjs';
@@ -16,7 +17,6 @@ import VoteBar from '../VoteBar/VoteBar';
 
 import './ProposalCard.scss';
 import VoteButton from '../VoteButton/VoteButton';
-import { LumConstants } from '@lum-network/sdk-javascript';
 
 interface Props {
     proposal: Proposal;
@@ -100,7 +100,7 @@ const LargeProposalCard = ({
             <div className="container">
                 <div className="row gy-4">
                     <div className="col-6">
-                        <h6 className="mb-2">Title</h6>
+                        <h6 className="mb-2">{t('governance.proposalCard.title')}</h6>
                         <p>{proposal.content.title}</p>
                     </div>
                     <div className="col-6">
@@ -108,15 +108,15 @@ const LargeProposalCard = ({
                         <p>{`#${proposal.proposalId.toString()}`}</p>
                     </div>
                     <div className="col-6">
-                        <h6 className="mb-2">Status</h6>
+                        <h6 className="mb-2">{t('governance.proposalCard.status')}</h6>
                         <Badge proposalStatus={proposal.status} />
                     </div>
                     <div className="col-6">
-                        <h6 className="mb-2">Proposer name</h6>
-                        <p>Not available</p>
+                        <h6 className="mb-2">{t('governance.proposalCard.proposerName')}</h6>
+                        <p>Not available yet</p>
                     </div>
                     <div className="col-6">
-                        <h6 className="mb-2">Submit Time</h6>
+                        <h6 className="mb-2">{t('governance.proposalCard.submitTime')}</h6>
                         <p>
                             {dayjs(proposal.submitTime?.toISOString() || '')
                                 .utc()
@@ -128,7 +128,7 @@ const LargeProposalCard = ({
                         </p>
                     </div>
                     <div className="col-6">
-                        <h6 className="mb-2">Deposit End Time</h6>
+                        <h6 className="mb-2">{t('governance.proposalCard.depositEnd')}</h6>
                         <p>
                             {dayjs(proposal.depositEndTime?.toISOString() || '')
                                 .utc()
@@ -140,7 +140,7 @@ const LargeProposalCard = ({
                         </p>
                     </div>
                     <div className="col-6">
-                        <h6 className="mb-2">Voting Start</h6>
+                        <h6 className="mb-2">{t('governance.proposalCard.votingStart')}</h6>
                         <p>
                             {dayjs(proposal.votingStartTime?.toISOString() || '')
                                 .utc()
@@ -152,7 +152,7 @@ const LargeProposalCard = ({
                         </p>
                     </div>
                     <div className="col-6">
-                        <h6 className="mb-2">Voting End</h6>
+                        <h6 className="mb-2">{t('governance.proposalCard.votingEnd')}</h6>
                         <p>
                             {dayjs(proposal.votingEndTime?.toISOString() || '')
                                 .utc()
@@ -164,7 +164,7 @@ const LargeProposalCard = ({
                         </p>
                     </div>
                     <div className="col-12">
-                        <h6 className="mb-2">Details</h6>
+                        <h6 className="mb-2">{t('governance.proposalCard.details')}</h6>
                         <p>{proposal.content.description}</p>
                     </div>
                     <div className="col-12">
@@ -218,12 +218,12 @@ const ProposalCard = ({ proposal, full, onVote, onDetails }: Props): JSX.Element
     }, [result]);
 
     const renderDot = (dotClass: string) => {
-        return <span className={`${dotClass} dot-size`}>⚫</span>;
+        return <span className={`dot-size ${dotClass}`}>•</span>;
     };
 
     const renderResult = () => {
         if (GovernanceUtils.isNoVoteYet(result || proposal.finalResult)) {
-            return <p className="mb-1 mt-2">{t('governance.noVoteYet')}</p>;
+            return <p className="mb-1 mt-2">{t('governance.proposalCard.noVoteYet')}</p>;
         } else {
             const [name, percent, dotClass] = GovernanceUtils.maxVote({
                 yes: voteYes,
@@ -233,11 +233,12 @@ const ProposalCard = ({ proposal, full, onVote, onDetails }: Props): JSX.Element
             });
 
             return (
-                <div className="d-flex flex-column justify-content-between h-100">
-                    <h6>{t('governance.mostVotedOn')}</h6>
-                    <small className="text-muted">
-                        {renderDot(dotClass)} <strong>{name}</strong> {numeral(percent).format('0.00')}%
-                    </small>
+                <div className="d-flex flex-column justify-content-between align-items-start align-items-lg-end align-items-xl-start h-100">
+                    <h6>{t('governance.proposalCard.mostVotedOn')}</h6>
+                    <p>
+                        {renderDot(dotClass)} <strong>{name}</strong>{' '}
+                        <small className="text-muted">{numeral(percent).format('0.00')}%</small>
+                    </p>
                 </div>
             );
         }
@@ -249,17 +250,17 @@ const ProposalCard = ({ proposal, full, onVote, onDetails }: Props): JSX.Element
 
         switch (proposal.status) {
             case ProposalStatus.PROPOSAL_STATUS_DEPOSIT_PERIOD:
-                dateTitle = t('governance.depositEnd');
+                dateTitle = t('governance.proposalCard.depositEnd');
                 date = proposal.depositEndTime?.toISOString() || '';
                 break;
 
             case ProposalStatus.PROPOSAL_STATUS_VOTING_PERIOD:
-                dateTitle = t('governance.votingEnd');
+                dateTitle = t('governance.proposalCard.votingEnd');
                 date = proposal.votingEndTime?.toISOString() || '';
                 break;
 
             default:
-                dateTitle = t('governance.votingEnd');
+                dateTitle = t('governance.proposalCard.votingEnd');
                 date = proposal.votingEndTime?.toISOString() || '';
         }
 
@@ -311,27 +312,26 @@ const ProposalCard = ({ proposal, full, onVote, onDetails }: Props): JSX.Element
             />
             <div className="container-fluid mt-4">
                 <div className="row gy-3">
-                    <div className="col-lg-3">
+                    <div className="col-12 col-lg-6 col-xl-3">
                         <h6>Turnout</h6>
                         <p>TODO</p>
                     </div>
-                    <div className="col-lg-3">{renderResult()}</div>
-                    <div className="col-lg-3">{renderDates()}</div>
-                    <div className="col-lg-3">
-                        <div className="d-flex flex-row justify-content-lg-end align-items-center h-100">
+                    <div className="col-12 col-lg-6 col-xl-3">{renderResult()}</div>
+                    <div className="col-12 col-lg-6 col-xl-3">{renderDates()}</div>
+                    <div className="col-12 col-lg-6 col-xl-3">
+                        <div className="d-flex flex-row justify-content-start justify-content-lg-end align-items-center h-100">
                             <Button
                                 outline
                                 onPress={() => {
                                     if (onDetails) onDetails(proposal);
                                 }}
                             >
-                                Details
+                                {t('governance.proposalCard.details')}
                             </Button>
-                            <VoteButton className="ms-3" proposal={proposal} onVote={onVote} />
                             {!(
                                 proposal.status !== ProposalStatus.PROPOSAL_STATUS_DEPOSIT_PERIOD &&
                                 proposal.status !== ProposalStatus.PROPOSAL_STATUS_VOTING_PERIOD
-                            ) && <VoteButton className="ms-3" proposal={proposal} onVote={onVote} />}
+                            ) && <VoteButton small className="ms-3" proposal={proposal} onVote={onVote} />}
                         </div>
                     </div>
                 </div>
