@@ -120,7 +120,7 @@ const Operations = (): JSX.Element => {
     });
 
     const delegateForm = useFormik({
-        initialValues: { address: '', amount: '', memo: t('operations.defaultMemo.delegate') },
+        initialValues: { address: '', amount: '', memo: '' },
         validationSchema: yup.object().shape({
             address: yup
                 .string()
@@ -135,7 +135,7 @@ const Operations = (): JSX.Element => {
     });
 
     const undelegateForm = useFormik({
-        initialValues: { address: '', amount: '', memo: t('operations.defaultMemo.undelegate') },
+        initialValues: { address: '', amount: '', memo: '' },
         validationSchema: yup.object().shape({
             address: yup
                 .string()
@@ -150,7 +150,7 @@ const Operations = (): JSX.Element => {
     });
 
     const redelegateForm = useFormik({
-        initialValues: { fromAddress: '', toAddress: '', amount: '', memo: t('operations.defaultMemo.redelegate') },
+        initialValues: { fromAddress: '', toAddress: '', amount: '', memo: '' },
         validationSchema: yup.object().shape({
             fromAddress: yup
                 .string()
@@ -171,7 +171,7 @@ const Operations = (): JSX.Element => {
     });
 
     const getRewardForm = useFormik({
-        initialValues: { address: '', amount: '', memo: t('operations.defaultMemo.getReward') },
+        initialValues: { address: '', amount: '', memo: '' },
         validationSchema: yup.object().shape({
             address: yup
                 .string()

@@ -243,8 +243,8 @@
                 "label": "Destination validator address"
             },
             "memo": {
-                "label": "Memo",
-                "placeholder": "Memo (optional)"
+                "label": "Note",
+                "placeholder": "Note (optional)"
             },
             "rewards": {
                 "label": "Rewards amount"
@@ -305,6 +305,10 @@
         "topValidatorModal": {
             "title": "Warning: This validator already has more than 8% of the voting power, you should chose another validator in order to help decentralization and better secure the network.",
             "go": "Delegate anyway"
+        },
+        "warning": {
+            "title": "Staking will lock your funds for 21+ days",
+            "description": "You will need to undelegate in order for your staked assets to be liquid again. This process will take 21 days to complete."
         }
     },
     "messages": {
@@ -343,7 +347,7 @@
             "delegate": "Stake Lum",
             "vote": "Vote on a proposal"
         },
-        "moreInformations": "More informations"
+        "moreInformations": "More information"
     },
     "governance": {
         "statusBadge": {

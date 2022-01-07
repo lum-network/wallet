@@ -106,7 +106,7 @@ const Staking = (): JSX.Element => {
     const { t } = useTranslation();
 
     const delegateForm = useFormik({
-        initialValues: { address: '', amount: '', memo: t('operations.defaultMemo.delegate') },
+        initialValues: { address: '', amount: '', memo: '' },
         validationSchema: yup.object().shape({
             address: yup
                 .string()
@@ -121,7 +121,7 @@ const Staking = (): JSX.Element => {
     });
 
     const redelegateForm = useFormik({
-        initialValues: { fromAddress: '', toAddress: '', amount: '', memo: t('operations.defaultMemo.redelegate') },
+        initialValues: { fromAddress: '', toAddress: '', amount: '', memo: '' },
         validationSchema: yup.object().shape({
             fromAddress: yup
                 .string()
@@ -142,7 +142,7 @@ const Staking = (): JSX.Element => {
     });
 
     const undelegateForm = useFormik({
-        initialValues: { address: '', amount: '', memo: t('operations.defaultMemo.undelegate') },
+        initialValues: { address: '', amount: '', memo: '' },
         validationSchema: yup.object().shape({
             address: yup
                 .string()
@@ -157,7 +157,7 @@ const Staking = (): JSX.Element => {
     });
 
     const claimForm = useFormik({
-        initialValues: { amount: '', address: '', memo: t('operations.defaultMemo.getReward') },
+        initialValues: { amount: '', address: '', memo: '' },
         validationSchema: yup.object().shape({
             address: yup
                 .string()
@@ -168,7 +168,7 @@ const Staking = (): JSX.Element => {
     });
 
     const getAllRewardsForm = useFormik({
-        initialValues: { memo: t('operations.defaultMemo.getAllRewards') },
+        initialValues: { memo: '' },
         validationSchema: yup.object().shape({
             memo: yup.string(),
         }),
@@ -330,7 +330,7 @@ const Staking = (): JSX.Element => {
                 setOnConfirmOperation(() => () => onDelegate(validator, totalVotingPower, true));
             }
         } else if (operationModal) {
-            delegateForm.initialValues.address = validator.operatorAddress;
+            delegateForm.setFieldValue('address', validator.operatorAddress);
             setModalType({ id: LumMessages.MsgDelegateUrl, name: t('operations.types.delegate.name') });
             operationModal.show();
         }
@@ -338,7 +338,7 @@ const Staking = (): JSX.Element => {
 
     const onUndelegate = (validator: Validator) => {
         if (operationModal) {
-            undelegateForm.initialValues.address = validator.operatorAddress;
+            undelegateForm.setFieldValue('address', validator.operatorAddress);
             setModalType({ id: LumMessages.MsgUndelegateUrl, name: t('operations.types.undelegate.name') });
             operationModal.show();
         }
@@ -346,7 +346,7 @@ const Staking = (): JSX.Element => {
 
     const onRedelegate = (validator: Validator) => {
         if (operationModal) {
-            redelegateForm.initialValues.fromAddress = validator.operatorAddress;
+            redelegateForm.setFieldValue('fromAddress', validator.operatorAddress);
             setModalType({ id: LumMessages.MsgBeginRedelegateUrl, name: t('operations.types.redelegate.name') });
             operationModal.show();
         }
@@ -354,7 +354,7 @@ const Staking = (): JSX.Element => {
 
     const onClaim = (validator: Validator) => {
         if (operationModal) {
-            claimForm.initialValues.address = validator.operatorAddress;
+            claimForm.setFieldValue('address', validator.operatorAddress);
             setModalType({
                 id: LumMessages.MsgWithdrawDelegatorRewardUrl,
                 name: t('operations.types.getRewards.name'),
