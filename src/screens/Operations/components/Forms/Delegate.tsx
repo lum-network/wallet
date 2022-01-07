@@ -20,7 +20,14 @@ const Delegate = ({ form, isLoading }: Props): JSX.Element => {
 
     return (
         <>
-            {confirming && <h6 className="mt-3">{t('operations.confirmation')}</h6>}
+            {confirming ? (
+                <h6 className="mt-3">{t('operations.confirmation')}</h6>
+            ) : (
+                <>
+                    <h6 className="not-recommended mt-3 mb-1">{t('staking.warning.title')}</h6>
+                    <p className="not-recommended">{t('staking.warning.description')}</p>
+                </>
+            )}
             <form className="row w-100 align-items-start text-start mt-3">
                 <div className="col-12">
                     <Input
