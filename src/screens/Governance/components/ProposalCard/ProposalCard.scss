@@ -20,3 +20,19 @@
 .vote-option-grey {
     color: $color-vote-grey;
 }
+
+.border-vote-green {
+    border-left: solid 3px $color-vote-green;
+}
+
+.border-vote-red {
+    border-left: solid 3px $color-vote-red;
+}
+
+.border-vote-yellow {
+    border-left: solid 3px $color-vote-yellow;
+}
+
+.border-vote-grey {
+    border-left: solid 3px $color-vote-grey;
+}

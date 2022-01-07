@@ -20,7 +20,8 @@
         "retry": "Retry",
         "advanced": "Advanced",
         "advancedTooltip": "Be careful when using advanced options",
-        "reset": "Reset"
+        "reset": "Reset",
+        "total": "Total"
     },
     "navbar": {
         "dashboard": "Dashboard",
@@ -362,6 +363,13 @@
         "submitTime": "Submit time",
         "depositEnd": "Deposit end",
         "votingStart": "Voting start",
-        "votingEnd": "Voting end"
+        "votingEnd": "Voting end",
+        "voteButtonStates": {
+            "notStarted": "Vote not started",
+            "ended": "Vote Ended",
+            "active": "Vote",
+            "disabled": "Vote Disabled"
+        },
+        "confirmingVote": "Are you sure of your vote on proposal {{ proposal }} ?"
     }
 }

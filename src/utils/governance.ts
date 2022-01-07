@@ -1,5 +1,6 @@
 import { VotesResult } from 'models';
 import i18n from 'locales';
+import { VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
 
 export const sumOfVotes = (results: VotesResult): number => {
     if (!results) {
@@ -40,4 +41,19 @@ export const maxVote = (resultsPercent: VotesResult): [string, number, string] =
     }
 
     return [i18n.t(`governance.votes.${name}`), max, dotClass];
+};
+
+export const getVoteName = (vote: VoteOption): string => {
+    switch (vote) {
+        case VoteOption.VOTE_OPTION_YES:
+            return i18n.t('governance.votes.yes');
+        case VoteOption.VOTE_OPTION_NO:
+            return i18n.t('governance.votes.no');
+        case VoteOption.VOTE_OPTION_NO_WITH_VETO:
+            return i18n.t('governance.votes.noWithVeto');
+        case VoteOption.VOTE_OPTION_ABSTAIN:
+            return i18n.t('governance.votes.abstain');
+        default:
+            return '';
+    }
 };
