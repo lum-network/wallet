@@ -304,9 +304,16 @@ const Staking = (): JSX.Element => {
 
     const onSubmitGetAllRewards = async (memo: string) => {
         try {
-            const validatorsAddresses = getUserValidators(bondedValidators, [], delegations, rewards).map(
-                (val) => val.operatorAddress,
-            );
+            const validatorsAddresses = getUserValidators(bondedValidators, [], delegations, rewards)
+                .sort((valA, valB) => {
+                    if (valA.reward > valB.reward) {
+                        return -1;
+                    } else if (valA.reward < valB.reward) {
+                        return 1;
+                    }
+                    return 0;
+                })
+                .map((val) => val.operatorAddress);
 
             const getAllRewardsResult = await getAllRewards({
                 from: wallet,

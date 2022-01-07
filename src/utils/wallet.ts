@@ -521,6 +521,7 @@ class WalletClient {
         }
 
         const messages = [];
+        const limit = fromWallet.isNanoS ? 6 : undefined;
         let gas = 140000;
 
         for (const [index, valAdd] of validatorsAddresses.entries()) {
@@ -528,6 +529,7 @@ class WalletClient {
             if (index > 0) {
                 gas += 80000;
             }
+            if (limit && index + 1 === limit) break;
         }
 
         // Define fees
