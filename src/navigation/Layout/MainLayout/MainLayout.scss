@@ -111,6 +111,12 @@ a:focus {
     padding-top: 122px;
 }
 
+@include media-breakpoint-between(lg, xl) {
+    .layout nav ul.navbar-spacer {
+        display: none;
+    }
+}
+
 @include media-breakpoint-down(lg) {
     .navbar {
         height: 60px;
@@ -175,8 +181,8 @@ a:focus {
     }
 
     .layout nav.bottom-navbar ul.navbar-nav li img.nav-icon {
-        width: 18px;
-        height: 18px;
+        width: 28px;
+        height: 28px;
     }
 
     .layout nav.bottom-navbar ul.navbar-nav li .navbar-item {

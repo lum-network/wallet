@@ -61,7 +61,7 @@ class MainLayout extends PureComponent<Props> {
                     {!bottom && (
                         <ul className="navbar-nav lum-logo">
                             <li>
-                                <NavLink to="/home" className="navbar-item me-lg-5 ms-lg-4 selected-navbar-item">
+                                <NavLink to="/home" className="navbar-item me-lg-5 ms-2 ms-lg-4 selected-navbar-item">
                                     <img src={assets.images.lumWallet} width="117" height="38" className="lum-logo" />
                                 </NavLink>
                             </li>
@@ -80,7 +80,7 @@ class MainLayout extends PureComponent<Props> {
                                     height="20"
                                     className="me-md-2 nav-icon"
                                 />
-                                {t('navbar.dashboard')}
+                                <span className="d-none d-sm-block">{t('navbar.dashboard')}</span>
                             </NavLink>
                         </li>
                         <li>
@@ -95,7 +95,7 @@ class MainLayout extends PureComponent<Props> {
                                     height="20"
                                     className="me-md-2 nav-icon"
                                 />
-                                {t('navbar.transactions')}
+                                <span className="d-none d-sm-block">{t('navbar.transactions')}</span>
                             </NavLink>
                         </li>
                         <li>
@@ -110,7 +110,7 @@ class MainLayout extends PureComponent<Props> {
                                     height="20"
                                     className="me-md-2 nav-icon"
                                 />
-                                {t('navbar.staking')}
+                                <span className="d-none d-sm-block">{t('navbar.staking')}</span>
                             </NavLink>
                         </li>
                         <li>
@@ -125,7 +125,7 @@ class MainLayout extends PureComponent<Props> {
                                     height="20"
                                     className="me-md-2 nav-icon"
                                 />
-                                {t('navbar.message')}
+                                <span className="d-none d-sm-block">{t('navbar.message')}</span>
                             </NavLink>
                         </li>
                         <li>
@@ -140,7 +140,7 @@ class MainLayout extends PureComponent<Props> {
                                     height="20"
                                     className="me-md-2 nav-icon"
                                 />
-                                {t('navbar.governance')}
+                                <span className="d-none d-sm-block">{t('navbar.governance')}</span>
                             </NavLink>
                         </li>
                     </ul>
