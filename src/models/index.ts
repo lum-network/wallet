@@ -13,6 +13,7 @@ export const reduxModels: RootModel = { wallet, staking };
 
 export interface Wallet extends LumWallet {
     isExtensionImport?: boolean;
+    isNanoS?: boolean;
 }
 
 export interface CommonTransactionProps {
