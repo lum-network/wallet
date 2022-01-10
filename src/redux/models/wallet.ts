@@ -161,6 +161,7 @@ export const wallet = createModel<RootModel>()({
                 dispatch.wallet.getVestings(address),
                 dispatch.wallet.getAirdrop(address),
                 dispatch.staking.getValidatorsInfosAsync(address),
+                dispatch.governance.getProposals(),
             ]);
         },
         async signInWithKeplrAsync(coinType: number) {

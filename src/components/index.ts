@@ -16,3 +16,4 @@ export { default as Tooltip } from './Tooltip/Tooltip';
 export { default as HoverTooltip } from './Tooltip/HoverTooltip';
 export { default as SmallerDecimal } from './SmallerDecimal/SmallerDecimal';
 export { default as TransactionTypeBadge } from './TransactionTypeBadge/TransactionTypeBadge';
+export { default as Badge } from './Badge/Badge';

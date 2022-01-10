@@ -1,9 +1,9 @@
 import { LumClient, LumConstants, LumMessages, LumRegistry, LumTypes, LumUtils } from '@lum-network/sdk-javascript';
 import { TxResponse } from '@cosmjs/tendermint-rpc';
-import { PasswordStrengthType, PasswordStrength, Transaction, Wallet } from 'models';
+import { PasswordStrengthType, PasswordStrength, Transaction, Wallet, Proposal } from 'models';
 import { dateFromNow, showErrorToast } from 'utils';
 import i18n from 'locales';
-import { VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
+import { ProposalStatus, VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
 import Long from 'long';
 
 export type MnemonicLength = 12 | 24;
@@ -139,6 +139,8 @@ class WalletClient {
     lumClient: LumClient | null = null;
     chainId: string | null = null;
 
+    // Init
+
     init = () => {
         LumClient.connect(process.env.REACT_APP_RPC_URL)
             .then(async (client) => {
@@ -147,6 +149,8 @@ class WalletClient {
             })
             .catch(() => showErrorToast(i18n.t('wallet.errors.client')));
     };
+
+    // Getters
 
     private getAccountAndChainId = (fromWallet: Wallet) => {
         if (this.lumClient === null) {
@@ -169,6 +173,53 @@ class WalletClient {
             ]);
 
             return { bonded: bondedValidators.validators, unbonded: unbondedValidators.validators };
+        } catch (e) {}
+    };
+
+    getValidatorsInfos = async (address: string) => {
+        if (!this.lumClient) {
+            return null;
+        }
+
+        try {
+            const validators = await this.getValidators();
+
+            const [delegation, unbonding] = await Promise.all([
+                this.lumClient.queryClient.staking.delegatorDelegations(address),
+                this.lumClient.queryClient.staking.delegatorUnbondingDelegations(address),
+            ]);
+
+            const delegations = delegation.delegationResponses;
+            const unbondings = unbonding.unbondingResponses;
+
+            let unbondedTokens = 0;
+            let stakedCoins = 0;
+
+            for (const delegation of delegations) {
+                if (delegation.balance) {
+                    stakedCoins += Number(LumUtils.convertUnit(delegation.balance, LumConstants.LumDenom));
+                }
+            }
+
+            for (const unbonding of unbondings) {
+                for (const entry of unbonding.entries) {
+                    unbondedTokens += Number(
+                        LumUtils.convertUnit(
+                            { amount: entry.balance, denom: LumConstants.MicroLumDenom },
+                            LumConstants.LumDenom,
+                        ),
+                    );
+                }
+            }
+
+            return {
+                bonded: validators?.bonded || [],
+                unbonded: validators?.unbonded || [],
+                delegations,
+                unbondings,
+                stakedCoins,
+                unbondedTokens,
+            };
         } catch (e) {}
     };
 
@@ -266,6 +317,56 @@ class WalletClient {
 
         return await this.lumClient.queryClient.distribution.delegationTotalRewards(address);
     };
+
+    getProposals = async (): Promise<Proposal[] | null> => {
+        if (this.lumClient === null) {
+            return null;
+        }
+
+        const result = await this.lumClient.queryClient.gov.proposals(
+            ProposalStatus.PROPOSAL_STATUS_UNSPECIFIED |
+                ProposalStatus.PROPOSAL_STATUS_DEPOSIT_PERIOD |
+                ProposalStatus.PROPOSAL_STATUS_VOTING_PERIOD |
+                ProposalStatus.PROPOSAL_STATUS_PASSED |
+                ProposalStatus.PROPOSAL_STATUS_REJECTED |
+                ProposalStatus.PROPOSAL_STATUS_FAILED |
+                ProposalStatus.UNRECOGNIZED,
+            '',
+            '',
+        );
+
+        return result.proposals.map((proposal) => ({
+            ...proposal,
+            content: proposal.content ? LumRegistry.decode(proposal.content) : proposal.content,
+            finalResult: {
+                yes: Number(proposal.finalTallyResult?.yes) || 0,
+                no: Number(proposal.finalTallyResult?.no) || 0,
+                noWithVeto: Number(proposal.finalTallyResult?.noWithVeto) || 0,
+                abstain: Number(proposal.finalTallyResult?.abstain) || 0,
+            },
+        }));
+    };
+
+    getProposalTally = async (id: string) => {
+        if (this.lumClient === null) {
+            return null;
+        }
+
+        const result = await this.lumClient.queryClient.gov.tally(id);
+
+        if (!result || !result.tally) {
+            return null;
+        }
+
+        return {
+            yes: Number(result.tally.yes),
+            no: Number(result.tally.no),
+            noWithVeto: Number(result.tally.noWithVeto),
+            abstain: Number(result.tally.abstain),
+        };
+    };
+
+    // Operations
 
     sendTx = async (fromWallet: Wallet, toAddress: string, lumAmount: string, memo = '') => {
         if (this.lumClient === null) {
@@ -714,53 +815,6 @@ class WalletClient {
                     : broadcastResult.checkTx.log
                 : null,
         };
-    };
-
-    getValidatorsInfos = async (address: string) => {
-        if (!this.lumClient) {
-            return null;
-        }
-
-        try {
-            const validators = await this.getValidators();
-
-            const [delegation, unbonding] = await Promise.all([
-                this.lumClient.queryClient.staking.delegatorDelegations(address),
-                this.lumClient.queryClient.staking.delegatorUnbondingDelegations(address),
-            ]);
-
-            const delegations = delegation.delegationResponses;
-            const unbondings = unbonding.unbondingResponses;
-
-            let unbondedTokens = 0;
-            let stakedCoins = 0;
-
-            for (const delegation of delegations) {
-                if (delegation.balance) {
-                    stakedCoins += Number(LumUtils.convertUnit(delegation.balance, LumConstants.LumDenom));
-                }
-            }
-
-            for (const unbonding of unbondings) {
-                for (const entry of unbonding.entries) {
-                    unbondedTokens += Number(
-                        LumUtils.convertUnit(
-                            { amount: entry.balance, denom: LumConstants.MicroLumDenom },
-                            LumConstants.LumDenom,
-                        ),
-                    );
-                }
-            }
-
-            return {
-                bonded: validators?.bonded || [],
-                unbonded: validators?.unbonded || [],
-                delegations,
-                unbondings,
-                stakedCoins,
-                unbondedTokens,
-            };
-        } catch (e) {}
     };
 }
 

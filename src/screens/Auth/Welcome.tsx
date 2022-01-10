@@ -162,7 +162,7 @@ const Welcome = (): JSX.Element => {
                                 }`}
                             >
                                 <p className="d-flex align-items-center justify-content-center fw-normal">
-                                    <img src={Assets.images.bubbleIcon} height="28" className="me-3" />
+                                    <img src={Assets.images.navbarIcons.messages} height="28" className="me-3" />
                                     {t('welcome.softwareModal.types.mnemonic')}
                                 </p>
                             </button>
