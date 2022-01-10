@@ -68,39 +68,39 @@ const Operations = (): JSX.Element => {
         {
             id: LumMessages.MsgSendUrl,
             name: t('operations.types.send.name'),
-            icon: assets.images.messageSend,
+            icon: assets.images.messageTypes.send,
             iconClassName: 'send-icon',
             description: t('operations.types.send.description'),
         },
         {
             id: LumMessages.MsgDelegateUrl,
             name: t('operations.types.delegate.name'),
-            icon: assets.images.messageDelegate,
+            icon: assets.images.messageTypes.delegate,
             description: t('operations.types.delegate.description'),
         },
         {
             id: LumMessages.MsgUndelegateUrl,
             name: t('operations.types.undelegate.name'),
-            icon: assets.images.messageUndelegate,
+            icon: assets.images.messageTypes.undelegate,
             description: t('operations.types.undelegate.description'),
         },
         {
             id: LumMessages.MsgBeginRedelegateUrl,
             name: t('operations.types.redelegate.name'),
-            icon: assets.images.messageRedelegate,
+            icon: assets.images.messageTypes.redelegate,
             description: t('operations.types.redelegate.description'),
         },
         {
             id: LumMessages.MsgWithdrawDelegatorRewardUrl,
             name: t('operations.types.getRewards.name'),
-            icon: assets.images.messageGetReward,
+            icon: assets.images.messageTypes.getReward,
             description: t('operations.types.getRewards.description'),
         },
         {
             id: LumMessages.MsgVoteUrl,
             name: t('operations.types.vote.name'),
             description: t('operations.types.vote.description'),
-            icon: assets.images.messageVote,
+            icon: assets.images.messageTypes.vote,
         },
     ];
 
@@ -120,7 +120,7 @@ const Operations = (): JSX.Element => {
     });
 
     const delegateForm = useFormik({
-        initialValues: { address: '', amount: '', memo: t('operations.defaultMemo.delegate') },
+        initialValues: { address: '', amount: '', memo: '' },
         validationSchema: yup.object().shape({
             address: yup
                 .string()
@@ -135,7 +135,7 @@ const Operations = (): JSX.Element => {
     });
 
     const undelegateForm = useFormik({
-        initialValues: { address: '', amount: '', memo: t('operations.defaultMemo.undelegate') },
+        initialValues: { address: '', amount: '', memo: '' },
         validationSchema: yup.object().shape({
             address: yup
                 .string()
@@ -150,7 +150,7 @@ const Operations = (): JSX.Element => {
     });
 
     const redelegateForm = useFormik({
-        initialValues: { fromAddress: '', toAddress: '', amount: '', memo: t('operations.defaultMemo.redelegate') },
+        initialValues: { fromAddress: '', toAddress: '', amount: '', memo: '' },
         validationSchema: yup.object().shape({
             fromAddress: yup
                 .string()
@@ -171,7 +171,7 @@ const Operations = (): JSX.Element => {
     });
 
     const getRewardForm = useFormik({
-        initialValues: { address: '', amount: '', memo: t('operations.defaultMemo.getReward') },
+        initialValues: { address: '', amount: '', memo: '' },
         validationSchema: yup.object().shape({
             address: yup
                 .string()

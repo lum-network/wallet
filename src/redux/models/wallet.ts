@@ -4,6 +4,7 @@ import { Window as KeplrWindow } from '@keplr-wallet/types';
 import { LumUtils, LumWalletFactory, LumWallet, LumConstants } from '@lum-network/sdk-javascript';
 
 import TransportWebUsb from '@ledgerhq/hw-transport-webusb';
+import { DeviceModelId } from '@ledgerhq/devices';
 
 import { showErrorToast, showSuccessToast, WalletClient } from 'utils';
 
@@ -89,7 +90,7 @@ export const wallet = createModel<RootModel>()({
         airdrop: null,
     } as WalletState,
     reducers: {
-        signIn(state, wallet: LumWallet, isExtensionImport?: boolean) {
+        signIn(state, wallet: LumWallet, props?: { isExtensionImport?: boolean; isNanoS?: boolean }) {
             return {
                 ...state,
                 currentWallet: {
@@ -101,7 +102,7 @@ export const wallet = createModel<RootModel>()({
                     canChangeAccount: wallet.canChangeAccount,
                     getPublicKey: wallet.getPublicKey,
                     getAddress: wallet.getAddress,
-                    isExtensionImport,
+                    ...props,
                 },
             };
         },
@@ -160,6 +161,7 @@ export const wallet = createModel<RootModel>()({
                 dispatch.wallet.getVestings(address),
                 dispatch.wallet.getAirdrop(address),
                 dispatch.staking.getValidatorsInfosAsync(address),
+                dispatch.governance.getProposals(),
             ]);
         },
         async signInWithKeplrAsync(coinType: number) {
@@ -234,7 +236,7 @@ export const wallet = createModel<RootModel>()({
                     const offlineSigner = await keplrWindow.getOfflineSignerAuto(chainId);
                     const wallet = await LumWalletFactory.fromOfflineSigner(offlineSigner);
                     if (wallet) {
-                        dispatch.wallet.signIn(wallet, true);
+                        dispatch.wallet.signIn(wallet, { isExtensionImport: true });
                         dispatch.wallet.reloadWalletInfos(wallet.getAddress());
                     }
                     return;
@@ -249,6 +251,7 @@ export const wallet = createModel<RootModel>()({
                 let wallet: null | LumWallet = null;
                 let breakLoop = false;
                 let userCancelled = false;
+                let isNanoS = false;
 
                 // 10 sec timeout to let the user unlock his hardware
                 const to = setTimeout(() => (breakLoop = true), 10000);
@@ -260,6 +263,7 @@ export const wallet = createModel<RootModel>()({
                 while (!wallet && !breakLoop) {
                     try {
                         const transport = await TransportWebUsb.create();
+                        isNanoS = transport.deviceModel?.id === DeviceModelId.nanoS;
 
                         //FIXME: Remove ts-ignore
                         wallet = await LumWalletFactory.fromLedgerTransport(
@@ -280,7 +284,7 @@ export const wallet = createModel<RootModel>()({
                 clearTimeout(to);
 
                 if (wallet) {
-                    dispatch.wallet.signIn(wallet);
+                    dispatch.wallet.signIn(wallet, { isNanoS });
                     dispatch.wallet.reloadWalletInfos(wallet.getAddress());
                     return;
                 } else {

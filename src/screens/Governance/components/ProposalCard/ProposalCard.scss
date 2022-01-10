@@ -1,0 +1,40 @@
+@import 'main';
+
+.dot-size {
+    font-size: 60px;
+    line-height: 25px;
+    vertical-align: bottom;
+    font-weight: 300;
+}
+
+.vote-option-green {
+    color: $color-vote-green;
+}
+
+.vote-option-red {
+    color: $color-vote-red;
+}
+
+.vote-option-yellow {
+    color: $color-vote-yellow;
+}
+
+.vote-option-grey {
+    color: $color-vote-grey;
+}
+
+.border-vote-green {
+    border-left: solid 3px $color-vote-green;
+}
+
+.border-vote-red {
+    border-left: solid 3px $color-vote-red;
+}
+
+.border-vote-yellow {
+    border-left: solid 3px $color-vote-yellow;
+}
+
+.border-vote-grey {
+    border-left: solid 3px $color-vote-grey;
+}

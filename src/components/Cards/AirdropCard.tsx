@@ -53,7 +53,7 @@ const AirdropCard = ({ airdrop }: { airdrop: Airdrop }): JSX.Element => {
                         action={{
                             done: airdrop.delegate,
                             title: t('airdrop.actionsToClaim.delegate'),
-                            icon: assets.images.messageDelegate,
+                            icon: assets.images.messageTypes.delegate,
                         }}
                     />
                     <CheckBox
@@ -61,7 +61,7 @@ const AirdropCard = ({ airdrop }: { airdrop: Airdrop }): JSX.Element => {
                         action={{
                             done: airdrop.vote,
                             title: t('airdrop.actionsToClaim.vote'),
-                            icon: assets.images.messageVote,
+                            icon: assets.images.messageTypes.vote,
                         }}
                     />
                 </div>

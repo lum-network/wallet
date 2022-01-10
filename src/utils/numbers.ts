@@ -25,3 +25,11 @@ export const formatUnit = (coin: LumTypes.Coin, moreDecimal?: boolean): string =
 };
 
 export const formatTo6digit = (number: number): string => (number > 0 ? numeral(number).format('0,0.000000') : '0');
+
+export const getPercentage = (nb: number, total: number): number => {
+    if (!total) {
+        return 0;
+    }
+
+    return (nb / total) * 100;
+};
