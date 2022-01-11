@@ -391,9 +391,9 @@ const Operations = (): JSX.Element => {
                             <BalanceCard
                                 balance={
                                     vestings
-                                        ? balance -
+                                        ? balance.lum -
                                           Number(LumUtils.convertUnit(vestings.lockedBankCoins, LumConstants.LumDenom))
-                                        : balance
+                                        : balance.lum
                                 }
                                 address={wallet.getAddress()}
                             />

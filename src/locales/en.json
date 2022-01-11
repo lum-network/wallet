@@ -22,7 +22,8 @@
         "advanced": "Advanced",
         "advancedTooltip": "Be careful when using advanced options",
         "reset": "Reset",
-        "total": "Total"
+        "total": "Total",
+        "day": "24h"
     },
     "navbar": {
         "dashboard": "Dashboard",
@@ -59,6 +60,8 @@
         "keplrKeystoreChange": "Keplr Key store/account has changed, you have been logged out"
     },
     "dashboard": {
+        "lumPrice": "Lum Value",
+        "getLum": "Buy Lum",
         "latestTx": "Latest Transactions",
         "currentBalance": "Current balance",
         "followTwitter": "Follow us on Twitter",

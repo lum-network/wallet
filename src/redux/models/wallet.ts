@@ -55,7 +55,10 @@ interface SignInKeystorePayload {
 
 interface SetWalletDataPayload {
     transactions?: Transaction[];
-    currentBalance?: number;
+    currentBalance?: {
+        fiat: number;
+        lum: number;
+    };
     rewards?: Rewards;
     vestings?: Vestings;
     airdrop?: Airdrop;
@@ -69,7 +72,10 @@ interface VotePayload {
 
 interface WalletState {
     currentWallet: Wallet | null;
-    currentBalance: number;
+    currentBalance: {
+        fiat: number;
+        lum: number;
+    };
     transactions: Transaction[];
     rewards: Rewards;
     vestings: Vestings | null;
@@ -80,7 +86,10 @@ export const wallet = createModel<RootModel>()({
     name: 'wallet',
     state: {
         currentWallet: null,
-        currentBalance: 0,
+        currentBalance: {
+            fiat: 0,
+            lum: 0,
+        },
         transactions: [],
         rewards: {
             rewards: [],
@@ -119,9 +128,10 @@ export const wallet = createModel<RootModel>()({
     },
     effects: (dispatch) => ({
         async getWalletBalance(address: string) {
-            const currentBalance = await WalletClient.getWalletBalance(address);
+            const result = await WalletClient.getWalletBalance(address);
 
-            if (currentBalance) {
+            if (result) {
+                const { currentBalance } = result;
                 dispatch.wallet.setWalletData({ currentBalance });
             }
         },

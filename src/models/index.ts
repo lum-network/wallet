@@ -105,3 +105,21 @@ export interface Proposal extends Omit<BaseProposal, 'content'> {
     };
     finalResult: VotesResult;
 }
+
+export interface PreviousDayPrice {
+    open: number;
+    high: number;
+    close: number;
+    low: number;
+    time: number;
+}
+
+export interface LumInfo {
+    price: number;
+    denom: string;
+    symbol: string;
+    liquidity: number;
+    volume_24h: number;
+    name: number;
+    previousDaysPrices: PreviousDayPrice[];
+}
