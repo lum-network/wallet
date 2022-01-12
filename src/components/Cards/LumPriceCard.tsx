@@ -5,9 +5,9 @@ import { useTranslation } from 'react-i18next';
 import Chart from 'kaktana-react-lightweight-charts';
 import { UTCTimestamp } from 'lightweight-charts';
 import { NumbersUtils, WalletClient } from 'utils';
-import { Button } from 'components';
 
 import './Cards.scss';
+import { BUY_LUM_URL } from 'constant';
 
 interface Props {
     balance: number;
@@ -30,13 +30,9 @@ const LumPriceCard = ({ balance }: Props): JSX.Element => {
 
             setChartData(chart);
             setLumPrice(data.price);
-            setPreviousDayPercentage(NumbersUtils.getDifferencePercentage(chart[0].value, data.price));
+            setPreviousDayPercentage(NumbersUtils.getDifferencePercentage(chart[chart.length - 24].value, data.price));
         }
     }, []);
-
-    const onBuy = () => {
-        // ON BUY
-    };
 
     return (
         <Card withoutPadding className="h-100 dashboard-card lum-price-card justify-content-start p-4">
@@ -103,11 +99,16 @@ const LumPriceCard = ({ balance }: Props): JSX.Element => {
                     </span>
                     <span className="big-text fs-4">{numeral(lumPrice).format('$0,0.0000')}</span>
                 </div>
-                <Button buttonType="custom" className="mt-4 mt-lg-0 align-self-start" onClick={onBuy}>
-                    <Card withoutPadding className="p-3">
+                <a
+                    href={BUY_LUM_URL}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="scale-anim mt-4 mt-lg-0 align-self-start"
+                >
+                    <Card withoutPadding className="buy-btn px-4 py-3">
                         <b>{t('dashboard.getLum')}</b>
                     </Card>
-                </Button>
+                </a>
             </div>
         </Card>
     );

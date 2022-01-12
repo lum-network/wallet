@@ -201,7 +201,7 @@ class WalletClient {
     private getLumInfo = async (): Promise<LumInfo | null> => {
         const [lumInfos, previousDayLumInfos] = await Promise.all([
             axios.get(`${OSMOSIS_API_URL}/tokens/v1/LUM`).catch(() => null),
-            axios.get(`${OSMOSIS_API_URL}/tokens/v1/historical/LUM/chart?range=1d`).catch(() => null),
+            axios.get(`${OSMOSIS_API_URL}/tokens/v1/historical/LUM/chart?range=7d`).catch(() => null),
         ]);
 
         const lumInfoData = lumInfos && lumInfos.data[0];
