@@ -1,13 +1,15 @@
-import { Card } from 'frontend-elements';
-import numeral from 'numeral';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import numeral from 'numeral';
 import Chart from 'kaktana-react-lightweight-charts';
 import { UTCTimestamp } from 'lightweight-charts';
+import { Card } from 'frontend-elements';
+
+import { BUY_LUM_URL } from 'constant';
 import { NumbersUtils, WalletClient } from 'utils';
 
 import './Cards.scss';
-import { BUY_LUM_URL } from 'constant';
+import { SmallerDecimal } from 'components';
 
 interface Props {
     balance: number;
@@ -38,7 +40,11 @@ const LumPriceCard = ({ balance }: Props): JSX.Element => {
         <Card withoutPadding className="h-100 dashboard-card lum-price-card justify-content-start p-4">
             <h2 className="ps-2 pt-3">{t('dashboard.lumPrice')}</h2>
             <div className="ps-2 my-3 d-flex flex-column flex-lg-row justify-content-between align-items-lg-center w-100">
-                <h6 className="display-6 align-self-lg-end">{numeral(balance).format('$0.00')}</h6>
+                <SmallerDecimal
+                    big
+                    className="align-bottom align-self-lg-end"
+                    nb={numeral(balance).format('$0,0.00')}
+                />
                 <div className="chart">
                     <Chart
                         autoHeight
