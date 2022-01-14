@@ -16,6 +16,8 @@
         "i18next": "^19.8.9",
         "i18next-browser-languagedetector": "^6.0.1",
         "immer": "^8.0.1",
+        "kaktana-react-lightweight-charts": "^2.0.0",
+        "lightweight-charts": "^3.7.0",
         "node-sass": "^6.0.0",
         "numeral": "^2.0.6",
         "print-js": "^1.6.0",

@@ -75,7 +75,7 @@ const Governance = (): JSX.Element => {
         );
 
         setActiveProposals(active);
-        setPassedProposals(passed);
+        setPassedProposals(GovernanceUtils.sortByDate(passed));
     }, [proposals]);
 
     useEffect(() => {
