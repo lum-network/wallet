@@ -24,3 +24,5 @@ export const KEPLR_DEFAULT_COIN_TYPE = 118;
 export const OSMOSIS_API_URL = 'https://api-osmosis.imperator.co';
 
 export const BUY_LUM_URL = 'https://app.osmosis.zone/?from=ATOM&to=LUM';
+
+export const NODES = ['node test 1', 'node test 2', new URL(process.env.REACT_APP_RPC_URL).hostname];

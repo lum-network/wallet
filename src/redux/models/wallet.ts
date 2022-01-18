@@ -71,6 +71,7 @@ interface VotePayload {
 }
 
 interface WalletState {
+    currentNode: string;
     currentWallet: Wallet | null;
     currentBalance: {
         fiat: number;
@@ -85,6 +86,7 @@ interface WalletState {
 export const wallet = createModel<RootModel>()({
     name: 'wallet',
     state: {
+        currentNode: new URL(process.env.REACT_APP_RPC_URL).hostname,
         currentWallet: null,
         currentBalance: {
             fiat: 0,
@@ -123,6 +125,12 @@ export const wallet = createModel<RootModel>()({
                 transactions: data.transactions || state.transactions,
                 vestings: data.vestings || state.vestings,
                 airdrop: data.airdrop || state.airdrop,
+            };
+        },
+        setNode(state, node: string) {
+            return {
+                ...state,
+                currentNode: node,
             };
         },
     },
@@ -435,6 +443,9 @@ export const wallet = createModel<RootModel>()({
             } catch {
                 showErrorToast(i18n.t('wallet.errors.faucet.generic'));
             }
+        },
+        async setCurrentNode(node: string) {
+            dispatch.wallet.setNode(node);
         },
     }),
 });

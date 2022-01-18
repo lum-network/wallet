@@ -174,11 +174,7 @@ class MainLayout extends PureComponent<Props> {
                 <div className={`d-flex flex-column flex-grow-1 ${wallet && 'content'} ${IS_TESTNET && 'testnet'}`}>
                     {children}
                 </div>
-                {wallet && (
-                    <footer className="mt-auto">
-                        <Footer />
-                    </footer>
-                )}
+                {wallet && <Footer />}
                 {this.renderNavbar(true)}
                 {wallet && (
                     <Modal id="logoutModal" dataBsBackdrop="static" contentClassName="p-3" withCloseButton={false}>
