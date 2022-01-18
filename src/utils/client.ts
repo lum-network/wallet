@@ -1,10 +1,12 @@
 import { LumClient, LumConstants, LumMessages, LumRegistry, LumTypes, LumUtils } from '@lum-network/sdk-javascript';
 import { TxResponse } from '@cosmjs/tendermint-rpc';
-import { PasswordStrengthType, PasswordStrength, Transaction, Wallet, Proposal } from 'models';
+import { PasswordStrengthType, PasswordStrength, Transaction, Wallet, Proposal, LumInfo } from 'models';
 import { dateFromNow, showErrorToast } from 'utils';
 import i18n from 'locales';
 import { ProposalStatus, VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
 import Long from 'long';
+import axios from 'axios';
+import { OSMOSIS_API_URL } from 'constant';
 
 export type MnemonicLength = 12 | 24;
 
@@ -53,6 +55,23 @@ type StakingTxInfos = {
     amount: LumTypes.Coin;
 };
 
+type LumInfoType = {
+    price: number;
+    denom: string;
+    symbol: string;
+    liquidity: number;
+    volume_24h: number;
+    name: number;
+};
+
+type PreviousDayLumInfoType = {
+    open: number;
+    high: number;
+    close: number;
+    low: number;
+    time: number;
+};
+
 const isSendTxInfo = (
     info: {
         fromAddress?: string;
@@ -71,6 +90,31 @@ const isStakingTxInfo = (
     } | null,
 ): info is StakingTxInfos => {
     return !!(info && info.validatorAddress && info.delegatorAddress && info.amount);
+};
+
+const isLumInfo = (
+    info: {
+        price?: number;
+        denom?: string;
+        symbol?: string;
+        liquidity?: number;
+        volume_24h?: number;
+        name?: number;
+    } | null,
+): info is LumInfoType => {
+    return !!(info && info.price && info.liquidity && info.denom && info.name && info.volume_24h);
+};
+
+const isPreviousDayLumInfo = (
+    info: {
+        open?: number;
+        high?: number;
+        close?: number;
+        low?: number;
+        time?: number;
+    } | null,
+): info is PreviousDayLumInfoType => {
+    return !!(info && info.open && info.close && info.high && info.low && info.time);
 };
 
 const alreadyExists = (array: Transaction[], value: Transaction) => {
@@ -137,6 +181,7 @@ export const validateSignMessage = async (msg: LumTypes.SignMsg): Promise<boolea
 
 class WalletClient {
     lumClient: LumClient | null = null;
+    lumInfos: LumInfo | null = null;
     chainId: string | null = null;
 
     // Init
@@ -146,11 +191,35 @@ class WalletClient {
             .then(async (client) => {
                 this.lumClient = client;
                 this.chainId = await client.getChainId();
+                this.lumInfos = await this.getLumInfo();
             })
             .catch(() => showErrorToast(i18n.t('wallet.errors.client')));
     };
 
     // Getters
+
+    private getLumInfo = async (): Promise<LumInfo | null> => {
+        const [lumInfos, previousDayLumInfos] = await Promise.all([
+            axios.get(`${OSMOSIS_API_URL}/tokens/v1/LUM`).catch(() => null),
+            axios.get(`${OSMOSIS_API_URL}/tokens/v1/historical/LUM/chart?range=7d`).catch(() => null),
+        ]);
+
+        const lumInfoData = lumInfos && lumInfos.data[0];
+        const previousDayLumInfoData = previousDayLumInfos && previousDayLumInfos.data;
+
+        if (isLumInfo(lumInfoData)) {
+            const previousDaysPrices = Array.isArray(previousDayLumInfoData)
+                ? previousDayLumInfoData.filter(isPreviousDayLumInfo)
+                : [];
+
+            return {
+                ...lumInfoData,
+                previousDaysPrices,
+            };
+        }
+
+        return null;
+    };
 
     private getAccountAndChainId = (fromWallet: Wallet) => {
         if (this.lumClient === null) {
@@ -228,16 +297,26 @@ class WalletClient {
             return null;
         }
 
-        let currentBalance = 0;
+        let lum = 0;
+        let fiat = 0;
 
         const balances = await this.lumClient.getAllBalances(address);
         if (balances.length > 0) {
             for (const balance of balances) {
-                currentBalance += Number(LumUtils.convertUnit(balance, LumConstants.LumDenom));
+                lum += Number(LumUtils.convertUnit(balance, LumConstants.LumDenom));
             }
         }
 
-        return currentBalance;
+        if (this.lumInfos) {
+            fiat = lum * this.lumInfos.price;
+        }
+
+        return {
+            currentBalance: {
+                lum,
+                fiat,
+            },
+        };
     };
 
     getVestingsInfos = async (address: string) => {

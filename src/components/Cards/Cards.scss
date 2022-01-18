@@ -1,4 +1,4 @@
-@import 'src/styles/main';
+@import 'main';
 
 .default-card {
     border-radius: 15px;
@@ -88,5 +88,38 @@
     100% {
         -webkit-transform: rotate(360deg);
         transform: rotate(360deg);
+    }
+}
+
+.lum-price-card .chart {
+    width: calc(100% - 560px);
+    height: 76px;
+
+    @include media-breakpoint-down(lg) {
+        width: 100%;
+    }
+}
+
+.lum-price-card .arrow-up {
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+
+    border-bottom: 6px solid $color-arrow-green;
+}
+
+.lum-price-card .arrow-down {
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+
+    border-top: 6px solid $color-arrow-red;
+}
+
+.lum-price-card .buy-btn {
+    @media (prefers-color-scheme: dark) {
+        background-color: $color-black;
     }
 }

@@ -3,8 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 
-import { Button } from 'frontend-elements';
-import { Input } from 'components';
+import { Button, Input } from 'components';
 import { useRematchDispatch } from 'redux/hooks';
 import { RootDispatch } from 'redux/store';
 
@@ -53,7 +52,7 @@ const ImportPrivateKeyModal = (): JSX.Element => {
                 />
                 {formik.touched.privateKey && formik.errors.privateKey && <p>{formik.errors.privateKey}</p>}
             </div>
-            <Button onPress={formik.handleSubmit} className="mt-4 w-100">
+            <Button type="submit" onClick={() => formik.handleSubmit()} data-bs-dismiss="modal" className="mt-4 w-100">
                 {t('common.continue')}
             </Button>
         </>
