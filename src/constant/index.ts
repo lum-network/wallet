@@ -15,3 +15,12 @@ export const LUM_EXPLORER = IS_TESTNET ? 'https://explorer.testnet.lum.network' 
 export const LUM_WALLET = IS_TESTNET ? 'https://wallet.testnet.lum.network' : 'https://wallet.lum.network';
 
 export const CLIENT_PRECISION = 1_000_000_000_000_000_000;
+
+export const MEDIUM_AIRDROP_ARTICLE =
+    'https://medium.com/lum-network/lum-airdrop-for-atom-stakers-osmo-lps-120d3e472f38';
+
+export const KEPLR_DEFAULT_COIN_TYPE = 118;
+
+export const OSMOSIS_API_URL = 'https://api-osmosis.imperator.co';
+
+export const BUY_LUM_URL = 'https://app.osmosis.zone/?from=ATOM&to=LUM';

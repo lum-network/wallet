@@ -1,4 +1,4 @@
-@import 'src/styles/main';
+@import 'main';
 
 .default-card {
     border-radius: 15px;
@@ -27,6 +27,53 @@
     }
 }
 
+.airdrop-card {
+    overflow: hidden;
+    background: linear-gradient(90deg, #3658e8 56.37%, #385ae9 153.59%);
+}
+
+.airdrop-card .background-image {
+    position: absolute;
+    right: 100px;
+    top: -40px;
+    transform: scale(1.2);
+    z-index: -1;
+
+    @include media-breakpoint-down(lg) {
+        right: 50px;
+    }
+
+    @include media-breakpoint-down(md) {
+        top: 50px;
+        right: 0px;
+    }
+
+    @media (max-width: 500px) {
+        display: none;
+    }
+}
+
+.airdrop-card .airdrop-content {
+    width: 100%;
+    z-index: 100;
+
+    @include media-breakpoint-down(md) {
+        width: initial;
+    }
+}
+
+.airdrop-card .action-icon {
+    width: 20.5px;
+    height: 20.5px;
+    object-fit: contain;
+}
+
+.airdrop-card .info-link {
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
 @-moz-keyframes spin {
     100% {
         -moz-transform: rotate(360deg);
@@ -41,5 +88,38 @@
     100% {
         -webkit-transform: rotate(360deg);
         transform: rotate(360deg);
+    }
+}
+
+.lum-price-card .chart {
+    width: calc(100% - 560px);
+    height: 76px;
+
+    @include media-breakpoint-down(lg) {
+        width: 100%;
+    }
+}
+
+.lum-price-card .arrow-up {
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+
+    border-bottom: 6px solid $color-arrow-green;
+}
+
+.lum-price-card .arrow-down {
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+
+    border-top: 6px solid $color-arrow-red;
+}
+
+.lum-price-card .buy-btn {
+    @media (prefers-color-scheme: dark) {
+        background-color: $color-black;
     }
 }

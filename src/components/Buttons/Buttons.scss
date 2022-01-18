@@ -36,6 +36,11 @@ button:focus {
     &:disabled {
         background-color: $color-grey;
     }
+    &.outline {
+        background-color: transparent;
+        border: 1px solid $color-primary;
+        color: $color-primary;
+    }
 }
 
 .scale-anim {
@@ -64,6 +69,12 @@ button:focus {
     .normal-btn {
         background-color: $color-white;
         color: $color-primary;
+
+        &.outline {
+            background-color: transparent;
+            border: 1px solid $color-white;
+            color: $color-white;
+        }
     }
     .toast-close-btn {
         background-color: $color-primary;

@@ -6,39 +6,16 @@ import { Button, Card } from 'frontend-elements';
 import { Rewards } from 'models';
 import { useTranslation } from 'react-i18next';
 import { NumbersUtils } from 'utils';
-import { useRematchDispatch } from 'redux/hooks';
-import { RootDispatch, RootState } from 'redux/store';
-import { useSelector } from 'react-redux';
 import { SmallerDecimal } from 'components';
 
 interface Props {
     rewards: Rewards;
+    onClaim: () => void;
+    isLoading: boolean;
 }
 
-const RewardsCard = ({ rewards }: Props): JSX.Element => {
+const RewardsCard = ({ rewards, onClaim, isLoading }: Props): JSX.Element => {
     const { t } = useTranslation();
-
-    const { delegations, wallet, isLoading } = useSelector((state: RootState) => ({
-        delegations: state.staking.delegations,
-        wallet: state.wallet.currentWallet,
-        isLoading: state.loading.effects.wallet.getReward.loading,
-    }));
-
-    const { getReward } = useRematchDispatch((dispatch: RootDispatch) => ({
-        getReward: dispatch.wallet.getReward,
-    }));
-
-    const claimRewards = () => {
-        for (const delegation of delegations) {
-            if (wallet && delegation.delegation) {
-                getReward({
-                    validatorAddress: delegation.delegation?.validatorAddress,
-                    memo: t('operations.defaultMemo.getReward'),
-                    from: wallet,
-                });
-            }
-        }
-    };
 
     return (
         <Card withoutPadding className="h-100 dashboard-card flex-row flex-wrap align-items-center rewards-card p-4">
@@ -60,11 +37,7 @@ const RewardsCard = ({ rewards }: Props): JSX.Element => {
                     </div>
                 </div>
                 <div className="col-md-4 d-flex align-items-center justify-content-start justify-content-md-end">
-                    <Button
-                        loading={isLoading}
-                        onPress={claimRewards}
-                        className="claim-reward-btn fs-4 p-4 rounded-pill"
-                    >
+                    <Button loading={isLoading} onPress={onClaim} className="claim-reward-btn fs-4 p-4 rounded-pill">
                         {t('staking.claim')}
                     </Button>
                 </div>

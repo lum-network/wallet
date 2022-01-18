@@ -7,6 +7,7 @@
         "lengthError": "Please enter at least {{ count }} characters",
         "testnetBanner": "⚠️ You are connected to the Testnet ⚠️",
         "cancel": "Cancel",
+        "confirm": "Confirm",
         "close": "Close",
         "copy": "Copy",
         "print": "Print",
@@ -17,13 +18,19 @@
         "mintFaucet": "Mint faucet",
         "success": "Success",
         "failure": "Failure",
-        "retry": "Retry"
+        "retry": "Retry",
+        "advanced": "Advanced",
+        "advancedTooltip": "Be careful when using advanced options",
+        "reset": "Reset",
+        "total": "Total",
+        "day": "24h"
     },
     "navbar": {
         "dashboard": "Dashboard",
         "transactions": "Operations",
         "staking": "Staking",
         "message": "Messages",
+        "governance": "Governance",
         "logout": "Logout"
     },
     "wallet": {
@@ -53,6 +60,8 @@
         "keplrKeystoreChange": "Keplr Key store/account has changed, you have been logged out"
     },
     "dashboard": {
+        "lumPrice": "Lum Value",
+        "getLum": "Buy Lum",
         "latestTx": "Latest Transactions",
         "currentBalance": "Current balance",
         "followTwitter": "Follow us on Twitter",
@@ -97,7 +106,11 @@
             "types": {
                 "keplr": {
                     "title": "Keplr extension",
-                    "notInstalled": "You have to <u>install</u> Keplr extension first"
+                    "notInstalled": "You have to <u>install</u> Keplr extension first",
+                    "advanced": {
+                        "title": "Coin Type",
+                        "description": "You will need to remove the current network from Keplr first (if already added) to apply the changes, you can <a target='_blank' rel='noreferrer' href='https://medium.com/lum-network/tutorial-keplr-custom-derivation-path-46fd1f337889'>follow this tutorial</a> for detailed steps"
+                    }
                 }
             }
         },
@@ -112,6 +125,10 @@
             "types": {
                 "cosmos": "Cosmos app",
                 "lum": "Lum app"
+            },
+            "advanced": {
+                "title": "HD Derivation Path",
+                "description": "Make sure to have an account on your Ledger with the corresponding derivation path"
             },
             "howTo": "How to install {{app}}"
         },
@@ -177,7 +194,8 @@
             "createValidator": "Create Validator",
             "editValidator": "Edit Validator",
             "getReward": "Get Reward",
-            "openBeam": "Open Beam"
+            "openBeam": "Open Beam",
+            "vote": "Vote"
         }
     },
     "operations": {
@@ -201,6 +219,13 @@
             "redelegate": {
                 "name": "Redelegate",
                 "description": "Redelegate LUM from one network validator to another"
+            },
+            "getAllRewards": {
+                "name": "Get All Rewards"
+            },
+            "vote": {
+                "name": "Vote",
+                "description": "Vote on a governance proposal"
             }
         },
         "confirmation": "Confirmation",
@@ -222,15 +247,32 @@
                 "label": "Destination validator address"
             },
             "memo": {
-                "label": "Memo",
-                "placeholder": "Memo (optional)"
+                "label": "Note",
+                "placeholder": "Note (optional)"
+            },
+            "rewards": {
+                "label": "Rewards amount"
+            },
+            "proposalId": {
+                "label": "Proposal ID"
+            },
+            "vote": {
+                "label": "Vote",
+                "values": {
+                    "yes": "Yes",
+                    "no": "No",
+                    "abstain": "Abstain",
+                    "noWithVeto": "No With Veto",
+                    "placeholder": "--"
+                }
             }
         },
         "defaultMemo": {
             "delegate": "Delegated",
             "undelegate": "Undelegated",
             "redelegate": "Redelegate",
-            "getReward": "Get Reward"
+            "getReward": "Get Reward",
+            "getAllRewards": "Get All Rewards"
         },
         "errors": {
             "address": "Wrong address format"
@@ -238,7 +280,8 @@
     },
     "staking": {
         "stakedCoins": "Staked Coins",
-        "unbondedTokens": "Unbonded Tokens",
+        "unbondedTokens": "Unbonding Tokens",
+        "vestedTokens": "Vesting Tokens",
         "rewards": "Rewards",
         "myValidators": {
             "title": "My validators",
@@ -260,7 +303,17 @@
             "rewards": "Rewards"
         },
         "status": ["Unspecified", "Unbonded", "Unbonding", "Bonded"],
-        "claim": "Claim"
+        "claim": "Claim",
+        "timeRemaining": "{{ time }} remaining",
+        "includingVesting": ["Including ", " vesting"],
+        "topValidatorModal": {
+            "title": "Warning: This validator already has more than 8% of the voting power, you should chose another validator in order to help decentralization and better secure the network.",
+            "go": "Delegate anyway"
+        },
+        "warning": {
+            "title": "Staking will lock your funds for 21+ days",
+            "description": "You will need to undelegate in order for your staked assets to be liquid again. This process will take 21 days to complete."
+        }
     },
     "messages": {
         "sign": {
@@ -291,5 +344,48 @@
         "clearAll": "Clear All",
         "messageCopied": "Message payload copied!",
         "invalidMessage": "Invalid message payload"
+    },
+    "airdrop": {
+        "title": "Airdrop Lum to claim",
+        "actionsToClaim": {
+            "delegate": "Stake Lum",
+            "vote": "Vote on a proposal"
+        },
+        "moreInformations": "More information"
+    },
+    "governance": {
+        "statusBadge": {
+            "rejected": "Rejected",
+            "passed": "Passed",
+            "voting": "Voting Period",
+            "deposit": "Deposit Period"
+        },
+        "votes": {
+            "yes": "Yes",
+            "no": "No",
+            "noWithVeto": "No with veto",
+            "abstain": "Abstain"
+        },
+        "proposalCard": {
+            "title": "Title",
+            "status": "Status",
+            "proposerName": "Proposer Name",
+            "mostVotedOn": "Most voted on",
+            "noVoteYet": "No vote yet",
+            "submitTime": "Submit time",
+            "depositEnd": "Deposit end",
+            "votingStart": "Voting start",
+            "votingEnd": "Voting end",
+            "details": "Details",
+            "voteButtonStates": {
+                "notStarted": "Vote not started",
+                "ended": "Vote Ended",
+                "active": "Vote",
+                "disabled": "Vote Disabled"
+            }
+        },
+        "confirmingTitle": "Are you sure of your vote on proposal {{ proposal }} ?",
+        "confirmingVote": "Your vote: {{ vote }}",
+        "voteSuccess": "You have successfully voted"
     }
 }

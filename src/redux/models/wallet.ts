@@ -4,13 +4,15 @@ import { Window as KeplrWindow } from '@keplr-wallet/types';
 import { LumUtils, LumWalletFactory, LumWallet, LumConstants } from '@lum-network/sdk-javascript';
 
 import TransportWebUsb from '@ledgerhq/hw-transport-webusb';
+import { DeviceModelId } from '@ledgerhq/devices';
 
 import { showErrorToast, showSuccessToast, WalletClient } from 'utils';
 
 import i18n from 'locales';
 import { LUM_WALLET } from 'constant';
 
-import { HardwareMethod, Rewards, RootModel, Transaction, Wallet } from '../../models';
+import { Airdrop, HardwareMethod, Rewards, RootModel, Transaction, Vestings, Wallet } from '../../models';
+import { VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
 
 interface SendPayload {
     to: string;
@@ -32,6 +34,12 @@ interface GetRewardPayload {
     memo: string;
 }
 
+interface GetAllRewardsPayload {
+    validatorsAddresses: string[];
+    from: Wallet;
+    memo: string;
+}
+
 interface RedelegatePayload {
     from: Wallet;
     memo: string;
@@ -45,26 +53,53 @@ interface SignInKeystorePayload {
     password: string;
 }
 
+interface SetWalletDataPayload {
+    transactions?: Transaction[];
+    currentBalance?: {
+        fiat: number;
+        lum: number;
+    };
+    rewards?: Rewards;
+    vestings?: Vestings;
+    airdrop?: Airdrop;
+}
+
+interface VotePayload {
+    voter: Wallet;
+    proposalId: string;
+    vote: VoteOption;
+}
+
 interface WalletState {
     currentWallet: Wallet | null;
-    currentBalance: number;
+    currentBalance: {
+        fiat: number;
+        lum: number;
+    };
     transactions: Transaction[];
     rewards: Rewards;
+    vestings: Vestings | null;
+    airdrop: Airdrop | null;
 }
 
 export const wallet = createModel<RootModel>()({
     name: 'wallet',
     state: {
         currentWallet: null,
-        currentBalance: 0,
+        currentBalance: {
+            fiat: 0,
+            lum: 0,
+        },
         transactions: [],
         rewards: {
             rewards: [],
             total: [],
         },
+        vestings: null,
+        airdrop: null,
     } as WalletState,
     reducers: {
-        signIn(state, wallet: LumWallet, isExtensionImport?: boolean) {
+        signIn(state, wallet: LumWallet, props?: { isExtensionImport?: boolean; isNanoS?: boolean }) {
             return {
                 ...state,
                 currentWallet: {
@@ -76,24 +111,27 @@ export const wallet = createModel<RootModel>()({
                     canChangeAccount: wallet.canChangeAccount,
                     getPublicKey: wallet.getPublicKey,
                     getAddress: wallet.getAddress,
-                    isExtensionImport,
+                    ...props,
                 },
             };
         },
-        setWalletData(state, data: { transactions?: Transaction[]; currentBalance?: number; rewards?: Rewards }) {
+        setWalletData(state, data: SetWalletDataPayload) {
             return {
                 ...state,
                 rewards: data.rewards || state.rewards,
                 currentBalance: data.currentBalance || state.currentBalance,
                 transactions: data.transactions || state.transactions,
+                vestings: data.vestings || state.vestings,
+                airdrop: data.airdrop || state.airdrop,
             };
         },
     },
     effects: (dispatch) => ({
         async getWalletBalance(address: string) {
-            const currentBalance = await WalletClient.getWalletBalance(address);
+            const result = await WalletClient.getWalletBalance(address);
 
-            if (currentBalance) {
+            if (result) {
+                const { currentBalance } = result;
                 dispatch.wallet.setWalletData({ currentBalance });
             }
         },
@@ -111,22 +149,40 @@ export const wallet = createModel<RootModel>()({
                 dispatch.wallet.setWalletData({ rewards });
             }
         },
+        async getVestings(address: string) {
+            const vestings = await WalletClient.getVestingsInfos(address);
+
+            if (vestings) {
+                dispatch.wallet.setWalletData({ vestings });
+            }
+        },
+        async getAirdrop(address: string) {
+            const airdrop = await WalletClient.getAirdropInfos(address);
+
+            if (airdrop) {
+                dispatch.wallet.setWalletData({ airdrop });
+            }
+        },
         async reloadWalletInfos(address: string) {
             await Promise.all([
                 dispatch.wallet.getWalletBalance(address),
                 dispatch.wallet.getTransactions(address),
                 dispatch.wallet.getRewards(address),
+                dispatch.wallet.getVestings(address),
+                dispatch.wallet.getAirdrop(address),
                 dispatch.staking.getValidatorsInfosAsync(address),
+                dispatch.governance.getProposals(),
             ]);
         },
-        async signInWithKeplrAsync() {
+        async signInWithKeplrAsync(coinType: number) {
             const keplrWindow = window as KeplrWindow;
             if (!keplrWindow.getOfflineSigner || !keplrWindow.keplr) {
                 showErrorToast(i18n.t('wallet.errors.keplr.notInstalled'));
             } else if (!keplrWindow.keplr.experimentalSuggestChain) {
                 showErrorToast(i18n.t('wallet.errors.keplr.notLatest'));
             } else {
-                const chainId = await WalletClient.lumClient?.getChainId();
+                const { chainId } = WalletClient;
+
                 if (!chainId) {
                     showErrorToast(i18n.t('wallet.errors.keplr.network'));
                     return;
@@ -136,7 +192,7 @@ export const wallet = createModel<RootModel>()({
                         chainId: chainId,
                         chainName: chainId.includes('testnet') ? 'Lum Network [Test]' : 'Lum Network',
                         rpc: process.env.REACT_APP_RPC_URL,
-                        rest: 'https://node0.testnet.lum.network/rest',
+                        rest: process.env.REACT_APP_RPC_URL.replace('rpc', 'rest'),
                         stakeCurrency: {
                             coinDenom: LumConstants.LumDenom.toUpperCase(),
                             coinMinimalDenom: LumConstants.MicroLumDenom,
@@ -144,7 +200,7 @@ export const wallet = createModel<RootModel>()({
                         },
                         walletUrlForStaking: LUM_WALLET,
                         bip44: {
-                            coinType: 118,
+                            coinType,
                         },
                         bech32Config: {
                             bech32PrefixAccAddr: LumConstants.LumBech32PrefixAccAddr,
@@ -169,7 +225,7 @@ export const wallet = createModel<RootModel>()({
                                 coinDecimals: LumConstants.LumExponent,
                             },
                         ],
-                        coinType: 118,
+                        coinType,
                         gasPriceStep: {
                             low: 0.01,
                             average: 0.025,
@@ -184,10 +240,13 @@ export const wallet = createModel<RootModel>()({
 
                 try {
                     await keplrWindow.keplr.enable(chainId);
-                    const offlineSigner = keplrWindow.getOfflineSigner(chainId);
+                    if (!keplrWindow.getOfflineSignerAuto) {
+                        throw 'Cannot fetch offline signer';
+                    }
+                    const offlineSigner = await keplrWindow.getOfflineSignerAuto(chainId);
                     const wallet = await LumWalletFactory.fromOfflineSigner(offlineSigner);
                     if (wallet) {
-                        dispatch.wallet.signIn(wallet, true);
+                        dispatch.wallet.signIn(wallet, { isExtensionImport: true });
                         dispatch.wallet.reloadWalletInfos(wallet.getAddress());
                     }
                     return;
@@ -197,22 +256,31 @@ export const wallet = createModel<RootModel>()({
                 }
             }
         },
-        async signInWithLedgerAsync(app: string) {
+        async signInWithLedgerAsync(payload: { app: string; customHdPath?: string }) {
             try {
                 let wallet: null | LumWallet = null;
                 let breakLoop = false;
                 let userCancelled = false;
+                let isNanoS = false;
 
                 // 10 sec timeout to let the user unlock his hardware
                 const to = setTimeout(() => (breakLoop = true), 10000);
 
+                const HDPath =
+                    payload.customHdPath ||
+                    (payload.app === HardwareMethod.Cosmos ? `44'/118'/0'/0/0` : LumConstants.getLumHdPath());
+
                 while (!wallet && !breakLoop) {
                     try {
                         const transport = await TransportWebUsb.create();
+                        isNanoS = transport.deviceModel?.id === DeviceModelId.nanoS;
 
+                        //FIXME: Remove ts-ignore
                         wallet = await LumWalletFactory.fromLedgerTransport(
+                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                            // @ts-ignore
                             transport,
-                            app === HardwareMethod.Cosmos ? `44'/118'/0'/0/0` : LumConstants.getLumHdPath(),
+                            HDPath,
                             LumConstants.LumBech32PrefixAccAddr,
                         );
                     } catch (e) {
@@ -226,7 +294,7 @@ export const wallet = createModel<RootModel>()({
                 clearTimeout(to);
 
                 if (wallet) {
-                    dispatch.wallet.signIn(wallet);
+                    dispatch.wallet.signIn(wallet, { isNanoS });
                     dispatch.wallet.reloadWalletInfos(wallet.getAddress());
                     return;
                 } else {
@@ -239,10 +307,13 @@ export const wallet = createModel<RootModel>()({
                 throw e;
             }
         },
-        signInWithMnemonicAsync(payload: string) {
-            LumWalletFactory.fromMnemonic(payload)
+        signInWithMnemonicAsync(payload: { mnemonic: string; customHdPath?: string }) {
+            LumWalletFactory.fromMnemonic(payload.mnemonic)
                 .then((wallet) => {
                     dispatch.wallet.signIn(wallet);
+                    if (payload.customHdPath) {
+                        wallet.useAccount(payload.customHdPath, LumConstants.LumBech32PrefixAccAddr);
+                    }
                     dispatch.wallet.reloadWalletInfos(wallet.getAddress());
                 })
                 .catch((e) => showErrorToast(e.message));
@@ -288,7 +359,6 @@ export const wallet = createModel<RootModel>()({
             }
 
             dispatch.wallet.reloadWalletInfos(payload.from.getAddress());
-            dispatch.staking.getValidatorsInfosAsync(payload.from.getAddress());
             return result;
         },
         async undelegate(payload: DelegatePayload) {
@@ -304,11 +374,20 @@ export const wallet = createModel<RootModel>()({
             }
 
             dispatch.wallet.reloadWalletInfos(payload.from.getAddress());
-            dispatch.staking.getValidatorsInfosAsync(payload.from.getAddress());
             return result;
         },
         async getReward(payload: GetRewardPayload) {
             const result = await WalletClient.getReward(payload.from, payload.validatorAddress, payload.memo);
+
+            if (!result) {
+                return null;
+            }
+
+            dispatch.wallet.reloadWalletInfos(payload.from.getAddress());
+            return result;
+        },
+        async getAllRewards(payload: GetAllRewardsPayload) {
+            const result = await WalletClient.getAllRewards(payload.from, payload.validatorsAddresses, payload.memo);
 
             if (!result) {
                 return null;
@@ -333,8 +412,18 @@ export const wallet = createModel<RootModel>()({
             dispatch.staking.getValidatorsInfosAsync(payload.from.getAddress());
             return result;
         },
+        async vote(payload: VotePayload) {
+            const result = await WalletClient.vote(payload.voter, payload.proposalId, payload.vote);
+
+            if (!result) {
+                return null;
+            }
+
+            dispatch.wallet.reloadWalletInfos(payload.voter.getAddress());
+            return result;
+        },
         async mintFaucet(address: string) {
-            if (address) {
+            try {
                 const res = await axios.get(`https://bridge.testnet.lum.network/faucet/${address}`);
 
                 if (res.status === 200) {
@@ -343,8 +432,8 @@ export const wallet = createModel<RootModel>()({
                 } else {
                     showErrorToast(i18n.t('wallet.errors.faucet.generic'));
                 }
-            } else {
-                showErrorToast(i18n.t('wallet.errors.keplr.address'));
+            } catch {
+                showErrorToast(i18n.t('wallet.errors.faucet.generic'));
             }
         },
     }),

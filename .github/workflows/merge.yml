@@ -13,6 +13,11 @@ jobs:
     runs-on: ubuntu-latest
     environment: testnet
     steps:
+      - name: Set up Node version to 14
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
       - name: Checkout repository and submodules
         uses: actions/checkout@v2
         with:
@@ -42,6 +47,11 @@ jobs:
     runs-on: ubuntu-latest
     environment: mainnet
     steps:
+      - name: Set up Node version to 14
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
       - name: Checkout repository and submodules
         uses: actions/checkout@v2
         with:
@@ -53,7 +63,7 @@ jobs:
       - name: Build the main net bundle
         run: yarn build
         env:
-          REACT_APP_RPC_URL: "https://node0.testnet.lum.network/rpc"
+          REACT_APP_RPC_URL: "https://node0.mainnet.lum.network/rpc"
 
       - name: Deploy on firebase main net project
         uses: FirebaseExtended/action-hosting-deploy@v0

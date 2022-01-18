@@ -35,9 +35,18 @@ h1.display-5 {
     padding-top: 1rem;
     padding-bottom: 1rem;
 }
+
+.import-software-btn img {
+    filter: brightness(0);
+}
+
 .selected {
-    background-color: #ff7676;
+    background-color: #a5c7ff;
     color: white;
+}
+
+.selected img {
+    filter: brightness(0) invert(1);
 }
 
 .danger-text {
@@ -199,6 +208,7 @@ h1.display-5 {
     .create-btn {
         background: #000;
     }
+    div,
     h3,
     h6,
     .display-5,

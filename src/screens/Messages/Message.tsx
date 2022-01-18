@@ -4,7 +4,7 @@ import { Redirect } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import ClipboardJS from 'clipboard';
 import { Modal as BSModal } from 'bootstrap';
-import { LumUtils, LumTypes } from '@lum-network/sdk-javascript';
+import { LumUtils, LumTypes, LumConstants } from '@lum-network/sdk-javascript';
 
 import { AddressCard, BalanceCard, Input, Modal, Tooltip } from 'components';
 import { RootState } from 'redux/store';
@@ -50,8 +50,9 @@ const Message = (): JSX.Element => {
     const [isLoading, setIsLoading] = useState(false);
 
     // Redux hooks
-    const { wallet, currentBalance } = useSelector((state: RootState) => ({
+    const { wallet, currentBalance, vestings } = useSelector((state: RootState) => ({
         wallet: state.wallet.currentWallet,
+        vestings: state.wallet.vestings,
         currentBalance: state.wallet.currentBalance,
     }));
 
@@ -159,7 +160,15 @@ const Message = (): JSX.Element => {
                             <AddressCard address={wallet.getAddress()} />
                         </div>
                         <div className="col-md-6 col-12">
-                            <BalanceCard balance={currentBalance} address={wallet.getAddress()} />
+                            <BalanceCard
+                                balance={
+                                    vestings
+                                        ? currentBalance.lum -
+                                          Number(LumUtils.convertUnit(vestings.lockedBankCoins, LumConstants.LumDenom))
+                                        : currentBalance.lum
+                                }
+                                address={wallet.getAddress()}
+                            />
                         </div>
                         <div className="col-lg-6 col-12">
                             <Card className="d-flex flex-column h-100 justify-content-between">

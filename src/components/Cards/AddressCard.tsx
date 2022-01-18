@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import ClipboardJS from 'clipboard';
 import printJS from 'print-js';
-import { Tooltip as BSTooltip } from 'bootstrap';
 
 import assets from 'assets';
 import { Card, CodeQr } from 'frontend-elements';
@@ -10,6 +9,7 @@ import { Card, CodeQr } from 'frontend-elements';
 import Modal from '../Modals/Modal';
 import { showErrorToast, showSuccessToast } from 'utils';
 import { LUM_EXPLORER } from 'constant';
+import { HoverTooltip } from 'components';
 
 const AddressCard = ({ address }: { address: string }): JSX.Element => {
     const { t } = useTranslation();
@@ -24,16 +24,8 @@ const AddressCard = ({ address }: { address: string }): JSX.Element => {
             showErrorToast('An error occured when copying your address, try again');
         });
 
-        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        const tooltips = tooltipTriggerList.map((tooltipTriggerEl) => {
-            return new BSTooltip(tooltipTriggerEl, {
-                trigger: 'hover',
-            });
-        });
-
         return () => {
             clipboard.destroy();
-            tooltips.forEach((tip) => tip.dispose());
         };
     }, [t]);
 
@@ -59,33 +51,22 @@ const AddressCard = ({ address }: { address: string }): JSX.Element => {
                 </a>
                 <div className="pb-2 ps-2">
                     <button type="button" data-bs-toggle="modal" data-bs-target="#qrModal" className="me-2">
-                        <img
-                            src={assets.images.qrIcon}
-                            data-bs-toggle="tooltip"
-                            data-bs-placement="top"
-                            title={t('common.qr')}
-                        />
+                        <HoverTooltip text={t('common.qr')}>
+                            <img src={assets.images.qrIcon} />
+                        </HoverTooltip>
                     </button>
                     {ClipboardJS.isSupported() && (
                         <button type="button" id="copy-btn" data-clipboard-text={address}>
-                            <img
-                                src={assets.images.copyIcon}
-                                data-bs-toggle="tooltip"
-                                data-bs-placement="top"
-                                title={t('common.copy')}
-                            />
+                            <HoverTooltip text={t('common.copy')}>
+                                <img src={assets.images.copyIcon} />
+                            </HoverTooltip>
                         </button>
                     )}
-                    <button
-                        type="button"
-                        className="tint-white"
-                        onClick={printAddress}
-                        data-bs-toggle="tooltip"
-                        data-bs-placement="top"
-                        title={t('common.print')}
-                    >
-                        <img src={assets.images.printIcon} />
-                    </button>
+                    <HoverTooltip text={t('common.print')}>
+                        <button type="button" className="tint-white" onClick={printAddress}>
+                            <img src={assets.images.printIcon} />
+                        </button>
+                    </HoverTooltip>
                 </div>
             </Card>
             <Modal id="qrModal">

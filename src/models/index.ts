@@ -1,18 +1,22 @@
 import { LumTypes, LumWallet } from '@lum-network/sdk-javascript';
 import { Validator } from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
+import { Proposal as BaseProposal } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
 import { Models } from '@rematch/core';
+import { governance } from '../redux/models/governance';
 import { staking } from '../redux/models/staking';
 import { wallet } from '../redux/models/wallet';
 
 export interface RootModel extends Models<RootModel> {
     wallet: typeof wallet;
     staking: typeof staking;
+    governance: typeof governance;
 }
 
-export const reduxModels: RootModel = { wallet, staking };
+export const reduxModels: RootModel = { wallet, staking, governance };
 
 export interface Wallet extends LumWallet {
     isExtensionImport?: boolean;
+    isNanoS?: boolean;
 }
 
 export interface CommonTransactionProps {
@@ -72,4 +76,50 @@ export enum ExtensionMethod {
 export enum HardwareMethod {
     Cosmos = 'cosmos',
     Lum = 'lum',
+}
+
+export interface Vestings {
+    endsAt: Date;
+    lockedCoins: LumTypes.Coin;
+    lockedBankCoins: LumTypes.Coin;
+    lockedDelegatedCoins: LumTypes.Coin;
+}
+
+export interface Airdrop {
+    amount: number;
+    vote: boolean;
+    delegate: boolean;
+}
+
+export interface VotesResult {
+    yes: number;
+    no: number;
+    noWithVeto: number;
+    abstain: number;
+}
+
+export interface Proposal extends Omit<BaseProposal, 'content'> {
+    content: {
+        title: string;
+        description: string;
+    };
+    finalResult: VotesResult;
+}
+
+export interface PreviousDayPrice {
+    open: number;
+    high: number;
+    close: number;
+    low: number;
+    time: number;
+}
+
+export interface LumInfo {
+    price: number;
+    denom: string;
+    symbol: string;
+    liquidity: number;
+    volume_24h: number;
+    name: number;
+    previousDaysPrices: PreviousDayPrice[];
 }
