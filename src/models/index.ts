@@ -24,7 +24,7 @@ export interface CommonTransactionProps {
     hash: string;
     height: number;
     amount: LumTypes.Coin[];
-    time: string;
+    //time: string;
     memo?: string;
     success?: boolean;
     [key: string]: string | LumTypes.Coin[] | number | boolean | undefined;

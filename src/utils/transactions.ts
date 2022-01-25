@@ -3,6 +3,7 @@ import { LumMessages } from '@lum-network/sdk-javascript';
 import assets from 'assets';
 
 import i18n from 'locales';
+import { Transaction } from 'models';
 
 export const getTxTypeInfos = (
     type: string,
@@ -42,3 +43,5 @@ export const getTxTypeInfos = (
             return { name: type, icon: assets.images.messageTypes.beam };
     }
 };
+
+export const sortByBlockHeight = (txs: Transaction[]): Transaction[] => txs.sort((txA, txB) => txA.height - txB.height);
