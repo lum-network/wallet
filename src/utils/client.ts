@@ -1,12 +1,13 @@
 import { LumClient, LumConstants, LumMessages, LumRegistry, LumTypes, LumUtils } from '@lum-network/sdk-javascript';
 import { TxResponse } from '@cosmjs/tendermint-rpc';
 import { PasswordStrengthType, PasswordStrength, Transaction, Wallet, Proposal, LumInfo } from 'models';
-import { dateFromNow, showErrorToast } from 'utils';
+import { showErrorToast } from 'utils';
 import i18n from 'locales';
 import { ProposalStatus, VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
 import Long from 'long';
 import axios from 'axios';
 import { OSMOSIS_API_URL } from 'constant';
+import { sortByBlockHeight } from './transactions';
 
 export type MnemonicLength = 12 | 24;
 
@@ -121,7 +122,7 @@ const alreadyExists = (array: Transaction[], value: Transaction) => {
     return array.length === 0 ? false : array.findIndex((val) => val.hash === value.hash) > -1;
 };
 
-export const formatTxs = async (rawTxs: TxResponse[], client: LumClient): Promise<Transaction[]> => {
+export const formatTxs = async (rawTxs: TxResponse[]): Promise<Transaction[]> => {
     const formattedTxs: Transaction[] = [];
 
     for (const rawTx of rawTxs) {
@@ -132,15 +133,12 @@ export const formatTxs = async (rawTxs: TxResponse[], client: LumClient): Promis
             for (const msg of txData.body.messages) {
                 const txInfos = LumUtils.toJSON(LumRegistry.decode(msg));
                 if (typeof txInfos === 'object') {
-                    const block = await client.getBlock(rawTx.height);
-
                     if (isSendTxInfo(txInfos)) {
                         const tx: Transaction = {
                             ...txInfos,
                             type: msg.typeUrl,
                             height: rawTx.height,
                             hash: LumUtils.toHex(rawTx.hash).toUpperCase(),
-                            time: dateFromNow(block.block.header.time.getTime()),
                         };
                         if (!alreadyExists(formattedTxs, tx)) {
                             formattedTxs.push(tx);
@@ -156,7 +154,6 @@ export const formatTxs = async (rawTxs: TxResponse[], client: LumClient): Promis
                             amount: [txInfos.amount],
                             height: rawTx.height,
                             hash: LumUtils.toHex(rawTx.hash).toUpperCase(),
-                            time: dateFromNow(block.block.header.time.getTime()),
                         };
 
                         if (!alreadyExists(formattedTxs, tx)) {
@@ -168,7 +165,7 @@ export const formatTxs = async (rawTxs: TxResponse[], client: LumClient): Promis
         }
     }
 
-    return formattedTxs;
+    return sortByBlockHeight(formattedTxs);
 };
 
 export const generateSignedMessage = async (wallet: Wallet, message: string): Promise<LumTypes.SignMsg> => {
@@ -386,7 +383,7 @@ class WalletClient {
             LumUtils.searchTxByTags([{ key: 'transfer.sender', value: address }]),
         ]);
 
-        return await formatTxs(transactions, this.lumClient);
+        return await formatTxs(transactions);
     };
 
     getRewards = async (address: string) => {
