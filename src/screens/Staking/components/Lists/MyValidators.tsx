@@ -127,20 +127,23 @@ const MyValidators = ({
                     title="Actions"
                     className="d-flex justify-content-end me-lg-4"
                     direction="up"
-                    disabled={validator.status !== BondStatus.BOND_STATUS_BONDED}
                     isLoading={loadingClaim || loadingDelegate || loadingUndelegate}
                     items={[
-                        {
-                            title: t('staking.claim'),
-                            onPress: () => onClaim(validator),
-                        },
+                        ...(validator.status === BondStatus.BOND_STATUS_BONDED
+                            ? [
+                                  {
+                                      title: t('staking.claim'),
+                                      onPress: () => onClaim(validator),
+                                  },
+                                  {
+                                      title: t('operations.types.delegate.name'),
+                                      onPress: () => onDelegate(validator, totalVotingPower),
+                                  },
+                              ]
+                            : []),
                         {
                             title: t('operations.types.undelegate.name'),
                             onPress: () => onUndelegate(validator),
-                        },
-                        {
-                            title: t('operations.types.delegate.name'),
-                            onPress: () => onDelegate(validator, totalVotingPower),
                         },
                         {
                             title: t('operations.types.redelegate.name'),

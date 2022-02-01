@@ -8,7 +8,7 @@ import { LOGOUT } from 'redux/constants';
 import { Footer, Modal, Button } from 'components';
 
 import './MainLayout.scss';
-import { IS_TESTNET } from 'constant';
+import { IS_TESTNET, KEPLR_DEFAULT_COIN_TYPE } from 'constant';
 import { showInfoToast } from 'utils';
 
 interface IProps {
@@ -26,13 +26,16 @@ type Props = IProps & StateProps & WithTranslation;
 
 class MainLayout extends PureComponent<Props> {
     componentDidMount() {
-        window.addEventListener('keplr_keystorechange', () => {
-            if (this.props.wallet && this.props.wallet.isExtensionImport) {
-                showInfoToast(this.props.t('logout.keplrKeystoreChange'));
-                store.dispatch({ type: LOGOUT });
-            }
-        });
+        window.addEventListener('keplr_keystorechange', this.keplrKeystoreChangeHandler, false);
     }
+
+    keplrKeystoreChangeHandler = () => {
+        if (this.props.wallet && this.props.wallet.isExtensionImport) {
+            showInfoToast(this.props.t('logout.keplrKeystoreChange'));
+            store.dispatch({ type: LOGOUT });
+            store.dispatch.wallet.signInWithKeplrAsync(KEPLR_DEFAULT_COIN_TYPE);
+        }
+    };
 
     renderNavbar(bottom?: boolean) {
         const { t } = this.props;
