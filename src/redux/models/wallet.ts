@@ -9,7 +9,7 @@ import { DeviceModelId } from '@ledgerhq/devices';
 import { showErrorToast, showSuccessToast, WalletClient } from 'utils';
 
 import i18n from 'locales';
-import { LUM_WALLET } from 'constant';
+import { LUM_COINGECKO_ID, LUM_WALLET } from 'constant';
 
 import { Airdrop, HardwareMethod, Rewards, RootModel, Transaction, Vestings, Wallet } from '../../models';
 import { VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
@@ -197,6 +197,7 @@ export const wallet = createModel<RootModel>()({
                             coinDenom: LumConstants.LumDenom.toUpperCase(),
                             coinMinimalDenom: LumConstants.MicroLumDenom,
                             coinDecimals: LumConstants.LumExponent,
+                            coinGeckoId: LUM_COINGECKO_ID,
                         },
                         walletUrlForStaking: LUM_WALLET,
                         bip44: {
@@ -215,6 +216,7 @@ export const wallet = createModel<RootModel>()({
                                 coinDenom: LumConstants.LumDenom.toUpperCase(),
                                 coinMinimalDenom: LumConstants.MicroLumDenom,
                                 coinDecimals: LumConstants.LumExponent,
+                                coinGeckoId: LUM_COINGECKO_ID,
                             },
                         ],
                         // List of coin/tokens used as a fee token in this chain.
@@ -223,6 +225,7 @@ export const wallet = createModel<RootModel>()({
                                 coinDenom: LumConstants.LumDenom.toUpperCase(),
                                 coinMinimalDenom: LumConstants.MicroLumDenom,
                                 coinDecimals: LumConstants.LumExponent,
+                                coinGeckoId: LUM_COINGECKO_ID,
                             },
                         ],
                         coinType,
