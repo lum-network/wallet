@@ -32,9 +32,9 @@ const LumPriceCard = ({ balance }: Props): JSX.Element => {
 
             setChartData(chart);
             setLumPrice(data.price);
-            if (chart && chart.length && chart.length - 96 >= 0 && chart[chart.length - 96]) {
+            if (chart && chart.length && chart.length - 24 >= 0 && chart[chart.length - 24]) {
                 setPreviousDayPercentage(
-                    NumbersUtils.getDifferencePercentage(chart[chart.length - 96].value, data.price),
+                    NumbersUtils.getDifferencePercentage(chart[chart.length - 24].value, data.price),
                 );
             }
         }
