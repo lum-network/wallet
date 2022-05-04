@@ -8,8 +8,8 @@ import { LOGOUT } from 'redux/constants';
 import { Footer, Modal, Button } from 'components';
 
 import './MainLayout.scss';
-import { IS_TESTNET, KEPLR_DEFAULT_COIN_TYPE } from 'constant';
-import { showInfoToast } from 'utils';
+import { KEPLR_DEFAULT_COIN_TYPE } from 'constant';
+import { WalletClient, showInfoToast } from 'utils';
 
 interface IProps {
     children: React.ReactNode;
@@ -46,7 +46,7 @@ class MainLayout extends PureComponent<Props> {
 
         return (
             <div className="navbar-container position-fixed w-100">
-                {!bottom && IS_TESTNET && (
+                {!bottom && WalletClient.isTestnet() && (
                     <div className="warning-bar text-center py-2">{t('common.testnetBanner')}</div>
                 )}
                 <nav
@@ -171,10 +171,14 @@ class MainLayout extends PureComponent<Props> {
         return (
             <div className={`layout ${!wallet && 'auth-layout'}`}>
                 {this.renderNavbar()}
-                {IS_TESTNET && !wallet && (
+                {WalletClient.isTestnet() && !wallet && (
                     <div className="sticky-top vw-100 warning-bar text-center py-2">{t('common.testnetBanner')}</div>
                 )}
-                <div className={`d-flex flex-column flex-grow-1 ${wallet && 'content'} ${IS_TESTNET && 'testnet'}`}>
+                <div
+                    className={`d-flex flex-column flex-grow-1 ${wallet && 'content'} ${
+                        WalletClient.isTestnet() && 'testnet'
+                    }`}
+                >
                     {children}
                 </div>
                 {wallet && <Footer />}

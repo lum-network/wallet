@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
 import React from 'react';
 import Assets from 'assets';
 import { LUM_WALLET_GITHUB, LUM_DISCORD /* LUM_MAIL, LUM_TELEGRAM */, NODES } from 'constant';

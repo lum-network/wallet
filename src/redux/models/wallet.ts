@@ -6,10 +6,10 @@ import { LumUtils, LumWalletFactory, LumWallet, LumConstants } from '@lum-networ
 import TransportWebUsb from '@ledgerhq/hw-transport-webusb';
 import { DeviceModelId } from '@ledgerhq/devices';
 
-import { showErrorToast, showSuccessToast, WalletClient } from 'utils';
+import { getWalletLink, showErrorToast, showSuccessToast, WalletClient } from 'utils';
 
 import i18n from 'locales';
-import { LUM_COINGECKO_ID, LUM_WALLET } from 'constant';
+import { LUM_COINGECKO_ID } from 'constant';
 
 import { Airdrop, HardwareMethod, Rewards, RootModel, Transaction, Vestings, Wallet } from '../../models';
 import { VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
@@ -207,7 +207,7 @@ export const wallet = createModel<RootModel>()({
                             coinDecimals: LumConstants.LumExponent,
                             coinGeckoId: LUM_COINGECKO_ID,
                         },
-                        walletUrlForStaking: LUM_WALLET,
+                        walletUrlForStaking: getWalletLink(),
                         bip44: {
                             coinType,
                         },
@@ -448,7 +448,11 @@ export const wallet = createModel<RootModel>()({
             }
         },
         async setCurrentNode(node: string) {
-            dispatch.wallet.setNode(node);
+            const nodeUpdateResult = await WalletClient.updateNode(node);
+
+            if (nodeUpdateResult) {
+                dispatch.wallet.setNode(node);
+            }
         },
     }),
 });

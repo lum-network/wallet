@@ -7,8 +7,7 @@ import { useSelector } from 'react-redux';
 import { useRematchDispatch } from 'redux/hooks';
 import { RootDispatch, RootState } from 'redux/store';
 
-import { IS_TESTNET } from 'constant';
-import { NumbersUtils } from 'utils';
+import { WalletClient, NumbersUtils } from 'utils';
 
 import SmallerDecimal from '../SmallerDecimal/SmallerDecimal';
 import './Cards.scss';
@@ -42,7 +41,7 @@ const BalanceCard = ({ balance, address }: { balance: number; address: string })
                         />
                     </button>
                 </HoverTooltip>
-                {IS_TESTNET && (
+                {WalletClient.isTestnet() && (
                     <HoverTooltip text={t('common.mintFaucet')}>
                         <button type="button" className="ps-2 pb-2" onClick={() => mintFaucet(address)}>
                             <img src={assets.images.addIcon} className="tint-white" />

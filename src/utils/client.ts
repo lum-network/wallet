@@ -892,6 +892,24 @@ class WalletClient {
                 : null,
         };
     };
+
+    updateNode = (node: string) => {
+        return LumClient.connect(`https://${node}/rpc`)
+            .then(async (client) => {
+                this.lumClient = client;
+                this.chainId = await client.getChainId();
+                this.lumInfos = await this.getLumInfo();
+
+                return true;
+            })
+            .catch(() => {
+                showErrorToast(i18n.t('wallet.errors.client'));
+
+                return false;
+            });
+    };
+
+    isTestnet = () => !!(this.chainId && this.chainId.includes('testnet'));
 }
 
 export default new WalletClient();
