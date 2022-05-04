@@ -57,7 +57,7 @@
     "logout": {
         "title": "Are you sure you want\nto log out ?",
         "logoutBtn": "Log out",
-        "keplrKeystoreChange": "Keplr Key store/account has changed, you have been logged out"
+        "keplrKeystoreChange": "Keplr Key store/account has changed"
     },
     "dashboard": {
         "lumPrice": "Lum Value",
