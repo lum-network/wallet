@@ -1,26 +1,50 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { LumConstants } from '@lum-network/sdk-javascript';
 import numeral from 'numeral';
-import { Table } from 'frontend-elements';
+import { Table, ValidatorLogo } from 'frontend-elements';
 
-import { CLIENT_PRECISION, LUM_EXPLORER } from 'constant';
-import { calculateTotalVotingPower, NumbersUtils, trunc } from 'utils';
-import { UserValidator } from 'models';
+import { CLIENT_PRECISION, LUM_ASSETS_GITHUB, LUM_EXPLORER } from 'constant';
+import { getUserValidators, NumbersUtils, sortByVotingPower, trunc, WalletClient } from 'utils';
+import { Rewards, UserValidator } from 'models';
 import { DropdownButton, SmallerDecimal } from 'components';
 import { useSelector } from 'react-redux';
-import { RootDispatch, RootState } from 'redux/store';
-import { useRematchDispatch } from 'redux/hooks';
-import { BondStatus, Validator } from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
+import { RootState } from 'redux/store';
+import {
+    BondStatus,
+    DelegationResponse,
+    Validator,
+} from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
 
 interface Props {
-    validators: UserValidator[];
-    onDelegate: (val: Validator) => void;
+    validators: {
+        bonded: Validator[];
+        unbonded: Validator[];
+    };
+    rewards: Rewards;
+    delegations: DelegationResponse[];
+    totalVotingPower: number;
+    onDelegate: (val: Validator, totalVotingPower: number) => void;
+    onRedelegate: (val: Validator) => void;
     onUndelegate: (val: Validator) => void;
+    onClaim: (val: Validator) => void;
 }
 
-const MyValidators = ({ validators, onDelegate, onUndelegate }: Props): JSX.Element => {
+const MyValidators = ({
+    validators,
+    delegations,
+    rewards,
+    totalVotingPower,
+    onDelegate,
+    onRedelegate,
+    onUndelegate,
+    onClaim,
+}: Props): JSX.Element => {
+    const [userValidators, setUserValidators] = useState(
+        getUserValidators(validators.bonded, validators.unbonded, delegations, rewards),
+    );
+
     const { wallet, loadingClaim, loadingDelegate, loadingUndelegate } = useSelector((state: RootState) => ({
         wallet: state.wallet.currentWallet,
         loadingClaim: state.loading.effects.wallet.getReward.loading,
@@ -28,11 +52,11 @@ const MyValidators = ({ validators, onDelegate, onUndelegate }: Props): JSX.Elem
         loadingUndelegate: state.loading.effects.wallet.undelegate.loading,
     }));
 
-    const { getReward } = useRematchDispatch((dispatch: RootDispatch) => ({
-        getReward: dispatch.wallet.getReward,
-    }));
-
     const { t } = useTranslation();
+
+    useEffect(() => {
+        setUserValidators(getUserValidators(validators.bonded, validators.unbonded, delegations, rewards));
+    }, [validators.bonded, validators.unbonded, delegations, rewards]);
 
     const headers = [
         t('staking.tableLabels.validator'),
@@ -44,7 +68,6 @@ const MyValidators = ({ validators, onDelegate, onUndelegate }: Props): JSX.Elem
         '',
     ];
 
-    const totalVotingPower = NumbersUtils.convertUnitNumber(calculateTotalVotingPower(validators));
     const statuses = t('staking.status', { returnObjects: true });
 
     if (!wallet) {
@@ -55,9 +78,19 @@ const MyValidators = ({ validators, onDelegate, onUndelegate }: Props): JSX.Elem
         <tr key={index} className="validators-table-row">
             <td data-label={headers[0]}>
                 <a href={`${LUM_EXPLORER}/validators/${validator.operatorAddress}`} target="_blank" rel="noreferrer">
-                    {validator.description?.identity ||
-                        validator.description?.moniker ||
-                        trunc(validator.operatorAddress)}
+                    <ValidatorLogo
+                        width={34}
+                        height={34}
+                        githubUrl={LUM_ASSETS_GITHUB}
+                        validatorAddress={validator.operatorAddress}
+                        chainId={WalletClient.chainId || ''}
+                        className="me-2 me-sm-3"
+                    />
+                    <span>
+                        {validator.description?.moniker ||
+                            validator.description?.identity ||
+                            trunc(validator.operatorAddress)}
+                    </span>
                 </a>
             </td>
             <td data-label={headers[1]}>
@@ -94,25 +127,27 @@ const MyValidators = ({ validators, onDelegate, onUndelegate }: Props): JSX.Elem
                     title="Actions"
                     className="d-flex justify-content-end me-lg-4"
                     direction="up"
-                    disabled={validator.status !== BondStatus.BOND_STATUS_BONDED}
                     isLoading={loadingClaim || loadingDelegate || loadingUndelegate}
                     items={[
-                        {
-                            title: t('staking.claim'),
-                            onPress: () =>
-                                getReward({
-                                    from: wallet,
-                                    memo: t('operations.defaultMemo.getReward'),
-                                    validatorAddress: validator.operatorAddress,
-                                }),
-                        },
+                        ...(validator.status === BondStatus.BOND_STATUS_BONDED
+                            ? [
+                                  {
+                                      title: t('staking.claim'),
+                                      onPress: () => onClaim(validator),
+                                  },
+                                  {
+                                      title: t('operations.types.delegate.name'),
+                                      onPress: () => onDelegate(validator, totalVotingPower),
+                                  },
+                              ]
+                            : []),
                         {
                             title: t('operations.types.undelegate.name'),
                             onPress: () => onUndelegate(validator),
                         },
                         {
-                            title: t('operations.types.delegate.name'),
-                            onPress: () => onDelegate(validator),
+                            title: t('operations.types.redelegate.name'),
+                            onPress: () => onRedelegate(validator),
                         },
                     ]}
                 />
@@ -127,9 +162,11 @@ const MyValidators = ({ validators, onDelegate, onUndelegate }: Props): JSX.Elem
             <div className="ps-4">
                 <h2 className="ps-2 pt-5 pb-1">{t('staking.myValidators.title')}</h2>
             </div>
-            {validators.length > 0 ? (
+            {userValidators.length > 0 ? (
                 <Table className="validators-table overflow-visible" head={headers}>
-                    {validators.map((val, index) => renderRow(val, index))}
+                    {sortByVotingPower(userValidators, totalVotingPower).map((val, index) =>
+                        renderRow(val as UserValidator, index),
+                    )}
                 </Table>
             ) : (
                 <div className="d-flex flex-column align-items-center p-5">

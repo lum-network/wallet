@@ -6,10 +6,11 @@ import './Buttons.scss';
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     buttonType?: 'custom' | 'normal';
     isLoading?: boolean;
+    outline?: boolean;
 }
 
 const Button = (props: ButtonProps): JSX.Element => {
-    const { children, className, isLoading, buttonType = 'normal', ...rest } = props;
+    const { children, className, isLoading, outline, buttonType = 'normal', ...rest } = props;
 
     return (
         <button
@@ -18,7 +19,7 @@ const Button = (props: ButtonProps): JSX.Element => {
                 buttonType === 'normal'
                     ? 'normal-btn scale-anim d-flex justify-content-center align-items-center px-5 py-2 rounded-pill'
                     : 'scale-anim'
-            } ${className}`}
+            } ${outline && 'outline'} ${className}`}
         >
             {isLoading ? <Loading /> : children}
         </button>

@@ -1,0 +1,72 @@
+@import 'main';
+
+.app-badge {
+    display: inline-block;
+    border-radius: 20px;
+    padding: 4.5px 18px;
+    white-space: nowrap;
+}
+
+.app-badge.success {
+    background-color: $color-light-green;
+}
+
+.app-badge.warning {
+    background-color: $color-light-orange;
+}
+
+.app-badge.failure {
+    background-color: $color-light-red;
+}
+
+.app-badge.info {
+    background-color: $color-light-blue;
+}
+
+.app-badge.text-only {
+    background-color: transparent;
+    padding: 0;
+    border-radius: 0;
+}
+
+.app-badge .text {
+    font-size: $font-sm;
+}
+
+.app-badge.text-only .text {
+    font-weight: $semibold;
+}
+
+.app-badge .text.success {
+    color: $color-green;
+}
+
+.app-badge .text.warning {
+    color: $color-orange;
+}
+
+.app-badge .text.failure {
+    color: $color-red;
+}
+
+.app-badge .text.info {
+    color: $color-blue;
+}
+
+@media (prefers-color-scheme: dark) {
+    .app-badge {
+        background-color: $color-badge-dark !important;
+    }
+
+    .app-badge.text-only {
+        background-color: transparent !important;
+    }
+
+    .app-badge .text {
+        color: $color-black !important;
+    }
+
+    .app-badge.text-only .text {
+        color: inherit !important;
+    }
+}

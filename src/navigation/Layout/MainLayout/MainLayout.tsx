@@ -5,7 +5,7 @@ import { NavLink } from 'react-router-dom';
 
 import assets from 'assets';
 import { Footer, Modal, Button } from 'components';
-import { IS_TESTNET } from 'constant';
+import { IS_TESTNET, KEPLR_DEFAULT_COIN_TYPE } from 'constant';
 import store, { RootState } from 'redux/store';
 import { LOGOUT } from 'redux/constants';
 import { showInfoToast } from 'utils';
@@ -27,33 +27,14 @@ type Props = IProps & StateProps & WithTranslation;
 
 class MainLayout extends PureComponent<Props> {
     componentDidMount() {
-        window.addEventListener('keplr_keystorechange', this.keplrAccountChange);
+        window.addEventListener('keplr_keystorechange', this.keplrKeystoreChangeHandler, false);
     }
 
-    componentWillUnmount() {
-        window.removeEventListener('keplr_keystorechange', this.keplrAccountChange);
-    }
-
-    componentDidUpdate(prevProps: Props) {
-        if (prevProps.wallet !== this.props.wallet) {
-            if (this.props.wallet) {
-                if (window.onbeforeunload) {
-                    window.onbeforeunload = (event) => {
-                        const e = event || window.event;
-
-                        return (e.returnValue = '');
-                    };
-                }
-            } else {
-                window.onbeforeunload = null;
-            }
-        }
-    }
-
-    keplrAccountChange = () => {
+    keplrKeystoreChangeHandler = () => {
         if (this.props.wallet && this.props.wallet.isExtensionImport) {
             showInfoToast(this.props.t('logout.keplrKeystoreChange'));
             store.dispatch({ type: LOGOUT });
+            store.dispatch.wallet.signInWithKeplrAsync(KEPLR_DEFAULT_COIN_TYPE);
         }
     };
 
@@ -70,15 +51,22 @@ class MainLayout extends PureComponent<Props> {
                     <div className="warning-bar text-center py-2">{t('common.testnetBanner')}</div>
                 )}
                 <nav
-                    className={`ps-lg-2 pe-lg-4 py-3 justify-content-center justify-content-lg-between navbar navbar-expand-lg ${
+                    className={`px-3 ps-lg-2 pe-lg-4 py-0 py-lg-3 justify-content-between justify-content-lg-between navbar navbar-expand-lg ${
                         bottom ? 'position-fixed w-100 bottom-navbar' : ''
                     }`}
                 >
                     {!bottom && (
+                        <ul className="navbar-nav navbar-spacer">
+                            <li>
+                                <div style={{ width: 24 }} />
+                            </li>
+                        </ul>
+                    )}
+                    {!bottom && (
                         <ul className="navbar-nav lum-logo">
                             <li>
-                                <NavLink to="/home" className="navbar-item me-lg-5 ms-lg-4 selected-navbar-item">
-                                    <img src={assets.images.lumWallet} width="107" height="28" className="lum-logo" />
+                                <NavLink to="/home" className="navbar-item me-lg-5 ms-2 ms-lg-4 selected-navbar-item">
+                                    <img src={assets.images.lumWallet} width="117" height="38" className="lum-logo" />
                                 </NavLink>
                             </li>
                         </ul>
@@ -91,12 +79,12 @@ class MainLayout extends PureComponent<Props> {
                                 activeClassName="selected-navbar-item"
                             >
                                 <img
-                                    src={assets.images.dashboardIcon}
+                                    src={assets.images.navbarIcons.dashboard}
                                     width="20"
                                     height="20"
                                     className="me-md-2 nav-icon"
                                 />
-                                {t('navbar.dashboard')}
+                                <span className="d-none d-sm-block">{t('navbar.dashboard')}</span>
                             </NavLink>
                         </li>
                         <li>
@@ -105,8 +93,13 @@ class MainLayout extends PureComponent<Props> {
                                 className="navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4"
                                 activeClassName="selected-navbar-item"
                             >
-                                <img src={assets.images.sendIcon} width="20" height="20" className="me-md-2 nav-icon" />
-                                {t('navbar.transactions')}
+                                <img
+                                    src={assets.images.navbarIcons.operations}
+                                    width="20"
+                                    height="20"
+                                    className="me-md-2 nav-icon"
+                                />
+                                <span className="d-none d-sm-block">{t('navbar.transactions')}</span>
                             </NavLink>
                         </li>
                         <li>
@@ -116,12 +109,12 @@ class MainLayout extends PureComponent<Props> {
                                 activeClassName="selected-navbar-item"
                             >
                                 <img
-                                    src={assets.images.stakeIcon}
+                                    src={assets.images.navbarIcons.staking}
                                     width="20"
                                     height="20"
                                     className="me-md-2 nav-icon"
                                 />
-                                {t('navbar.staking')}
+                                <span className="d-none d-sm-block">{t('navbar.staking')}</span>
                             </NavLink>
                         </li>
                         <li>
@@ -131,17 +124,32 @@ class MainLayout extends PureComponent<Props> {
                                 activeClassName="selected-navbar-item"
                             >
                                 <img
-                                    src={assets.images.messageMauveIcon}
+                                    src={assets.images.navbarIcons.messages}
                                     width="20"
                                     height="20"
                                     className="me-md-2 nav-icon"
                                 />
-                                {t('navbar.message')}
+                                <span className="d-none d-sm-block">{t('navbar.message')}</span>
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink
+                                to="/governance"
+                                className="navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4"
+                                activeClassName="selected-navbar-item"
+                            >
+                                <img
+                                    src={assets.images.navbarIcons.governance}
+                                    width="20"
+                                    height="20"
+                                    className="me-md-2 nav-icon"
+                                />
+                                <span className="d-none d-sm-block">{t('navbar.governance')}</span>
                             </NavLink>
                         </li>
                     </ul>
                     {!bottom && (
-                        <ul className="navbar-nav">
+                        <ul className="navbar-nav navbar-logout-btn">
                             <li>
                                 <a
                                     role="button"
@@ -149,7 +157,7 @@ class MainLayout extends PureComponent<Props> {
                                     data-bs-target="#logoutModal"
                                     className="navbar-item selected-navbar-item"
                                 >
-                                    <img src={assets.images.logoutIcon} width="50" height="50" className="nav-icon" />
+                                    <img src={assets.images.navbarIcons.logout} className="nav-icon logout-icon" />
                                 </a>
                             </li>
                         </ul>

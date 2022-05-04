@@ -4,6 +4,12 @@
     overflow-y: auto !important;
 }
 
+.modal-dialog {
+    @media (min-width: 576px), (min-width: 992px) {
+        max-width: 550px !important;
+    }
+}
+
 .close-btn {
     margin-top: -25px;
     width: 50px;

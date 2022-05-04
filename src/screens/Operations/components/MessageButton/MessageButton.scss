@@ -19,6 +19,12 @@
     background-color: #eef4ff;
 }
 
+.message-circle img {
+    height: 72px;
+    width: 72px;
+    object-fit: contain;
+}
+
 .button-title {
     font-weight: $medium;
     font-size: $font-lg;

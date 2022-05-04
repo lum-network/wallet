@@ -4,22 +4,23 @@ import { Link, useHistory } from 'react-router-dom';
 import { Trans, useTranslation } from 'react-i18next';
 import { Modal as BSModal } from 'bootstrap';
 import { Window as KeplrWindow } from '@keplr-wallet/types';
-
+import { LumConstants } from '@lum-network/sdk-javascript';
+import { Button as FEButton } from 'frontend-elements';
 import { RootDispatch, RootState } from 'redux/store';
 
 import Assets from 'assets';
-import { COSMOS_LEDGER_APP_INSTALL_LINK, KEPLR_INSTALL_LINK } from 'constant';
-import { Modal, Button } from 'components';
+import { COSMOS_LEDGER_APP_INSTALL_LINK, KEPLR_DEFAULT_COIN_TYPE, KEPLR_INSTALL_LINK } from 'constant';
+import { Modal, Button, SwitchInput, Input, HdPathInput, HoverTooltip } from 'components';
 import { ExtensionMethod, HardwareMethod, SoftwareMethod } from 'models';
 import { useRematchDispatch } from 'redux/hooks';
 
-import './styles/Auth.scss';
-
 import AuthLayout from './components/AuthLayout';
-import ImportMnemonicModal from './components/ImportMnemonicModal';
-import ImportPrivateKeyModal from './components/ImportPrivateKeyModal';
-import ImportKeystoreModal from './components/ImportKeystoreModal';
+import ImportMnemonicModal from './components/modals/ImportMnemonicModal';
+import ImportPrivateKeyModal from './components/modals/ImportPrivateKeyModal';
+import ImportKeystoreModal from './components/modals/ImportKeystoreModal';
 import ImportButton from './components/ImportButton';
+
+import './styles/Auth.scss';
 
 interface ImportType {
     type: 'software' | 'extension' | 'hardware';
@@ -31,6 +32,11 @@ const Welcome = (): JSX.Element => {
     const [selectedMethod, setSelectedMethod] = useState<ImportType | null>(null);
     const [keystoreFileData, setKeystoreFileData] = useState<string | null>(null);
     const [softwareMethodModal, setSoftwareMethodModal] = useState<BSModal | null>(null);
+    const [showAdvanced, setShowAdvanced] = useState(false);
+    const [customHdPath, setCustomHdPath] = useState(LumConstants.getLumHdPath());
+    const [isCustomPathValid, setIsCustomPathValid] = useState(true);
+    const [isCustomCoinTypeValid, setIsCustomCoinTypeValid] = useState(true);
+    const [keplrCoinType, setKeplrCoinType] = useState(KEPLR_DEFAULT_COIN_TYPE);
     const [modalShowed, setModalShowed] = useState(false);
 
     // Redux hooks
@@ -98,6 +104,7 @@ const Welcome = (): JSX.Element => {
         const modalElement = importSoftwareModalRef.current;
 
         const importSoftwareModalHandler = () => {
+            setShowAdvanced(false);
             if (
                 softwareMethodModal &&
                 selectedMethod &&
@@ -142,10 +149,10 @@ const Welcome = (): JSX.Element => {
                                     selectedMethod?.method === SoftwareMethod.Keystore && 'selected'
                                 }`}
                             >
-                                <div className="d-flex align-items-center justify-content-center">
+                                <p className="d-flex align-items-center justify-content-center fw-normal">
                                     <img src={Assets.images.softwareIcon} height="28" className="me-3" />
                                     {t('welcome.softwareModal.types.keystore')}
-                                </div>
+                                </p>
                             </button>
                             <button
                                 type="button"
@@ -154,10 +161,10 @@ const Welcome = (): JSX.Element => {
                                     selectedMethod?.method === SoftwareMethod.Mnemonic && 'selected'
                                 }`}
                             >
-                                <div className="d-flex align-items-center justify-content-center">
-                                    <img src={Assets.images.bubbleIcon} height="28" className="me-3" />
+                                <p className="d-flex align-items-center justify-content-center fw-normal">
+                                    <img src={Assets.images.navbarIcons.messages} height="28" className="me-3" />
                                     {t('welcome.softwareModal.types.mnemonic')}
-                                </div>
+                                </p>
                             </button>
                             <button
                                 type="button"
@@ -168,10 +175,10 @@ const Welcome = (): JSX.Element => {
                                     selectedMethod?.method === SoftwareMethod.PrivateKey && 'selected'
                                 }`}
                             >
-                                <div className="d-flex align-items-center justify-content-center">
+                                <p className="d-flex align-items-center justify-content-center fw-normal">
                                     <img src={Assets.images.keyIcon} height="28" className="me-3" />
                                     {t('welcome.softwareModal.types.privateKey')}
-                                </div>
+                                </p>
                             </button>
                         </div>
                         <p className="auth-paragraph">{t('welcome.softwareModal.description')}</p>
@@ -248,13 +255,13 @@ const Welcome = (): JSX.Element => {
                                     selectedMethod?.method === ExtensionMethod.Keplr && 'selected'
                                 }`}
                             >
-                                <div className="d-flex align-items-center justify-content-center">
+                                <p className="d-flex fw-normal align-items-center justify-content-center">
                                     <img src={Assets.images.keplrIcon} height="28" className="me-3" />
                                     {t('welcome.extensionModal.types.keplr.title')}
-                                </div>
+                                </p>
                             </button>
                         </div>
-                        {!isKeplrInstalled && (
+                        {!isKeplrInstalled ? (
                             <p className="not-recommended">
                                 <Trans
                                     t={t}
@@ -269,10 +276,53 @@ const Welcome = (): JSX.Element => {
                                     i18nKey="welcome.extensionModal.types.keplr.notInstalled"
                                 />
                             </p>
+                        ) : (
+                            <>
+                                <div className="d-flex flex-row justify-content-between align-self-stretch align-items-center my-4">
+                                    <p className="p-0 m-0">
+                                        {t('common.advanced')}
+                                        <span className="ms-2">
+                                            <HoverTooltip text={t('common.advancedTooltip')}>
+                                                <img src={Assets.images.warningHoverIcon} />
+                                            </HoverTooltip>
+                                        </span>
+                                    </p>
+                                    <SwitchInput
+                                        checked={showAdvanced}
+                                        onChange={(event) => setShowAdvanced(event.target.checked)}
+                                    />
+                                </div>
+                                {showAdvanced && (
+                                    <div className="mb-4rem">
+                                        <h4 className="mb-3">
+                                            {t('welcome.extensionModal.types.keplr.advanced.title')}
+                                        </h4>
+                                        <Input
+                                            defaultValue={KEPLR_DEFAULT_COIN_TYPE}
+                                            type="number"
+                                            min="0"
+                                            onChange={(event) => {
+                                                const newCoinType = Number(event.target.value);
+
+                                                setKeplrCoinType(newCoinType);
+                                                setIsCustomCoinTypeValid(newCoinType !== NaN && newCoinType > 0);
+                                            }}
+                                        />
+                                        <p
+                                            className="pt-3 not-recommended"
+                                            dangerouslySetInnerHTML={{
+                                                __html: t('welcome.extensionModal.types.keplr.advanced.description'),
+                                            }}
+                                        ></p>
+                                    </div>
+                                )}
+                            </>
                         )}
                         <Button
                             type="button"
-                            disabled={!selectedMethod.method || !isKeplrInstalled}
+                            disabled={
+                                !selectedMethod.method || !isKeplrInstalled || (showAdvanced && !isCustomCoinTypeValid)
+                            }
                             isLoading={keplrState.loading}
                             onClick={() => {
                                 if (
@@ -280,7 +330,7 @@ const Welcome = (): JSX.Element => {
                                     selectedMethod.method &&
                                     selectedMethod.method === ExtensionMethod.Keplr
                                 ) {
-                                    signInWithKeplr().catch(() => null);
+                                    signInWithKeplr(keplrCoinType).catch(() => null);
                                 }
                             }}
                             className="my-4 w-100"
@@ -294,7 +344,7 @@ const Welcome = (): JSX.Element => {
                     <>
                         <h3 className="mt-4">{t('welcome.hardwareModal.title')}</h3>
                         <p className="auth-paragraph mb-2">{t('welcome.hardwareModal.description')}</p>
-                        <div className="d-flex flex-column my-5">
+                        <div className="d-flex flex-column mt-5">
                             <button
                                 type="button"
                                 onClick={() => setSelectedMethod({ type: 'hardware', method: HardwareMethod.Cosmos })}
@@ -302,10 +352,10 @@ const Welcome = (): JSX.Element => {
                                     selectedMethod?.method === HardwareMethod.Cosmos && 'selected'
                                 }`}
                             >
-                                <div className="d-flex align-items-center justify-content-center">
+                                <p className="d-flex align-items-center justify-content-center fw-normal">
                                     <img src={Assets.images.cosmosIcon} height="28" className="me-3" />
                                     {t('welcome.hardwareModal.types.cosmos')}
-                                </div>
+                                </p>
                             </button>
                             <a
                                 className="align-self-center mt-2"
@@ -329,10 +379,10 @@ const Welcome = (): JSX.Element => {
                                     selectedMethod?.method === HardwareMethod.Lum && 'selected'
                                 }`}
                             >
-                                <div className="d-flex align-items-center justify-content-center">
+                                <p className="d-flex align-items-center justify-content-center fw-normal">
                                     <img src={Assets.images.lumLogo} height="28" className="me-3" />
                                     {t('welcome.hardwareModal.types.lum')} (Coming soon)
-                                </div>
+                                </p>
                             </button>
                             {/* 
                                 DEACTIVATED -> Waiting for Lum ledger app release
@@ -350,11 +400,46 @@ const Welcome = (): JSX.Element => {
                                     </u>
                                 </small>
                             </a> */}
+                            <div className="d-flex flex-row justify-content-between align-self-stretch align-items-center my-4">
+                                <p className="p-0 m-0">
+                                    {t('common.advanced')}
+                                    <span className="ms-2">
+                                        <HoverTooltip text={t('common.advancedTooltip')}>
+                                            <img src={Assets.images.warningHoverIcon} />
+                                        </HoverTooltip>
+                                    </span>
+                                </p>
+                                <SwitchInput
+                                    checked={showAdvanced}
+                                    onChange={(event) => setShowAdvanced(event.target.checked)}
+                                />
+                            </div>
+                            {showAdvanced && (
+                                <div className="mb-4rem">
+                                    <div className="d-flex flex-row justify-content-between align-items-center mb-3">
+                                        <h4>{t('welcome.hardwareModal.advanced.title')}</h4>
+                                        <FEButton
+                                            onPress={() => {
+                                                setCustomHdPath(LumConstants.getLumHdPath());
+                                            }}
+                                            className="bg-transparent text-btn p-0 me-2 h-auto"
+                                        >
+                                            {t('common.reset')}
+                                        </FEButton>
+                                    </div>
+                                    <HdPathInput
+                                        value={customHdPath}
+                                        onChange={(value) => setCustomHdPath(value)}
+                                        onCheck={(valid) => setIsCustomPathValid(valid)}
+                                    />
+                                    <p className="auth-paragraph">{t('welcome.hardwareModal.advanced.description')}</p>
+                                </div>
+                            )}
                         </div>
                         <p className="not-recommended">{t('welcome.hardwareModal.note')}</p>
                         <Button
                             type="button"
-                            disabled={!selectedMethod.method}
+                            disabled={!selectedMethod.method || (showAdvanced && !isCustomPathValid)}
                             isLoading={ledgerState.loading}
                             onClick={() => {
                                 if (
@@ -363,7 +448,10 @@ const Welcome = (): JSX.Element => {
                                     (selectedMethod.method === HardwareMethod.Cosmos ||
                                         selectedMethod.method === HardwareMethod.Lum)
                                 ) {
-                                    signInWithLedger(selectedMethod.method).catch(() => null);
+                                    signInWithLedger({
+                                        app: selectedMethod.method,
+                                        customHdPath: showAdvanced ? customHdPath : undefined,
+                                    }).catch(() => null);
                                 }
                             }}
                             className="my-4 w-100"
@@ -480,8 +568,8 @@ const Welcome = (): JSX.Element => {
                 ref={importSoftwareModalRef}
                 withCloseButton={!ledgerState.loading && !keplrState.loading}
                 onCloseButtonPress={() => setTimeout(() => setSelectedMethod(null), 300)}
-                bodyClassName="px-4"
-                contentClassName="px-3 import-modal-content"
+                bodyClassName="px-3"
+                contentClassName="px-2 import-modal-content"
             >
                 {renderImportTypeModalContent()}
             </Modal>

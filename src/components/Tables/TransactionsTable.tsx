@@ -69,9 +69,10 @@ const TransactionRow = (props: RowProps): JSX.Element => {
                 />
                 <span className="ms-2">{LumConstants.LumDenom}</span>
             </td>
+            {/* 
             <td data-label={headers[5]} className="text-end">
                 <div className="text-truncate">{row.time}</div>
-            </td>
+            </td> */}
         </tr>
     );
 };
@@ -86,7 +87,7 @@ const TransactionsTable = (props: TransactionsTableProps): JSX.Element => {
             t('transactions.table.from'),
             t('transactions.table.to'),
             t('transactions.table.amount'),
-            t('transactions.table.time'),
+            //t('transactions.table.time'),
         ];
 
         const txs = [...props.transactions].sort((txA, txB) => (txA.height < txB.height ? 1 : -1));

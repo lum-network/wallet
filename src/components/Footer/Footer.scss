@@ -1,4 +1,4 @@
-.icon {
+.footer-icon {
     width: 27px;
     height: 27px;
     opacity: 0.7;
@@ -6,5 +6,12 @@
 
     &:hover {
         opacity: 1;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .footer-icon {
+        filter: brightness(0) saturate(100%) invert(79%) sepia(0%) saturate(1%) hue-rotate(57deg) brightness(106%)
+            contrast(90%);
     }
 }

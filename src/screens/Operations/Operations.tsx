@@ -7,7 +7,7 @@ import { LumConstants, LumMessages, LumUtils } from '@lum-network/sdk-javascript
 import * as yup from 'yup';
 
 import assets from 'assets';
-import { AddressCard, BalanceCard, Input, Modal, Button as CustomButton } from 'components';
+import { AddressCard, BalanceCard, Input, Modal, Button as CustomButton, AirdropCard } from 'components';
 import { RootDispatch, RootState } from 'redux/store';
 import { useRematchDispatch } from 'redux/hooks';
 import { showErrorToast } from 'utils';
@@ -16,25 +16,32 @@ import MessageButton from './components/MessageButton/MessageButton';
 import Delegate from './components/Forms/Delegate';
 import Send from './components/Forms/Send';
 import Undelegate from './components/Forms/Undelegate';
-import GetRewards from './components/Forms/GetRewards';
+import GetRewards from './components/Forms/GetReward';
 import Redelegate from './components/Forms/Redelegate';
+import Vote from './components/Forms/Vote';
 
 import './Operations.scss';
+import { VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
 
 type MsgType = { name: string; icon: string; iconClassName?: string; id: string; description: string };
 
 const Operations = (): JSX.Element => {
-    const wallet = useSelector((state: RootState) => state.wallet.currentWallet);
-    const balance = useSelector((state: RootState) => state.wallet.currentBalance);
+    const { wallet, balance, vestings, airdrop } = useSelector((state: RootState) => ({
+        wallet: state.wallet.currentWallet,
+        balance: state.wallet.currentBalance,
+        vestings: state.wallet.vestings,
+        airdrop: state.wallet.airdrop,
+    }));
 
     // Rematch effects
-    const { sendTx, undelegate, delegate, redelegate, getReward, getWalletInfos } = useRematchDispatch(
+    const { sendTx, undelegate, delegate, redelegate, getReward, vote, getWalletInfos } = useRematchDispatch(
         (dispatch: RootDispatch) => ({
             sendTx: dispatch.wallet.sendTx,
             delegate: dispatch.wallet.delegate,
             getReward: dispatch.wallet.getReward,
             undelegate: dispatch.wallet.undelegate,
             redelegate: dispatch.wallet.redelegate,
+            vote: dispatch.wallet.vote,
             getWalletInfos: dispatch.wallet.reloadWalletInfos,
         }),
     );
@@ -45,6 +52,7 @@ const Operations = (): JSX.Element => {
     const loadingUndelegate = useSelector((state: RootState) => state.loading.effects.wallet.undelegate);
     const loadingRedelegate = useSelector((state: RootState) => state.loading.effects.wallet.redelegate);
     const loadingGetReward = useSelector((state: RootState) => state.loading.effects.wallet.getReward);
+    const loadingVote = useSelector((state: RootState) => state.loading.effects.wallet.vote);
 
     const loadingAll =
         loadingSend.loading || loadingDelegate.loading || loadingUndelegate.loading || loadingGetReward.loading;
@@ -60,33 +68,39 @@ const Operations = (): JSX.Element => {
         {
             id: LumMessages.MsgSendUrl,
             name: t('operations.types.send.name'),
-            icon: assets.images.messageSend,
+            icon: assets.images.messageTypes.send,
             iconClassName: 'send-icon',
             description: t('operations.types.send.description'),
         },
         {
             id: LumMessages.MsgDelegateUrl,
             name: t('operations.types.delegate.name'),
-            icon: assets.images.messageDelegate,
+            icon: assets.images.messageTypes.delegate,
             description: t('operations.types.delegate.description'),
         },
         {
             id: LumMessages.MsgUndelegateUrl,
             name: t('operations.types.undelegate.name'),
-            icon: assets.images.messageUndelegate,
+            icon: assets.images.messageTypes.undelegate,
             description: t('operations.types.undelegate.description'),
         },
         {
             id: LumMessages.MsgBeginRedelegateUrl,
             name: t('operations.types.redelegate.name'),
-            icon: assets.images.messageRedelegate,
+            icon: assets.images.messageTypes.redelegate,
             description: t('operations.types.redelegate.description'),
         },
         {
             id: LumMessages.MsgWithdrawDelegatorRewardUrl,
             name: t('operations.types.getRewards.name'),
-            icon: assets.images.messageGetReward,
+            icon: assets.images.messageTypes.getReward,
             description: t('operations.types.getRewards.description'),
+        },
+        {
+            id: LumMessages.MsgVoteUrl,
+            name: t('operations.types.vote.name'),
+            description: t('operations.types.vote.description'),
+            icon: assets.images.messageTypes.vote,
         },
     ];
 
@@ -106,7 +120,7 @@ const Operations = (): JSX.Element => {
     });
 
     const delegateForm = useFormik({
-        initialValues: { address: '', amount: '', memo: t('operations.defaultMemo.delegate') },
+        initialValues: { address: '', amount: '', memo: '' },
         validationSchema: yup.object().shape({
             address: yup
                 .string()
@@ -121,7 +135,7 @@ const Operations = (): JSX.Element => {
     });
 
     const undelegateForm = useFormik({
-        initialValues: { address: '', amount: '', memo: t('operations.defaultMemo.undelegate') },
+        initialValues: { address: '', amount: '', memo: '' },
         validationSchema: yup.object().shape({
             address: yup
                 .string()
@@ -136,7 +150,7 @@ const Operations = (): JSX.Element => {
     });
 
     const redelegateForm = useFormik({
-        initialValues: { fromAddress: '', toAddress: '', amount: '', memo: t('operations.defaultMemo.redelegate') },
+        initialValues: { fromAddress: '', toAddress: '', amount: '', memo: '' },
         validationSchema: yup.object().shape({
             fromAddress: yup
                 .string()
@@ -157,7 +171,7 @@ const Operations = (): JSX.Element => {
     });
 
     const getRewardForm = useFormik({
-        initialValues: { address: '', amount: '', memo: t('operations.defaultMemo.getReward') },
+        initialValues: { address: '', amount: '', memo: '' },
         validationSchema: yup.object().shape({
             address: yup
                 .string()
@@ -170,6 +184,15 @@ const Operations = (): JSX.Element => {
         onSubmit: (values) => onSubmitGetReward(values.address, values.memo),
     });
 
+    const voteForm = useFormik({
+        initialValues: { proposalId: '', vote: VoteOption.UNRECOGNIZED },
+        validationSchema: yup.object().shape({
+            proposalId: yup.string().required(t('common.required')),
+            vote: yup.number().required(t('common.required')),
+        }),
+        onSubmit: (values) => onSubmitVote(values.proposalId, values.vote),
+    });
+
     useEffect(() => {
         const ref = modalRef.current;
 
@@ -179,6 +202,14 @@ const Operations = (): JSX.Element => {
             }
             if (delegateForm.touched.address || delegateForm.touched.amount || delegateForm.touched.memo) {
                 delegateForm.resetForm();
+            }
+            if (
+                redelegateForm.touched.amount ||
+                redelegateForm.touched.toAddress ||
+                redelegateForm.touched.fromAddress ||
+                redelegateForm.touched.memo
+            ) {
+                redelegateForm.resetForm();
             }
             if (undelegateForm.touched.address || undelegateForm.touched.amount || undelegateForm.touched.memo) {
                 undelegateForm.resetForm();
@@ -203,7 +234,7 @@ const Operations = (): JSX.Element => {
                 ref.removeEventListener('hidden.bs.modal', handler);
             }
         };
-    }, [confirming, delegateForm, getRewardForm, modalRef, sendForm, txResult, undelegateForm]);
+    }, [confirming, delegateForm, redelegateForm, getRewardForm, modalRef, sendForm, txResult, undelegateForm]);
 
     if (!wallet) {
         return <Redirect to="/welcome" />;
@@ -281,6 +312,18 @@ const Operations = (): JSX.Element => {
         }
     };
 
+    const onSubmitVote = async (proposalId: string, voteOption: VoteOption) => {
+        try {
+            const voteResult = await vote({ voter: wallet, proposalId, vote: voteOption });
+
+            if (voteResult) {
+                setTxResult({ hash: LumUtils.toHex(voteResult.hash), error: voteResult.error });
+            }
+        } catch (e) {
+            showErrorToast((e as Error).message);
+        }
+    };
+
     const onClickButton = (msg: MsgType) => {
         setModal(msg);
     };
@@ -305,6 +348,9 @@ const Operations = (): JSX.Element => {
 
             case LumMessages.MsgWithdrawDelegatorRewardUrl:
                 return <GetRewards isLoading={!!loadingGetReward.loading} form={getRewardForm} />;
+
+            case LumMessages.MsgVoteUrl:
+                return <Vote isLoading={!!loadingVote.loading} form={voteForm} />;
 
             default:
                 return <div>Soon</div>;
@@ -333,11 +379,24 @@ const Operations = (): JSX.Element => {
             <div className="mt-4">
                 <div className="container">
                     <div className="row gy-4">
+                        {airdrop && airdrop.amount > 0 ? (
+                            <div className="col-12">
+                                <AirdropCard airdrop={airdrop} />
+                            </div>
+                        ) : null}
                         <div className="col-md-6">
                             <AddressCard address={wallet.getAddress()} />
                         </div>
                         <div className="col-md-6">
-                            <BalanceCard balance={balance} address={wallet.getAddress()} />
+                            <BalanceCard
+                                balance={
+                                    vestings
+                                        ? balance.lum -
+                                          Number(LumUtils.convertUnit(vestings.lockedBankCoins, LumConstants.LumDenom))
+                                        : balance.lum
+                                }
+                                address={wallet.getAddress()}
+                            />
                         </div>
                     </div>
                     {renderButtons}
