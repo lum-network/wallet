@@ -30,6 +30,26 @@ class MainLayout extends PureComponent<Props> {
         window.addEventListener('keplr_keystorechange', this.keplrKeystoreChangeHandler, false);
     }
 
+    componentWillUnmount() {
+        window.removeEventListener('keplr_keystorechange', this.keplrKeystoreChangeHandler);
+    }
+
+    componentDidUpdate(prevProps: Props) {
+        if (prevProps.wallet !== this.props.wallet) {
+            if (this.props.wallet) {
+                if (window.onbeforeunload) {
+                    window.onbeforeunload = (event) => {
+                        const e = event || window.event;
+
+                        return (e.returnValue = '');
+                    };
+                }
+            } else {
+                window.onbeforeunload = null;
+            }
+        }
+    }
+
     keplrKeystoreChangeHandler = () => {
         if (this.props.wallet && this.props.wallet.isExtensionImport) {
             showInfoToast(this.props.t('logout.keplrKeystoreChange'));
