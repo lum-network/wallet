@@ -304,7 +304,7 @@ const Staking = (): JSX.Element => {
 
     const onSubmitGetAllRewards = async (memo: string) => {
         try {
-            const validatorsAddresses = getUserValidators(bondedValidators, [], delegations, rewards)
+            const validatorsAddresses = getUserValidators(bondedValidators, [], delegations, unbondings, rewards)
                 .sort((valA, valB) => {
                     if (valA.reward > valB.reward) {
                         return -1;
@@ -467,6 +467,7 @@ const Staking = (): JSX.Element => {
                                     onClaim={onClaim}
                                     totalVotingPower={totalVotingPower}
                                     delegations={delegations}
+                                    unbondings={unbondings}
                                     rewards={rewards}
                                     validators={{ bonded: bondedValidators, unbonded: unbondedValidators }}
                                 />

@@ -1,3 +1,4 @@
+import { LumConstants, LumUtils } from '@lum-network/sdk-javascript';
 import {
     DelegationResponse,
     UnbondingDelegation,
@@ -49,6 +50,7 @@ export const getUserValidators = (
     bondedValidators: Validator[],
     unbondedValidators: Validator[],
     delegations: DelegationResponse[],
+    unbondings: UnbondingDelegation[],
     rewards: Rewards,
 ): UserValidator[] => {
     const validators = [];
@@ -78,6 +80,40 @@ export const getUserValidators = (
                     });
                 }
             }
+        }
+    }
+
+    for (const unbonding of unbondings) {
+        const validator =
+            bondedValidators.find((bondedVal) => bondedVal.operatorAddress === unbonding.validatorAddress) ||
+            unbondedValidators.find((unbondedVal) => unbondedVal.operatorAddress === unbonding.validatorAddress);
+
+        if (validator) {
+            let stakedCoins = 0;
+            let rewardsAmount = 0;
+
+            for (const reward of rewards.rewards) {
+                if (validator.operatorAddress === reward.validatorAddress) {
+                    rewardsAmount =
+                        parseFloat(reward.reward.length > 0 ? reward.reward[0].amount : '0') / CLIENT_PRECISION;
+                }
+            }
+
+            for (const entry of unbonding.entries) {
+                stakedCoins += Number(
+                    LumUtils.convertUnit(
+                        { amount: entry.balance, denom: LumConstants.MicroLumDenom },
+                        LumConstants.LumDenom,
+                    ),
+                );
+            }
+            validators.push({
+                ...validator,
+                reward: rewardsAmount,
+                stakedCoins: NumbersUtils.formatTo6digit(
+                    NumbersUtils.convertUnitNumber(stakedCoins) / CLIENT_PRECISION,
+                ),
+            });
         }
     }
 

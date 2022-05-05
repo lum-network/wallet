@@ -14,6 +14,7 @@ import { RootState } from 'redux/store';
 import {
     BondStatus,
     DelegationResponse,
+    UnbondingDelegation,
     Validator,
 } from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
 
@@ -24,6 +25,7 @@ interface Props {
     };
     rewards: Rewards;
     delegations: DelegationResponse[];
+    unbondings: UnbondingDelegation[];
     totalVotingPower: number;
     onDelegate: (val: Validator, totalVotingPower: number) => void;
     onRedelegate: (val: Validator) => void;
@@ -34,6 +36,7 @@ interface Props {
 const MyValidators = ({
     validators,
     delegations,
+    unbondings,
     rewards,
     totalVotingPower,
     onDelegate,
@@ -42,7 +45,7 @@ const MyValidators = ({
     onClaim,
 }: Props): JSX.Element => {
     const [userValidators, setUserValidators] = useState(
-        getUserValidators(validators.bonded, validators.unbonded, delegations, rewards),
+        getUserValidators(validators.bonded, validators.unbonded, delegations, unbondings, rewards),
     );
 
     const { wallet, loadingClaim, loadingDelegate, loadingUndelegate } = useSelector((state: RootState) => ({
@@ -55,8 +58,8 @@ const MyValidators = ({
     const { t } = useTranslation();
 
     useEffect(() => {
-        setUserValidators(getUserValidators(validators.bonded, validators.unbonded, delegations, rewards));
-    }, [validators.bonded, validators.unbonded, delegations, rewards]);
+        setUserValidators(getUserValidators(validators.bonded, validators.unbonded, delegations, unbondings, rewards));
+    }, [validators.bonded, validators.unbonded, delegations, unbondings, rewards]);
 
     const headers = [
         t('staking.tableLabels.validator'),
