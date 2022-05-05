@@ -10,6 +10,7 @@ import { Footer, Modal, Button } from 'components';
 import './MainLayout.scss';
 import { IS_TESTNET, KEPLR_DEFAULT_COIN_TYPE } from 'constant';
 import { showInfoToast } from 'utils';
+import { ProposalStatus } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
 
 interface IProps {
     children: React.ReactNode;
@@ -18,6 +19,7 @@ interface IProps {
 const mapState = (state: RootState) => ({
     loading: state.loading.models.wallet.loading,
     wallet: state.wallet.currentWallet,
+    proposals: state.governance.proposals,
 });
 
 type StateProps = ReturnType<typeof mapState>;
@@ -43,6 +45,10 @@ class MainLayout extends PureComponent<Props> {
         if (!this.props.wallet) {
             return null;
         }
+
+        const proposalInVotingPeriod =
+            this.props.proposals.filter((proposal) => proposal.status === ProposalStatus.PROPOSAL_STATUS_VOTING_PERIOD)
+                .length > 0;
 
         return (
             <div className="navbar-container position-fixed w-100">
@@ -134,16 +140,28 @@ class MainLayout extends PureComponent<Props> {
                         <li>
                             <NavLink
                                 to="/governance"
-                                className="navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4"
+                                className="navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4 position-relative"
                                 activeClassName="selected-navbar-item"
                             >
-                                <img
-                                    src={assets.images.navbarIcons.governance}
-                                    width="20"
-                                    height="20"
-                                    className="me-md-2 nav-icon"
-                                />
+                                <div className="me-md-2 nav-icon position-relative">
+                                    <img
+                                        src={assets.images.navbarIcons.governance}
+                                        width="20"
+                                        height="20"
+                                        className="nav-icon"
+                                    />
+                                    {proposalInVotingPeriod ? (
+                                        <span className="d-block d-md-none position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
+                                            <span className="visually-hidden">New Proposal in Voting Period</span>
+                                        </span>
+                                    ) : null}
+                                </div>
                                 <span className="d-none d-sm-block">{t('navbar.governance')}</span>
+                                {proposalInVotingPeriod ? (
+                                    <span className="d-none d-md-block position-absolute top-25 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
+                                        <span className="visually-hidden">New Proposal in Voting Period</span>
+                                    </span>
+                                ) : null}
                             </NavLink>
                         </li>
                     </ul>
