@@ -16,21 +16,31 @@ const MainLayout: React.FC = ({ children }) => {
 
     const { t } = useTranslation();
 
-    useEffect(() => {
-        const keplrKeystoreChangeHandler = () => {
-            if (wallet && wallet.isExtensionImport) {
-                showInfoToast(t('logout.keplrKeystoreChange'));
-                store.dispatch({ type: LOGOUT });
-                store.dispatch.wallet.signInWithKeplrAsync(KEPLR_DEFAULT_COIN_TYPE);
-            }
-        };
+    const unload = (e: BeforeUnloadEvent) => {
+        if (wallet) {
+            e.preventDefault();
 
+            return (e.returnValue = '');
+        }
+    };
+
+    const keplrKeystoreChangeHandler = () => {
+        if (wallet && wallet.isExtensionImport) {
+            showInfoToast(t('logout.keplrKeystoreChange'));
+            store.dispatch({ type: LOGOUT });
+            store.dispatch.wallet.signInWithKeplrAsync(KEPLR_DEFAULT_COIN_TYPE);
+        }
+    };
+
+    useEffect(() => {
         window.addEventListener('keplr_keystorechange', keplrKeystoreChangeHandler, false);
+        window.addEventListener('beforeunload', unload);
 
         return () => {
             window.removeEventListener('keplr_keystorechange', keplrKeystoreChangeHandler, false);
+            window.removeEventListener('beforeunload', unload);
         };
-    }, []);
+    }, [wallet]);
 
     const renderNavbar = (bottom?: boolean) => {
         if (!wallet) {
