@@ -18,7 +18,7 @@
         "immer": "^8.0.1",
         "kaktana-react-lightweight-charts": "^2.0.0",
         "lightweight-charts": "^3.7.0",
-        "node-sass": "^6.0.0",
+        "sass": "^1.52.1",
         "numeral": "^2.0.6",
         "print-js": "^1.6.0",
         "react": "^17.0.1",
