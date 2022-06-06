@@ -1,67 +1,39 @@
-import React, { PureComponent } from 'react';
-import { withTranslation, WithTranslation } from 'react-i18next';
-import { connect } from 'react-redux';
-import { NavLink } from 'react-router-dom';
-
 import assets from 'assets';
-import { Footer, Modal, Button } from 'components';
-import { IS_TESTNET, KEPLR_DEFAULT_COIN_TYPE } from 'constant';
+import React, { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
+import { NavLink } from 'react-router-dom';
 import store, { RootState } from 'redux/store';
 import { LOGOUT } from 'redux/constants';
-import { showInfoToast } from 'utils';
+import { Footer, Modal, Button } from 'components';
 
 import './MainLayout.scss';
+import { IS_TESTNET, KEPLR_DEFAULT_COIN_TYPE } from 'constant';
+import { showInfoToast } from 'utils';
 
-interface IProps {
-    children: React.ReactNode;
-}
+const MainLayout: React.FC = ({ children }) => {
+    const wallet = useSelector((state: RootState) => state.wallet.currentWallet);
 
-const mapState = (state: RootState) => ({
-    loading: state.loading.models.wallet.loading,
-    wallet: state.wallet.currentWallet,
-});
+    const { t } = useTranslation();
 
-type StateProps = ReturnType<typeof mapState>;
-
-type Props = IProps & StateProps & WithTranslation;
-
-class MainLayout extends PureComponent<Props> {
-    componentDidMount() {
-        window.addEventListener('keplr_keystorechange', this.keplrKeystoreChangeHandler, false);
-    }
-
-    componentWillUnmount() {
-        window.removeEventListener('keplr_keystorechange', this.keplrKeystoreChangeHandler);
-    }
-
-    componentDidUpdate(prevProps: Props) {
-        if (prevProps.wallet !== this.props.wallet) {
-            if (this.props.wallet) {
-                if (window.onbeforeunload) {
-                    window.onbeforeunload = (event) => {
-                        const e = event || window.event;
-
-                        return (e.returnValue = '');
-                    };
-                }
-            } else {
-                window.onbeforeunload = null;
+    useEffect(() => {
+        const keplrKeystoreChangeHandler = () => {
+            if (wallet && wallet.isExtensionImport) {
+                showInfoToast(t('logout.keplrKeystoreChange'));
+                store.dispatch({ type: LOGOUT });
+                store.dispatch.wallet.signInWithKeplrAsync(KEPLR_DEFAULT_COIN_TYPE);
             }
-        }
-    }
+        };
 
-    keplrKeystoreChangeHandler = () => {
-        if (this.props.wallet && this.props.wallet.isExtensionImport) {
-            showInfoToast(this.props.t('logout.keplrKeystoreChange'));
-            store.dispatch({ type: LOGOUT });
-            store.dispatch.wallet.signInWithKeplrAsync(KEPLR_DEFAULT_COIN_TYPE);
-        }
-    };
+        window.addEventListener('keplr_keystorechange', keplrKeystoreChangeHandler, false);
 
-    renderNavbar(bottom?: boolean) {
-        const { t } = this.props;
+        return () => {
+            window.removeEventListener('keplr_keystorechange', keplrKeystoreChangeHandler, false);
+        };
+    }, []);
 
-        if (!this.props.wallet) {
+    const renderNavbar = (bottom?: boolean) => {
+        if (!wallet) {
             return null;
         }
 
@@ -185,46 +157,42 @@ class MainLayout extends PureComponent<Props> {
                 </nav>
             </div>
         );
-    }
-    render(): JSX.Element {
-        const { children, wallet, t } = this.props;
+    };
 
-        return (
-            <div className={`layout ${!wallet && 'auth-layout'}`}>
-                {this.renderNavbar()}
-                {IS_TESTNET && !wallet && (
-                    <div className="sticky-top vw-100 warning-bar text-center py-2">{t('common.testnetBanner')}</div>
-                )}
-                <div className={`d-flex flex-column flex-grow-1 ${wallet && 'content'} ${IS_TESTNET && 'testnet'}`}>
-                    {children}
-                </div>
-                {wallet && (
-                    <footer className="mt-auto">
-                        <Footer />
-                    </footer>
-                )}
-                {this.renderNavbar(true)}
-                {wallet && (
-                    <Modal id="logoutModal" dataBsBackdrop="static" contentClassName="p-3" withCloseButton={false}>
-                        <h1 className="logout-modal-title">{t('logout.title')}</h1>
-                        <div className="d-flex flex-column flex-sm-row  justify-content-between mt-5">
-                            <Button className="logout-modal-cancel-btn me-sm-4 mb-4 mb-sm-0" data-bs-dismiss="modal">
-                                <div className="px-sm-2">{t('common.cancel')}</div>
-                            </Button>
-                            <Button
-                                className="logout-modal-logout-btn text-white"
-                                data-bs-dismiss="modal"
-                                onClick={() => store.dispatch({ type: LOGOUT })}
-                            >
-                                <div className="px-sm-2">{t('logout.logoutBtn')}</div>
-                            </Button>
-                        </div>
-                    </Modal>
-                )}
+    return (
+        <div className={`layout ${!wallet && 'auth-layout'}`}>
+            {renderNavbar()}
+            {IS_TESTNET && !wallet && (
+                <div className="sticky-top vw-100 warning-bar text-center py-2">{t('common.testnetBanner')}</div>
+            )}
+            <div className={`d-flex flex-column flex-grow-1 ${wallet && 'content'} ${IS_TESTNET && 'testnet'}`}>
+                {children}
             </div>
-        );
-    }
-}
+            {wallet && (
+                <footer className="mt-auto">
+                    <Footer />
+                </footer>
+            )}
+            {renderNavbar(true)}
+            {wallet && (
+                <Modal id="logoutModal" dataBsBackdrop="static" contentClassName="p-3" withCloseButton={false}>
+                    <h1 className="logout-modal-title">{t('logout.title')}</h1>
+                    <div className="d-flex flex-column flex-sm-row  justify-content-between mt-5">
+                        <Button className="logout-modal-cancel-btn me-sm-4 mb-4 mb-sm-0" data-bs-dismiss="modal">
+                            <div className="px-sm-2">{t('common.cancel')}</div>
+                        </Button>
+                        <Button
+                            className="logout-modal-logout-btn text-white"
+                            data-bs-dismiss="modal"
+                            onClick={() => store.dispatch({ type: LOGOUT })}
+                        >
+                            <div className="px-sm-2">{t('logout.logoutBtn')}</div>
+                        </Button>
+                    </div>
+                </Modal>
+            )}
+        </div>
+    );
+};
 
-const LayoutWithTranslation = withTranslation()(MainLayout);
-export default connect(mapState)(LayoutWithTranslation);
+export default MainLayout;
