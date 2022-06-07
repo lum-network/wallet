@@ -304,7 +304,7 @@ const Staking = (): JSX.Element => {
 
     const onSubmitGetAllRewards = async (memo: string) => {
         try {
-            const validatorsAddresses = getUserValidators(bondedValidators, [], delegations, unbondings, rewards)
+            const validatorsAddresses = getUserValidators(bondedValidators, [], delegations, rewards)
                 .sort((valA, valB) => {
                     if (valA.reward > valB.reward) {
                         return -1;

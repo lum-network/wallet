@@ -45,7 +45,7 @@ const MyValidators = ({
     onClaim,
 }: Props): JSX.Element => {
     const [userValidators, setUserValidators] = useState(
-        getUserValidators(validators.bonded, validators.unbonded, delegations, unbondings, rewards),
+        getUserValidators(validators.bonded, validators.unbonded, delegations, rewards),
     );
 
     const { wallet, loadingClaim, loadingDelegate, loadingUndelegate } = useSelector((state: RootState) => ({
@@ -58,7 +58,7 @@ const MyValidators = ({
     const { t } = useTranslation();
 
     useEffect(() => {
-        setUserValidators(getUserValidators(validators.bonded, validators.unbonded, delegations, unbondings, rewards));
+        setUserValidators(getUserValidators(validators.bonded, validators.unbonded, delegations, rewards));
     }, [validators.bonded, validators.unbonded, delegations, unbondings, rewards]);
 
     const headers = [
@@ -97,7 +97,15 @@ const MyValidators = ({
                 </a>
             </td>
             <td data-label={headers[1]}>
-                <div className="text-truncate">{validator.status > -1 ? statuses[validator.status] : 'Unknown'}</div>
+                <div className="text-truncate">
+                    {
+                        validator.jailed
+                            ? statuses[4] // Jailed
+                            : validator.status > -1
+                            ? statuses[validator.status]
+                            : statuses[0] // Unknown
+                    }
+                </div>
             </td>
             <td data-label={headers[2]}>
                 <div className="d-flex flex-column">
