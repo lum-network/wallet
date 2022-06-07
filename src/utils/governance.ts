@@ -1,6 +1,6 @@
 import { Proposal, VotesResult } from 'models';
 import i18n from 'locales';
-import { VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
+import { ProposalStatus, VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
 
 export const sumOfVotes = (results: VotesResult): number => {
     if (!results) {
@@ -65,3 +65,6 @@ export const sortByDate = (proposals: Proposal[]): Proposal[] =>
         }
         return 0;
     });
+
+export const proposalInVotingPeriod = (proposals: Proposal[]): boolean =>
+    proposals.filter((proposal) => proposal.status === ProposalStatus.PROPOSAL_STATUS_VOTING_PERIOD).length > 0;

@@ -9,10 +9,11 @@ import { Footer, Modal, Button } from 'components';
 
 import './MainLayout.scss';
 import { IS_TESTNET, KEPLR_DEFAULT_COIN_TYPE } from 'constant';
-import { showInfoToast } from 'utils';
+import { showInfoToast, GovernanceUtils } from 'utils';
 
 const MainLayout: React.FC = ({ children }) => {
     const wallet = useSelector((state: RootState) => state.wallet.currentWallet);
+    const proposals = useSelector((state: RootState) => state.governance.proposals);
 
     const { t } = useTranslation();
 
@@ -46,6 +47,8 @@ const MainLayout: React.FC = ({ children }) => {
         if (!wallet) {
             return null;
         }
+
+        const proposalNotificationDot = GovernanceUtils.proposalInVotingPeriod(proposals);
 
         return (
             <div className="navbar-container position-fixed w-100">
@@ -137,16 +140,28 @@ const MainLayout: React.FC = ({ children }) => {
                         <li>
                             <NavLink
                                 to="/governance"
-                                className="navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4"
+                                className="navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4 position-relative"
                                 activeClassName="selected-navbar-item"
                             >
-                                <img
-                                    src={assets.images.navbarIcons.governance}
-                                    width="20"
-                                    height="20"
-                                    className="me-md-2 nav-icon"
-                                />
+                                <div className="me-md-2 nav-icon position-relative">
+                                    <img
+                                        src={assets.images.navbarIcons.governance}
+                                        width="20"
+                                        height="20"
+                                        className="nav-icon"
+                                    />
+                                    {proposalNotificationDot ? (
+                                        <span className="d-block d-md-none position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
+                                            <span className="visually-hidden">New Proposal in Voting Period</span>
+                                        </span>
+                                    ) : null}
+                                </div>
                                 <span className="d-none d-sm-block">{t('navbar.governance')}</span>
+                                {proposalNotificationDot ? (
+                                    <span className="d-none d-md-block position-absolute top-25 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
+                                        <span className="visually-hidden">New Proposal in Voting Period</span>
+                                    </span>
+                                ) : null}
                             </NavLink>
                         </li>
                     </ul>
