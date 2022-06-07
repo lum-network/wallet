@@ -116,7 +116,7 @@ const Governance = (): JSX.Element => {
     return (
         <>
             <div className="mt-4">
-                <div className="container">
+                <div className="container-xxl">
                     <SwitchTransition>
                         <CSSTransition
                             nodeRef={nodeRef1}
