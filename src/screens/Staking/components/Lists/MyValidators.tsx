@@ -8,7 +8,7 @@ import { Table, ValidatorLogo } from 'frontend-elements';
 import { CLIENT_PRECISION, LUM_ASSETS_GITHUB, LUM_EXPLORER } from 'constant';
 import { getUserValidators, NumbersUtils, sortByVotingPower, trunc, WalletClient } from 'utils';
 import { Rewards, UserValidator } from 'models';
-import { DropdownButton, SmallerDecimal } from 'components';
+import { Badge, DropdownButton, SmallerDecimal } from 'components';
 import { useSelector } from 'react-redux';
 import { RootState } from 'redux/store';
 import {
@@ -71,8 +71,6 @@ const MyValidators = ({
         '',
     ];
 
-    const statuses = t('staking.status', { returnObjects: true });
-
     if (!wallet) {
         return <div />;
     }
@@ -98,13 +96,7 @@ const MyValidators = ({
             </td>
             <td data-label={headers[1]}>
                 <div className="text-truncate">
-                    {
-                        validator.jailed
-                            ? statuses[4] // Jailed
-                            : validator.status > -1
-                            ? statuses[validator.status]
-                            : statuses[0] // Unknown
-                    }
+                    <Badge validatorStatus={validator.status} jailed={validator.jailed} />
                 </div>
             </td>
             <td data-label={headers[2]}>

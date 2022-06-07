@@ -154,7 +154,7 @@ const Message = (): JSX.Element => {
     return (
         <>
             <div className="mt-4">
-                <div className="container">
+                <div className="container-xxl">
                     <div className="row gy-4">
                         <div className="col-md-6 col-12">
                             <AddressCard address={wallet.getAddress()} />
