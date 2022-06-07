@@ -410,7 +410,7 @@ const Staking = (): JSX.Element => {
     return (
         <>
             <div className="mt-4">
-                <div className="container">
+                <div className="container-xxl">
                     <div className="row gy-4">
                         {airdrop && airdrop.amount > 0 ? (
                             <div className="col-12">
@@ -467,6 +467,7 @@ const Staking = (): JSX.Element => {
                                     onClaim={onClaim}
                                     totalVotingPower={totalVotingPower}
                                     delegations={delegations}
+                                    unbondings={unbondings}
                                     rewards={rewards}
                                     validators={{ bonded: bondedValidators, unbonded: unbondedValidators }}
                                 />
