@@ -63,7 +63,8 @@
         "lumPrice": "Lum Value",
         "getLum": "Buy Lum",
         "latestTx": "Latest Transactions",
-        "currentBalance": "Current balance",
+        "currentBalance": "Your balance",
+        "availableBalance": "Available balance",
         "followTwitter": "Follow us on Twitter",
         "noTx": "No transactions yet"
     },

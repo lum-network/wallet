@@ -6,7 +6,7 @@ import ClipboardJS from 'clipboard';
 import { Modal as BSModal } from 'bootstrap';
 import { LumUtils, LumTypes, LumConstants } from '@lum-network/sdk-javascript';
 
-import { AddressCard, BalanceCard, Input, Modal, Tooltip } from 'components';
+import { AddressCard, AvailableCard, Input, Modal, Tooltip } from 'components';
 import { RootState } from 'redux/store';
 import { Button, Card } from 'frontend-elements';
 import { Button as CustomButton } from 'components';
@@ -160,7 +160,7 @@ const Message = (): JSX.Element => {
                             <AddressCard address={wallet.getAddress()} />
                         </div>
                         <div className="col-md-6 col-12">
-                            <BalanceCard
+                            <AvailableCard
                                 balance={
                                     vestings
                                         ? currentBalance.lum -
