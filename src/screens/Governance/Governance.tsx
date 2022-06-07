@@ -268,6 +268,10 @@ const Governance = (): JSX.Element => {
                                 <Button
                                     disabled={vote === null}
                                     className={confirming ? 'vote-button-confirming' : ''}
+                                    {...(vote &&
+                                        confirming && {
+                                            'data-bs-dismiss': 'modal',
+                                        })}
                                     onClick={
                                         confirming
                                             ? () => {
