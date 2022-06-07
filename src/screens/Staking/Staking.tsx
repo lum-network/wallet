@@ -11,7 +11,7 @@ import * as yup from 'yup';
 import { Card } from 'frontend-elements';
 import { RootDispatch, RootState } from 'redux/store';
 import { useRematchDispatch } from 'redux/hooks';
-import { AirdropCard, BalanceCard, Button, Input, Modal } from 'components';
+import { AirdropCard, AvailableCard, Button, Input, Modal } from 'components';
 import {
     calculateTotalVotingPower,
     getUserValidators,
@@ -438,7 +438,7 @@ const Staking = (): JSX.Element => {
                             />
                         </div>
                         <div className="col-lg-6">
-                            <BalanceCard
+                            <AvailableCard
                                 balance={
                                     vestings
                                         ? balance.lum -

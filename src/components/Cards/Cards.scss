@@ -92,7 +92,7 @@
 }
 
 .lum-price-card .chart {
-    width: calc(100% - 560px);
+    width: calc(100% - 360px);
     height: 76px;
 
     @include media-breakpoint-down(lg) {
