@@ -5,7 +5,7 @@ import { Redirect, useLocation } from 'react-router';
 
 import { Card } from 'frontend-elements';
 import { LUM_TWITTER } from 'constant';
-import { TransactionsTable, AddressCard, BalanceCard, LumPriceCard } from 'components';
+import { TransactionsTable, AddressCard, AvailableCard, LumPriceCard, BalanceCard } from 'components';
 import { RootDispatch, RootState } from 'redux/store';
 
 import './styles/Dashboard.scss';
@@ -18,15 +18,18 @@ import VestingTokensCard from 'screens/Staking/components/Cards/VestingTokensCar
 
 const Dashboard = (): JSX.Element => {
     // Redux hooks
-    const { transactions, balance, wallet, vestings, airdrop, stakedCoins } = useSelector((state: RootState) => ({
-        loading: state.loading.global.loading,
-        transactions: state.wallet.transactions,
-        balance: state.wallet.currentBalance,
-        wallet: state.wallet.currentWallet,
-        stakedCoins: state.staking.stakedCoins,
-        vestings: state.wallet.vestings,
-        airdrop: state.wallet.airdrop,
-    }));
+    const { transactions, balance, wallet, vestings, airdrop, stakedCoins, rewards } = useSelector(
+        (state: RootState) => ({
+            loading: state.loading.global.loading,
+            transactions: state.wallet.transactions,
+            balance: state.wallet.currentBalance,
+            wallet: state.wallet.currentWallet,
+            stakedCoins: state.staking.stakedCoins,
+            vestings: state.wallet.vestings,
+            airdrop: state.wallet.airdrop,
+            rewards: state.wallet.rewards,
+        }),
+    );
 
     const { getWalletInfos } = useRematchDispatch((dispatch: RootDispatch) => ({
         getWalletInfos: dispatch.wallet.reloadWalletInfos,
@@ -51,7 +54,7 @@ const Dashboard = (): JSX.Element => {
 
     return (
         <div className="mt-4">
-            <div className="container">
+            <div className="container-xxl">
                 <div className="row gy-4">
                     {airdrop && airdrop.amount > 0 ? (
                         <div className="col-12">
@@ -62,7 +65,7 @@ const Dashboard = (): JSX.Element => {
                         <AddressCard address={wallet.getAddress()} />
                     </div>
                     <div className="col-lg-5 col-md-6 col-12">
-                        <BalanceCard
+                        <AvailableCard
                             balance={
                                 vestings
                                     ? balance.lum -
@@ -102,8 +105,11 @@ const Dashboard = (): JSX.Element => {
                             </div>
                         </>
                     )}
-                    <div className="col-12">
-                        <LumPriceCard balance={balance.fiat} />
+                    <div className="col-lg-6 col-12">
+                        <BalanceCard balance={balance.lum + stakedCoins} rewards={rewards} />
+                    </div>
+                    <div className="col-lg-6 col-12">
+                        <LumPriceCard />
                     </div>
                 </div>
                 <div className="row mt-4">

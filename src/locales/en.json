@@ -63,7 +63,8 @@
         "lumPrice": "Lum Value",
         "getLum": "Buy Lum",
         "latestTx": "Latest Transactions",
-        "currentBalance": "Current balance",
+        "currentBalance": "Your balance",
+        "availableBalance": "Available balance",
         "followTwitter": "Follow us on Twitter",
         "noTx": "No transactions yet"
     },
@@ -302,7 +303,7 @@
             "stakedCoins": "Staked Coins",
             "rewards": "Rewards"
         },
-        "status": ["Unspecified", "Unbonded", "Unbonding", "Bonded"],
+        "status": ["Unspecified", "Unbonded", "Unbonding", "Bonded", "Jailed"],
         "claim": "Claim",
         "timeRemaining": "{{ time }} remaining",
         "includingVesting": ["Including ", " vesting"],

@@ -9,13 +9,8 @@ import { BUY_LUM_URL } from 'constant';
 import { NumbersUtils, WalletClient } from 'utils';
 
 import './Cards.scss';
-import { SmallerDecimal } from 'components';
 
-interface Props {
-    balance: number;
-}
-
-const LumPriceCard = ({ balance }: Props): JSX.Element => {
+const LumPriceCard = (): JSX.Element => {
     const { t } = useTranslation();
     const [chartData, setChartData] = useState<{ time: number; value: number }[]>([]);
     const [lumPrice, setLumPrice] = useState(0);
@@ -44,11 +39,6 @@ const LumPriceCard = ({ balance }: Props): JSX.Element => {
         <Card withoutPadding className="h-100 dashboard-card lum-price-card justify-content-start p-4">
             <h2 className="ps-2 pt-3">{t('dashboard.lumPrice')}</h2>
             <div className="ps-2 my-3 d-flex flex-column flex-lg-row justify-content-between align-items-lg-center w-100">
-                <SmallerDecimal
-                    big
-                    className="align-bottom align-self-lg-end"
-                    nb={numeral(balance).format('$0,0.00')}
-                />
                 <div className="chart">
                     <Chart
                         autoHeight

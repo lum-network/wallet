@@ -116,7 +116,7 @@ const Governance = (): JSX.Element => {
     return (
         <>
             <div className="mt-4">
-                <div className="container">
+                <div className="container-xxl">
                     <SwitchTransition>
                         <CSSTransition
                             nodeRef={nodeRef1}
@@ -268,6 +268,10 @@ const Governance = (): JSX.Element => {
                                 <Button
                                     disabled={vote === null}
                                     className={confirming ? 'vote-button-confirming' : ''}
+                                    {...(vote &&
+                                        confirming && {
+                                            'data-bs-dismiss': 'modal',
+                                        })}
                                     onClick={
                                         confirming
                                             ? () => {
