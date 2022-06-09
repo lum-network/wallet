@@ -7,7 +7,7 @@ import { LumConstants, LumMessages, LumUtils } from '@lum-network/sdk-javascript
 import * as yup from 'yup';
 
 import assets from 'assets';
-import { AddressCard, BalanceCard, Input, Modal, Button as CustomButton, AirdropCard } from 'components';
+import { AddressCard, AvailableCard, Input, Modal, Button as CustomButton, AirdropCard } from 'components';
 import { RootDispatch, RootState } from 'redux/store';
 import { useRematchDispatch } from 'redux/hooks';
 import { showErrorToast } from 'utils';
@@ -377,7 +377,7 @@ const Operations = (): JSX.Element => {
     return (
         <>
             <div className="mt-4">
-                <div className="container">
+                <div className="container-xxl">
                     <div className="row gy-4">
                         {airdrop && airdrop.amount > 0 ? (
                             <div className="col-12">
@@ -388,7 +388,7 @@ const Operations = (): JSX.Element => {
                             <AddressCard address={wallet.getAddress()} />
                         </div>
                         <div className="col-md-6">
-                            <BalanceCard
+                            <AvailableCard
                                 balance={
                                     vestings
                                         ? balance.lum -

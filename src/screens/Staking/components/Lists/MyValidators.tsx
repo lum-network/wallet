@@ -8,12 +8,13 @@ import { Table, ValidatorLogo } from 'frontend-elements';
 import { CLIENT_PRECISION, LUM_ASSETS_GITHUB } from 'constant';
 import { getExplorerLink, getUserValidators, NumbersUtils, sortByVotingPower, trunc, WalletClient } from 'utils';
 import { Rewards, UserValidator } from 'models';
-import { DropdownButton, SmallerDecimal } from 'components';
+import { Badge, DropdownButton, SmallerDecimal } from 'components';
 import { useSelector } from 'react-redux';
 import { RootState } from 'redux/store';
 import {
     BondStatus,
     DelegationResponse,
+    UnbondingDelegation,
     Validator,
 } from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
 
@@ -24,6 +25,7 @@ interface Props {
     };
     rewards: Rewards;
     delegations: DelegationResponse[];
+    unbondings: UnbondingDelegation[];
     totalVotingPower: number;
     onDelegate: (val: Validator, totalVotingPower: number) => void;
     onRedelegate: (val: Validator) => void;
@@ -34,6 +36,7 @@ interface Props {
 const MyValidators = ({
     validators,
     delegations,
+    unbondings,
     rewards,
     totalVotingPower,
     onDelegate,
@@ -56,7 +59,7 @@ const MyValidators = ({
 
     useEffect(() => {
         setUserValidators(getUserValidators(validators.bonded, validators.unbonded, delegations, rewards));
-    }, [validators.bonded, validators.unbonded, delegations, rewards]);
+    }, [validators.bonded, validators.unbonded, delegations, unbondings, rewards]);
 
     const headers = [
         t('staking.tableLabels.validator'),
@@ -67,8 +70,6 @@ const MyValidators = ({
         t('staking.tableLabels.rewards'),
         '',
     ];
-
-    const statuses = t('staking.status', { returnObjects: true });
 
     if (!wallet) {
         return <div />;
@@ -98,7 +99,9 @@ const MyValidators = ({
                 </a>
             </td>
             <td data-label={headers[1]}>
-                <div className="text-truncate">{validator.status > -1 ? statuses[validator.status] : 'Unknown'}</div>
+                <div className="text-truncate">
+                    <Badge validatorStatus={validator.status} jailed={validator.jailed} />
+                </div>
             </td>
             <td data-label={headers[2]}>
                 <div className="d-flex flex-column">

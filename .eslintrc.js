@@ -20,7 +20,7 @@ module.exports = {
         '@typescript-eslint/no-empty-interface': 'off',
         'react/prop-types': 'off',
         'react-hooks/rules-of-hooks': 'warn',
-        'react-hooks/exhaustive-deps': 'error',
+        'react-hooks/exhaustive-deps': 'off',
     },
     settings: {
         react: {

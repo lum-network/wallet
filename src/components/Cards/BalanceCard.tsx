@@ -1,54 +1,40 @@
 import React from 'react';
+
 import assets from 'assets';
 import { Card } from 'frontend-elements';
 import { useTranslation } from 'react-i18next';
-import { useSelector } from 'react-redux';
+import { NumbersUtils, WalletClient } from 'utils';
+import { SmallerDecimal } from 'components';
+import { Rewards } from 'models';
+import { CLIENT_PRECISION } from 'constant';
 
-import { useRematchDispatch } from 'redux/hooks';
-import { RootDispatch, RootState } from 'redux/store';
+interface Props {
+    balance: number;
+    rewards: Rewards;
+}
 
-import { WalletClient, NumbersUtils } from 'utils';
-
-import SmallerDecimal from '../SmallerDecimal/SmallerDecimal';
-import './Cards.scss';
-import { HoverTooltip } from 'components';
-
-const BalanceCard = ({ balance, address }: { balance: number; address: string }): JSX.Element => {
-    const isLoading = useSelector((state: RootState) => state.loading.effects.wallet.reloadWalletInfos.loading);
-
-    const { mintFaucet, getWalletInfos } = useRematchDispatch((dispatch: RootDispatch) => ({
-        mintFaucet: dispatch.wallet.mintFaucet,
-        getWalletInfos: dispatch.wallet.reloadWalletInfos,
-    }));
-
+const BalanceCard = ({ balance, rewards }: Props): JSX.Element => {
     const { t } = useTranslation();
 
+    const lumAmount =
+        balance +
+        (rewards.total && rewards.total.length > 0
+            ? NumbersUtils.convertUnitNumber(rewards.total[0].amount) / CLIENT_PRECISION
+            : 0);
+    const fiatAmount = lumAmount * (WalletClient.lumInfos?.price || 0);
+
     return (
-        <Card withoutPadding className="h-100 dashboard-card balance-card p-4">
+        <Card withoutPadding className="h-100 dashboard-card justify-content-start rewards-card p-4">
             <h2 className="ps-2 pt-3 text-white">{t('dashboard.currentBalance')}</h2>
             <div className="ps-2 my-3 d-flex flex-row align-items-baseline w-100">
                 <div className="me-2 me-sm-3 text-white text-truncate">
-                    <SmallerDecimal nb={NumbersUtils.formatTo6digit(balance < 0 ? 0 : balance)} big />
+                    <SmallerDecimal nb={NumbersUtils.formatTo6digit(lumAmount)} big />
                 </div>
                 <img src={assets.images.lumTicker} className="ticker" />
             </div>
-            <div>
-                <HoverTooltip text={t('common.refreshBalance')}>
-                    <button type="button" className="ps-2 pb-2" onClick={() => getWalletInfos(address)}>
-                        <img
-                            src={assets.images.syncIcon}
-                            className={`tint-white refresh-img ${isLoading && 'loading'}`}
-                        />
-                    </button>
-                </HoverTooltip>
-                {WalletClient.isTestnet() && (
-                    <HoverTooltip text={t('common.mintFaucet')}>
-                        <button type="button" className="ps-2 pb-2" onClick={() => mintFaucet(address)}>
-                            <img src={assets.images.addIcon} className="tint-white" />
-                        </button>
-                    </HoverTooltip>
-                )}
-            </div>
+            <p className="align-self-end text-white fw-bold">
+                $<SmallerDecimal nb={NumbersUtils.formatTo6digit(fiatAmount)} />
+            </p>
         </Card>
     );
 };
