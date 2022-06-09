@@ -6,13 +6,14 @@ import { LumUtils, LumWalletFactory, LumWallet, LumConstants } from '@lum-networ
 import TransportWebUsb from '@ledgerhq/hw-transport-webusb';
 import { DeviceModelId } from '@ledgerhq/devices';
 
-import { getWalletLink, showErrorToast, showSuccessToast, WalletClient } from 'utils';
+import { getRpcFromNode, getWalletLink, showErrorToast, showSuccessToast, WalletClient } from 'utils';
 
 import i18n from 'locales';
 import { LUM_COINGECKO_ID } from 'constant';
 
 import { Airdrop, HardwareMethod, Rewards, RootModel, Transaction, Vestings, Wallet } from '../../models';
 import { VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
+import { LOGOUT } from 'redux/constants';
 
 interface SendPayload {
     to: string;
@@ -71,7 +72,6 @@ interface VotePayload {
 }
 
 interface WalletState {
-    currentNode: string;
     currentWallet: Wallet | null;
     currentBalance: {
         fiat: number;
@@ -86,7 +86,6 @@ interface WalletState {
 export const wallet = createModel<RootModel>()({
     name: 'wallet',
     state: {
-        currentNode: new URL(process.env.REACT_APP_RPC_URL).hostname,
         currentWallet: null,
         currentBalance: {
             fiat: 0,
@@ -125,12 +124,6 @@ export const wallet = createModel<RootModel>()({
                 transactions: data.transactions || state.transactions,
                 vestings: data.vestings || state.vestings,
                 airdrop: data.airdrop || state.airdrop,
-            };
-        },
-        setNode(state, node: string) {
-            return {
-                ...state,
-                currentNode: node,
             };
         },
     },
@@ -195,12 +188,15 @@ export const wallet = createModel<RootModel>()({
                     showErrorToast(i18n.t('wallet.errors.keplr.network'));
                     return;
                 }
+
+                const rpc = getRpcFromNode(WalletClient.node);
+
                 try {
                     await keplrWindow.keplr.experimentalSuggestChain({
                         chainId: chainId,
                         chainName: chainId.includes('testnet') ? 'Lum Network [Test]' : 'Lum Network',
-                        rpc: process.env.REACT_APP_RPC_URL,
-                        rest: process.env.REACT_APP_RPC_URL.replace('rpc', 'rest'),
+                        rpc,
+                        rest: rpc.replace('rpc', 'rest'),
                         stakeCurrency: {
                             coinDenom: LumConstants.LumDenom.toUpperCase(),
                             coinMinimalDenom: LumConstants.MicroLumDenom,
@@ -447,12 +443,12 @@ export const wallet = createModel<RootModel>()({
                 showErrorToast(i18n.t('wallet.errors.faucet.generic'));
             }
         },
-        async setCurrentNode(node: string) {
-            const nodeUpdateResult = await WalletClient.updateNode(node);
-
-            if (nodeUpdateResult) {
-                dispatch.wallet.setNode(node);
+        async setCurrentNode(node: string, state) {
+            if (state.wallet.currentWallet) {
+                dispatch({ type: LOGOUT });
             }
+
+            await WalletClient.updateNode(node);
         },
     }),
 });

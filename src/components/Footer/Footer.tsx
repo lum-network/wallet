@@ -4,12 +4,11 @@ import { LUM_WALLET_GITHUB, LUM_DISCORD /* LUM_MAIL, LUM_TELEGRAM */, NODES } fr
 
 import './Footer.scss';
 import { DropdownButton } from 'components';
-import { useSelector } from 'react-redux';
-import { RootDispatch, RootState } from 'redux/store';
+import { RootDispatch } from 'redux/store';
 import { useRematchDispatch } from 'redux/hooks';
+import { WalletClient } from 'utils';
 
 const Footer = (): JSX.Element => {
-    const currentNode = useSelector((state: RootState) => state.wallet.currentNode);
     const setCurrentNode = useRematchDispatch((dispatch: RootDispatch) => dispatch.wallet.setCurrentNode);
 
     return (
@@ -19,8 +18,8 @@ const Footer = (): JSX.Element => {
                     <DropdownButton
                         plainButton
                         withSeparator={false}
-                        title={currentNode}
-                        selectedItem={currentNode}
+                        title={WalletClient.node}
+                        selectedItem={WalletClient.node}
                         direction="up"
                         listClassName="node-selection-list pt-3 w-100"
                         items={NODES.map((node) => ({

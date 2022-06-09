@@ -35,7 +35,8 @@
     },
     "wallet": {
         "success": {
-            "faucet": "Successfully minted faucet"
+            "faucet": "Successfully minted faucet",
+            "switchNode": "Successfully changed node"
         },
         "errors": {
             "keplr": {

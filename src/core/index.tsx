@@ -18,7 +18,7 @@ type Props = IProps & StateProps;
 
 class Core extends PureComponent<Props> {
     async componentDidMount() {
-        WalletClient.init();
+        await WalletClient.init();
     }
 
     renderContent(): JSX.Element {
