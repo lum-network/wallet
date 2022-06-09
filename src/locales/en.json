@@ -33,6 +33,13 @@
         "governance": "Governance",
         "logout": "Logout"
     },
+    "footer": {
+        "customNodeBtn": "+ Add custom node",
+        "customNodeModal": {
+            "title": "Custom Node",
+            "addBtn": "Add"
+        }
+    },
     "wallet": {
         "success": {
             "faucet": "Successfully minted faucet",

@@ -178,14 +178,29 @@ export const validateSignMessage = async (msg: LumTypes.SignMsg): Promise<boolea
 };
 
 class WalletClient {
-    lumClient: LumClient | null = null;
     lumInfos: LumInfo | null = null;
-    chainId: string | null = null;
     node: string = new URL(process.env.REACT_APP_RPC_URL).hostname;
+    chainId: string | null = null;
 
-    // Init
+    private lumClient: LumClient | null = null;
+    private static instance: WalletClient;
 
-    init = async (node?: string) => {
+    private constructor() {
+        this.connect();
+        this.getLumInfo().then((infos) => (this.lumInfos = infos));
+    }
+
+    static get Instance() {
+        if (!WalletClient.instance) {
+            WalletClient.instance = new WalletClient();
+        }
+
+        return WalletClient.instance;
+    }
+
+    // Utils
+
+    connect = async (node?: string) => {
         if (node) {
             this.node = node;
         }
@@ -198,14 +213,10 @@ class WalletClient {
             if (node) {
                 showSuccessToast(i18n.t('wallet.success.switchNode'));
             }
-
-            this.lumInfos = await this.getLumInfo();
         } catch {
             showErrorToast(i18n.t('wallet.errors.client'));
         }
     };
-
-    // Utils
 
     isTestnet = () => {
         return this.node.includes('testnet');
@@ -911,7 +922,7 @@ class WalletClient {
         };
     };
 
-    updateNode = (node: string) => this.init(node);
+    updateNode = (node: string) => this.connect(node);
 }
 
-export default new WalletClient();
+export default WalletClient.Instance;
