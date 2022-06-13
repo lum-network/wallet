@@ -43,4 +43,8 @@
             color: $color-primary !important;
         }
     }
+    .node-selection-list .custom-node-btn {
+        color: $color-primary;
+        border: 2px $color-primary solid;    
+    }
 }
