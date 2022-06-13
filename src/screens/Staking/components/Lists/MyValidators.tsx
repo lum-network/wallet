@@ -5,8 +5,8 @@ import { LumConstants } from '@lum-network/sdk-javascript';
 import numeral from 'numeral';
 import { Table, ValidatorLogo } from 'frontend-elements';
 
-import { CLIENT_PRECISION, LUM_ASSETS_GITHUB, LUM_EXPLORER } from 'constant';
-import { getUserValidators, NumbersUtils, sortByVotingPower, trunc, WalletClient } from 'utils';
+import { CLIENT_PRECISION, LUM_ASSETS_GITHUB } from 'constant';
+import { getExplorerLink, getUserValidators, NumbersUtils, sortByVotingPower, trunc, WalletClient } from 'utils';
 import { Rewards, UserValidator } from 'models';
 import { Badge, DropdownButton, SmallerDecimal } from 'components';
 import { useSelector } from 'react-redux';
@@ -78,7 +78,11 @@ const MyValidators = ({
     const renderRow = (validator: UserValidator, index: number) => (
         <tr key={index} className="validators-table-row">
             <td data-label={headers[0]}>
-                <a href={`${LUM_EXPLORER}/validators/${validator.operatorAddress}`} target="_blank" rel="noreferrer">
+                <a
+                    href={`${getExplorerLink()}/validators/${validator.operatorAddress}`}
+                    target="_blank"
+                    rel="noreferrer"
+                >
                     <ValidatorLogo
                         width={34}
                         height={34}

@@ -8,8 +8,8 @@ import { LOGOUT } from 'redux/constants';
 import { Footer, Modal, Button } from 'components';
 
 import './MainLayout.scss';
-import { IS_TESTNET, KEPLR_DEFAULT_COIN_TYPE } from 'constant';
-import { showInfoToast, GovernanceUtils } from 'utils';
+import { KEPLR_DEFAULT_COIN_TYPE } from 'constant';
+import { showInfoToast, GovernanceUtils, WalletClient } from 'utils';
 
 const MainLayout: React.FC = ({ children }) => {
     const wallet = useSelector((state: RootState) => state.wallet.currentWallet);
@@ -52,7 +52,7 @@ const MainLayout: React.FC = ({ children }) => {
 
         return (
             <div className="navbar-container position-fixed w-100">
-                {!bottom && IS_TESTNET && (
+                {!bottom && WalletClient.isTestnet() && (
                     <div className="warning-bar text-center py-2">{t('common.testnetBanner')}</div>
                 )}
                 <nav
@@ -187,17 +187,17 @@ const MainLayout: React.FC = ({ children }) => {
     return (
         <div className={`layout ${!wallet && 'auth-layout'}`}>
             {renderNavbar()}
-            {IS_TESTNET && !wallet && (
+            {WalletClient.isTestnet() && !wallet && (
                 <div className="sticky-top vw-100 warning-bar text-center py-2">{t('common.testnetBanner')}</div>
             )}
-            <div className={`d-flex flex-column flex-grow-1 ${wallet && 'content'} ${IS_TESTNET && 'testnet'}`}>
+            <div
+                className={`d-flex flex-column flex-grow-1 ${wallet && 'content'} ${
+                    WalletClient.isTestnet() && 'testnet'
+                }`}
+            >
                 {children}
             </div>
-            {wallet && (
-                <footer className="mt-auto">
-                    <Footer />
-                </footer>
-            )}
+            {wallet && <Footer />}
             {renderNavbar(true)}
             {wallet && (
                 <Modal id="logoutModal" dataBsBackdrop="static" contentClassName="p-3" withCloseButton={false}>
