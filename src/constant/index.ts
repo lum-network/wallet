@@ -26,8 +26,4 @@ export const OSMOSIS_API_URL = 'https://api-osmosis.imperator.co';
 
 export const BUY_LUM_URL = 'https://app.osmosis.zone/?from=ATOM&to=LUM';
 
-export const NODES = [
-    'node2.testnet.lum.network',
-    'node1.testnet.lum.network',
-    new URL(process.env.REACT_APP_RPC_URL).hostname,
-];
+export const NODES = process.env.REACT_APP_RPC_URL.split(',').map((url) => new URL(url).hostname);
