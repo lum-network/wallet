@@ -7,8 +7,7 @@ import assets from 'assets';
 import { Card, CodeQr } from 'frontend-elements';
 
 import Modal from '../Modals/Modal';
-import { showErrorToast, showSuccessToast } from 'utils';
-import { LUM_EXPLORER } from 'constant';
+import { getExplorerLink, showErrorToast, showSuccessToast } from 'utils';
 import { HoverTooltip } from 'components';
 
 const AddressCard = ({ address }: { address: string }): JSX.Element => {
@@ -43,7 +42,7 @@ const AddressCard = ({ address }: { address: string }): JSX.Element => {
                 <h2 className="ps-2 pt-3 text-white">{t('common.address')}</h2>
                 <a
                     className="wallet-address"
-                    href={`${LUM_EXPLORER}/account/${address}`}
+                    href={`${getExplorerLink()}/account/${address}`}
                     target="_blank"
                     rel="noreferrer"
                 >

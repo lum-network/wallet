@@ -9,3 +9,4 @@ export * from './date';
 export * from './strings';
 export * from './staking';
 export * from './hooks';
+export * from './links';

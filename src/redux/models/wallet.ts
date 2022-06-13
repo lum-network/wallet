@@ -6,13 +6,14 @@ import { LumUtils, LumWalletFactory, LumWallet, LumConstants } from '@lum-networ
 import TransportWebUsb from '@ledgerhq/hw-transport-webusb';
 import { DeviceModelId } from '@ledgerhq/devices';
 
-import { showErrorToast, showSuccessToast, WalletClient } from 'utils';
+import { getRpcFromNode, getWalletLink, showErrorToast, showSuccessToast, WalletClient } from 'utils';
 
 import i18n from 'locales';
-import { LUM_COINGECKO_ID, LUM_WALLET } from 'constant';
+import { LUM_COINGECKO_ID } from 'constant';
 
 import { Airdrop, HardwareMethod, Rewards, RootModel, Transaction, Vestings, Wallet } from '../../models';
 import { VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
+import { LOGOUT } from 'redux/constants';
 
 interface SendPayload {
     to: string;
@@ -187,19 +188,22 @@ export const wallet = createModel<RootModel>()({
                     showErrorToast(i18n.t('wallet.errors.keplr.network'));
                     return;
                 }
+
+                const rpc = getRpcFromNode(WalletClient.node);
+
                 try {
                     await keplrWindow.keplr.experimentalSuggestChain({
                         chainId: chainId,
                         chainName: chainId.includes('testnet') ? 'Lum Network [Test]' : 'Lum Network',
-                        rpc: process.env.REACT_APP_RPC_URL,
-                        rest: process.env.REACT_APP_RPC_URL.replace('rpc', 'rest'),
+                        rpc,
+                        rest: rpc.replace('rpc', 'rest'),
                         stakeCurrency: {
                             coinDenom: LumConstants.LumDenom.toUpperCase(),
                             coinMinimalDenom: LumConstants.MicroLumDenom,
                             coinDecimals: LumConstants.LumExponent,
                             coinGeckoId: LUM_COINGECKO_ID,
                         },
-                        walletUrlForStaking: LUM_WALLET,
+                        walletUrlForStaking: getWalletLink(),
                         bip44: {
                             coinType,
                         },
@@ -438,6 +442,13 @@ export const wallet = createModel<RootModel>()({
             } catch {
                 showErrorToast(i18n.t('wallet.errors.faucet.generic'));
             }
+        },
+        async setCurrentNode(node: string, state) {
+            if (state.wallet.currentWallet) {
+                dispatch({ type: LOGOUT });
+            }
+
+            await WalletClient.updateNode(node);
         },
     }),
 });

@@ -12,9 +12,7 @@ const AuthLayout = ({ children }: Props): JSX.Element => (
             <Header />
             {children}
         </div>
-        <footer className="mt-auto">
-            <Footer />
-        </footer>
+        <Footer />
     </>
 );
 

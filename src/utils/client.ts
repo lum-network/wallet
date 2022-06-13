@@ -1,13 +1,14 @@
 import { LumClient, LumConstants, LumMessages, LumRegistry, LumTypes, LumUtils } from '@lum-network/sdk-javascript';
 import { TxResponse } from '@cosmjs/tendermint-rpc';
 import { PasswordStrengthType, PasswordStrength, Transaction, Wallet, Proposal, LumInfo } from 'models';
-import { showErrorToast } from 'utils';
+import { showErrorToast, showSuccessToast } from 'utils';
 import i18n from 'locales';
 import { ProposalStatus, VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
 import Long from 'long';
 import axios from 'axios';
 import { OSMOSIS_API_URL } from 'constant';
 import { sortByBlockHeight } from './transactions';
+import { getRpcFromNode } from './links';
 
 export type MnemonicLength = 12 | 24;
 
@@ -177,20 +178,48 @@ export const validateSignMessage = async (msg: LumTypes.SignMsg): Promise<boolea
 };
 
 class WalletClient {
-    lumClient: LumClient | null = null;
     lumInfos: LumInfo | null = null;
+    node: string = new URL(process.env.REACT_APP_RPC_URL).hostname;
     chainId: string | null = null;
 
-    // Init
+    private lumClient: LumClient | null = null;
+    private static instance: WalletClient;
 
-    init = () => {
-        LumClient.connect(process.env.REACT_APP_RPC_URL)
-            .then(async (client) => {
-                this.lumClient = client;
-                this.chainId = await client.getChainId();
-                this.lumInfos = await this.getLumInfo();
-            })
-            .catch(() => showErrorToast(i18n.t('wallet.errors.client')));
+    private constructor() {
+        this.connect();
+        this.getLumInfo().then((infos) => (this.lumInfos = infos));
+    }
+
+    static get Instance() {
+        if (!WalletClient.instance) {
+            WalletClient.instance = new WalletClient();
+        }
+
+        return WalletClient.instance;
+    }
+
+    // Utils
+
+    connect = async (node?: string) => {
+        if (node) {
+            this.node = node;
+        }
+
+        try {
+            const client = await LumClient.connect(getRpcFromNode(node || this.node));
+            this.lumClient = client;
+            this.chainId = await client.getChainId();
+
+            if (node) {
+                showSuccessToast(i18n.t('wallet.success.switchNode'));
+            }
+        } catch {
+            showErrorToast(i18n.t('wallet.errors.client'));
+        }
+    };
+
+    isTestnet = () => {
+        return this.node.includes('testnet');
     };
 
     // Getters
@@ -892,6 +921,8 @@ class WalletClient {
                 : null,
         };
     };
+
+    updateNode = (node: string) => this.connect(node);
 }
 
-export default new WalletClient();
+export default WalletClient.Instance;
