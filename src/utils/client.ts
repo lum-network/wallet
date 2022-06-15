@@ -57,23 +57,6 @@ type StakingTxInfos = {
     amount: LumTypes.Coin;
 };
 
-type LumInfoType = {
-    price: number;
-    denom: string;
-    symbol: string;
-    liquidity: number;
-    volume_24h: number;
-    name: number;
-};
-
-type PreviousDayLumInfoType = {
-    open: number;
-    high: number;
-    close: number;
-    low: number;
-    time: number;
-};
-
 const isSendTxInfo = (
     info: {
         fromAddress?: string;
@@ -92,31 +75,6 @@ const isStakingTxInfo = (
     } | null,
 ): info is StakingTxInfos => {
     return !!(info && info.validatorAddress && info.delegatorAddress && info.amount);
-};
-
-const isLumInfo = (
-    info: {
-        price?: number;
-        denom?: string;
-        symbol?: string;
-        liquidity?: number;
-        volume_24h?: number;
-        name?: number;
-    } | null,
-): info is LumInfoType => {
-    return !!(info && info.price && info.liquidity && info.denom && info.name && info.volume_24h);
-};
-
-const isPreviousDayLumInfo = (
-    info: {
-        open?: number;
-        high?: number;
-        close?: number;
-        low?: number;
-        time?: number;
-    } | null,
-): info is PreviousDayLumInfoType => {
-    return !!(info && info.open && info.close && info.high && info.low && info.time);
 };
 
 const alreadyExists = (array: Transaction[], value: Transaction) => {
