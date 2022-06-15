@@ -4,9 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { LumConstants } from '@lum-network/sdk-javascript';
 
 import { Table } from 'frontend-elements';
-import { LUM_EXPLORER } from 'constant';
 import { Transaction, Wallet } from 'models';
-import { NumbersUtils, trunc } from 'utils';
+import { getExplorerLink, NumbersUtils, trunc } from 'utils';
 import { SmallerDecimal, TransactionTypeBadge } from 'components';
 
 interface TransactionsTableProps {
@@ -26,7 +25,7 @@ const TransactionRow = (props: RowProps): JSX.Element => {
     return (
         <tr>
             <td data-label={headers[0]}>
-                <a href={`${LUM_EXPLORER}/txs/${row.hash}`} target="_blank" rel="noreferrer">
+                <a href={`${getExplorerLink()}/txs/${row.hash}`} target="_blank" rel="noreferrer">
                     {trunc(row.hash)}
                 </a>
             </td>
@@ -35,7 +34,7 @@ const TransactionRow = (props: RowProps): JSX.Element => {
             </td>
             <td data-label={headers[2]}>
                 <a
-                    href={`${LUM_EXPLORER}/${
+                    href={`${getExplorerLink()}/${
                         row.fromAddress.includes(LumConstants.LumBech32PrefixValAddr) ? 'validators' : 'account'
                     }/${row.fromAddress}`}
                     target="_blank"
@@ -46,7 +45,7 @@ const TransactionRow = (props: RowProps): JSX.Element => {
             </td>
             <td data-label={headers[3]} className="text-end">
                 <a
-                    href={`${LUM_EXPLORER}/${
+                    href={`${getExplorerLink()}/${
                         row.toAddress.includes(LumConstants.LumBech32PrefixValAddr) ? 'validators' : 'account'
                     }/${row.toAddress}`}
                     target="_blank"
