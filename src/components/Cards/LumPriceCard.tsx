@@ -22,7 +22,7 @@ const LumPriceCard = (): JSX.Element => {
         if (data) {
             const chart = data.previousDaysPrices.map((value) => ({
                 time: value.time as UTCTimestamp,
-                value: value.close,
+                value: value.value,
             }));
 
             setChartData(chart);

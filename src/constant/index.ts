@@ -22,6 +22,6 @@ export const MEDIUM_AIRDROP_ARTICLE =
 
 export const KEPLR_DEFAULT_COIN_TYPE = 118;
 
-export const OSMOSIS_API_URL = 'https://api-osmosis.imperator.co';
+export const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3';
 
 export const BUY_LUM_URL = 'https://app.osmosis.zone/?from=ATOM&to=LUM';

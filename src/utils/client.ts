@@ -6,7 +6,7 @@ import i18n from 'locales';
 import { ProposalStatus, VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
 import Long from 'long';
 import axios from 'axios';
-import { OSMOSIS_API_URL } from 'constant';
+import { COINGECKO_API_URL } from 'constant';
 import { sortByBlockHeight } from './transactions';
 
 export type MnemonicLength = 12 | 24;
@@ -196,26 +196,32 @@ class WalletClient {
     // Getters
 
     private getLumInfo = async (): Promise<LumInfo | null> => {
-        const [lumInfos, previousDayLumInfos] = await Promise.all([
-            axios.get(`${OSMOSIS_API_URL}/tokens/v2/LUM`).catch(() => null),
-            axios.get(`${OSMOSIS_API_URL}/tokens/v2/historical/LUM/chart?tf=60`).catch(() => null),
-        ]);
+        try {
+            const [lumInfos, previousLumInfos] = await Promise.all([
+                axios.get(`${COINGECKO_API_URL}/coins/lum-network`).catch(() => null),
+                axios.get(`${COINGECKO_API_URL}/coins/lum-network/market_chart?vs_currency=usd&days=14`),
+            ]);
 
-        const lumInfoData = lumInfos && lumInfos.data[0];
-        const previousDayLumInfoData = previousDayLumInfos && previousDayLumInfos.data;
+            const lumInfoData = lumInfos && lumInfos.data;
+            const previousDays: [number, number][] =
+                previousLumInfos && previousLumInfos.data && previousLumInfos.data.prices;
 
-        if (isLumInfo(lumInfoData)) {
-            const previousDaysPrices = Array.isArray(previousDayLumInfoData)
-                ? previousDayLumInfoData.filter(isPreviousDayLumInfo)
-                : [];
+            const price = lumInfoData.market_data.current_price.usd;
+
+            const previousDaysPrices = previousDays.map(([time, value]) => ({ time, value }));
 
             return {
-                ...lumInfoData,
+                price: price,
+                denom: lumInfoData.platforms.cosmos,
+                symbol: lumInfoData.symbol.toUpperCase(),
+                liquidity: 0.0, //TODO: add
+                volume_24h: lumInfoData.market_data.total_volume.usd,
+                name: lumInfoData.name,
                 previousDaysPrices,
             };
+        } catch {
+            return null;
         }
-
-        return null;
     };
 
     private getAccountAndChainId = (fromWallet: Wallet) => {

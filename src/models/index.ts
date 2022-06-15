@@ -107,10 +107,7 @@ export interface Proposal extends Omit<BaseProposal, 'content'> {
 }
 
 export interface PreviousDayPrice {
-    open: number;
-    high: number;
-    close: number;
-    low: number;
+    value: number;
     time: number;
 }
 
