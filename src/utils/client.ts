@@ -52,7 +52,9 @@ type SendTxInfos = {
 };
 
 type StakingTxInfos = {
-    validatorAddress: string;
+    validatorAddress?: string;
+    validatorDstAddress?: string;
+    validatorSrcAddress?: string;
     delegatorAddress: string;
     amount: LumTypes.Coin;
 };
@@ -70,58 +72,67 @@ const isSendTxInfo = (
 const isStakingTxInfo = (
     info: {
         delegatorAddress?: string;
+        validatorDstAddress?: string;
+        validatorSrcAddress?: string;
         validatorAddress?: string;
         amount?: LumTypes.Coin;
     } | null,
 ): info is StakingTxInfos => {
-    return !!(info && info.validatorAddress && info.delegatorAddress && info.amount);
+    return !!(
+        info &&
+        (info.validatorAddress || (info.validatorDstAddress && info.validatorSrcAddress)) &&
+        info.delegatorAddress
+    );
 };
 
-const alreadyExists = (array: Transaction[], value: Transaction) => {
-    return array.length === 0 ? false : array.findIndex((val) => val.hash === value.hash) > -1;
-};
-
-export const formatTxs = async (rawTxs: TxResponse[]): Promise<Transaction[]> => {
+export const formatTxs = (rawTxs: TxResponse[]): Transaction[] => {
     const formattedTxs: Transaction[] = [];
 
     for (const rawTx of rawTxs) {
         // Decode TX to human readable format
         const txData = LumRegistry.decodeTx(rawTx.tx);
 
+        const hash = LumUtils.toHex(rawTx.hash).toUpperCase();
+        const height = rawTx.height;
+
+        const tx: Transaction = {
+            hash,
+            height,
+            messages: [],
+            amount: [],
+            fromAddress: '',
+            toAddress: '',
+        };
+
+        console.log(hash);
         if (txData.body && txData.body.messages) {
             for (const msg of txData.body.messages) {
                 const txInfos = LumUtils.toJSON(LumRegistry.decode(msg));
+
+                console.log(txInfos);
                 if (typeof txInfos === 'object') {
+                    tx.messages.push(msg.typeUrl);
+
                     if (isSendTxInfo(txInfos)) {
-                        const tx: Transaction = {
-                            ...txInfos,
-                            type: msg.typeUrl,
-                            height: rawTx.height,
-                            hash: LumUtils.toHex(rawTx.hash).toUpperCase(),
-                        };
-                        if (!alreadyExists(formattedTxs, tx)) {
-                            formattedTxs.push(tx);
-                        }
+                        tx.fromAddress = txInfos.fromAddress;
+                        tx.toAddress = txInfos.toAddress;
+                        tx.amount = txInfos.amount;
                     } else if (isStakingTxInfo(txInfos)) {
-                        const fromAddress = txInfos.delegatorAddress;
-                        const toAddress = txInfos.validatorAddress;
+                        msg.typeUrl === LumMessages.MsgUndelegateUrl
+                            ? ((tx.fromAddress = txInfos.validatorAddress || ''),
+                              (tx.toAddress = txInfos.delegatorAddress))
+                            : ((tx.fromAddress = txInfos.validatorSrcAddress || txInfos.delegatorAddress),
+                              (tx.toAddress = txInfos.validatorDstAddress || txInfos.validatorAddress || ''));
 
-                        const tx: Transaction = {
-                            fromAddress,
-                            toAddress,
-                            type: msg.typeUrl,
-                            amount: [txInfos.amount],
-                            height: rawTx.height,
-                            hash: LumUtils.toHex(rawTx.hash).toUpperCase(),
-                        };
-
-                        if (!alreadyExists(formattedTxs, tx)) {
-                            formattedTxs.push(tx);
+                        if (txInfos.amount) {
+                            tx.amount.push(txInfos.amount);
                         }
                     }
                 }
             }
         }
+
+        formattedTxs.push(tx);
     }
 
     return sortByBlockHeight(formattedTxs);
@@ -371,11 +382,13 @@ class WalletClient {
         }
 
         const transactions = await this.lumClient.searchTx([
-            LumUtils.searchTxByTags([{ key: 'transfer.recipient', value: address }]),
-            LumUtils.searchTxByTags([{ key: 'transfer.sender', value: address }]),
+            `transfer.sender='${address}' AND transfer.recipient='${address}'`,
         ]);
 
-        return await formatTxs(transactions);
+        /* const tests = await this.lumClient.searchTx([`message.module='ibctransfer'`]);
+        console.log(tests); */
+
+        return formatTxs(transactions);
     };
 
     getRewards = async (address: string) => {

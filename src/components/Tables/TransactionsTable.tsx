@@ -30,7 +30,14 @@ const TransactionRow = (props: RowProps): JSX.Element => {
                 </a>
             </td>
             <td data-label={headers[1]}>
-                <TransactionTypeBadge type={row.type} userAddress={wallet.getAddress()} toAddress={row.toAddress} />
+                <TransactionTypeBadge
+                    type={row.messages[0]}
+                    userAddress={wallet.getAddress()}
+                    toAddress={row.toAddress}
+                />
+                {row.messages.length > 1 && (
+                    <span className="ms-2 color-type round-tags">+{row.messages.length - 1}</span>
+                )}
             </td>
             <td data-label={headers[2]}>
                 <a
@@ -55,23 +62,25 @@ const TransactionRow = (props: RowProps): JSX.Element => {
                 </a>
             </td>
             <td data-label={headers[4]} className="text-end">
-                <SmallerDecimal
-                    nb={NumbersUtils.formatUnit(
-                        row.amount && row.amount[0]
-                            ? row.amount[0]
-                            : {
-                                  amount: '0',
-                                  denom: LumConstants.LumDenom,
-                              },
-                        true,
-                    )}
-                />
-                <span className="ms-2">{LumConstants.LumDenom}</span>
+                {row.amount && row.amount[0] ? (
+                    <>
+                        <SmallerDecimal
+                            nb={NumbersUtils.formatUnit(
+                                row.amount && row.amount[0]
+                                    ? row.amount[0]
+                                    : {
+                                          amount: '0',
+                                          denom: LumConstants.LumDenom,
+                                      },
+                                true,
+                            )}
+                        />
+                        <span className="ms-2">{LumConstants.LumDenom}</span>
+                    </>
+                ) : (
+                    '-'
+                )}
             </td>
-            {/* 
-            <td data-label={headers[5]} className="text-end">
-                <div className="text-truncate">{row.time}</div>
-            </td> */}
         </tr>
     );
 };
@@ -86,7 +95,6 @@ const TransactionsTable = (props: TransactionsTableProps): JSX.Element => {
             t('transactions.table.from'),
             t('transactions.table.to'),
             t('transactions.table.amount'),
-            //t('transactions.table.time'),
         ];
 
         const txs = [...props.transactions].sort((txA, txB) => (txA.height < txB.height ? 1 : -1));

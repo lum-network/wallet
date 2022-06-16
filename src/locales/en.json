@@ -197,6 +197,7 @@
             "receive": "Receive",
             "delegate": "Delegate",
             "undelegate": "Undelegate",
+            "redelegate": "Redelegate",
             "claimBeam": "Claim Beam",
             "updateBeam": "Update Beam",
             "multiSend": "Multi Send",

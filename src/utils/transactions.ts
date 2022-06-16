@@ -20,6 +20,8 @@ export const getTxTypeInfos = (
             return { name: i18n.t('transactions.types.delegate'), icon: assets.images.messageTypes.delegate };
         case LumMessages.MsgUndelegateUrl:
             return { name: i18n.t('transactions.types.undelegate'), icon: assets.images.messageTypes.undelegate };
+        case LumMessages.MsgBeginRedelegateUrl:
+            return { name: i18n.t('transactions.types.redelegate'), icon: assets.images.messageTypes.redelegate };
         case LumMessages.MsgMultiSendUrl:
             return { name: i18n.t('transactions.types.multiSend'), icon: assets.images.messageTypes.multiSend };
         case LumMessages.MsgCreateValidatorUrl:

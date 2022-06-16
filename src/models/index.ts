@@ -20,14 +20,13 @@ export interface Wallet extends LumWallet {
 }
 
 export interface CommonTransactionProps {
-    type: string;
+    messages: string[];
     hash: string;
     height: number;
     amount: LumTypes.Coin[];
-    //time: string;
     memo?: string;
     success?: boolean;
-    [key: string]: string | LumTypes.Coin[] | number | boolean | undefined;
+    [key: string]: string | LumTypes.Coin[] | number | boolean | string[] | undefined;
 }
 
 export interface Transaction extends CommonTransactionProps {
