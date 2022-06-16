@@ -201,7 +201,6 @@ class WalletClient {
                 price: price,
                 denom: lumInfoData.platforms.cosmos,
                 symbol: lumInfoData.symbol.toUpperCase(),
-                liquidity: 0.0, //TODO: add
                 volume_24h: lumInfoData.market_data.total_volume.usd,
                 name: lumInfoData.name,
                 previousDaysPrices,

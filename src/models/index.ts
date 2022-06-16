@@ -115,7 +115,6 @@ export interface LumInfo {
     price: number;
     denom: string;
     symbol: string;
-    liquidity: number;
     volume_24h: number;
     name: number;
     previousDaysPrices: PreviousDayPrice[];
