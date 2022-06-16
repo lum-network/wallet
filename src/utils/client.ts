@@ -6,7 +6,7 @@ import i18n from 'locales';
 import { ProposalStatus, VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
 import Long from 'long';
 import axios from 'axios';
-import { OSMOSIS_API_URL } from 'constant';
+import { COINGECKO_API_URL } from 'constant';
 import { sortByBlockHeight } from './transactions';
 import { getRpcFromNode } from './links';
 
@@ -57,23 +57,6 @@ type StakingTxInfos = {
     amount: LumTypes.Coin;
 };
 
-type LumInfoType = {
-    price: number;
-    denom: string;
-    symbol: string;
-    liquidity: number;
-    volume_24h: number;
-    name: number;
-};
-
-type PreviousDayLumInfoType = {
-    open: number;
-    high: number;
-    close: number;
-    low: number;
-    time: number;
-};
-
 const isSendTxInfo = (
     info: {
         fromAddress?: string;
@@ -92,31 +75,6 @@ const isStakingTxInfo = (
     } | null,
 ): info is StakingTxInfos => {
     return !!(info && info.validatorAddress && info.delegatorAddress && info.amount);
-};
-
-const isLumInfo = (
-    info: {
-        price?: number;
-        denom?: string;
-        symbol?: string;
-        liquidity?: number;
-        volume_24h?: number;
-        name?: number;
-    } | null,
-): info is LumInfoType => {
-    return !!(info && info.price && info.liquidity && info.denom && info.name && info.volume_24h);
-};
-
-const isPreviousDayLumInfo = (
-    info: {
-        open?: number;
-        high?: number;
-        close?: number;
-        low?: number;
-        time?: number;
-    } | null,
-): info is PreviousDayLumInfoType => {
-    return !!(info && info.open && info.close && info.high && info.low && info.time);
 };
 
 const alreadyExists = (array: Transaction[], value: Transaction) => {
@@ -225,26 +183,31 @@ class WalletClient {
     // Getters
 
     private getLumInfo = async (): Promise<LumInfo | null> => {
-        const [lumInfos, previousDayLumInfos] = await Promise.all([
-            axios.get(`${OSMOSIS_API_URL}/tokens/v2/LUM`).catch(() => null),
-            axios.get(`${OSMOSIS_API_URL}/tokens/v2/historical/LUM/chart?tf=60`).catch(() => null),
-        ]);
+        try {
+            const [lumInfos, previousLumInfos] = await Promise.all([
+                axios.get(`${COINGECKO_API_URL}/coins/lum-network`).catch(() => null),
+                axios.get(`${COINGECKO_API_URL}/coins/lum-network/market_chart?vs_currency=usd&days=14`),
+            ]);
 
-        const lumInfoData = lumInfos && lumInfos.data[0];
-        const previousDayLumInfoData = previousDayLumInfos && previousDayLumInfos.data;
+            const lumInfoData = lumInfos && lumInfos.data;
+            const previousDays: [number, number][] =
+                previousLumInfos && previousLumInfos.data && previousLumInfos.data.prices;
 
-        if (isLumInfo(lumInfoData)) {
-            const previousDaysPrices = Array.isArray(previousDayLumInfoData)
-                ? previousDayLumInfoData.filter(isPreviousDayLumInfo)
-                : [];
+            const price = lumInfoData.market_data.current_price.usd;
+
+            const previousDaysPrices = previousDays.map(([time, value]) => ({ time, value }));
 
             return {
-                ...lumInfoData,
+                price: price,
+                denom: lumInfoData.platforms.cosmos,
+                symbol: lumInfoData.symbol.toUpperCase(),
+                volume_24h: lumInfoData.market_data.total_volume.usd,
+                name: lumInfoData.name,
                 previousDaysPrices,
             };
+        } catch {
+            return null;
         }
-
-        return null;
     };
 
     private getAccountAndChainId = (fromWallet: Wallet) => {
