@@ -7,6 +7,7 @@ import { Table } from 'frontend-elements';
 import { Transaction, Wallet } from 'models';
 import { getExplorerLink, NumbersUtils, trunc } from 'utils';
 import { SmallerDecimal, TransactionTypeBadge } from 'components';
+import assets from 'assets';
 
 interface TransactionsTableProps {
     transactions: Transaction[];
@@ -21,6 +22,8 @@ interface RowProps {
 
 const TransactionRow = (props: RowProps): JSX.Element => {
     const { row, wallet, headers } = props;
+
+    const { t } = useTranslation();
 
     return (
         <tr>
@@ -57,19 +60,28 @@ const TransactionRow = (props: RowProps): JSX.Element => {
                 </a>
             </td>
             <td data-label={headers[3]} className="text-end">
-                <a
-                    href={
-                        !!row.toAddress
-                            ? `${getExplorerLink()}/${
-                                  row.toAddress.includes(LumConstants.LumBech32PrefixValAddr) ? 'validators' : 'account'
-                              }/${row.toAddress}`
-                            : undefined
-                    }
-                    target="_blank"
-                    rel="noreferrer"
-                >
-                    {trunc(row.toAddress || '-')}
-                </a>
+                {row.messages.length > 1 ? (
+                    <a href={`${getExplorerLink()}/transactions/${row.hash}`} rel="noreferrer" target="_blank">
+                        <span className="color-type me-1">{t('common.more')}</span>
+                        <img src={assets.images.moreIcon} alt="more" />
+                    </a>
+                ) : (
+                    <a
+                        href={
+                            !!row.toAddress
+                                ? `${getExplorerLink()}/${
+                                      row.toAddress.includes(LumConstants.LumBech32PrefixValAddr)
+                                          ? 'validators'
+                                          : 'account'
+                                  }/${row.toAddress}`
+                                : undefined
+                        }
+                        target="_blank"
+                        rel="noreferrer"
+                    >
+                        {trunc(row.toAddress || '-')}
+                    </a>
+                )}
             </td>
             <td data-label={headers[4]} className="text-end">
                 {row.amount && row.amount[0] ? (

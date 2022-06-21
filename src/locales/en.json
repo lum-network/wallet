@@ -23,7 +23,8 @@
         "advancedTooltip": "Be careful when using advanced options",
         "reset": "Reset",
         "total": "Total",
-        "day": "24h"
+        "day": "24h",
+        "more": "More"
     },
     "navbar": {
         "dashboard": "Dashboard",
