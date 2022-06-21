@@ -41,24 +41,34 @@ const TransactionRow = (props: RowProps): JSX.Element => {
             </td>
             <td data-label={headers[2]}>
                 <a
-                    href={`${getExplorerLink()}/${
-                        row.fromAddress.includes(LumConstants.LumBech32PrefixValAddr) ? 'validators' : 'account'
-                    }/${row.fromAddress}`}
+                    href={
+                        !!row.fromAddress
+                            ? `${getExplorerLink()}/${
+                                  row.fromAddress.includes(LumConstants.LumBech32PrefixValAddr)
+                                      ? 'validators'
+                                      : 'account'
+                              }/${row.fromAddress}`
+                            : undefined
+                    }
                     target="_blank"
                     rel="noreferrer"
                 >
-                    {trunc(row.fromAddress)}
+                    {trunc(row.fromAddress || '-')}
                 </a>
             </td>
             <td data-label={headers[3]} className="text-end">
                 <a
-                    href={`${getExplorerLink()}/${
-                        row.toAddress.includes(LumConstants.LumBech32PrefixValAddr) ? 'validators' : 'account'
-                    }/${row.toAddress}`}
+                    href={
+                        !!row.toAddress
+                            ? `${getExplorerLink()}/${
+                                  row.toAddress.includes(LumConstants.LumBech32PrefixValAddr) ? 'validators' : 'account'
+                              }/${row.toAddress}`
+                            : undefined
+                    }
                     target="_blank"
                     rel="noreferrer"
                 >
-                    {trunc(row.toAddress)}
+                    {trunc(row.toAddress || '-')}
                 </a>
             </td>
             <td data-label={headers[4]} className="text-end">

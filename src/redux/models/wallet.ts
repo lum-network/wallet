@@ -199,7 +199,7 @@ export const wallet = createModel<RootModel>()({
                         rest: rpc.replace('rpc', 'rest'),
                         stakeCurrency: {
                             coinDenom: LumConstants.LumDenom.toUpperCase(),
-                            coinMinimalDenom: LumConstants.MicroLumDenom,
+                            coinMinimalDenom: LumConstants.MicroLumDenom.toUpperCase(),
                             coinDecimals: LumConstants.LumExponent,
                             coinGeckoId: LUM_COINGECKO_ID,
                         },
@@ -218,7 +218,7 @@ export const wallet = createModel<RootModel>()({
                         currencies: [
                             {
                                 coinDenom: LumConstants.LumDenom.toUpperCase(),
-                                coinMinimalDenom: LumConstants.MicroLumDenom,
+                                coinMinimalDenom: LumConstants.MicroLumDenom.toUpperCase(),
                                 coinDecimals: LumConstants.LumExponent,
                                 coinGeckoId: LUM_COINGECKO_ID,
                             },
@@ -227,7 +227,7 @@ export const wallet = createModel<RootModel>()({
                         feeCurrencies: [
                             {
                                 coinDenom: LumConstants.LumDenom.toUpperCase(),
-                                coinMinimalDenom: LumConstants.MicroLumDenom,
+                                coinMinimalDenom: LumConstants.MicroLumDenom.toUpperCase(),
                                 coinDecimals: LumConstants.LumExponent,
                                 coinGeckoId: LUM_COINGECKO_ID,
                             },

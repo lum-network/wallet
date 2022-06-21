@@ -6,12 +6,8 @@ const CUSTOM_NODE_KEY = 'custom-nodes';
 export const saveCustomNode = (node: string): void => {
     const nodes = getCustomNodes();
 
-    if (nodes.length > 0) {
-        nodes.push(node);
-        localStorage.setItem(CUSTOM_NODE_KEY, JSON.stringify(nodes));
-    } else {
-        localStorage.setItem(CUSTOM_NODE_KEY, JSON.stringify([node]));
-    }
+    nodes.push(node);
+    localStorage.setItem(CUSTOM_NODE_KEY, JSON.stringify(nodes));
 };
 
 export const getCustomNodes = (): string[] => {

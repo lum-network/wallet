@@ -59,6 +59,11 @@ type StakingTxInfos = {
     amount: LumTypes.Coin;
 };
 
+type VoteTxInfos = {
+    voter?: string;
+    proposalId?: Long;
+};
+
 const isSendTxInfo = (
     info: {
         fromAddress?: string;
@@ -85,6 +90,15 @@ const isStakingTxInfo = (
     );
 };
 
+const isVoteInfo = (
+    info: {
+        voter?: string;
+        proposalId?: Long;
+    } | null,
+): info is VoteTxInfos => {
+    return !!(info && info.proposalId && info.voter);
+};
+
 export const formatTxs = (rawTxs: TxResponse[]): Transaction[] => {
     const formattedTxs: Transaction[] = [];
 
@@ -104,12 +118,10 @@ export const formatTxs = (rawTxs: TxResponse[]): Transaction[] => {
             toAddress: '',
         };
 
-        console.log(hash);
         if (txData.body && txData.body.messages) {
             for (const msg of txData.body.messages) {
                 const txInfos = LumUtils.toJSON(LumRegistry.decode(msg));
 
-                console.log(txInfos);
                 if (typeof txInfos === 'object') {
                     tx.messages.push(msg.typeUrl);
 
@@ -127,6 +139,8 @@ export const formatTxs = (rawTxs: TxResponse[]): Transaction[] => {
                         if (txInfos.amount) {
                             tx.amount.push(txInfos.amount);
                         }
+                    } else if (isVoteInfo(txInfos)) {
+                        tx.toAddress = 'Proposal #' + Number(txInfos.proposalId).toFixed();
                     }
                 }
             }
@@ -383,10 +397,8 @@ class WalletClient {
 
         const transactions = await this.lumClient.searchTx([
             `transfer.sender='${address}' AND transfer.recipient='${address}'`,
+            `message.sender='${address}'`,
         ]);
-
-        /* const tests = await this.lumClient.searchTx([`message.module='ibctransfer'`]);
-        console.log(tests); */
 
         return formatTxs(transactions);
     };
