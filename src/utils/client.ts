@@ -397,7 +397,7 @@ class WalletClient {
 
         const transactions = await this.lumClient.searchTx([
             `transfer.sender='${address}' AND transfer.recipient='${address}'`,
-            `message.sender='${address}'`,
+            `message.module='governance' AND message.sender='${address}'`,
         ]);
 
         return formatTxs(transactions);
