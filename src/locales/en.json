@@ -206,8 +206,16 @@
             "editValidator": "Edit Validator",
             "getReward": "Get Reward",
             "openBeam": "Open Beam",
-            "vote": "Vote"
-        }
+            "vote": "Vote",
+            "ibcTransfer": "IBC Transfer",
+            "ibcClientUpdate": "IBC Client Update",
+            "ibcTimeout": "IBC Timeout",
+            "ibcAcknowledgement": "IBC Acknowledgement",
+            "ibcReceivePacket": "IBC Receive Packet",
+            "exec": "Exec",
+            "grant": "Grant"
+        },
+        "proposal": "Proposal #"
     },
     "operations": {
         "types": {

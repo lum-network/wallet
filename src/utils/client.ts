@@ -1,13 +1,12 @@
 import { LumClient, LumConstants, LumMessages, LumRegistry, LumTypes, LumUtils } from '@lum-network/sdk-javascript';
-import { TxResponse } from '@cosmjs/tendermint-rpc';
-import { PasswordStrengthType, PasswordStrength, Transaction, Wallet, Proposal, LumInfo } from 'models';
+import { PasswordStrengthType, PasswordStrength, Wallet, Proposal, LumInfo } from 'models';
 import { showErrorToast, showSuccessToast } from 'utils';
 import i18n from 'locales';
 import { ProposalStatus, VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
 import Long from 'long';
 import axios from 'axios';
 import { COINGECKO_API_URL } from 'constant';
-import { sortByBlockHeight } from './transactions';
+import { formatTxs } from './transactions';
 import { getRpcFromNode } from './links';
 
 export type MnemonicLength = 12 | 24;
@@ -43,113 +42,6 @@ export const checkPwdStrength = (password: string): PasswordStrength => {
         return PasswordStrengthType.Medium;
     }
     return PasswordStrengthType.Weak;
-};
-
-type SendTxInfos = {
-    fromAddress: string;
-    toAddress: string;
-    amount: LumTypes.Coin[];
-};
-
-type StakingTxInfos = {
-    validatorAddress?: string;
-    validatorDstAddress?: string;
-    validatorSrcAddress?: string;
-    delegatorAddress: string;
-    amount: LumTypes.Coin;
-};
-
-type VoteTxInfos = {
-    voter?: string;
-    proposalId?: Long;
-};
-
-const isSendTxInfo = (
-    info: {
-        fromAddress?: string;
-        toAddress?: string;
-        amount?: LumTypes.Coin[];
-    } | null,
-): info is SendTxInfos => {
-    return !!(info && info.fromAddress && info.toAddress && info.amount);
-};
-
-const isStakingTxInfo = (
-    info: {
-        delegatorAddress?: string;
-        validatorDstAddress?: string;
-        validatorSrcAddress?: string;
-        validatorAddress?: string;
-        amount?: LumTypes.Coin;
-    } | null,
-): info is StakingTxInfos => {
-    return !!(
-        info &&
-        (info.validatorAddress || (info.validatorDstAddress && info.validatorSrcAddress)) &&
-        info.delegatorAddress
-    );
-};
-
-const isVoteInfo = (
-    info: {
-        voter?: string;
-        proposalId?: Long;
-    } | null,
-): info is VoteTxInfos => {
-    return !!(info && info.proposalId && info.voter);
-};
-
-export const formatTxs = (rawTxs: TxResponse[]): Transaction[] => {
-    const formattedTxs: Transaction[] = [];
-
-    for (const rawTx of rawTxs) {
-        // Decode TX to human readable format
-        const txData = LumRegistry.decodeTx(rawTx.tx);
-
-        const hash = LumUtils.toHex(rawTx.hash).toUpperCase();
-        const height = rawTx.height;
-
-        const tx: Transaction = {
-            hash,
-            height,
-            messages: [],
-            amount: [],
-            fromAddress: '',
-            toAddress: '',
-        };
-
-        if (txData.body && txData.body.messages) {
-            for (const msg of txData.body.messages) {
-                const txInfos = LumUtils.toJSON(LumRegistry.decode(msg));
-
-                if (typeof txInfos === 'object') {
-                    tx.messages.push(msg.typeUrl);
-
-                    if (isSendTxInfo(txInfos)) {
-                        tx.fromAddress = txInfos.fromAddress;
-                        tx.toAddress = txInfos.toAddress;
-                        tx.amount = txInfos.amount;
-                    } else if (isStakingTxInfo(txInfos)) {
-                        msg.typeUrl === LumMessages.MsgUndelegateUrl
-                            ? ((tx.fromAddress = txInfos.validatorAddress || ''),
-                              (tx.toAddress = txInfos.delegatorAddress))
-                            : ((tx.fromAddress = txInfos.validatorSrcAddress || txInfos.delegatorAddress),
-                              (tx.toAddress = txInfos.validatorDstAddress || txInfos.validatorAddress || ''));
-
-                        if (txInfos.amount) {
-                            tx.amount.push(txInfos.amount);
-                        }
-                    } else if (isVoteInfo(txInfos)) {
-                        tx.toAddress = 'Proposal #' + Number(txInfos.proposalId).toFixed();
-                    }
-                }
-            }
-        }
-
-        formattedTxs.push(tx);
-    }
-
-    return sortByBlockHeight(formattedTxs);
 };
 
 export const generateSignedMessage = async (wallet: Wallet, message: string): Promise<LumTypes.SignMsg> => {
@@ -395,12 +287,15 @@ class WalletClient {
             return null;
         }
 
-        const transactions = await this.lumClient.searchTx([
-            `transfer.sender='${address}' AND transfer.recipient='${address}'`,
-            `message.module='governance' AND message.sender='${address}'`,
-        ]);
+        const res = await this.lumClient.tmClient.txSearch({
+            query: `transfer.recipient='${address}'`,
+        });
 
-        return formatTxs(transactions);
+        const res2 = await this.lumClient.tmClient.txSearch({
+            query: `transfer.sender='${address}'`,
+        });
+
+        return formatTxs([...res.txs, ...res2.txs]);
     };
 
     getRewards = async (address: string) => {
