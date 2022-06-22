@@ -51,10 +51,10 @@ const TransactionRow = (props: RowProps): JSX.Element => {
                         target="_blank"
                         rel="noreferrer"
                     >
-                        {trunc(row.fromAddress || '-')}
+                        {trunc(row.fromAddress)}
                     </a>
                 ) : (
-                    '-'
+                    trunc(row.fromAddress || '-')
                 )}
             </td>
             <td data-label={headers[3]} className="text-end">
