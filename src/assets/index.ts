@@ -53,6 +53,7 @@ import crossIcon from './images/cross.svg';
 import votePeriod from './images/votePeriod.svg';
 import depositPeriod from './images/depositPeriod.svg';
 import warningIcon from './images/warningIcon.svg';
+import moreIcon from './images/more.svg';
 
 export default {
     images: {
@@ -92,6 +93,7 @@ export default {
         votePeriod,
         depositPeriod,
         warningIcon,
+        moreIcon,
         messageTypes: {
             createValidator,
             delegate,

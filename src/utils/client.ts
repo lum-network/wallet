@@ -1,13 +1,12 @@
 import { LumClient, LumConstants, LumMessages, LumRegistry, LumTypes, LumUtils } from '@lum-network/sdk-javascript';
-import { TxResponse } from '@cosmjs/tendermint-rpc';
-import { PasswordStrengthType, PasswordStrength, Transaction, Wallet, Proposal, LumInfo } from 'models';
+import { PasswordStrengthType, PasswordStrength, Wallet, Proposal, LumInfo } from 'models';
 import { showErrorToast, showSuccessToast } from 'utils';
 import i18n from 'locales';
 import { ProposalStatus, VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
 import Long from 'long';
 import axios from 'axios';
 import { COINGECKO_API_URL } from 'constant';
-import { sortByBlockHeight } from './transactions';
+import { formatTxs } from './transactions';
 import { getRpcFromNode } from './links';
 
 export type MnemonicLength = 12 | 24;
@@ -43,88 +42,6 @@ export const checkPwdStrength = (password: string): PasswordStrength => {
         return PasswordStrengthType.Medium;
     }
     return PasswordStrengthType.Weak;
-};
-
-type SendTxInfos = {
-    fromAddress: string;
-    toAddress: string;
-    amount: LumTypes.Coin[];
-};
-
-type StakingTxInfos = {
-    validatorAddress: string;
-    delegatorAddress: string;
-    amount: LumTypes.Coin;
-};
-
-const isSendTxInfo = (
-    info: {
-        fromAddress?: string;
-        toAddress?: string;
-        amount?: LumTypes.Coin[];
-    } | null,
-): info is SendTxInfos => {
-    return !!(info && info.fromAddress && info.toAddress && info.amount);
-};
-
-const isStakingTxInfo = (
-    info: {
-        delegatorAddress?: string;
-        validatorAddress?: string;
-        amount?: LumTypes.Coin;
-    } | null,
-): info is StakingTxInfos => {
-    return !!(info && info.validatorAddress && info.delegatorAddress && info.amount);
-};
-
-const alreadyExists = (array: Transaction[], value: Transaction) => {
-    return array.length === 0 ? false : array.findIndex((val) => val.hash === value.hash) > -1;
-};
-
-export const formatTxs = async (rawTxs: TxResponse[]): Promise<Transaction[]> => {
-    const formattedTxs: Transaction[] = [];
-
-    for (const rawTx of rawTxs) {
-        // Decode TX to human readable format
-        const txData = LumRegistry.decodeTx(rawTx.tx);
-
-        if (txData.body && txData.body.messages) {
-            for (const msg of txData.body.messages) {
-                const txInfos = LumUtils.toJSON(LumRegistry.decode(msg));
-                if (typeof txInfos === 'object') {
-                    if (isSendTxInfo(txInfos)) {
-                        const tx: Transaction = {
-                            ...txInfos,
-                            type: msg.typeUrl,
-                            height: rawTx.height,
-                            hash: LumUtils.toHex(rawTx.hash).toUpperCase(),
-                        };
-                        if (!alreadyExists(formattedTxs, tx)) {
-                            formattedTxs.push(tx);
-                        }
-                    } else if (isStakingTxInfo(txInfos)) {
-                        const fromAddress = txInfos.delegatorAddress;
-                        const toAddress = txInfos.validatorAddress;
-
-                        const tx: Transaction = {
-                            fromAddress,
-                            toAddress,
-                            type: msg.typeUrl,
-                            amount: [txInfos.amount],
-                            height: rawTx.height,
-                            hash: LumUtils.toHex(rawTx.hash).toUpperCase(),
-                        };
-
-                        if (!alreadyExists(formattedTxs, tx)) {
-                            formattedTxs.push(tx);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    return sortByBlockHeight(formattedTxs);
 };
 
 export const generateSignedMessage = async (wallet: Wallet, message: string): Promise<LumTypes.SignMsg> => {
@@ -370,12 +287,15 @@ class WalletClient {
             return null;
         }
 
-        const transactions = await this.lumClient.searchTx([
-            LumUtils.searchTxByTags([{ key: 'transfer.recipient', value: address }]),
-            LumUtils.searchTxByTags([{ key: 'transfer.sender', value: address }]),
-        ]);
+        const res = await this.lumClient.tmClient.txSearch({
+            query: `transfer.recipient='${address}'`,
+        });
 
-        return await formatTxs(transactions);
+        const res2 = await this.lumClient.tmClient.txSearch({
+            query: `transfer.sender='${address}'`,
+        });
+
+        return formatTxs([...res.txs, ...res2.txs]);
     };
 
     getRewards = async (address: string) => {

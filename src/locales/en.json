@@ -23,7 +23,8 @@
         "advancedTooltip": "Be careful when using advanced options",
         "reset": "Reset",
         "total": "Total",
-        "day": "24h"
+        "day": "24h",
+        "more": "More"
     },
     "navbar": {
         "dashboard": "Dashboard",
@@ -197,6 +198,7 @@
             "receive": "Receive",
             "delegate": "Delegate",
             "undelegate": "Undelegate",
+            "redelegate": "Redelegate",
             "claimBeam": "Claim Beam",
             "updateBeam": "Update Beam",
             "multiSend": "Multi Send",
@@ -204,8 +206,16 @@
             "editValidator": "Edit Validator",
             "getReward": "Get Reward",
             "openBeam": "Open Beam",
-            "vote": "Vote"
-        }
+            "vote": "Vote",
+            "ibcTransfer": "IBC Transfer",
+            "ibcClientUpdate": "IBC Client Update",
+            "ibcTimeout": "IBC Timeout",
+            "ibcAcknowledgement": "IBC Acknowledgement",
+            "ibcReceivePacket": "IBC Receive Packet",
+            "exec": "Exec",
+            "grant": "Grant"
+        },
+        "proposal": "Proposal #"
     },
     "operations": {
         "types": {
