@@ -80,7 +80,12 @@ const TransactionRow = (props: RowProps): JSX.Element => {
                         <SmallerDecimal
                             nb={NumbersUtils.formatUnit(
                                 row.amount && row.amount[0]
-                                    ? row.amount[0]
+                                    ? {
+                                          amount: row.amount[0].amount,
+                                          denom: row.amount[0].denom.startsWith('ibc')
+                                              ? LumConstants.MicroLumDenom
+                                              : row.amount[0].denom,
+                                      }
                                     : {
                                           amount: '0',
                                           denom: LumConstants.LumDenom,

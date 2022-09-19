@@ -165,7 +165,16 @@ const LargeProposalCard = ({
                     </div>
                     <div className="col-12">
                         <h6 className="mb-2">{t('governance.proposalCard.details')}</h6>
-                        <p>{proposal.content.description}</p>
+                        <p>
+                            {proposal.content.description
+                                ? proposal.content.description.split('\\n').map((line, i) => (
+                                      <span key={i}>
+                                          {line}
+                                          <br />
+                                      </span>
+                                  ))
+                                : ''}
+                        </p>
                     </div>
                     <div className="col-12">
                         {renderResult()}
