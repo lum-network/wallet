@@ -206,7 +206,7 @@ const Operations = (): JSX.Element => {
     const setWithdrawAddressForm = useFormik({
         initialValues: { withdrawAddress: '', memo: '' },
         validationSchema: yup.object().shape({
-            withdrawAddress: yup.string(),
+            withdrawAddress: yup.string().required(t('common.required')),
             memo: yup.string(),
         }),
         onSubmit: (values) => onSubmitSetWithdrawAddress(values.withdrawAddress, values.memo),
