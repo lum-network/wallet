@@ -12,6 +12,7 @@ import multiSend from './images/messageTypes/multiSend.svg';
 import send from './images/messageTypes/send.svg';
 import undelegate from './images/messageTypes/undelegate.svg';
 import redelegate from './images/messageTypes/redelegate.svg';
+import setWithdrawAddress from './images/messageTypes/setWithdrawAddress.svg';
 import vote from './images/messageTypes/vote.svg';
 import beam from './images/messageTypes/beam.svg';
 import openBeam from './images/messageTypes/openBeam.svg';
@@ -108,6 +109,7 @@ export default {
             openBeam,
             updateBeam,
             claimBeam,
+            setWithdrawAddress,
         },
         navbarIcons: {
             dashboard,
