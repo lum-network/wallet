@@ -207,10 +207,10 @@ class WalletClient {
         let fiat = 0;
 
         const balances = await this.lumClient.getAllBalances(address);
-        if (balances.length > 0) {
-            for (const balance of balances) {
-                lum += Number(LumUtils.convertUnit(balance, LumConstants.LumDenom));
-            }
+        const ulumBalance = balances.find((balance) => balance.denom === LumConstants.MicroLumDenom);
+
+        if (ulumBalance) {
+            lum += Number(LumUtils.convertUnit(ulumBalance, LumConstants.LumDenom));
         }
 
         if (this.lumInfos) {

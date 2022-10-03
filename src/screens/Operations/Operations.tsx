@@ -216,6 +216,7 @@ const Operations = (): JSX.Element => {
         const ref = modalRef.current;
 
         const handler = () => {
+            console.log('hidden handler confirming ?', confirming);
             if (sendForm.touched.address || sendForm.touched.amount || sendForm.touched.memo) {
                 sendForm.resetForm();
             }

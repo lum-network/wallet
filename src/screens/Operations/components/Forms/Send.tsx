@@ -1,8 +1,11 @@
+import { LumConstants, LumUtils } from '@lum-network/sdk-javascript';
 import { Input, Button as CustomButton } from 'components';
 import { FormikContextType } from 'formik';
 import { Button } from 'frontend-elements';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
+import { RootState } from 'redux/store';
 
 interface Props {
     isLoading: boolean;
@@ -15,8 +18,27 @@ interface Props {
 
 const Send = ({ form, isLoading }: Props): JSX.Element => {
     const [confirming, setConfirming] = useState(false);
-
     const { t } = useTranslation();
+
+    const balance = useSelector((state: RootState) => state.wallet.currentBalance);
+    const vestings = useSelector((state: RootState) => state.wallet.vestings);
+
+    const onMax = () => {
+        let max = vestings
+            ? balance.lum - Number(LumUtils.convertUnit(vestings.lockedBankCoins, LumConstants.LumDenom))
+            : balance.lum;
+
+        // Max balance minus avg fees
+        max -= 0.0025;
+
+        form.setFieldValue('amount', max.toFixed(6));
+    };
+
+    useEffect(() => {
+        return () => {
+            setConfirming(false);
+        };
+    }, []);
 
     return (
         <>
@@ -30,6 +52,7 @@ const Send = ({ form, isLoading }: Props): JSX.Element => {
                         autoComplete="off"
                         placeholder={t('operations.inputs.amount.label')}
                         label={t('operations.inputs.amount.label')}
+                        onMax={confirming ? undefined : onMax}
                     />
                     {form.touched.amount && form.errors.amount && (
                         <p className="ms-2 color-error">{form.errors.amount}</p>
