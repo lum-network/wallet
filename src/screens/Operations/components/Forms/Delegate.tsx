@@ -30,7 +30,7 @@ const Delegate = ({ form, isLoading }: Props): JSX.Element => {
             : balance.lum;
 
         // Max balance minus avg fees
-        max -= 0.05;
+        max -= 0.005;
 
         form.setFieldValue('amount', max.toFixed(6));
     };
