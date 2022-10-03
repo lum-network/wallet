@@ -204,8 +204,8 @@ export const wallet = createModel<RootModel>()({
                         rpc,
                         rest: rpc.replace('rpc', 'rest'),
                         stakeCurrency: {
-                            coinDenom: LumConstants.LumDenom.toUpperCase(),
-                            coinMinimalDenom: LumConstants.MicroLumDenom.toUpperCase(),
+                            coinDenom: LumConstants.LumDenom,
+                            coinMinimalDenom: LumConstants.MicroLumDenom,
                             coinDecimals: LumConstants.LumExponent,
                             coinGeckoId: LUM_COINGECKO_ID,
                         },
@@ -223,8 +223,8 @@ export const wallet = createModel<RootModel>()({
                         },
                         currencies: [
                             {
-                                coinDenom: LumConstants.LumDenom.toUpperCase(),
-                                coinMinimalDenom: LumConstants.MicroLumDenom.toUpperCase(),
+                                coinDenom: LumConstants.LumDenom,
+                                coinMinimalDenom: LumConstants.MicroLumDenom,
                                 coinDecimals: LumConstants.LumExponent,
                                 coinGeckoId: LUM_COINGECKO_ID,
                             },
@@ -232,8 +232,8 @@ export const wallet = createModel<RootModel>()({
                         // List of coin/tokens used as a fee token in this chain.
                         feeCurrencies: [
                             {
-                                coinDenom: LumConstants.LumDenom.toUpperCase(),
-                                coinMinimalDenom: LumConstants.MicroLumDenom.toUpperCase(),
+                                coinDenom: LumConstants.LumDenom,
+                                coinMinimalDenom: LumConstants.MicroLumDenom,
                                 coinDecimals: LumConstants.LumExponent,
                                 coinGeckoId: LUM_COINGECKO_ID,
                             },
