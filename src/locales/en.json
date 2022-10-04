@@ -245,6 +245,10 @@
             "vote": {
                 "name": "Vote",
                 "description": "Vote on a governance proposal"
+            },
+            "setWithdrawAddress": {
+                "name": "Withdraw Address",
+                "description": "Set the address where LUM rewards will be sent"
             }
         },
         "confirmation": "Confirmation",
@@ -284,6 +288,9 @@
                     "noWithVeto": "No With Veto",
                     "placeholder": "--"
                 }
+            },
+            "withdrawAddress": {
+                "label": "Withdraw address"
             }
         },
         "defaultMemo": {

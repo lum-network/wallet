@@ -207,10 +207,10 @@ class WalletClient {
         let fiat = 0;
 
         const balances = await this.lumClient.getAllBalances(address);
-        if (balances.length > 0) {
-            for (const balance of balances) {
-                lum += Number(LumUtils.convertUnit(balance, LumConstants.LumDenom));
-            }
+        const ulumBalance = balances.find((balance) => balance.denom === LumConstants.MicroLumDenom);
+
+        if (ulumBalance) {
+            lum += Number(LumUtils.convertUnit(ulumBalance, LumConstants.LumDenom));
         }
 
         if (this.lumInfos) {
@@ -782,6 +782,62 @@ class WalletClient {
             fee,
             messages: [voteMsg],
             memo: '',
+            signers: [
+                {
+                    accountNumber,
+                    sequence,
+                    publicKey: fromWallet.getPublicKey(),
+                },
+            ],
+        };
+
+        const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, doc);
+        // Verify the transaction was successfully broadcasted and made it into a block
+        const broadcasted = LumUtils.broadcastTxCommitSuccess(broadcastResult);
+
+        return {
+            hash: broadcastResult.hash,
+            error: !broadcasted
+                ? broadcastResult.deliverTx && broadcastResult.deliverTx.log
+                    ? broadcastResult.deliverTx.log
+                    : broadcastResult.checkTx.log
+                : null,
+        };
+    };
+
+    setWithdrawAddress = async (fromWallet: Wallet, withdrawAddress = '', memo = '') => {
+        if (this.lumClient === null) {
+            return null;
+        }
+
+        const setWithdrawAddressMsg = LumMessages.BuildMsgSetWithdrawAddress(fromWallet.getAddress(), withdrawAddress);
+
+        // Define fees
+        const fee = {
+            amount: [{ denom: LumConstants.MicroLumDenom, amount: '25000' }],
+            gas: '100000',
+        };
+
+        // Fetch account number and sequence and chain id
+        const result = await this.getAccountAndChainId(fromWallet);
+
+        if (!result) {
+            return null;
+        }
+
+        const [account, chainId] = result;
+
+        if (!account || !chainId) {
+            return null;
+        }
+
+        const { accountNumber, sequence } = account;
+
+        const doc: LumTypes.Doc = {
+            chainId,
+            fee,
+            messages: [setWithdrawAddressMsg],
+            memo,
             signers: [
                 {
                     accountNumber,

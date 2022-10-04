@@ -9,7 +9,12 @@ const store = init<RootModel, FullModel>({
     models: reduxModels,
     redux: {
         rootReducers: {
-            LOGOUT: () => undefined,
+            LOGOUT: () => {
+                const backdrops = document.querySelectorAll('.modal-backdrop');
+
+                backdrops.forEach((backdrop) => backdrop.remove());
+                return undefined;
+            },
         },
     },
     plugins: [loadingPlugin({ type: 'full' })],

@@ -49,6 +49,12 @@ interface RedelegatePayload {
     amount: string;
 }
 
+interface SetWithdrawAddressPayload {
+    from: Wallet;
+    withdrawAddress: string;
+    memo: string;
+}
+
 interface SignInKeystorePayload {
     data: LumUtils.KeyStore | string;
     password: string;
@@ -427,6 +433,16 @@ export const wallet = createModel<RootModel>()({
             }
 
             dispatch.wallet.reloadWalletInfos(payload.voter.getAddress());
+            return result;
+        },
+        async setWithdrawAddress(payload: SetWithdrawAddressPayload) {
+            const result = await WalletClient.setWithdrawAddress(payload.from, payload.withdrawAddress, payload.memo);
+
+            if (!result) {
+                return null;
+            }
+
+            dispatch.wallet.reloadWalletInfos(payload.from.getAddress());
             return result;
         },
         async mintFaucet(address: string) {

@@ -19,6 +19,7 @@ import Undelegate from './components/Forms/Undelegate';
 import GetRewards from './components/Forms/GetReward';
 import Redelegate from './components/Forms/Redelegate';
 import Vote from './components/Forms/Vote';
+import SetWithdrawAddress from './components/Forms/SetWithdrawAddress';
 
 import './Operations.scss';
 import { VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
@@ -34,17 +35,17 @@ const Operations = (): JSX.Element => {
     }));
 
     // Rematch effects
-    const { sendTx, undelegate, delegate, redelegate, getReward, vote, getWalletInfos } = useRematchDispatch(
-        (dispatch: RootDispatch) => ({
+    const { sendTx, undelegate, delegate, redelegate, getReward, vote, setWithdrawAddress, getWalletInfos } =
+        useRematchDispatch((dispatch: RootDispatch) => ({
             sendTx: dispatch.wallet.sendTx,
             delegate: dispatch.wallet.delegate,
             getReward: dispatch.wallet.getReward,
             undelegate: dispatch.wallet.undelegate,
             redelegate: dispatch.wallet.redelegate,
             vote: dispatch.wallet.vote,
+            setWithdrawAddress: dispatch.wallet.setWithdrawAddress,
             getWalletInfos: dispatch.wallet.reloadWalletInfos,
-        }),
-    );
+        }));
 
     // Loaders
     const loadingSend = useSelector((state: RootState) => state.loading.effects.wallet.sendTx);
@@ -53,6 +54,9 @@ const Operations = (): JSX.Element => {
     const loadingRedelegate = useSelector((state: RootState) => state.loading.effects.wallet.redelegate);
     const loadingGetReward = useSelector((state: RootState) => state.loading.effects.wallet.getReward);
     const loadingVote = useSelector((state: RootState) => state.loading.effects.wallet.vote);
+    const loadingSetWithdrawAddress = useSelector(
+        (state: RootState) => state.loading.effects.wallet.setWithdrawAddress,
+    );
 
     const loadingAll =
         loadingSend.loading || loadingDelegate.loading || loadingUndelegate.loading || loadingGetReward.loading;
@@ -101,6 +105,12 @@ const Operations = (): JSX.Element => {
             name: t('operations.types.vote.name'),
             description: t('operations.types.vote.description'),
             icon: assets.images.messageTypes.vote,
+        },
+        {
+            id: LumMessages.MsgSetWithdrawAddressUrl,
+            name: t('operations.types.setWithdrawAddress.name'),
+            description: t('operations.types.setWithdrawAddress.description'),
+            icon: assets.images.messageTypes.setWithdrawAddress,
         },
     ];
 
@@ -193,10 +203,20 @@ const Operations = (): JSX.Element => {
         onSubmit: (values) => onSubmitVote(values.proposalId, values.vote),
     });
 
+    const setWithdrawAddressForm = useFormik({
+        initialValues: { withdrawAddress: '', memo: '' },
+        validationSchema: yup.object().shape({
+            withdrawAddress: yup.string().required(t('common.required')),
+            memo: yup.string(),
+        }),
+        onSubmit: (values) => onSubmitSetWithdrawAddress(values.withdrawAddress, values.memo),
+    });
+
     useEffect(() => {
         const ref = modalRef.current;
 
         const handler = () => {
+            console.log('hidden handler confirming ?', confirming);
             if (sendForm.touched.address || sendForm.touched.amount || sendForm.touched.memo) {
                 sendForm.resetForm();
             }
@@ -217,6 +237,9 @@ const Operations = (): JSX.Element => {
             if (getRewardForm.touched.address || getRewardForm.touched.memo) {
                 getRewardForm.resetForm();
             }
+            if (setWithdrawAddressForm.touched.withdrawAddress || setWithdrawAddressForm.touched.memo) {
+                setWithdrawAddressForm.resetForm();
+            }
             if (confirming) {
                 setConfirming(false);
             }
@@ -234,7 +257,17 @@ const Operations = (): JSX.Element => {
                 ref.removeEventListener('hidden.bs.modal', handler);
             }
         };
-    }, [confirming, delegateForm, redelegateForm, getRewardForm, modalRef, sendForm, txResult, undelegateForm]);
+    }, [
+        confirming,
+        delegateForm,
+        redelegateForm,
+        getRewardForm,
+        modalRef,
+        sendForm,
+        txResult,
+        undelegateForm,
+        setWithdrawAddressForm,
+    ]);
 
     if (!wallet) {
         return <Redirect to="/welcome" />;
@@ -271,6 +304,21 @@ const Operations = (): JSX.Element => {
 
             if (undelegateResult) {
                 setTxResult({ hash: LumUtils.toHex(undelegateResult.hash), error: undelegateResult.error });
+            }
+        } catch (e) {
+            showErrorToast((e as Error).message);
+        }
+    };
+
+    const onSubmitSetWithdrawAddress = async (withdrawAddress: string, memo: string) => {
+        try {
+            const setWithdrawAddressResult = await setWithdrawAddress({ withdrawAddress, memo, from: wallet });
+
+            if (setWithdrawAddressResult) {
+                setTxResult({
+                    hash: LumUtils.toHex(setWithdrawAddressResult.hash),
+                    error: setWithdrawAddressResult.error,
+                });
             }
         } catch (e) {
             showErrorToast((e as Error).message);
@@ -351,6 +399,11 @@ const Operations = (): JSX.Element => {
 
             case LumMessages.MsgVoteUrl:
                 return <Vote isLoading={!!loadingVote.loading} form={voteForm} />;
+
+            case LumMessages.MsgSetWithdrawAddressUrl:
+                return (
+                    <SetWithdrawAddress isLoading={!!loadingSetWithdrawAddress.loading} form={setWithdrawAddressForm} />
+                );
 
             default:
                 return <div>Soon</div>;
