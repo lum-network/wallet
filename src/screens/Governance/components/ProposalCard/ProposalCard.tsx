@@ -314,7 +314,7 @@ const ProposalCard = ({ proposal, full, onVote, onDetails }: Props): JSX.Element
                 <div className="row gy-3">
                     <div className="col-12 col-lg-6 col-xl-3">
                         <h6>Turnout</h6>
-                        <p>TODO</p>
+                        <p>Not available yet</p>
                     </div>
                     <div className="col-12 col-lg-6 col-xl-3">{renderResult()}</div>
                     <div className="col-12 col-lg-6 col-xl-3">{renderDates()}</div>

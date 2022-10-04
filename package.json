@@ -4,7 +4,7 @@
     "private": true,
     "dependencies": {
         "@ledgerhq/hw-transport-webusb": "^6.7.0",
-        "@lum-network/sdk-javascript": "^0.7.3",
+        "@lum-network/sdk-javascript": "^0.7.11",
         "@popperjs/core": "^2.10.2",
         "@rematch/core": "^2.1.0",
         "@rematch/loading": "^2.1.1",
@@ -18,7 +18,6 @@
         "immer": "^8.0.1",
         "kaktana-react-lightweight-charts": "^2.0.0",
         "lightweight-charts": "^3.7.0",
-        "sass": "^1.52.1",
         "numeral": "^2.0.6",
         "print-js": "^1.6.0",
         "react": "^17.0.1",
@@ -31,6 +30,7 @@
         "react-toastify": "^7.0.3",
         "react-transition-group": "^4.4.2",
         "redux": "^4.0.5",
+        "sass": "^1.52.1",
         "typescript": "^4.1.2",
         "web-vitals": "^1.0.1",
         "yup": "^0.32.9"
