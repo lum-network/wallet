@@ -403,6 +403,7 @@
             "votingStart": "Voting start",
             "votingEnd": "Voting end",
             "details": "Details",
+            "turnout": "Turnout",
             "voteButtonStates": {
                 "notStarted": "Vote not started",
                 "ended": "Vote Ended",

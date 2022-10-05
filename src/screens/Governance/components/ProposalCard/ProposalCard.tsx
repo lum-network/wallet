@@ -9,14 +9,16 @@ import dayjs from 'dayjs';
 import { Badge, SmallerDecimal } from 'components';
 import { Button, Card } from 'frontend-elements';
 import { Proposal, VotesResult } from 'models';
-import { dateFromNow, GovernanceUtils, NumbersUtils } from 'utils';
+import { calculateTotalVotingPower, dateFromNow, GovernanceUtils, NumbersUtils } from 'utils';
 import { useRematchDispatch } from 'redux/hooks';
-import { RootDispatch } from 'redux/store';
+import { RootDispatch, RootState } from 'redux/store';
 
 import VoteBar from '../VoteBar/VoteBar';
 
 import './ProposalCard.scss';
 import VoteButton from '../VoteButton/VoteButton';
+import { useSelector } from 'react-redux';
+import { Validator } from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
 
 interface Props {
     proposal: Proposal;
@@ -28,11 +30,13 @@ interface Props {
 const LargeProposalCard = ({
     proposal,
     results,
+    validators,
     onVote,
     t,
 }: {
     proposal: Proposal;
     results: VotesResult;
+    validators: Validator[];
     onVote: (proposal: Proposal) => void;
     t: TFunction<Namespace<'en'>>;
 }) => {
@@ -49,10 +53,22 @@ const LargeProposalCard = ({
 
         return (
             <Card className="mt-5" flat>
-                <div className="mb-4 d-flex">
-                    <h4 className="me-2">{t('common.total')}:</h4>
-                    <SmallerDecimal nb={numeral(NumbersUtils.convertUnitNumber(total)).format('0,0.000000')} />
-                    <span className="ms-2 color-type">{LumConstants.LumDenom}</span>
+                <div className="mb-4 d-flex justify-content-between">
+                    <div className="d-flex flex-row">
+                        <h4 className="me-2">{t('common.total')}:</h4>
+                        <SmallerDecimal nb={numeral(NumbersUtils.convertUnitNumber(total)).format('0,0.000000')} />
+                        <span className="ms-2 color-type">{LumConstants.LumDenom}</span>
+                    </div>
+                    <div className="d-flex flex-row">
+                        <h4 className="me-2">{t('governance.proposalCard.turnout')}:</h4>
+                        <p>
+                            {NumbersUtils.getPercentage(
+                                GovernanceUtils.sumOfVotes(results),
+                                calculateTotalVotingPower(validators),
+                            ).toFixed(2)}
+                            %
+                        </p>
+                    </div>
                 </div>
                 <VoteBar results={results} />
                 <div className="row mt-4 gy-2 ms-1">
@@ -201,6 +217,8 @@ const ProposalCard = ({ proposal, full, onVote, onDetails }: Props): JSX.Element
         getTally: dispatch.governance.getTally,
     }));
 
+    const validators = useSelector((state: RootState) => [...state.staking.validators.bonded]);
+
     useEffect(() => {
         if (!proposal) {
             return;
@@ -228,6 +246,21 @@ const ProposalCard = ({ proposal, full, onVote, onDetails }: Props): JSX.Element
 
     const renderDot = (dotClass: string) => {
         return <span className={`dot-size ${dotClass}`}>•</span>;
+    };
+
+    const renderTurnout = () => {
+        return (
+            <div className="d-flex flex-column justify-content-between align-items-start align-items-lg-end align-items-xl-start h-100">
+                <h6>{t('governance.proposalCard.turnout')}</h6>
+                <p>
+                    {NumbersUtils.getPercentage(
+                        GovernanceUtils.sumOfVotes(result),
+                        calculateTotalVotingPower(validators),
+                    ).toFixed(2)}
+                    %
+                </p>
+            </div>
+        );
     };
 
     const renderResult = () => {
@@ -294,11 +327,12 @@ const ProposalCard = ({ proposal, full, onVote, onDetails }: Props): JSX.Element
                 t={t}
                 onVote={onVote}
                 proposal={proposal}
+                validators={validators}
                 results={{
-                    yes: voteYes,
-                    no: voteNo,
-                    noWithVeto: voteNoWithVeto,
-                    abstain: voteAbstain,
+                    yes: result?.yes || 0,
+                    no: result?.no || 0,
+                    noWithVeto: result?.noWithVeto || 0,
+                    abstain: result?.abstain || 0,
                 }}
             />
         );
@@ -321,10 +355,7 @@ const ProposalCard = ({ proposal, full, onVote, onDetails }: Props): JSX.Element
             />
             <div className="container-fluid mt-4">
                 <div className="row gy-3">
-                    <div className="col-12 col-lg-6 col-xl-3">
-                        <h6>Turnout</h6>
-                        <p>Not available yet</p>
-                    </div>
+                    <div className="col-12 col-lg-6 col-xl-3">{renderTurnout()}</div>
                     <div className="col-12 col-lg-6 col-xl-3">{renderResult()}</div>
                     <div className="col-12 col-lg-6 col-xl-3">{renderDates()}</div>
                     <div className="col-12 col-lg-6 col-xl-3">
