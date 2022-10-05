@@ -1,11 +1,13 @@
+import React, { useState } from 'react';
 import { LumUtils, LumConstants } from '@lum-network/sdk-javascript';
 import { Input, Button as CustomButton } from 'components';
 import { FormikContextType } from 'formik';
 import { Button } from 'frontend-elements';
-import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { RootState } from 'redux/store';
+import { calculateTotalVotingPower, NumbersUtils, sortByVotingPower, trunc } from 'utils';
+import CustomSelect from '../CustomSelect/CustomSelect';
 
 interface Props {
     isLoading: boolean;
@@ -21,8 +23,12 @@ const Delegate = ({ form, isLoading }: Props): JSX.Element => {
 
     const { t } = useTranslation();
 
-    const balance = useSelector((state: RootState) => state.wallet.currentBalance);
-    const vestings = useSelector((state: RootState) => state.wallet.vestings);
+    const { balance, vestings, bondedValidators, unbondedValidators } = useSelector((state: RootState) => ({
+        balance: state.wallet.currentBalance,
+        vestings: state.wallet.vestings,
+        bondedValidators: state.staking.validators.bonded,
+        unbondedValidators: state.staking.validators.unbonded,
+    }));
 
     const onMax = () => {
         let max = vestings
@@ -32,7 +38,7 @@ const Delegate = ({ form, isLoading }: Props): JSX.Element => {
         // Max balance minus avg fees
         max -= 0.005;
 
-        form.setFieldValue('amount', max.toFixed(6));
+        form.setFieldValue('amount', max > 0 ? max.toFixed(6) : 0);
     };
 
     return (
@@ -54,20 +60,25 @@ const Delegate = ({ form, isLoading }: Props): JSX.Element => {
                         label={t('operations.inputs.amount.label')}
                         onMax={confirming ? undefined : onMax}
                     />
-                    {form.touched.amount && form.errors.amount && (
-                        <p className="ms-2 color-error">{form.errors.amount}</p>
-                    )}
+                    {form.errors.amount && <p className="ms-2 color-error">{form.errors.amount}</p>}
                 </div>
                 <div className="col-12 mt-4">
-                    <Input
-                        {...form.getFieldProps('address')}
-                        readOnly={confirming}
-                        placeholder={t('operations.inputs.validator.label')}
+                    <CustomSelect
+                        options={sortByVotingPower(
+                            bondedValidators,
+                            NumbersUtils.convertUnitNumber(
+                                calculateTotalVotingPower([...bondedValidators, ...unbondedValidators]),
+                            ),
+                        ).map((val) => ({
+                            value: val.operatorAddress,
+                            label: val.description?.moniker || val.description?.identity || trunc(val.operatorAddress),
+                        }))}
+                        onChange={(value) => form.setFieldValue('address', value)}
+                        value={form.values.address}
                         label={t('operations.inputs.validator.label')}
+                        readonly={confirming}
                     />
-                    {form.touched.address && form.errors.address && (
-                        <p className="ms-2 color-error">{form.errors.address}</p>
-                    )}
+                    {form.errors.address && <p className="ms-2 color-error">{form.errors.address}</p>}
                 </div>
                 <div className="col-12 mt-4">
                     {(!confirming || (confirming && form.values.memo)) && (
@@ -81,7 +92,20 @@ const Delegate = ({ form, isLoading }: Props): JSX.Element => {
                     {form.touched.memo && form.errors.memo && <p className="ms-2 color-error">{form.errors.memo}</p>}
                 </div>
                 <div className="justify-content-center mt-4 col-10 offset-1 col-sm-6 offset-sm-3">
-                    <Button loading={isLoading} onPress={confirming ? form.handleSubmit : () => setConfirming(true)}>
+                    <Button
+                        loading={isLoading}
+                        onPress={
+                            confirming
+                                ? form.handleSubmit
+                                : () => {
+                                      form.validateForm().then((errors) => {
+                                          if (!errors.address && !errors.amount && !errors.memo) {
+                                              setConfirming(true);
+                                          }
+                                      });
+                                  }
+                        }
+                    >
                         {confirming ? t('operations.types.delegate.name') : t('common.continue')}
                     </Button>
                     {confirming && (

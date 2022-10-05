@@ -337,17 +337,19 @@ const Staking = (): JSX.Element => {
                 setOnConfirmOperation(() => () => onDelegate(validator, totalVotingPower, true));
             }
         } else if (operationModal) {
-            delegateForm.setFieldValue('address', validator.operatorAddress);
-            setModalType({ id: LumMessages.MsgDelegateUrl, name: t('operations.types.delegate.name') });
-            operationModal.show();
+            delegateForm.setFieldValue('address', validator.operatorAddress).then(() => {
+                setModalType({ id: LumMessages.MsgDelegateUrl, name: t('operations.types.delegate.name') });
+                operationModal.show();
+            });
         }
     };
 
     const onUndelegate = (validator: Validator) => {
         if (operationModal) {
-            undelegateForm.setFieldValue('address', validator.operatorAddress);
-            setModalType({ id: LumMessages.MsgUndelegateUrl, name: t('operations.types.undelegate.name') });
-            operationModal.show();
+            undelegateForm.setFieldValue('address', validator.operatorAddress).then(() => {
+                setModalType({ id: LumMessages.MsgUndelegateUrl, name: t('operations.types.undelegate.name') });
+                operationModal.show();
+            });
         }
     };
 

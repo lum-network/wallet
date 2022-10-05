@@ -31,7 +31,7 @@ const Send = ({ form, isLoading }: Props): JSX.Element => {
         // Max balance minus avg fees
         max -= 0.005;
 
-        form.setFieldValue('amount', max.toFixed(6));
+        form.setFieldValue('amount', max > 0 ? max.toFixed(6) : 0);
     };
 
     useEffect(() => {
@@ -81,7 +81,20 @@ const Send = ({ form, isLoading }: Props): JSX.Element => {
                     {form.touched.memo && form.errors.memo && <p className="ms-2 color-error">{form.errors.memo}</p>}
                 </div>
                 <div className="justify-content-center mt-4 col-10 offset-1 col-sm-6 offset-sm-3">
-                    <Button loading={isLoading} onPress={confirming ? form.handleSubmit : () => setConfirming(true)}>
+                    <Button
+                        loading={isLoading}
+                        onPress={
+                            confirming
+                                ? form.handleSubmit
+                                : () => {
+                                      form.validateForm().then((errors) => {
+                                          if (!errors.address && !errors.amount && !errors.memo) {
+                                              setConfirming(true);
+                                          }
+                                      });
+                                  }
+                        }
+                    >
                         {confirming ? t('operations.types.send.name') : t('common.continue')}
                     </Button>
                     {confirming && (

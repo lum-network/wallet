@@ -261,13 +261,13 @@
                 "label": "To Address"
             },
             "validator": {
-                "label": "Validator address"
+                "label": "Validator"
             },
             "validatorSrc": {
-                "label": "Source validator address"
+                "label": "Source validator"
             },
             "validatorDest": {
-                "label": "Destination validator address"
+                "label": "Destination validator"
             },
             "memo": {
                 "label": "Note",
@@ -277,7 +277,7 @@
                 "label": "Rewards amount"
             },
             "proposalId": {
-                "label": "Proposal ID"
+                "label": "Proposal"
             },
             "vote": {
                 "label": "Vote",
