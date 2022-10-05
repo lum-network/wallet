@@ -355,20 +355,22 @@ const Staking = (): JSX.Element => {
 
     const onRedelegate = (validator: Validator) => {
         if (operationModal) {
-            redelegateForm.setFieldValue('fromAddress', validator.operatorAddress);
-            setModalType({ id: LumMessages.MsgBeginRedelegateUrl, name: t('operations.types.redelegate.name') });
-            operationModal.show();
+            redelegateForm.setFieldValue('fromAddress', validator.operatorAddress).then(() => {
+                setModalType({ id: LumMessages.MsgBeginRedelegateUrl, name: t('operations.types.redelegate.name') });
+                operationModal.show();
+            });
         }
     };
 
     const onClaim = (validator: Validator) => {
         if (operationModal) {
-            claimForm.setFieldValue('address', validator.operatorAddress);
-            setModalType({
-                id: LumMessages.MsgWithdrawDelegatorRewardUrl,
-                name: t('operations.types.getRewards.name'),
+            claimForm.setFieldValue('address', validator.operatorAddress).then(() => {
+                setModalType({
+                    id: LumMessages.MsgWithdrawDelegatorRewardUrl,
+                    name: t('operations.types.getRewards.name'),
+                });
+                operationModal.show();
             });
-            operationModal.show();
         }
     };
 
