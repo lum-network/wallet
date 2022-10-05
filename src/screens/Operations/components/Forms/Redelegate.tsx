@@ -114,7 +114,7 @@ const Redelegate = ({ form, isLoading }: Props): JSX.Element => {
                         label={t('operations.inputs.validatorDest.label')}
                         readonly={confirming}
                     />
-                    {form.errors.fromAddress && <p className="ms-2 color-error">{form.errors.fromAddress}</p>}
+                    {form.errors.toAddress && <p className="ms-2 color-error">{form.errors.toAddress}</p>}
                 </div>
                 <div className="col-12 mt-4">
                     {(!confirming || (confirming && form.values.memo)) && (
