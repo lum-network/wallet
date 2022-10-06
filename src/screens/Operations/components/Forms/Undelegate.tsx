@@ -62,7 +62,7 @@ const Undelegate = ({ form, isLoading }: Props): JSX.Element => {
                         max={max}
                         onMax={confirming || max === 0 ? undefined : () => form.setFieldValue('amount', max)}
                     />
-                    {form.errors.amount && <p className="ms-2 color-error">{form.errors.amount}</p>}
+                    {form.errors.amount && <p className="ms-3 mt-2 color-error">{form.errors.amount}</p>}
                 </div>
                 <div className="col-12 mt-4">
                     <CustomSelect
@@ -75,7 +75,7 @@ const Undelegate = ({ form, isLoading }: Props): JSX.Element => {
                         label={t('operations.inputs.validator.label')}
                         readonly={confirming}
                     />
-                    {form.errors.address && <p className="ms-2 color-error">{form.errors.address}</p>}
+                    {form.errors.address && <p className="ms-3 mt-2 color-error">{form.errors.address}</p>}
                 </div>
                 <div className="col-12 mt-4">
                     {(!confirming || (confirming && form.values.memo)) && (
@@ -86,7 +86,7 @@ const Undelegate = ({ form, isLoading }: Props): JSX.Element => {
                             label={t('operations.inputs.memo.label')}
                         />
                     )}
-                    {form.errors.memo && <p className="ms-2 color-error">{form.errors.memo}</p>}
+                    {form.errors.memo && <p className="ms-3 mt-2 color-error">{form.errors.memo}</p>}
                 </div>
                 <div className="justify-content-center mt-4 col-10 offset-1 col-sm-6 offset-sm-3">
                     <Button

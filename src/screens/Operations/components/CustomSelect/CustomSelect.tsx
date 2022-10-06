@@ -23,8 +23,8 @@ const CustomSelect = ({ options, onChange, value, readonly, label }: Props): JSX
     return (
         <div className={`custom-select ${readonly && 'readonly'}`}>
             {label && (
-                <label htmlFor="custom-select-input" className="form-label">
-                    <p className="ms-2">{label}</p>
+                <label htmlFor="custom-select-input" className="form-label ms-2 fw-semibold">
+                    {label}
                 </label>
             )}
             {readonly ? (

@@ -198,7 +198,11 @@ const Operations = (): JSX.Element => {
         initialValues: { proposalId: '', vote: VoteOption.UNRECOGNIZED },
         validationSchema: yup.object().shape({
             proposalId: yup.string().required(t('common.required')),
-            vote: yup.number().required(t('common.required')),
+            vote: yup
+                .number()
+                .required(t('common.required'))
+                .min(1, t('operations.errors.vote'))
+                .max(4, t('operations.errors.vote')),
         }),
         onSubmit: (values) => onSubmitVote(values.proposalId, values.vote),
     });

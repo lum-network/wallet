@@ -33,8 +33,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>((props, ref) => {
             return (
                 <div className={`d-flex flex-column ${className}`}>
                     {label && (
-                        <label htmlFor={rest.id} className="form-label">
-                            <p className="ms-2">{label}</p>
+                        <label htmlFor={rest.id} className="form-label ms-2 fw-semibold">
+                            {label}
                         </label>
                     )}
                     <div className={`normal-input ${!rest.readOnly ? '' : 'read-only ps-2'} ${inputClass}`}>
@@ -48,8 +48,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>((props, ref) => {
             return (
                 <div className={`d-flex flex-column ${className}`}>
                     {label && (
-                        <label htmlFor={rest.id} className="form-label">
-                            <p className="ms-2">{label}</p>
+                        <label htmlFor={rest.id} className="form-label ms-2 fw-semibold">
+                            {label}
                         </label>
                     )}
                     <div
@@ -74,7 +74,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>((props, ref) => {
             return (
                 <div className={`input-group ${className}`}>
                     {label && (
-                        <label htmlFor={rest.id} className="my-auto">
+                        <label htmlFor={rest.id} className="my-auto fw-semibold">
                             {label}
                         </label>
                     )}

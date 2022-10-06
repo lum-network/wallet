@@ -88,7 +88,7 @@ const Redelegate = ({ form, isLoading }: Props): JSX.Element => {
                         max={max}
                         onMax={confirming || max === 0 ? undefined : () => form.setFieldValue('amount', max)}
                     />
-                    {form.errors.amount && <p className="ms-2 color-error">{form.errors.amount}</p>}
+                    {form.errors.amount && <p className="ms-3 mt-2 color-error">{form.errors.amount}</p>}
                 </div>
                 <div className="col-12 mt-4">
                     <CustomSelect
@@ -101,7 +101,7 @@ const Redelegate = ({ form, isLoading }: Props): JSX.Element => {
                         label={t('operations.inputs.validatorSrc.label')}
                         readonly={confirming}
                     />
-                    {form.errors.fromAddress && <p className="ms-2 color-error">{form.errors.fromAddress}</p>}
+                    {form.errors.fromAddress && <p className="ms-3 mt-2 color-error">{form.errors.fromAddress}</p>}
                 </div>
                 <div className="col-12 mt-4">
                     <CustomSelect
@@ -114,7 +114,7 @@ const Redelegate = ({ form, isLoading }: Props): JSX.Element => {
                         label={t('operations.inputs.validatorDest.label')}
                         readonly={confirming}
                     />
-                    {form.errors.toAddress && <p className="ms-2 color-error">{form.errors.toAddress}</p>}
+                    {form.errors.toAddress && <p className="ms-3 mt-2 color-error">{form.errors.toAddress}</p>}
                 </div>
                 <div className="col-12 mt-4">
                     {(!confirming || (confirming && form.values.memo)) && (
@@ -125,7 +125,7 @@ const Redelegate = ({ form, isLoading }: Props): JSX.Element => {
                             label={t('operations.inputs.memo.label')}
                         />
                     )}
-                    {form.errors.memo && <p className="ms-2 color-error">{form.errors.memo}</p>}
+                    {form.errors.memo && <p className="ms-3 mt-2 color-error">{form.errors.memo}</p>}
                 </div>
                 <div className="justify-content-center mt-4 col-10 offset-1 col-sm-6 offset-sm-3">
                     <Button

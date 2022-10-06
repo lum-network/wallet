@@ -16,11 +16,7 @@ const Select = ({ options, label, readOnly, ...rest }: Props): JSX.Element => {
 
     return (
         <div className="d-flex flex-column select-container">
-            {label ? (
-                <label className="form-label">
-                    <p className="ms-2">{label}</p>
-                </label>
-            ) : null}
+            {label ? <label className="form-label ms-2 fw-semibold">{label}</label> : null}
             {readOnly ? (
                 <p className="ms-2 fw-normal">{selectedValue}</p>
             ) : (

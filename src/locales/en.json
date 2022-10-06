@@ -301,7 +301,8 @@
             "getAllRewards": "Get All Rewards"
         },
         "errors": {
-            "address": "Wrong address format"
+            "address": "Wrong address format",
+            "vote": "Invalid vote"
         }
     },
     "staking": {

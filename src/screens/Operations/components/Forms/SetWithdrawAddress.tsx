@@ -28,8 +28,8 @@ const SetWithdrawAddress = ({ form, isLoading }: Props): JSX.Element => {
                         placeholder={t('operations.inputs.withdrawAddress.label')}
                         label={t('operations.inputs.withdrawAddress.label')}
                     />
-                    {form.touched.withdrawAddress && form.errors.withdrawAddress && (
-                        <p className="ms-2 color-error">{form.errors.withdrawAddress}</p>
+                    {form.errors.withdrawAddress && (
+                        <p className="ms-3 mt-2 color-error">{form.errors.withdrawAddress}</p>
                     )}
                 </div>
                 <div className="col-12 mt-4">
@@ -41,7 +41,7 @@ const SetWithdrawAddress = ({ form, isLoading }: Props): JSX.Element => {
                             label={t('operations.inputs.memo.label')}
                         />
                     )}
-                    {form.touched.memo && form.errors.memo && <p className="ms-2 color-error">{form.errors.memo}</p>}
+                    {form.errors.memo && <p className="ms-3 mt-2 color-error">{form.errors.memo}</p>}
                 </div>
                 <div className="justify-content-center mt-4 col-10 offset-1 col-sm-6 offset-sm-3">
                     <Button
