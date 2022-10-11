@@ -1,8 +1,16 @@
-import { Input, Button as CustomButton } from 'components';
-import { FormikContextType } from 'formik';
-import { Button } from 'frontend-elements';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
+import { FormikContextType } from 'formik';
+import numeral from 'numeral';
+import { Validator } from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
+
+import { Input, Button as CustomButton } from 'components';
+import { Button } from 'frontend-elements';
+import { UserValidator } from 'models';
+import { RootState } from 'redux/store';
+import { calculateTotalVotingPower, getUserValidators, NumbersUtils, sortByVotingPower, trunc } from 'utils';
+import CustomSelect from '../CustomSelect/CustomSelect';
 
 interface Props {
     isLoading: boolean;
@@ -15,9 +23,57 @@ interface Props {
 }
 
 const Redelegate = ({ form, isLoading }: Props): JSX.Element => {
-    const [confirming, setConfirming] = useState(false);
-
     const { t } = useTranslation();
+
+    const { bondedValidators, unbondedValidators, delegations, rewards } = useSelector((state: RootState) => ({
+        bondedValidators: state.staking.validators.bonded,
+        unbondedValidators: state.staking.validators.unbonded,
+        delegations: state.staking.delegations,
+        rewards: state.wallet.rewards,
+    }));
+
+    const [confirming, setConfirming] = useState(false);
+    const [max, setMax] = useState(0);
+
+    const [userValidators, setUserValidators] = useState<UserValidator[]>(
+        getUserValidators(bondedValidators, unbondedValidators, delegations, rewards),
+    );
+    const [destValidatorsList, setDestValidatorsList] = useState<Validator[]>(
+        sortByVotingPower(
+            bondedValidators,
+            NumbersUtils.convertUnitNumber(calculateTotalVotingPower([...bondedValidators, ...unbondedValidators])),
+        ),
+    );
+
+    useEffect(() => {
+        setUserValidators(getUserValidators(bondedValidators, unbondedValidators, delegations, rewards));
+    }, [bondedValidators, unbondedValidators, delegations, rewards]);
+
+    useEffect(() => {
+        if (form.values.fromAddress) {
+            const max = userValidators.find((val) => val.operatorAddress === form.values.fromAddress)?.stakedCoins;
+
+            setMax(max ? numeral(max).value() || 0 : 0);
+
+            setDestValidatorsList(
+                sortByVotingPower(
+                    bondedValidators,
+                    NumbersUtils.convertUnitNumber(
+                        calculateTotalVotingPower([...bondedValidators, ...unbondedValidators]),
+                    ),
+                ).filter((val) => val.operatorAddress !== form.values.fromAddress),
+            );
+        } else {
+            setDestValidatorsList(
+                sortByVotingPower(
+                    bondedValidators,
+                    NumbersUtils.convertUnitNumber(
+                        calculateTotalVotingPower([...bondedValidators, ...unbondedValidators]),
+                    ),
+                ),
+            );
+        }
+    }, [form.values.fromAddress]);
 
     return (
         <>
@@ -29,32 +85,36 @@ const Redelegate = ({ form, isLoading }: Props): JSX.Element => {
                         readOnly={confirming}
                         placeholder={t('operations.inputs.amount.label')}
                         label={t('operations.inputs.amount.label')}
+                        max={max}
+                        onMax={confirming || max === 0 ? undefined : () => form.setFieldValue('amount', max)}
                     />
-                    {form.touched.amount && form.errors.amount && (
-                        <p className="ms-2 color-error">{form.errors.amount}</p>
-                    )}
+                    {form.errors.amount && <p className="ms-3 mt-2 color-error">{form.errors.amount}</p>}
                 </div>
                 <div className="col-12 mt-4">
-                    <Input
-                        {...form.getFieldProps('fromAddress')}
-                        readOnly={confirming}
-                        placeholder={t('operations.inputs.validatorSrc.label')}
+                    <CustomSelect
+                        options={userValidators.map((val) => ({
+                            value: val.operatorAddress,
+                            label: val.description?.moniker || val.description?.identity || trunc(val.operatorAddress),
+                        }))}
+                        onChange={(value) => form.setFieldValue('fromAddress', value)}
+                        value={form.values.fromAddress}
                         label={t('operations.inputs.validatorSrc.label')}
+                        readonly={confirming}
                     />
-                    {form.touched.fromAddress && form.errors.fromAddress && (
-                        <p className="ms-2 color-error">{form.errors.fromAddress}</p>
-                    )}
+                    {form.errors.fromAddress && <p className="ms-3 mt-2 color-error">{form.errors.fromAddress}</p>}
                 </div>
                 <div className="col-12 mt-4">
-                    <Input
-                        {...form.getFieldProps('toAddress')}
-                        readOnly={confirming}
-                        placeholder={t('operations.inputs.validatorDest.label')}
+                    <CustomSelect
+                        options={destValidatorsList.map((val) => ({
+                            value: val.operatorAddress,
+                            label: val.description?.moniker || val.description?.identity || trunc(val.operatorAddress),
+                        }))}
+                        onChange={(value) => form.setFieldValue('toAddress', value)}
+                        value={form.values.toAddress}
                         label={t('operations.inputs.validatorDest.label')}
+                        readonly={confirming}
                     />
-                    {form.touched.fromAddress && form.errors.fromAddress && (
-                        <p className="ms-2 color-error">{form.errors.fromAddress}</p>
-                    )}
+                    {form.errors.toAddress && <p className="ms-3 mt-2 color-error">{form.errors.toAddress}</p>}
                 </div>
                 <div className="col-12 mt-4">
                     {(!confirming || (confirming && form.values.memo)) && (
@@ -65,10 +125,28 @@ const Redelegate = ({ form, isLoading }: Props): JSX.Element => {
                             label={t('operations.inputs.memo.label')}
                         />
                     )}
-                    {form.touched.memo && form.errors.memo && <p className="ms-2 color-error">{form.errors.memo}</p>}
+                    {form.errors.memo && <p className="ms-3 mt-2 color-error">{form.errors.memo}</p>}
                 </div>
                 <div className="justify-content-center mt-4 col-10 offset-1 col-sm-6 offset-sm-3">
-                    <Button loading={isLoading} onPress={confirming ? form.handleSubmit : () => setConfirming(true)}>
+                    <Button
+                        loading={isLoading}
+                        onPress={
+                            confirming
+                                ? form.handleSubmit
+                                : () => {
+                                      form.validateForm().then((errors) => {
+                                          if (
+                                              !errors.toAddress &&
+                                              !errors.fromAddress &&
+                                              !errors.amount &&
+                                              !errors.memo
+                                          ) {
+                                              setConfirming(true);
+                                          }
+                                      });
+                                  }
+                        }
+                    >
                         {confirming ? t('operations.types.redelegate.name') : t('common.continue')}
                     </Button>
                     {confirming && (

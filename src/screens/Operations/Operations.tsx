@@ -198,7 +198,11 @@ const Operations = (): JSX.Element => {
         initialValues: { proposalId: '', vote: VoteOption.UNRECOGNIZED },
         validationSchema: yup.object().shape({
             proposalId: yup.string().required(t('common.required')),
-            vote: yup.number().required(t('common.required')),
+            vote: yup
+                .number()
+                .required(t('common.required'))
+                .min(1, t('operations.errors.vote'))
+                .max(4, t('operations.errors.vote')),
         }),
         onSubmit: (values) => onSubmitVote(values.proposalId, values.vote),
     });
@@ -216,7 +220,6 @@ const Operations = (): JSX.Element => {
         const ref = modalRef.current;
 
         const handler = () => {
-            console.log('hidden handler confirming ?', confirming);
             if (sendForm.touched.address || sendForm.touched.amount || sendForm.touched.memo) {
                 sendForm.resetForm();
             }
