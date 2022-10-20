@@ -46,8 +46,7 @@ export const unbondingsTimeRemaining = (unbondings: UnbondingDelegation[]): Date
 };
 
 export const getUserValidators = (
-    bondedValidators: Validator[],
-    unbondedValidators: Validator[],
+    validatorsList: Validator[],
     delegations: DelegationResponse[],
     rewards: Rewards,
 ): UserValidator[] => {
@@ -56,17 +55,10 @@ export const getUserValidators = (
     for (const delegation of delegations) {
         for (const reward of rewards.rewards) {
             if (delegation.delegation && reward.validatorAddress === delegation.delegation.validatorAddress) {
-                const validator =
-                    bondedValidators.find(
-                        (bondedVal) =>
-                            delegation.delegation &&
-                            bondedVal.operatorAddress === delegation.delegation.validatorAddress,
-                    ) ||
-                    unbondedValidators.find(
-                        (unbondedVal) =>
-                            delegation.delegation &&
-                            unbondedVal.operatorAddress === delegation.delegation.validatorAddress,
-                    );
+                const validator = validatorsList.find(
+                    (bondedVal) =>
+                        delegation.delegation && bondedVal.operatorAddress === delegation.delegation.validatorAddress,
+                );
 
                 if (validator) {
                     validators.push({

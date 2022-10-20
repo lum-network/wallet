@@ -22,23 +22,32 @@ interface Props {
 const GetReward = ({ form, isLoading }: Props): JSX.Element => {
     const { t } = useTranslation();
 
-    const { bondedValidators, unbondedValidators, delegations, rewards } = useSelector((state: RootState) => ({
-        bondedValidators: state.staking.validators.bonded,
-        unbondedValidators: state.staking.validators.unbonded,
-        delegations: state.staking.delegations,
-        rewards: state.wallet.rewards,
-    }));
+    const { bondedValidators, unbondedValidators, unbondingValidators, delegations, rewards } = useSelector(
+        (state: RootState) => ({
+            bondedValidators: state.staking.validators.bonded,
+            unbondedValidators: state.staking.validators.unbonded,
+            unbondingValidators: state.staking.validators.unbonding,
+            delegations: state.staking.delegations,
+            rewards: state.wallet.rewards,
+        }),
+    );
 
     const [confirming, setConfirming] = useState(false);
     const [userValidators, setUserValidators] = useState<UserValidator[]>(
-        getUserValidators(bondedValidators, unbondedValidators, delegations, rewards).filter((val) => val.reward > 0),
+        getUserValidators(
+            [...bondedValidators, ...unbondedValidators, ...unbondingValidators],
+            delegations,
+            rewards,
+        ).filter((val) => val.reward > 0),
     );
 
     useEffect(() => {
         setUserValidators(
-            getUserValidators(bondedValidators, unbondedValidators, delegations, rewards).filter(
-                (val) => val.reward > 0,
-            ),
+            getUserValidators(
+                [...bondedValidators, ...unbondedValidators, ...unbondingValidators],
+                delegations,
+                rewards,
+            ).filter((val) => val.reward > 0),
         );
     }, [bondedValidators, unbondedValidators, delegations, rewards]);
 

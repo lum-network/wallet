@@ -9,8 +9,9 @@ import { WalletClient } from 'utils';
 
 interface StakingState {
     validators: {
-        unbonded: Validator[];
         bonded: Validator[];
+        unbonded: Validator[];
+        unbonding: Validator[];
     };
     delegations: DelegationResponse[];
     unbondings: UnbondingDelegation[];
@@ -24,6 +25,7 @@ export const staking = createModel<RootModel>()({
         validators: {
             bonded: [],
             unbonded: [],
+            unbonding: [],
         },
         delegations: [],
         unbondings: [],
@@ -36,13 +38,14 @@ export const staking = createModel<RootModel>()({
             data: {
                 bonded: Validator[];
                 unbonded: Validator[];
+                unbonding: Validator[];
                 delegations: DelegationResponse[];
                 unbondings: UnbondingDelegation[];
                 unbondedTokens: number;
                 stakedCoins: number;
             },
         ) {
-            const { bonded, unbonded, delegations, unbondings, unbondedTokens, stakedCoins } = data;
+            const { bonded, unbonded, unbonding, delegations, unbondings, unbondedTokens, stakedCoins } = data;
 
             return {
                 ...state,
@@ -54,6 +57,7 @@ export const staking = createModel<RootModel>()({
                 validators: {
                     bonded,
                     unbonded,
+                    unbonding,
                 },
             };
         },

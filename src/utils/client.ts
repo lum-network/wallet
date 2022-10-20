@@ -142,12 +142,17 @@ class WalletClient {
         const { validators } = this.lumClient.queryClient.staking;
 
         try {
-            const [bondedValidators, unbondedValidators] = await Promise.all([
+            const [bondedValidators, unbondedValidators, unbondingValidators] = await Promise.all([
                 validators('BOND_STATUS_BONDED'),
                 validators('BOND_STATUS_UNBONDED'),
+                validators('BOND_STATUS_UNBONDING'),
             ]);
 
-            return { bonded: bondedValidators.validators, unbonded: unbondedValidators.validators };
+            return {
+                bonded: bondedValidators.validators,
+                unbonded: unbondedValidators.validators,
+                unbonding: unbondingValidators.validators,
+            };
         } catch (e) {}
     };
 
@@ -190,6 +195,7 @@ class WalletClient {
             return {
                 bonded: validators?.bonded || [],
                 unbonded: validators?.unbonded || [],
+                unbonding: validators?.unbonding || [],
                 delegations,
                 unbondings,
                 stakedCoins,

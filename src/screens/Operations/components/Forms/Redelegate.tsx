@@ -25,28 +25,39 @@ interface Props {
 const Redelegate = ({ form, isLoading }: Props): JSX.Element => {
     const { t } = useTranslation();
 
-    const { bondedValidators, unbondedValidators, delegations, rewards } = useSelector((state: RootState) => ({
-        bondedValidators: state.staking.validators.bonded,
-        unbondedValidators: state.staking.validators.unbonded,
-        delegations: state.staking.delegations,
-        rewards: state.wallet.rewards,
-    }));
+    const { bondedValidators, unbondedValidators, unbondingValidators, delegations, rewards } = useSelector(
+        (state: RootState) => ({
+            bondedValidators: state.staking.validators.bonded,
+            unbondedValidators: state.staking.validators.unbonded,
+            unbondingValidators: state.staking.validators.unbonding,
+            delegations: state.staking.delegations,
+            rewards: state.wallet.rewards,
+        }),
+    );
 
     const [confirming, setConfirming] = useState(false);
     const [max, setMax] = useState(0);
 
     const [userValidators, setUserValidators] = useState<UserValidator[]>(
-        getUserValidators(bondedValidators, unbondedValidators, delegations, rewards),
+        getUserValidators([...bondedValidators, ...unbondedValidators, ...unbondingValidators], delegations, rewards),
     );
     const [destValidatorsList, setDestValidatorsList] = useState<Validator[]>(
         sortByVotingPower(
             bondedValidators,
-            NumbersUtils.convertUnitNumber(calculateTotalVotingPower([...bondedValidators, ...unbondedValidators])),
+            NumbersUtils.convertUnitNumber(
+                calculateTotalVotingPower([...bondedValidators, ...unbondedValidators, ...unbondingValidators]),
+            ),
         ),
     );
 
     useEffect(() => {
-        setUserValidators(getUserValidators(bondedValidators, unbondedValidators, delegations, rewards));
+        setUserValidators(
+            getUserValidators(
+                [...bondedValidators, ...unbondedValidators, ...unbondingValidators],
+                delegations,
+                rewards,
+            ),
+        );
     }, [bondedValidators, unbondedValidators, delegations, rewards]);
 
     useEffect(() => {
@@ -59,7 +70,7 @@ const Redelegate = ({ form, isLoading }: Props): JSX.Element => {
                 sortByVotingPower(
                     bondedValidators,
                     NumbersUtils.convertUnitNumber(
-                        calculateTotalVotingPower([...bondedValidators, ...unbondedValidators]),
+                        calculateTotalVotingPower([...bondedValidators, ...unbondedValidators, ...unbondingValidators]),
                     ),
                 ).filter((val) => val.operatorAddress !== form.values.fromAddress),
             );
@@ -68,7 +79,7 @@ const Redelegate = ({ form, isLoading }: Props): JSX.Element => {
                 sortByVotingPower(
                     bondedValidators,
                     NumbersUtils.convertUnitNumber(
-                        calculateTotalVotingPower([...bondedValidators, ...unbondedValidators]),
+                        calculateTotalVotingPower([...bondedValidators, ...unbondedValidators, ...unbondingValidators]),
                     ),
                 ),
             );
