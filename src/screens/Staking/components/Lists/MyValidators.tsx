@@ -19,10 +19,7 @@ import {
 } from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
 
 interface Props {
-    validators: {
-        bonded: Validator[];
-        unbonded: Validator[];
-    };
+    validators: Validator[];
     rewards: Rewards;
     delegations: DelegationResponse[];
     unbondings: UnbondingDelegation[];
@@ -44,9 +41,7 @@ const MyValidators = ({
     onUndelegate,
     onClaim,
 }: Props): JSX.Element => {
-    const [userValidators, setUserValidators] = useState(
-        getUserValidators(validators.bonded, validators.unbonded, delegations, rewards),
-    );
+    const [userValidators, setUserValidators] = useState(getUserValidators(validators, delegations, rewards));
 
     const { wallet, loadingClaim, loadingDelegate, loadingUndelegate } = useSelector((state: RootState) => ({
         wallet: state.wallet.currentWallet,
@@ -58,8 +53,8 @@ const MyValidators = ({
     const { t } = useTranslation();
 
     useEffect(() => {
-        setUserValidators(getUserValidators(validators.bonded, validators.unbonded, delegations, rewards));
-    }, [validators.bonded, validators.unbonded, delegations, unbondings, rewards]);
+        setUserValidators(getUserValidators(validators, delegations, rewards));
+    }, [validators, delegations, unbondings, rewards]);
 
     const headers = [
         t('staking.tableLabels.validator'),

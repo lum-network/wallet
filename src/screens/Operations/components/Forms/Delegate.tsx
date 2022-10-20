@@ -23,12 +23,15 @@ const Delegate = ({ form, isLoading }: Props): JSX.Element => {
 
     const { t } = useTranslation();
 
-    const { balance, vestings, bondedValidators, unbondedValidators } = useSelector((state: RootState) => ({
-        balance: state.wallet.currentBalance,
-        vestings: state.wallet.vestings,
-        bondedValidators: state.staking.validators.bonded,
-        unbondedValidators: state.staking.validators.unbonded,
-    }));
+    const { balance, vestings, bondedValidators, unbondedValidators, unbondingValidators } = useSelector(
+        (state: RootState) => ({
+            balance: state.wallet.currentBalance,
+            vestings: state.wallet.vestings,
+            bondedValidators: state.staking.validators.bonded,
+            unbondedValidators: state.staking.validators.unbonded,
+            unbondingValidators: state.staking.validators.unbonding,
+        }),
+    );
 
     const onMax = () => {
         let max = vestings
@@ -67,7 +70,11 @@ const Delegate = ({ form, isLoading }: Props): JSX.Element => {
                         options={sortByVotingPower(
                             bondedValidators,
                             NumbersUtils.convertUnitNumber(
-                                calculateTotalVotingPower([...bondedValidators, ...unbondedValidators]),
+                                calculateTotalVotingPower([
+                                    ...bondedValidators,
+                                    ...unbondedValidators,
+                                    ...unbondingValidators,
+                                ]),
                             ),
                         ).map((val) => ({
                             value: val.operatorAddress,

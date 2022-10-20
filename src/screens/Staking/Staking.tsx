@@ -65,6 +65,7 @@ const Staking = (): JSX.Element => {
         airdrop,
         bondedValidators,
         unbondedValidators,
+        unbondingValidators,
         stakedCoins,
         unbondedTokens,
         wallet,
@@ -86,6 +87,7 @@ const Staking = (): JSX.Element => {
         rewards: state.wallet.rewards,
         bondedValidators: state.staking.validators.bonded,
         unbondedValidators: state.staking.validators.unbonded,
+        unbondingValidators: state.staking.validators.unbonding,
         delegations: state.staking.delegations,
         unbondings: state.staking.unbondings,
         stakedCoins: state.staking.stakedCoins,
@@ -184,7 +186,9 @@ const Staking = (): JSX.Element => {
 
     useEffect(() => {
         setTotalVotingPower(
-            NumbersUtils.convertUnitNumber(calculateTotalVotingPower([...bondedValidators, ...unbondedValidators])),
+            NumbersUtils.convertUnitNumber(
+                calculateTotalVotingPower([...bondedValidators, ...unbondedValidators, ...unbondingValidators]),
+            ),
         );
     }, [bondedValidators, unbondedValidators]);
 
@@ -304,7 +308,7 @@ const Staking = (): JSX.Element => {
 
     const onSubmitGetAllRewards = async (memo: string) => {
         try {
-            const validatorsAddresses = getUserValidators(bondedValidators, [], delegations, rewards)
+            const validatorsAddresses = getUserValidators([...bondedValidators], delegations, rewards)
                 .sort((valA, valB) => {
                     if (valA.reward > valB.reward) {
                         return -1;
@@ -473,7 +477,7 @@ const Staking = (): JSX.Element => {
                                     delegations={delegations}
                                     unbondings={unbondings}
                                     rewards={rewards}
-                                    validators={{ bonded: bondedValidators, unbonded: unbondedValidators }}
+                                    validators={[...bondedValidators, ...unbondedValidators, ...unbondingValidators]}
                                 />
                             </Card>
                         </div>
