@@ -69,7 +69,7 @@ const Undelegate = ({ form, isLoading }: Props): JSX.Element => {
                         placeholder={t('operations.inputs.amount.label')}
                         label={t('operations.inputs.amount.label')}
                         max={max}
-                        onMax={confirming || max === 0 ? undefined : () => form.setFieldValue('amount', max)}
+                        onMax={confirming || max === 0 ? undefined : () => form.setFieldValue('amount', max.toFixed(6))}
                     />
                     {form.errors.amount && <p className="ms-3 mt-2 color-error">{form.errors.amount}</p>}
                 </div>
