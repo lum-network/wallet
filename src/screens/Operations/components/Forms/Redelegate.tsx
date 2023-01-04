@@ -152,6 +152,10 @@ const Redelegate = ({ form, isLoading }: Props): JSX.Element => {
                                               !errors.amount &&
                                               !errors.memo
                                           ) {
+                                              form.setFieldValue(
+                                                  'amount',
+                                                  numeral(form.values.amount).format('00.000000'),
+                                              );
                                               setConfirming(true);
                                           }
                                       });

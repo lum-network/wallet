@@ -106,6 +106,10 @@ const Undelegate = ({ form, isLoading }: Props): JSX.Element => {
                                 : () => {
                                       form.validateForm().then((errors) => {
                                           if (!errors.address && !errors.amount && !errors.memo) {
+                                              form.setFieldValue(
+                                                  'amount',
+                                                  numeral(form.values.amount).format('00.000000'),
+                                              );
                                               setConfirming(true);
                                           }
                                       });
