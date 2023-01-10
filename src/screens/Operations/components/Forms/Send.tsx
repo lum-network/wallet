@@ -2,6 +2,7 @@ import { LumConstants, LumUtils } from '@lum-network/sdk-javascript';
 import { Input, Button as CustomButton } from 'components';
 import { FormikContextType } from 'formik';
 import { Button } from 'frontend-elements';
+import numeral from 'numeral';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -85,6 +86,10 @@ const Send = ({ form, isLoading }: Props): JSX.Element => {
                                 : () => {
                                       form.validateForm().then((errors) => {
                                           if (!errors.address && !errors.amount && !errors.memo) {
+                                              form.setFieldValue(
+                                                  'amount',
+                                                  numeral(form.values.amount).format('00.000000'),
+                                              );
                                               setConfirming(true);
                                           }
                                       });

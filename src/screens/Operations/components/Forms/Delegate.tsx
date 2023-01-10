@@ -8,6 +8,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from 'redux/store';
 import { calculateTotalVotingPower, NumbersUtils, sortByVotingPower, trunc } from 'utils';
 import CustomSelect from '../CustomSelect/CustomSelect';
+import numeral from 'numeral';
 
 interface Props {
     isLoading: boolean;
@@ -107,6 +108,10 @@ const Delegate = ({ form, isLoading }: Props): JSX.Element => {
                                 : () => {
                                       form.validateForm().then((errors) => {
                                           if (!errors.address && !errors.amount && !errors.memo) {
+                                              form.setFieldValue(
+                                                  'amount',
+                                                  numeral(form.values.amount).format('00.000000'),
+                                              );
                                               setConfirming(true);
                                           }
                                       });
