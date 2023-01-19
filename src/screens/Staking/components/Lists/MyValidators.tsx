@@ -70,94 +70,102 @@ const MyValidators = ({
         return <div />;
     }
 
-    const renderRow = (validator: UserValidator, index: number) => (
-        <tr key={index} className="validators-table-row">
-            <td data-label={headers[0]}>
-                <a
-                    href={`${getExplorerLink()}/validators/${validator.operatorAddress}`}
-                    target="_blank"
-                    rel="noreferrer"
-                >
-                    <ValidatorLogo
-                        width={34}
-                        height={34}
-                        githubUrl={LUM_ASSETS_GITHUB}
-                        validatorAddress={validator.operatorAddress}
-                        chainId={WalletClient.chainId || ''}
-                        className="me-2 me-sm-3"
-                    />
-                    <span>
-                        {validator.description?.moniker ||
-                            validator.description?.identity ||
-                            trunc(validator.operatorAddress)}
-                    </span>
-                </a>
-            </td>
-            <td data-label={headers[1]}>
-                <div className="text-truncate">
-                    <Badge validatorStatus={validator.status} jailed={validator.jailed} />
-                </div>
-            </td>
-            <td data-label={headers[2]}>
-                <div className="d-flex flex-column">
-                    <p>{numeral(NumbersUtils.convertUnitNumber(validator.tokens || 0)).format('0,0')}</p>
-                    <p className="text-muted">
-                        {totalVotingPower &&
-                            numeral(NumbersUtils.convertUnitNumber(validator.tokens || 0) / totalVotingPower).format(
-                                '0.00%',
-                            )}
+    const renderRow = (validator: UserValidator, index: number) => {
+        if (validator.stakedCoins === 'NaN') {
+            return null;
+        }
+
+        return (
+            <tr key={index} className="validators-table-row">
+                <td data-label={headers[0]}>
+                    <a
+                        href={`${getExplorerLink()}/validators/${validator.operatorAddress}`}
+                        target="_blank"
+                        rel="noreferrer"
+                    >
+                        <ValidatorLogo
+                            width={34}
+                            height={34}
+                            githubUrl={LUM_ASSETS_GITHUB}
+                            validatorAddress={validator.operatorAddress}
+                            chainId={WalletClient.chainId || ''}
+                            className="me-2 me-sm-3"
+                        />
+                        <span>
+                            {validator.description?.moniker ||
+                                validator.description?.identity ||
+                                trunc(validator.operatorAddress)}
+                        </span>
+                    </a>
+                </td>
+                <td data-label={headers[1]}>
+                    <div className="text-truncate">
+                        <Badge validatorStatus={validator.status} jailed={validator.jailed} />
+                    </div>
+                </td>
+                <td data-label={headers[2]}>
+                    <div className="d-flex flex-column">
+                        <p>{numeral(NumbersUtils.convertUnitNumber(validator.tokens || 0)).format('0,0')}</p>
+                        <p className="text-muted">
+                            {totalVotingPower &&
+                                numeral(
+                                    NumbersUtils.convertUnitNumber(validator.tokens || 0) / totalVotingPower,
+                                ).format('0.00%')}
+                        </p>
+                    </div>
+                </td>
+                <td data-label={headers[3]}>
+                    <p>
+                        {numeral(
+                            parseFloat(validator.commission?.commissionRates?.rate || '') / CLIENT_PRECISION,
+                        ).format('0.00%')}
                     </p>
-                </div>
-            </td>
-            <td data-label={headers[3]}>
-                <p>
-                    {numeral(parseFloat(validator.commission?.commissionRates?.rate || '') / CLIENT_PRECISION).format(
-                        '0.00%',
-                    )}
-                </p>
-            </td>
-            <td data-label={headers[4]} className="text-end">
-                <SmallerDecimal nb={validator.stakedCoins} />
-                <span className="ms-2">{LumConstants.LumDenom}</span>
-            </td>
-            <td data-label={headers[5]} className="text-end">
-                <SmallerDecimal nb={NumbersUtils.formatTo6digit(NumbersUtils.convertUnitNumber(validator.reward))} />
-                <span className="ms-2">{LumConstants.LumDenom}</span>
-            </td>
-            <td data-label={headers[6]} className="text-end">
-                <DropdownButton
-                    title="Actions"
-                    className="d-flex justify-content-end me-lg-4"
-                    direction="up"
-                    isLoading={loadingClaim || loadingDelegate || loadingUndelegate}
-                    items={[
-                        ...(validator.status === BondStatus.BOND_STATUS_BONDED
-                            ? [
-                                  {
-                                      title: t('staking.claim'),
-                                      onPress: () => onClaim(validator),
-                                  },
-                                  {
-                                      title: t('operations.types.delegate.name'),
-                                      onPress: () => onDelegate(validator, totalVotingPower),
-                                  },
-                              ]
-                            : []),
-                        {
-                            title: t('operations.types.undelegate.name'),
-                            onPress: () => onUndelegate(validator),
-                        },
-                        {
-                            title: t('operations.types.redelegate.name'),
-                            onPress: () => onRedelegate(validator),
-                        },
-                    ]}
-                />
-            </td>
-            {/* Additional Spacer when the table becomes vertical */}
-            <td className="d-block d-lg-none" />
-        </tr>
-    );
+                </td>
+                <td data-label={headers[4]} className="text-end">
+                    <SmallerDecimal nb={validator.stakedCoins} />
+                    <span className="ms-2">{LumConstants.LumDenom}</span>
+                </td>
+                <td data-label={headers[5]} className="text-end">
+                    <SmallerDecimal
+                        nb={NumbersUtils.formatTo6digit(NumbersUtils.convertUnitNumber(validator.reward))}
+                    />
+                    <span className="ms-2">{LumConstants.LumDenom}</span>
+                </td>
+                <td data-label={headers[6]} className="text-end">
+                    <DropdownButton
+                        title="Actions"
+                        className="d-flex justify-content-end me-lg-4"
+                        direction="up"
+                        isLoading={loadingClaim || loadingDelegate || loadingUndelegate}
+                        items={[
+                            ...(validator.status === BondStatus.BOND_STATUS_BONDED
+                                ? [
+                                      {
+                                          title: t('staking.claim'),
+                                          onPress: () => onClaim(validator),
+                                      },
+                                      {
+                                          title: t('operations.types.delegate.name'),
+                                          onPress: () => onDelegate(validator, totalVotingPower),
+                                      },
+                                  ]
+                                : []),
+                            {
+                                title: t('operations.types.undelegate.name'),
+                                onPress: () => onUndelegate(validator),
+                            },
+                            {
+                                title: t('operations.types.redelegate.name'),
+                                onPress: () => onRedelegate(validator),
+                            },
+                        ]}
+                    />
+                </td>
+                {/* Additional Spacer when the table becomes vertical */}
+                <td className="d-block d-lg-none" />
+            </tr>
+        );
+    };
 
     return (
         <>
