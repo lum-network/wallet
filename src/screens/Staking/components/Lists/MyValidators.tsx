@@ -71,7 +71,6 @@ const MyValidators = ({
     }
 
     const renderRow = (validator: UserValidator, index: number) => {
-        console.log(validator.stakedCoins);
         if (validator.stakedCoins === 'NaN' || validator.stakedCoins === '0') {
             return null;
         }
