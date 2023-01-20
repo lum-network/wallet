@@ -65,7 +65,7 @@ export const getUserValidators = (
                         ...validator,
                         reward: parseFloat(reward.reward.length > 0 ? reward.reward[0].amount : '0') / CLIENT_PRECISION,
                         stakedCoins: NumbersUtils.formatTo6digit(
-                            NumbersUtils.convertUnitNumber(delegation.delegation.shares || 0) / CLIENT_PRECISION,
+                            NumbersUtils.convertUnitNumber(delegation.balance?.amount || '0'),
                         ),
                     });
                 }
