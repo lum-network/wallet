@@ -228,6 +228,11 @@ export const wallet = createModel<RootModel>()({
                                 coinDecimals: LumConstants.LumExponent,
                                 coinGeckoId: LUM_COINGECKO_ID,
                             },
+                            {
+                                coinDenom: 'dfr',
+                                coinMinimalDenom: 'udfr',
+                                coinDecimals: 6,
+                            },
                         ],
                         // List of coin/tokens used as a fee token in this chain.
                         feeCurrencies: [
