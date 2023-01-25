@@ -80,13 +80,13 @@ const Governance = (): JSX.Element => {
 
     useEffect(() => {
         if (proposalId === undefined) {
-            setActiveTab('active');
+            setActiveTab(activeTab);
         }
-        setOnScreenProposal(proposals.find((proposal) => proposal.proposalId.toString() === proposalId));
+        setOnScreenProposal(proposals.find((proposal) => proposal.id.toString() === proposalId));
     }, [proposalId, proposals]);
 
     const onDetails = (proposal: Proposal) => {
-        history.push(`/governance/proposal/${proposal.proposalId}`);
+        history.push(`/governance/proposal/${proposal.id}`);
     };
 
     const onVote = (proposal: Proposal) => {
@@ -128,7 +128,7 @@ const Governance = (): JSX.Element => {
                                     {onScreenProposal ? (
                                         <button
                                             type="button"
-                                            onClick={() => history.goBack()}
+                                            onClick={() => history.replace('/governance')}
                                             className="close-btn bg-white rounded-circle mt-2"
                                             aria-label={t('common.close')}
                                         >
@@ -136,6 +136,7 @@ const Governance = (): JSX.Element => {
                                         </button>
                                     ) : (
                                         <CustomSwitch
+                                            defaultChecked={activeTab === 'passed'}
                                             onChange={(event) =>
                                                 setActiveTab(event.target.checked ? 'passed' : 'active')
                                             }
@@ -162,7 +163,7 @@ const Governance = (): JSX.Element => {
                                                 {currentTabProposals.length > 0 ? (
                                                     currentTabProposals.map((proposal) => (
                                                         <ProposalCard
-                                                            key={proposal.proposalId.toString()}
+                                                            key={proposal.id.toString()}
                                                             proposal={proposal}
                                                             onVote={onVote}
                                                             onDetails={onDetails}
@@ -198,8 +199,8 @@ const Governance = (): JSX.Element => {
                                 <>
                                     <h3 className="fw-bolder mx-3">
                                         {t('governance.confirmingTitle', {
-                                            proposal: `#${proposalToVote.proposalId.toString()} ${
-                                                proposalToVote.content.title
+                                            proposal: `#${proposalToVote.id.toString()} ${
+                                                proposalToVote.content ? proposalToVote.content.title : ''
                                             }`,
                                         })}
                                     </h3>
@@ -210,7 +211,8 @@ const Governance = (): JSX.Element => {
                             ) : (
                                 <>
                                     <h4 className="text-center mt-4">
-                                        #{proposalToVote.proposalId.toString()} {proposalToVote.content.title}
+                                        #{proposalToVote.id.toString()}{' '}
+                                        {proposalToVote.content ? proposalToVote.content.title : ''}
                                     </h4>
 
                                     <div className="d-flex flex-column mt-4 px-4 w-100">
@@ -275,7 +277,7 @@ const Governance = (): JSX.Element => {
                                     onClick={
                                         confirming
                                             ? () => {
-                                                  if (vote) onSubmitVote(proposalToVote.proposalId.toString(), vote);
+                                                  if (vote) onSubmitVote(proposalToVote.id.toString(), vote);
                                               }
                                             : () => setConfirming(true)
                                     }

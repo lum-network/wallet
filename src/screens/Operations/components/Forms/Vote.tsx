@@ -36,8 +36,8 @@ const Vote = ({ form, isLoading }: Props): JSX.Element => {
                 <div className="col-12">
                     <CustomSelect
                         options={activeProposals.map((proposal) => ({
-                            value: proposal.proposalId.toString(),
-                            label: proposal.content.title,
+                            value: proposal.id.toString(),
+                            label: proposal.content ? proposal.content.title : 'Proposal #' + proposal.id.toString(),
                         }))}
                         onChange={(value) => form.setFieldValue('proposalId', value)}
                         value={form.values.proposalId}
