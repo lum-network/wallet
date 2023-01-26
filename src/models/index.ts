@@ -1,6 +1,6 @@
 import { LumTypes, LumWallet } from '@lum-network/sdk-javascript';
+import { Proposal as BaseProposal } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1/gov';
 import { Validator } from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
-import { Proposal as BaseProposal } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
 import { Models } from '@rematch/core';
 import { governance } from '../redux/models/governance';
 import { staking } from '../redux/models/staking';
@@ -97,11 +97,11 @@ export interface VotesResult {
     abstain: number;
 }
 
-export interface Proposal extends Omit<BaseProposal, 'content'> {
+export interface Proposal extends BaseProposal {
     content: {
         title: string;
         description: string;
-    };
+    } | null;
     finalResult: VotesResult;
 }
 

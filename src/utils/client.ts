@@ -5,7 +5,7 @@ import i18n from 'locales';
 import { ProposalStatus, VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
 import Long from 'long';
 import axios from 'axios';
-import { COINGECKO_API_URL } from 'constant';
+import { COINGECKO_API_URL, IPFS_GATEWAY, MessageTypes } from 'constant';
 import { formatTxs } from './transactions';
 import { getRpcFromNode } from './links';
 
@@ -317,6 +317,7 @@ class WalletClient {
             return null;
         }
 
+        const proposals: Proposal[] = [];
         const result = await this.lumClient.queryClient.gov.proposals(
             ProposalStatus.PROPOSAL_STATUS_UNSPECIFIED |
                 ProposalStatus.PROPOSAL_STATUS_DEPOSIT_PERIOD |
@@ -329,16 +330,44 @@ class WalletClient {
             '',
         );
 
-        return result.proposals.map((proposal) => ({
-            ...proposal,
-            content: proposal.content ? LumRegistry.decode(proposal.content) : proposal.content,
-            finalResult: {
-                yes: Number(proposal.finalTallyResult?.yes) || 0,
-                no: Number(proposal.finalTallyResult?.no) || 0,
-                noWithVeto: Number(proposal.finalTallyResult?.noWithVeto) || 0,
-                abstain: Number(proposal.finalTallyResult?.abstain) || 0,
-            },
-        }));
+        result.proposals.map(async (proposal) => {
+            let content: {
+                title: string;
+                description: string;
+            } | null = null;
+
+            if (proposal.messages[0]) {
+                if (proposal.messages[0].typeUrl === MessageTypes.SOFTWARE_UPDGRADE && proposal.metadata) {
+                    try {
+                        const { data } = await axios.get(`${IPFS_GATEWAY}/${proposal.metadata.replace('ipfs://', '')}`);
+                        content = {
+                            title: data.title,
+                            description: data.details,
+                        };
+                    } catch {}
+                } else if (proposal.messages[0] && proposal.messages[0].typeUrl === MessageTypes.LEGACY_PROPOSAL) {
+                    const messageData = LumRegistry.decode(proposal.messages[0]);
+                    const data = LumRegistry.decode(messageData.content);
+                    content = {
+                        title: data.title,
+                        description: data.description,
+                    };
+                }
+            }
+
+            proposals.push({
+                ...proposal,
+                content,
+                finalResult: {
+                    yes: Number(proposal.finalTallyResult?.yesCount) || 0,
+                    no: Number(proposal.finalTallyResult?.noCount) || 0,
+                    noWithVeto: Number(proposal.finalTallyResult?.noWithVetoCount) || 0,
+                    abstain: Number(proposal.finalTallyResult?.abstainCount) || 0,
+                },
+            });
+        });
+
+        return proposals;
     };
 
     getProposalTally = async (id: string) => {
@@ -353,10 +382,10 @@ class WalletClient {
         }
 
         return {
-            yes: Number(result.tally.yes),
-            no: Number(result.tally.no),
-            noWithVeto: Number(result.tally.noWithVeto),
-            abstain: Number(result.tally.abstain),
+            yes: Number(result.tally.yesCount),
+            no: Number(result.tally.noCount),
+            noWithVeto: Number(result.tally.noWithVetoCount),
+            abstain: Number(result.tally.abstainCount),
         };
     };
 

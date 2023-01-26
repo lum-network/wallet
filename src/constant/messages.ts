@@ -6,4 +6,6 @@ export enum MessageTypes {
     IBC_RECV_PACKET = '/ibc.core.channel.v1.MsgRecvPacket',
     EXEC = '/cosmos.authz.v1beta1.MsgExec',
     GRANT = '/cosmos.authz.v1beta1.MsgGrant',
+    LEGACY_PROPOSAL = '/cosmos.gov.v1.MsgExecLegacyContent',
+    SOFTWARE_UPDGRADE = '/cosmos.upgrade.v1beta1.MsgSoftwareUpgrade',
 }

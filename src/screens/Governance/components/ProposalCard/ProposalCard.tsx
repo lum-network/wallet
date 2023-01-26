@@ -117,11 +117,11 @@ const LargeProposalCard = ({
                 <div className="row gy-4">
                     <div className="col-6">
                         <h6 className="mb-2">{t('governance.proposalCard.title')}</h6>
-                        <p>{proposal.content.title}</p>
+                        <p>{proposal.content ? proposal.content.title : ''}</p>
                     </div>
                     <div className="col-6">
                         <h6 className="mb-2">ID</h6>
-                        <p>{`#${proposal.proposalId.toString()}`}</p>
+                        <p>{`#${proposal.id.toString()}`}</p>
                     </div>
                     <div className="col-6">
                         <h6 className="mb-2">{t('governance.proposalCard.status')}</h6>
@@ -182,7 +182,7 @@ const LargeProposalCard = ({
                     <div className="col-12">
                         <h6 className="mb-2">{t('governance.proposalCard.details')}</h6>
                         <p>
-                            {proposal.content.description
+                            {proposal.content
                                 ? proposal.content.description.split('\\n').map((line, i) => (
                                       <span key={i}>
                                           {line}
@@ -227,7 +227,7 @@ const ProposalCard = ({ proposal, full, onVote, onDetails }: Props): JSX.Element
         setResult(proposal.finalResult);
 
         if (proposal.status === ProposalStatus.PROPOSAL_STATUS_VOTING_PERIOD) {
-            getTally(proposal.proposalId.toString()).then(setResult);
+            getTally(proposal.id.toString()).then(setResult);
         }
     }, [proposal, getTally]);
 
@@ -341,10 +341,10 @@ const ProposalCard = ({ proposal, full, onVote, onDetails }: Props): JSX.Element
     return (
         <Card className="mb-4">
             <div className="d-flex flex-row align-items-center">
-                <h3 className="me-4">{`#${proposal.proposalId}`}</h3>
+                <h3 className="me-4">{`#${proposal.id}`}</h3>
                 <Badge proposalStatus={proposal.status} />
             </div>
-            <p className="proposal-title mb-4 mt-2">{proposal.content.title}</p>
+            <p className="proposal-title mb-4 mt-2">{proposal.content ? proposal.content.title : ''}</p>
             <VoteBar
                 results={{
                     yes: voteYes,
