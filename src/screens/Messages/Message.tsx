@@ -187,13 +187,9 @@ const Message = (): JSX.Element => {
                                 <div>
                                     <h2>{t('messages.sign.title')}</h2>
                                     <div className="my-4">{t('messages.sign.description')}</div>
-                                    {/* wallet.isExtensionImport && (
-                                        <div className="mb-3 not-recommended">{t('messages.sign.disabled')}</div>
-                                    ) */}
                                     <div>
                                         <h4 className="mb-3">{t('messages.sign.inputLabel')}</h4>
                                         <textarea
-                                            //disabled={wallet.isExtensionImport}
                                             className="w-100 p-2"
                                             value={message}
                                             rows={10}
