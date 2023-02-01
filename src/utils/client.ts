@@ -1,11 +1,14 @@
+import axios from 'axios';
 import { LumClient, LumConstants, LumMessages, LumRegistry, LumTypes, LumUtils } from '@lum-network/sdk-javascript';
+import { ProposalStatus, VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
+import { Window as KeplrWindow } from '@keplr-wallet/types';
+import Long from 'long';
+
 import { PasswordStrengthType, PasswordStrength, Wallet, Proposal, LumInfo } from 'models';
 import { showErrorToast, showSuccessToast } from 'utils';
 import i18n from 'locales';
-import { ProposalStatus, VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
-import Long from 'long';
-import axios from 'axios';
 import { COINGECKO_API_URL, IPFS_GATEWAY, MessageTypes } from 'constant';
+
 import { formatTxs } from './transactions';
 import { getRpcFromNode } from './links';
 
@@ -44,11 +47,53 @@ export const checkPwdStrength = (password: string): PasswordStrength => {
     return PasswordStrengthType.Weak;
 };
 
-export const generateSignedMessage = async (wallet: Wallet, message: string): Promise<LumTypes.SignMsg> => {
-    return await wallet.signMessage(encodeURI(message));
+export const generateSignedMessage = async (
+    chainId: string,
+    wallet: Wallet,
+    msg: string,
+): Promise<LumTypes.SignMsg> => {
+    if (wallet.isExtensionImport) {
+        const keplrWindow = window as KeplrWindow;
+
+        if (!keplrWindow.keplr) {
+            throw new Error('Keplr is not installed');
+        }
+
+        const signMsg = await keplrWindow.keplr.signArbitrary(chainId, wallet.getAddress(), msg);
+        if (signMsg) {
+            return {
+                msg,
+                address: wallet.getAddress(),
+                publicKey: LumUtils.fromBase64(signMsg.pub_key.value),
+                sig: LumUtils.fromBase64(signMsg.signature),
+                version: LumConstants.LumWalletSigningVersion,
+                signer: LumConstants.LumMessageSigner.OFFLINE,
+            };
+        } else {
+            throw new Error('Unable to sign message');
+        }
+    }
+
+    return await wallet.signMessage(encodeURI(msg));
 };
 
-export const validateSignMessage = async (msg: LumTypes.SignMsg): Promise<boolean> => {
+export const validateSignMessage = async (chainId: string, msg: LumTypes.SignMsg): Promise<boolean> => {
+    if (msg.signer === LumConstants.LumMessageSigner.OFFLINE) {
+        const keplrWindow = window as KeplrWindow;
+
+        if (!keplrWindow.keplr) {
+            throw new Error('Keplr is needed to verify a message signed with keplr');
+        }
+
+        return await keplrWindow.keplr.verifyArbitrary(chainId, msg.address, msg.msg, {
+            signature: LumUtils.toBase64(msg.sig),
+            pub_key: {
+                type: 'tendermint/PubKeySecp256k1',
+                value: LumUtils.toBase64(msg.publicKey),
+            },
+        });
+    }
+
     return await LumUtils.verifySignMsg(msg);
 };
 
@@ -127,12 +172,12 @@ class WalletClient {
         }
     };
 
-    private getAccountAndChainId = (fromWallet: Wallet) => {
+    private getAccount = (fromWallet: Wallet) => {
         if (this.lumClient === null) {
             return;
         }
 
-        return Promise.all([this.lumClient.getAccount(fromWallet.getAddress()), this.chainId]);
+        return this.lumClient.getAccount(fromWallet.getAddress());
     };
 
     private getValidators = async () => {
@@ -154,6 +199,14 @@ class WalletClient {
                 unbonding: unbondingValidators.validators,
             };
         } catch (e) {}
+    };
+    
+    getChainId = (): string | null => {
+        if (this.lumClient === null) {
+            return null;
+        }
+
+        return this.chainId;
     };
 
     getValidatorsInfos = async (address: string) => {
@@ -412,13 +465,8 @@ class WalletClient {
             gas: '100000',
         };
         // Fetch account number and sequence and chain id
-        const result = await this.getAccountAndChainId(fromWallet);
-
-        if (!result) {
-            return null;
-        }
-
-        const [account, chainId] = result;
+        const account = await this.getAccount(fromWallet);
+        const chainId = this.getChainId();
 
         if (!account || !chainId) {
             return null;
@@ -477,13 +525,8 @@ class WalletClient {
         };
 
         // Fetch account number and sequence and chain id
-        const result = await this.getAccountAndChainId(fromWallet);
-
-        if (!result) {
-            return null;
-        }
-
-        const [account, chainId] = result;
+        const account = await this.getAccount(fromWallet);
+        const chainId = this.getChainId();
 
         if (!account || !chainId) {
             return null;
@@ -542,13 +585,8 @@ class WalletClient {
         };
 
         // Fetch account number and sequence and chain id
-        const result = await this.getAccountAndChainId(fromWallet);
-
-        if (!result) {
-            return null;
-        }
-
-        const [account, chainId] = result;
+        const account = await this.getAccount(fromWallet);
+        const chainId = this.getChainId();
 
         if (!account || !chainId) {
             return null;
@@ -597,13 +635,8 @@ class WalletClient {
         };
 
         // Fetch account number and sequence and chain id
-        const result = await this.getAccountAndChainId(fromWallet);
-
-        if (!result) {
-            return null;
-        }
-
-        const [account, chainId] = result;
+        const account = await this.getAccount(fromWallet);
+        const chainId = this.getChainId();
 
         if (!account || !chainId) {
             return null;
@@ -663,13 +696,8 @@ class WalletClient {
         };
 
         // Fetch account number and sequence and chain id
-        const result = await this.getAccountAndChainId(fromWallet);
-
-        if (!result) {
-            return null;
-        }
-
-        const [account, chainId] = result;
+        const account = await this.getAccount(fromWallet);
+        const chainId = this.getChainId();
 
         if (!account || !chainId) {
             return null;
@@ -739,13 +767,8 @@ class WalletClient {
         };
 
         // Fetch account number and sequence and chain id
-        const result = await this.getAccountAndChainId(fromWallet);
-
-        if (!result) {
-            return null;
-        }
-
-        const [account, chainId] = result;
+        const account = await this.getAccount(fromWallet);
+        const chainId = this.getChainId();
 
         if (!account || !chainId) {
             return null;
@@ -798,13 +821,8 @@ class WalletClient {
         };
 
         // Fetch account number and sequence and chain id
-        const result = await this.getAccountAndChainId(fromWallet);
-
-        if (!result) {
-            return null;
-        }
-
-        const [account, chainId] = result;
+        const account = await this.getAccount(fromWallet);
+        const chainId = this.getChainId();
 
         if (!account || !chainId) {
             return null;
@@ -854,13 +872,8 @@ class WalletClient {
         };
 
         // Fetch account number and sequence and chain id
-        const result = await this.getAccountAndChainId(fromWallet);
-
-        if (!result) {
-            return null;
-        }
-
-        const [account, chainId] = result;
+        const account = await this.getAccount(fromWallet);
+        const chainId = this.getChainId();
 
         if (!account || !chainId) {
             return null;
