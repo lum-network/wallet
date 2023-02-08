@@ -241,14 +241,14 @@ export const wallet = createModel<RootModel>()({
                                 coinMinimalDenom: LumConstants.MicroLumDenom,
                                 coinDecimals: LumConstants.LumExponent,
                                 coinGeckoId: LUM_COINGECKO_ID,
+                                gasPriceStep: {
+                                    low: 0.01,
+                                    average: 0.025,
+                                    high: 0.04,
+                                },
                             },
                         ],
                         coinType,
-                        gasPriceStep: {
-                            low: 0.01,
-                            average: 0.025,
-                            high: 0.04,
-                        },
                         beta: chainId.includes('testnet'),
                     });
                 } catch {

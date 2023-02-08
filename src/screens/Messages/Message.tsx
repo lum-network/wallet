@@ -10,7 +10,7 @@ import { AddressCard, AvailableCard, Input, Modal, Tooltip } from 'components';
 import { RootState } from 'redux/store';
 import { Button, Card } from 'frontend-elements';
 import { Button as CustomButton } from 'components';
-import { showErrorToast, showSuccessToast, WalletUtils } from 'utils';
+import { showErrorToast, showSuccessToast, WalletClient, WalletUtils } from 'utils';
 
 import './styles/Messages.scss';
 
@@ -103,7 +103,13 @@ const Message = (): JSX.Element => {
     const handleSign = async () => {
         setIsLoading(true);
         try {
-            const json = await WalletUtils.generateSignedMessage(wallet, message);
+            const chainId = WalletClient.getChainId();
+
+            if (!chainId) {
+                throw new Error('Chain ID not found');
+            }
+
+            const json = await WalletUtils.generateSignedMessage(chainId, wallet, message);
             setSignMessage(json);
             showModal('confirmation', false);
             showModal('signature', true);
@@ -122,7 +128,13 @@ const Message = (): JSX.Element => {
         });
 
         if (isMessageToVerify(msg)) {
-            WalletUtils.validateSignMessage(msg)
+            const chainId = WalletClient.getChainId();
+
+            if (!chainId) {
+                throw new Error('Chain ID not found');
+            }
+
+            WalletUtils.validateSignMessage(chainId, msg)
                 .then((result) => {
                     setVerifyMessage({ result, message: msg.msg, address: msg.address });
                 })
@@ -175,13 +187,9 @@ const Message = (): JSX.Element => {
                                 <div>
                                     <h2>{t('messages.sign.title')}</h2>
                                     <div className="my-4">{t('messages.sign.description')}</div>
-                                    {wallet.isExtensionImport && (
-                                        <div className="mb-3 not-recommended">{t('messages.sign.disabled')}</div>
-                                    )}
                                     <div>
                                         <h4 className="mb-3">{t('messages.sign.inputLabel')}</h4>
                                         <textarea
-                                            disabled={wallet.isExtensionImport}
                                             className="w-100 p-2"
                                             value={message}
                                             rows={10}
