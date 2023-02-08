@@ -89,7 +89,7 @@
         },
         "software": {
             "title": "Software",
-            "description": "Keystore file, Private key, Mnemonic phrase"
+            "description": "Keystore file, Private key, Mnemonic phrase, Guarda backup"
         },
         "createWallet": "Create a Wallet",
         "softwareModal": {
@@ -100,13 +100,29 @@
             "types": {
                 "mnemonic": "Mnemonic phrase",
                 "keystore": "Keystore File",
-                "privateKey": "Private Key"
+                "privateKey": "Private Key",
+                "guardaBackup": "Guarda Backup File"
             },
             "importMnemonic": "Access by Mnemonic",
             "importKeystore": "Access by Keystore",
             "importPrivateKey": "Access by Private Key",
             "privateKey": {
                 "placeholder": "Enter your private key"
+            },
+            "guardaBackup": {
+                "title": "Import a wallet using your guarda backup file",
+                "placeholder": "••••••••••••••••••••",
+                "fileInputDefaultLabel": "No file selected",
+                "pwdInputLabel": "Guarda backup password",
+                "errors": {
+                    "decodingData": "An error occured while decoding guarda data",
+                    "decodingPvtKey": "An error occured while decoding cosmos private key",
+                    "noWallets": "No wallets found in this guarda backup",
+                    "noCosmosWallet": "No cosmos wallet found for this guarda backup",
+                    "import": "An error occured while importing your guarda backup, make sure you have uploaded the right file and entered the right password",
+                    "file": "Please select a Guarda backup file first",
+                    "noBackupOrPwd": "No guarda backup or password provided, try again"
+                }
             }
         },
         "extensionModal": {

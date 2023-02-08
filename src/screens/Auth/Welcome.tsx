@@ -18,6 +18,7 @@ import AuthLayout from './components/AuthLayout';
 import ImportMnemonicModal from './components/modals/ImportMnemonicModal';
 import ImportPrivateKeyModal from './components/modals/ImportPrivateKeyModal';
 import ImportKeystoreModal from './components/modals/ImportKeystoreModal';
+import ImportGuardaModal from './components/modals/ImportGuardaModal';
 import ImportButton from './components/ImportButton';
 
 import './styles/Auth.scss';
@@ -180,6 +181,23 @@ const Welcome = (): JSX.Element => {
                                     {t('welcome.softwareModal.types.privateKey')}
                                 </p>
                             </button>
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    setSelectedMethod({
+                                        type: 'software',
+                                        method: SoftwareMethod.Guarda,
+                                    })
+                                }
+                                className={`import-software-btn mt-4 ${
+                                    selectedMethod?.method === SoftwareMethod.Guarda && 'selected'
+                                }`}
+                            >
+                                <p className="d-flex fw-normal align-items-center justify-content-center">
+                                    <img src={Assets.images.guardaIcon} height="28" className="me-3" />
+                                    {t('welcome.softwareModal.types.guardaBackup')}
+                                </p>
+                            </button>
                         </div>
                         <p className="auth-paragraph">{t('welcome.softwareModal.description')}</p>
                         <Button
@@ -305,7 +323,7 @@ const Welcome = (): JSX.Element => {
                                                 const newCoinType = Number(event.target.value);
 
                                                 setKeplrCoinType(newCoinType);
-                                                setIsCustomCoinTypeValid(newCoinType !== NaN && newCoinType > 0);
+                                                setIsCustomCoinTypeValid(!Number.isNaN(newCoinType) && newCoinType > 0);
                                             }}
                                         />
                                         <p
@@ -489,6 +507,8 @@ const Welcome = (): JSX.Element => {
                 return <ImportMnemonicModal />;
             case SoftwareMethod.PrivateKey:
                 return <ImportPrivateKeyModal />;
+            case SoftwareMethod.Guarda:
+                return <ImportGuardaModal onSubmit={() => softwareMethodModal?.hide()} />;
             case SoftwareMethod.Keystore:
                 return keystoreFileData ? (
                     <ImportKeystoreModal fileData={keystoreFileData} onSubmit={() => softwareMethodModal?.hide()} />
@@ -567,7 +587,7 @@ const Welcome = (): JSX.Element => {
                 id="importSoftwareModal"
                 ref={importSoftwareModalRef}
                 withCloseButton={!ledgerState.loading && !keplrState.loading}
-                onCloseButtonPress={() => setTimeout(() => setSelectedMethod(null), 300)}
+                onCloseButtonPress={() => setTimeout(() => setSelectedMethod(null), 150)}
                 bodyClassName="px-3"
                 contentClassName="px-2 import-modal-content"
             >

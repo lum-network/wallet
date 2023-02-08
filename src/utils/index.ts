@@ -4,6 +4,7 @@ export * as WalletUtils from './client';
 export * as NumbersUtils from './numbers';
 export * as TransactionsUtils from './transactions';
 export * as GovernanceUtils from './governance';
+export * as GuardaUtils from './guarda';
 export * from './toasts';
 export * from './date';
 export * from './strings';

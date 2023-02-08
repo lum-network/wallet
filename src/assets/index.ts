@@ -55,6 +55,7 @@ import votePeriod from './images/votePeriod.svg';
 import depositPeriod from './images/depositPeriod.svg';
 import warningIcon from './images/warningIcon.svg';
 import moreIcon from './images/more.svg';
+import guardaIcon from './images/guarda.svg';
 
 export default {
     images: {
@@ -95,6 +96,7 @@ export default {
         depositPeriod,
         warningIcon,
         moreIcon,
+        guardaIcon,
         messageTypes: {
             createValidator,
             delegate,

@@ -8,6 +8,7 @@ export { default as TransactionsTable } from './Tables/TransactionsTable';
 export { default as Input } from './Inputs/Input';
 export { default as SwitchInput } from './Inputs/SwitchInput';
 export { default as HdPathInput } from './Inputs/HdPathInput';
+export { default as FileInput } from './Inputs/FileInput';
 export { default as Select } from './Inputs/Select';
 export { default as Button } from './Buttons/Button';
 export { default as ToastCloseButton } from './Buttons/ToastCloseButton';
