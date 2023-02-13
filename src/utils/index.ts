@@ -11,3 +11,4 @@ export * from './strings';
 export * from './staking';
 export * from './hooks';
 export * from './links';
+export * from './tests';
