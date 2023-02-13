@@ -8,10 +8,7 @@ interface Props {
 
 const AuthLayout = ({ children }: Props): JSX.Element => (
     <>
-        <div
-            data-testid="auth-layout"
-            className="h-100 d-flex flex-column align-items-center justify-content-between px-4"
-        >
+        <div className="h-100 d-flex flex-column align-items-center justify-content-between px-4">
             <Header />
             {children}
         </div>
