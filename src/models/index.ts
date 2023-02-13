@@ -66,6 +66,7 @@ export enum SoftwareMethod {
     Mnemonic = 'mnemonic',
     PrivateKey = 'privateKey',
     Keystore = 'keystore',
+    Guarda = 'guarda',
 }
 
 export enum ExtensionMethod {

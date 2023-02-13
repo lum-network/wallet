@@ -6,7 +6,7 @@ import { LumUtils, LumWalletFactory, LumWallet, LumConstants } from '@lum-networ
 import TransportWebUsb from '@ledgerhq/hw-transport-webusb';
 import { DeviceModelId } from '@ledgerhq/devices';
 
-import { getRpcFromNode, getWalletLink, showErrorToast, showSuccessToast, WalletClient } from 'utils';
+import { getRpcFromNode, getWalletLink, GuardaUtils, showErrorToast, showSuccessToast, WalletClient } from 'utils';
 
 import i18n from 'locales';
 import { LUM_COINGECKO_ID } from 'constant';
@@ -327,11 +327,11 @@ export const wallet = createModel<RootModel>()({
         },
         signInWithMnemonicAsync(payload: { mnemonic: string; customHdPath?: string }) {
             LumWalletFactory.fromMnemonic(payload.mnemonic)
-                .then((wallet) => {
-                    dispatch.wallet.signIn(wallet);
+                .then(async (wallet) => {
                     if (payload.customHdPath) {
-                        wallet.useAccount(payload.customHdPath, LumConstants.LumBech32PrefixAccAddr);
+                        await wallet.useAccount(payload.customHdPath, LumConstants.LumBech32PrefixAccAddr);
                     }
+                    dispatch.wallet.signIn(wallet);
                     dispatch.wallet.reloadWalletInfos(wallet.getAddress());
                 })
                 .catch((e) => showErrorToast(e.message));
@@ -353,6 +353,22 @@ export const wallet = createModel<RootModel>()({
                     dispatch.wallet.reloadWalletInfos(wallet.getAddress());
                 })
                 .catch((e) => showErrorToast(e.message));
+        },
+        signInWithGuardaAsync(paylaod: { guardaBackup: string; password: string }) {
+            const { guardaBackup, password } = paylaod;
+
+            try {
+                const cosmosPrivateKey = GuardaUtils.getCosmosPrivateKey(guardaBackup, password);
+
+                LumWalletFactory.fromPrivateKey(cosmosPrivateKey)
+                    .then((wallet) => {
+                        dispatch.wallet.signIn(wallet);
+                        dispatch.wallet.reloadWalletInfos(wallet.getAddress());    
+                    })
+                    .catch((e) => showErrorToast(e.message));
+            } catch (e) {
+                showErrorToast((e as Error).message);
+            }
         },
         async sendTx(payload: SendPayload) {
             const result = await WalletClient.sendTx(payload.from, payload.to, payload.amount, payload.memo);

@@ -98,6 +98,41 @@ input[type='checkbox'] {
     color: $color-primary;
 }
 
+.file-input-container {
+    input {
+        width: 0.1px;
+        height: 0.1px;
+        opacity: 0;
+        overflow: hidden;
+        position: absolute;
+        z-index: -1;
+    }
+
+    input + label {
+        background-color: $color-white;
+        box-shadow: 0 3.32571px 14.9657px rgba(0, 0, 0, 0.1);
+        color: $color-primary;
+        display: inline-block;
+        border-radius: 18px;
+        padding: 1rem 2rem;
+    }
+
+    label img {
+        height: 40px;
+    }
+
+    input:focus + label {
+        outline: 1px dotted #000;
+        outline: -webkit-focus-ring-color auto 5px;
+    }
+
+    input:focus + label,
+    label:hover {
+        opacity: 0.75;
+        cursor: pointer;
+    }
+}
+
 @media (prefers-color-scheme: dark) {
     label.form-label {
         color: white;
@@ -115,5 +150,16 @@ input[type='checkbox'] {
     }
     .select-container {
         color: white;
+    }
+
+    .file-input-container {
+        input + label {
+            background-color: $color-black;
+            color: white;
+        }
+
+        label img {
+            filter: invert(100%) brightness(1);
+        }
     }
 }
