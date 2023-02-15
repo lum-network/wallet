@@ -1,7 +1,7 @@
 # This workflow is intended to run each time a pull request is opened or updated
 # It's performing unit and interface tests, and deploying on preview channels
 
-name: Lint, format, test and deploy the explorer on pull request events
+name: Lint, format, test and deploy the wallet on pull request events
 on:
   pull_request:
     types: [opened, edited, synchronize, reopened]

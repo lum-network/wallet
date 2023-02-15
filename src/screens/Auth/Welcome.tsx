@@ -571,7 +571,7 @@ const Welcome = (): JSX.Element => {
                             />
                         </div>
                         <div className="col-12 col-lg-3">
-                            <Link to="/create" className="text-reset text-decoration-none">
+                            <Link role="button" to="/create" className="text-reset text-decoration-none">
                                 <div className="scale-anim btn-padding h-100 w-100 text-center d-flex align-items-center flex-column justify-content-evenly">
                                     <div className="create-btn rounded-circle mb-4 mb-lg-0 d-flex justify-content-center align-items-center">
                                         <img className="img-fluid" src={Assets.images.addIcon} width="27" height="27" />
