@@ -1,21 +1,26 @@
-import assets from 'assets';
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import { NavLink } from 'react-router-dom';
-import store, { RootState } from 'redux/store';
+import { NavLink, useLocation } from 'react-router-dom';
+
+import assets from 'assets';
+import store, { RootDispatch, RootState } from 'redux/store';
 import { LOGOUT } from 'redux/constants';
 import { Footer, Modal, Button } from 'components';
+import { KEPLR_DEFAULT_COIN_TYPE } from 'constant';
+import { showInfoToast, GovernanceUtils, WalletClient, usePrevious } from 'utils';
+import { useRematchDispatch } from 'redux/hooks';
 
 import './MainLayout.scss';
-import { KEPLR_DEFAULT_COIN_TYPE } from 'constant';
-import { showInfoToast, GovernanceUtils, WalletClient } from 'utils';
 
 const MainLayout: React.FC = ({ children }) => {
     const wallet = useSelector((state: RootState) => state.wallet.currentWallet);
     const proposals = useSelector((state: RootState) => state.governance.proposals);
+    const reloadWalletInfos = useRematchDispatch((dispatch: RootDispatch) => dispatch.wallet.reloadWalletInfos);
 
     const { t } = useTranslation();
+    const location = useLocation();
+    const prevLocation = usePrevious(location);
 
     const unload = (e: BeforeUnloadEvent) => {
         if (wallet) {
@@ -42,6 +47,12 @@ const MainLayout: React.FC = ({ children }) => {
             window.removeEventListener('beforeunload', unload);
         };
     }, [wallet]);
+
+    useEffect(() => {
+        if (wallet && prevLocation && location.pathname !== prevLocation.pathname && location.pathname === '/home') {
+            reloadWalletInfos(wallet.getAddress());
+        }
+    }, [location]);
 
     const renderNavbar = (bottom?: boolean) => {
         if (!wallet) {

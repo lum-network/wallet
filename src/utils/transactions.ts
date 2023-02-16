@@ -32,6 +32,11 @@ type IBCTransferInfos = {
     token: LumTypes.Coin;
 };
 
+type DFractInfos = {
+    depositorAddress: string;
+    amount: LumTypes.Coin;
+}
+
 export const isSendTxInfo = (
     info: {
         fromAddress?: string;
@@ -77,6 +82,15 @@ export const isIBCTransferInfo = (
     return !!(info && info.sender && info.receiver && info.token);
 };
 
+export const isDfractInfo = (
+    info: {
+        depositorAddress?: string;
+        amount?: LumTypes.Coin;
+    } | null,
+): info is DFractInfos => {
+    return !!(info && info.depositorAddress && info.amount);
+}
+
 export const hashExists = (txs: Transaction[], hash: string): boolean => txs.findIndex((tx) => tx.hash === hash) > -1;
 
 export const formatTxs = (rawTxs: readonly TxResponse[] | TxResponse[]): Transaction[] => {
@@ -111,7 +125,10 @@ export const formatTxs = (rawTxs: readonly TxResponse[] | TxResponse[]): Transac
                     if (typeof txInfos === 'object') {
                         tx.messages.push(msg.typeUrl);
 
-                        if (isSendTxInfo(txInfos)) {
+                        if (isDfractInfo(txInfos)) {
+                            tx.fromAddress = txInfos.depositorAddress;
+                            tx.amount.push(txInfos.amount);
+                        } else if (isSendTxInfo(txInfos)) {
                             tx.fromAddress = txInfos.fromAddress;
                             tx.toAddress = txInfos.toAddress;
                             tx.amount = txInfos.amount;
@@ -179,6 +196,8 @@ export const getTxTypeInfos = (
             return { name: i18n.t('transactions.types.claimBeam'), icon: assets.images.messageTypes.claimBeam };
         case LumMessages.MsgVoteUrl:
             return { name: i18n.t('transactions.types.vote'), icon: assets.images.messageTypes.vote };
+        case LumMessages.MsgDepositDfractUrl:
+            return { name: i18n.t('transactions.types.depositDfract'), icon: assets.images.messageTypes.depositDfract };
         case MessageTypes.IBC_TRANSFER:
             return { name: i18n.t('transactions.types.ibcTransfer'), icon: assets.images.messageTypes.beam };
         case MessageTypes.IBC_TIMEOUT:

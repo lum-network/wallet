@@ -1,20 +1,18 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { Redirect, useLocation } from 'react-router';
+import { Redirect } from 'react-router';
+import { LumConstants, LumUtils } from '@lum-network/sdk-javascript';
 
 import { Card } from 'frontend-elements';
 import { LUM_TWITTER } from 'constant';
-import { TransactionsTable, AddressCard, AvailableCard, LumPriceCard, BalanceCard } from 'components';
-import { RootDispatch, RootState } from 'redux/store';
+import { TransactionsTable, AddressCard, AvailableCard, LumPriceCard, BalanceCard, AirdropCard } from 'components';
+import { RootState } from 'redux/store';
+
+import StakedCoinsCard from '../Staking/components/Cards/StakedCoinsCard';
+import VestingTokensCard from '../Staking/components/Cards/VestingTokensCard';
 
 import './styles/Dashboard.scss';
-import { usePrevious } from 'utils';
-import { useRematchDispatch } from 'redux/hooks';
-import { LumConstants, LumUtils } from '@lum-network/sdk-javascript';
-import AirdropCard from 'components/Cards/AirdropCard';
-import StakedCoinsCard from 'screens/Staking/components/Cards/StakedCoinsCard';
-import VestingTokensCard from 'screens/Staking/components/Cards/VestingTokensCard';
 
 const Dashboard = (): JSX.Element => {
     // Redux hooks
@@ -31,22 +29,8 @@ const Dashboard = (): JSX.Element => {
         }),
     );
 
-    const { getWalletInfos } = useRematchDispatch((dispatch: RootDispatch) => ({
-        getWalletInfos: dispatch.wallet.reloadWalletInfos,
-    }));
-
     // Utils hooks
     const { t } = useTranslation();
-    const location = useLocation();
-
-    const prevLocation = usePrevious(location);
-
-    // Effects
-    useEffect(() => {
-        if (wallet && location != prevLocation) {
-            getWalletInfos(wallet.getAddress());
-        }
-    }, [location, prevLocation, wallet, getWalletInfos]);
 
     if (!wallet) {
         return <Redirect to="/welcome" />;
