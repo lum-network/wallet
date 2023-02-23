@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
-import { useHistory, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { ProposalStatus, VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
@@ -40,7 +40,7 @@ const Governance = (): JSX.Element => {
 
     const { t } = useTranslation();
     const { proposalId } = useParams<{ proposalId: string }>();
-    const history = useHistory();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const ref = modalRef.current;
@@ -86,7 +86,7 @@ const Governance = (): JSX.Element => {
     }, [proposalId, proposals]);
 
     const onDetails = (proposal: Proposal) => {
-        history.push(`/governance/proposal/${proposal.id}`);
+        navigate(`/governance/proposal/${proposal.id}`);
     };
 
     const onVote = (proposal: Proposal) => {
@@ -128,7 +128,7 @@ const Governance = (): JSX.Element => {
                                     {onScreenProposal ? (
                                         <button
                                             type="button"
-                                            onClick={() => history.replace('/governance')}
+                                            onClick={() => navigate('/governance', { replace: true })}
                                             className="close-btn bg-white rounded-circle mt-2"
                                             aria-label={t('common.close')}
                                         >

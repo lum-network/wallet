@@ -13,7 +13,7 @@ import './Footer.scss';
 
 const Footer = (): JSX.Element => {
     const [customNode, setCustomNode] = useState('');
-    const setCurrentNode = useRematchDispatch((dispatch: RootDispatch) => dispatch.wallet.setCurrentNode);
+    const setCurrentNode = useRematchDispatch((dispatch: RootDispatch) => dispatch.wallet.updateNode);
     const { t } = useTranslation();
 
     const userNodes = getCustomNodes();
@@ -32,8 +32,8 @@ const Footer = (): JSX.Element => {
                         <DropdownButton
                             plainButton
                             withSeparator={false}
-                            title={WalletClient.node}
-                            selectedItem={WalletClient.node}
+                            title={WalletClient.getNode()}
+                            selectedItem={WalletClient.getNode()}
                             direction="up"
                             listClassName="node-selection-list pt-3 w-100"
                             items={[

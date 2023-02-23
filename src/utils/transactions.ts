@@ -35,7 +35,7 @@ type IBCTransferInfos = {
 type DFractInfos = {
     depositorAddress: string;
     amount: LumTypes.Coin;
-}
+};
 
 export const isSendTxInfo = (
     info: {
@@ -89,7 +89,7 @@ export const isDfractInfo = (
     } | null,
 ): info is DFractInfos => {
     return !!(info && info.depositorAddress && info.amount);
-}
+};
 
 export const hashExists = (txs: Transaction[], hash: string): boolean => txs.findIndex((tx) => tx.hash === hash) > -1;
 

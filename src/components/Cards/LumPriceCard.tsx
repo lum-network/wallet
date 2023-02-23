@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import numeral from 'numeral';
-import Chart from 'kaktana-react-lightweight-charts';
-import { UTCTimestamp } from 'lightweight-charts';
+import Chart from '@qognicafinance/react-lightweight-charts';
+import { ColorType, UTCTimestamp } from 'lightweight-charts';
 import { Card } from 'frontend-elements';
 
 import { BUY_LUM_URL } from 'constant';
@@ -17,7 +17,7 @@ const LumPriceCard = (): JSX.Element => {
     const [previousDayPercentage, setPreviousDayPercentage] = useState(0);
 
     useEffect(() => {
-        const data = WalletClient.lumInfos;
+        const data = WalletClient.getLumInfos();
 
         if (data) {
             const chart = data.previousDaysPrices.map((value) => ({
@@ -50,7 +50,10 @@ const LumPriceCard = (): JSX.Element => {
                             },
                             layout: {
                                 textColor: '#00000000',
-                                backgroundColor: '#00000000',
+                                background: {
+                                    type: ColorType.Solid,
+                                    color: '#00000000',
+                                },
                             },
                             timeScale: {
                                 visible: false,

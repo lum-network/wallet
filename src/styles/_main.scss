@@ -1,4 +1,4 @@
-@import 'frontend-elements/styles/main.scss';
+@import 'src/frontend-elements/styles/main.scss';
 
 $color-arrow-green: #5ecd42ff;
 $color-arrow-red: #ff7245ff;
@@ -6,14 +6,12 @@ $color-arrow-red: #ff7245ff;
 #root {
     overflow-x: hidden;
     white-space: pre-line; // to allow \n in translation
+
+    --toastify-color-error: #ff7676;
 }
 
 .Toastify__toast {
     border-radius: 25px;
     align-items: center;
     padding: 12px;
-}
-
-.Toastify__toast--error {
-    background-color: #ff7676;
 }

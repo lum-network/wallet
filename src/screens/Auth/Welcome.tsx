@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Trans, useTranslation } from 'react-i18next';
 import { Modal as BSModal } from 'bootstrap';
 import { Window as KeplrWindow } from '@keplr-wallet/types';
@@ -59,7 +59,7 @@ const Welcome = (): JSX.Element => {
 
     // Utils hooks
     const { t } = useTranslation();
-    const history = useHistory();
+    const navigate = useNavigate();
 
     // Callbacks
     const showImportModal = useCallback(() => {
@@ -88,12 +88,12 @@ const Welcome = (): JSX.Element => {
             if (modalShowed) {
                 hideImportModal();
                 // 300ms is the modal transition duration
-                setTimeout(() => history.replace('/home'), 300);
+                setTimeout(() => navigate('/home', { replace: true }), 300);
             } else {
-                history.replace('/home');
+                navigate('/home', { replace: true });
             }
         }
-    }, [wallet, history, modalShowed, hideImportModal]);
+    }, [wallet]);
 
     useEffect(() => {
         if (softwareMethodModalRef.current) {
@@ -126,7 +126,7 @@ const Welcome = (): JSX.Element => {
                 modalElement.removeEventListener('hidden.bs.modal', importSoftwareModalHandler);
             }
         };
-    }, [history, keystoreFileData, selectedMethod, softwareMethodModal, wallet]);
+    }, [selectedMethod]);
 
     const renderImportTypeModalContent = () => {
         if (!selectedMethod) {
@@ -520,69 +520,76 @@ const Welcome = (): JSX.Element => {
 
     return (
         <>
-            <AuthLayout>
-                <div className="container mb-4">
-                    <div className="mb-4rem">
-                        <h1 className="text-center display-5">{t('welcome.title')}</h1>
-                    </div>
-                    <div className="row justify-content-center gy-4">
-                        <div className="col-12 col-lg-3">
-                            <ImportButton
-                                method="extension"
-                                disabled={keplrState.loading || ledgerState.loading}
-                                title={t('welcome.extension.title')}
-                                description={t('welcome.extension.description')}
-                                note={t('welcome.extensionModal.info')}
-                                icon={Assets.images.extensionIcon}
-                                onClick={() => {
-                                    showImportModal();
-                                    setSelectedMethod({ type: 'extension', method: null });
-                                }}
-                            />
+            {!wallet ? (
+                <AuthLayout>
+                    <div className="container mb-4">
+                        <div className="mb-4rem">
+                            <h1 className="text-center display-5">{t('welcome.title')}</h1>
                         </div>
-                        <div className="col-12 col-lg-3">
-                            <ImportButton
-                                method="hardware"
-                                disabled={keplrState.loading || ledgerState.loading}
-                                title={t('welcome.hardware.title')}
-                                description={t('welcome.hardware.description')}
-                                note={t('welcome.extensionModal.info')}
-                                icon={Assets.images.hardwareIcon}
-                                onClick={() => {
-                                    showImportModal();
-                                    setSelectedMethod({ type: 'hardware', method: null });
-                                }}
-                            />
-                        </div>
-                        <div className="col-12 col-lg-3">
-                            <ImportButton
-                                method="software"
-                                disabled={keplrState.loading || ledgerState.loading}
-                                title={t('welcome.software.title')}
-                                description={t('welcome.software.description')}
-                                note={t('welcome.softwareModal.notRecommended')}
-                                icon={Assets.images.softwareIcon}
-                                iconWidth="57"
-                                iconHeight="76"
-                                onClick={() => {
-                                    showImportModal();
-                                    setSelectedMethod({ type: 'software', method: null });
-                                }}
-                            />
-                        </div>
-                        <div className="col-12 col-lg-3">
-                            <Link role="button" to="/create" className="text-reset text-decoration-none">
-                                <div className="scale-anim btn-padding h-100 w-100 text-center d-flex align-items-center flex-column justify-content-evenly">
-                                    <div className="create-btn rounded-circle mb-4 mb-lg-0 d-flex justify-content-center align-items-center">
-                                        <img className="img-fluid" src={Assets.images.addIcon} width="27" height="27" />
+                        <div className="row justify-content-center gy-4">
+                            <div className="col-12 col-lg-3">
+                                <ImportButton
+                                    method="extension"
+                                    disabled={keplrState.loading || ledgerState.loading}
+                                    title={t('welcome.extension.title')}
+                                    description={t('welcome.extension.description')}
+                                    note={t('welcome.extensionModal.info')}
+                                    icon={Assets.images.extensionIcon}
+                                    onClick={() => {
+                                        showImportModal();
+                                        setSelectedMethod({ type: 'extension', method: null });
+                                    }}
+                                />
+                            </div>
+                            <div className="col-12 col-lg-3">
+                                <ImportButton
+                                    method="hardware"
+                                    disabled={keplrState.loading || ledgerState.loading}
+                                    title={t('welcome.hardware.title')}
+                                    description={t('welcome.hardware.description')}
+                                    note={t('welcome.extensionModal.info')}
+                                    icon={Assets.images.hardwareIcon}
+                                    onClick={() => {
+                                        showImportModal();
+                                        setSelectedMethod({ type: 'hardware', method: null });
+                                    }}
+                                />
+                            </div>
+                            <div className="col-12 col-lg-3">
+                                <ImportButton
+                                    method="software"
+                                    disabled={keplrState.loading || ledgerState.loading}
+                                    title={t('welcome.software.title')}
+                                    description={t('welcome.software.description')}
+                                    note={t('welcome.softwareModal.notRecommended')}
+                                    icon={Assets.images.softwareIcon}
+                                    iconWidth="57"
+                                    iconHeight="76"
+                                    onClick={() => {
+                                        showImportModal();
+                                        setSelectedMethod({ type: 'software', method: null });
+                                    }}
+                                />
+                            </div>
+                            <div className="col-12 col-lg-3">
+                                <Link role="button" to="/create" className="text-reset text-decoration-none">
+                                    <div className="scale-anim btn-padding h-100 w-100 text-center d-flex align-items-center flex-column justify-content-evenly">
+                                        <div className="create-btn rounded-circle mb-4 mb-lg-0 d-flex justify-content-center align-items-center">
+                                            <img
+                                                className="img-fluid"
+                                                src={Assets.images.addIcon}
+                                                width="27"
+                                                height="27"
+                                            />
+                                        </div>
+                                        <h3>{t('welcome.createWallet')}</h3>
                                     </div>
-                                    <h3>{t('welcome.createWallet')}</h3>
-                                </div>
-                            </Link>
+                                </Link>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </AuthLayout>
+                </AuthLayout>
+            ) : null}
             <Modal
                 id="importSoftwareModal"
                 ref={importSoftwareModalRef}

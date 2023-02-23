@@ -12,7 +12,13 @@ import './locales';
 const App = (): JSX.Element => (
     <Provider store={store}>
         <Core />
-        <ToastContainer closeButton={ToastCloseButton} hideProgressBar position="bottom-right" draggable={false} />
+        <ToastContainer
+            closeButton={(props) => <ToastCloseButton closeButton={props.closeToast} />}
+            hideProgressBar
+            theme="colored"
+            position="bottom-right"
+            draggable={false}
+        />
     </Provider>
 );
 

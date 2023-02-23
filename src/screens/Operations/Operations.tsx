@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Redirect } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useFormik } from 'formik';
 import { LumConstants, LumMessages, LumUtils } from '@lum-network/sdk-javascript';
@@ -273,7 +272,7 @@ const Operations = (): JSX.Element => {
     ]);
 
     if (!wallet) {
-        return <Redirect to="/welcome" />;
+        return <div />;
     }
 
     const onSubmitSend = async (toAddress: string, amount: string, memo: string) => {
