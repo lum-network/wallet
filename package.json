@@ -71,7 +71,7 @@
     "scripts": {
         "start": "react-app-rewired start",
         "build": "react-app-rewired build",
-        "test": "react-app-rewired test --passWithNoTests",
+        "test": "react-app-rewired test",
         "lint": "eslint src/**/*.tsx src/**/*.ts --fix",
         "eject": "react-app-rewired eject"
     },

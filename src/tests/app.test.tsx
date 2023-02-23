@@ -5,6 +5,7 @@ import i18n from 'locales';
 import App from '../App';
 
 describe('App', () => {
+    test.todo('fix rendering tests and re-enable them');
     /* it('Check if the app is correctly rendered', async () => {
         render(<App />);
 
