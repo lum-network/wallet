@@ -28,4 +28,6 @@ export const BUY_LUM_URL = 'https://app.osmosis.zone/?from=ATOM&to=LUM';
 
 export const NODES = process.env.REACT_APP_RPC_URL.split(',').map((url) => new URL(url).hostname);
 export const IPFS_GATEWAY = 'https://ipfs.io/ipfs';
+
 export * from './messages';
+export * from './ibcDenoms';

@@ -229,7 +229,8 @@
             "ibcAcknowledgement": "IBC Acknowledgement",
             "ibcReceivePacket": "IBC Receive Packet",
             "exec": "Exec",
-            "grant": "Grant"
+            "grant": "Grant",
+            "depositDfract": "DFract Deposit"
         },
         "proposal": "Proposal #"
     },

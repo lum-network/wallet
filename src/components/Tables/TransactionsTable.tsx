@@ -5,7 +5,7 @@ import { LumConstants } from '@lum-network/sdk-javascript';
 
 import { Table } from 'frontend-elements';
 import { Transaction, Wallet } from 'models';
-import { getExplorerLink, NumbersUtils, trunc } from 'utils';
+import { getExplorerLink, NumbersUtils, DenomsUtils, trunc } from 'utils';
 import { SmallerDecimal, TransactionTypeBadge } from 'components';
 import assets from 'assets';
 
@@ -93,7 +93,7 @@ const TransactionRow = (props: RowProps): JSX.Element => {
                                 true,
                             )}
                         />
-                        <span className="ms-2">{LumConstants.LumDenom}</span>
+                        <span className="ms-2">{DenomsUtils.computeDenom(row.amount[0].denom)}</span>
                     </>
                 ) : (
                     <a href={`${getExplorerLink()}/txs/${row.hash}`} rel="noreferrer" target="_blank">
