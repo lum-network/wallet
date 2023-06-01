@@ -48,6 +48,7 @@
         "@babel/core": "^7.21.0",
         "@babel/plugin-syntax-flow": "^7.18.6",
         "@babel/plugin-transform-react-jsx": "^7.21.0",
+        "@babel/preset-env": "^7.22.4",
         "@babel/preset-typescript": "^7.21.0",
         "@keplr-wallet/types": "^0.11.43",
         "@types/bootstrap": "^5.2.6",
@@ -66,14 +67,17 @@
         "eslint-plugin-prettier": "^4.2.1",
         "eslint-plugin-react": "^7.22.0",
         "eslint-plugin-react-hooks": "^4.2.0",
-        "prettier": "^2.2.1"
+        "identity-obj-proxy": "^3.0.0",
+        "jest-environment-jsdom": "^29.5.0",
+        "prettier": "^2.2.1",
+        "ts-jest": "^29.1.0"
     },
     "scripts": {
         "start": "react-app-rewired start",
         "build": "react-app-rewired build",
-        "test": "react-app-rewired test",
-        "lint": "eslint src/**/*.tsx src/**/*.ts --fix",
-        "eject": "react-app-rewired eject"
+        "eject": "react-app-rewired eject",
+        "test": "react-scripts test",
+        "lint": "eslint src/**/*.tsx src/**/*.ts --fix"
     },
     "browserslist": {
         "production": [
@@ -86,5 +90,17 @@
             "last 1 firefox version",
             "last 1 safari version"
         ]
+    },
+    "jest": {
+        "transform": {
+            "^.+\\.(ts|tsx)$": "ts-jest"
+        },
+        "transformIgnorePatterns": [
+            "node_modules/(?!(axios))"
+        ],
+        "moduleNameMapper": {
+            "\\.(css|scss)$": "identity-obj-proxy",
+            "@ledgerhq/devices": "@ledgerhq/devices/lib"
+        }
     }
 }
