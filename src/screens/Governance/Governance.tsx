@@ -93,10 +93,14 @@ const Governance = (): JSX.Element => {
         setProposalToVote(proposal);
     };
 
-    const onSubmitVote = async (proposalId: string, voteOption: VoteOption) => {
+    const onSubmitVote = async (proposal: Proposal, voteOption: VoteOption) => {
         if (wallet) {
             try {
-                const voteResult = await sendVote({ voter: wallet, proposalId, vote: voteOption });
+                const voteResult = await sendVote({
+                    voter: wallet,
+                    proposal,
+                    vote: voteOption,
+                });
 
                 if (voteResult) {
                     if (voteResult.error) {
@@ -106,6 +110,7 @@ const Governance = (): JSX.Element => {
                     }
                 }
             } catch (e) {
+                console.error(e);
                 showErrorToast((e as Error).message);
             }
         }
@@ -277,7 +282,7 @@ const Governance = (): JSX.Element => {
                                     onClick={
                                         confirming
                                             ? () => {
-                                                  if (vote) onSubmitVote(proposalToVote.id.toString(), vote);
+                                                  if (vote) onSubmitVote(proposalToVote, vote);
                                               }
                                             : () => setConfirming(true)
                                     }

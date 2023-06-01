@@ -2,7 +2,6 @@ import axios from 'axios';
 import { LumClient, LumConstants, LumMessages, LumRegistry, LumTypes, LumUtils } from '@lum-network/sdk-javascript';
 import { ProposalStatus, VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
 import { Window as KeplrWindow } from '@keplr-wallet/types';
-import Long from 'long';
 
 import { PasswordStrengthType, PasswordStrength, Wallet, Proposal, LumInfo } from 'models';
 import { showErrorToast, showSuccessToast } from 'utils';
@@ -804,15 +803,12 @@ class WalletClient {
         };
     };
 
-    vote = async (fromWallet: Wallet, proposalId: string, vote: VoteOption) => {
+    vote = async (fromWallet: Wallet, proposal: Proposal, vote: VoteOption) => {
         if (this.lumClient === null) {
             return null;
         }
 
-        // Fixme: Update JS SDK to use right type
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //@ts-ignore
-        const voteMsg = LumMessages.BuildMsgVote(new Long(Number(proposalId)), fromWallet.getAddress(), Number(vote));
+        const voteMsg = LumMessages.BuildMsgVote(proposal.id, fromWallet.getAddress(), Number(vote), proposal.metadata);
 
         // Define fees
         const fee = {

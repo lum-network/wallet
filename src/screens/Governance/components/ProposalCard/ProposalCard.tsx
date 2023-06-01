@@ -5,7 +5,8 @@ import { LumConstants } from '@lum-network/sdk-javascript';
 import { ProposalStatus } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
 import numeral from 'numeral';
 import dayjs from 'dayjs';
-
+import { marked } from 'marked';
+import DOMPurify from 'dompurify';
 import { Badge, SmallerDecimal } from 'components';
 import { Button, Card } from 'frontend-elements';
 import { Proposal, VotesResult } from 'models';
@@ -181,16 +182,15 @@ const LargeProposalCard = ({
                     </div>
                     <div className="col-12">
                         <h6 className="mb-2">{t('governance.proposalCard.details')}</h6>
-                        <p>
-                            {proposal.content
-                                ? proposal.content.description.split('\\n').map((line, i) => (
-                                      <span key={i}>
-                                          {line}
-                                          <br />
-                                      </span>
-                                  ))
-                                : ''}
-                        </p>
+                        <div
+                            dangerouslySetInnerHTML={{
+                                __html: proposal.content
+                                    ? DOMPurify.sanitize(
+                                          marked.parse(proposal.content.description.replace(/\\n/g, '<br />')),
+                                      )
+                                    : '',
+                            }}
+                        />
                     </div>
                     <div className="col-12">
                         {renderResult()}
