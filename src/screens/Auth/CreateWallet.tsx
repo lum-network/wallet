@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { LumUtils } from '@lum-network/sdk-javascript';
+import printJS from 'print-js';
 
 import { Card, Button } from 'frontend-elements';
 import Assets from 'assets';
@@ -12,16 +13,13 @@ import { Input, SwitchInput } from 'components';
 import { PasswordStrength, PasswordStrengthType, SoftwareMethod } from 'models';
 import { useRematchDispatch } from 'redux/hooks';
 import { RootDispatch, RootState } from 'redux/store';
+import { MnemonicLength, WalletUtils } from 'utils';
 
 import AuthLayout from './components/AuthLayout';
-import WelcomeCarousel from './components/WelcomeCarousel';
 import KeystoreFileSave from './components/KeystoreFileSave';
-import { MnemonicLength, WalletUtils } from 'utils';
-import printJS from 'print-js';
 
 const CreateWallet = (): JSX.Element => {
     // State values
-    const [introDone, setIntroDone] = useState(true);
     const [creationType, setCreationType] = useState<SoftwareMethod>(SoftwareMethod.Mnemonic);
     const [mnemonicLength, setMnemonicLength] = useState<MnemonicLength>(12);
     const [inputsValues, setInputsValues] = useState<string[]>([]);
@@ -41,7 +39,7 @@ const CreateWallet = (): JSX.Element => {
     }));
 
     // Utils hooks
-    const history = useHistory();
+    const navigate = useNavigate();
     const { t } = useTranslation();
 
     // Form hook
@@ -85,19 +83,19 @@ const CreateWallet = (): JSX.Element => {
     // Effects
     useEffect(() => {
         if (wallet) {
-            history.push('/home');
+            navigate('/home');
         }
-    }, [history, wallet]);
+    }, [wallet]);
 
     useEffect(() => {
         if (creationType === SoftwareMethod.Mnemonic) {
             generateNewMnemonic();
         }
-    }, [creationType, generateNewMnemonic]);
+    }, [creationType]);
 
     useEffect(() => {
         generateNewMnemonic();
-    }, [generateNewMnemonic, mnemonicLength]);
+    }, [mnemonicLength]);
 
     // Render content
     const mnemonicContent = (
@@ -227,6 +225,10 @@ const CreateWallet = (): JSX.Element => {
         </div>
     );
 
+    if (wallet) {
+        return <div />;
+    }
+
     return (
         <AuthLayout>
             <div className="d-flex flex-column align-items-center mb-4">
@@ -241,47 +243,43 @@ const CreateWallet = (): JSX.Element => {
                         </span>
                     </p>
                 </div>
-                {introDone ? (
-                    keystoreFileData ? (
-                        <KeystoreFileSave data={keystoreFileData} password={keystoreFilePassword} />
-                    ) : (
-                        <Card className="container import-card" withoutPadding>
-                            <ul className="row nav nav-tabs border-0 text-center">
-                                <li
-                                    className={`col-6 nav-item pt-4 pb-2 ${
-                                        creationType === SoftwareMethod.Keystore ? 'active' : ''
-                                    }`}
-                                >
-                                    <a
-                                        className="nav-link fs-5 border-0"
-                                        onClick={() => setCreationType(SoftwareMethod.Keystore)}
-                                    >
-                                        <img src={Assets.images.fileIcon} width="25" height="34" className="me-4" />
-                                        <span>{t('createWallet.keystoreTab')}</span>
-                                    </a>
-                                </li>
-                                <li
-                                    className={`col-6 nav-item pt-4 pb-2 ${
-                                        creationType === SoftwareMethod.Mnemonic ? 'active' : ''
-                                    }`}
-                                >
-                                    <a
-                                        className="nav-link fs-5 border-0"
-                                        onClick={() => setCreationType(SoftwareMethod.Mnemonic)}
-                                    >
-                                        <img src={Assets.images.bubbleIcon} width="39" height="34" className="me-4" />
-                                        <span>{t('createWallet.mnemonicTab')}</span>
-                                    </a>
-                                </li>
-                            </ul>
-                            <div className="d-flex flex-column align-self-center text-center align-items-center py-4">
-                                {creationType === SoftwareMethod.Mnemonic && mnemonicContent}
-                                {creationType === SoftwareMethod.Keystore && keystoreContent}
-                            </div>
-                        </Card>
-                    )
+                {keystoreFileData ? (
+                    <KeystoreFileSave data={keystoreFileData} password={keystoreFilePassword} />
                 ) : (
-                    <WelcomeCarousel onCarouselEnd={() => setIntroDone(true)} />
+                    <Card className="container import-card" withoutPadding>
+                        <ul className="row nav nav-tabs border-0 text-center">
+                            <li
+                                className={`col-6 nav-item pt-4 pb-2 ${
+                                    creationType === SoftwareMethod.Keystore ? 'active' : ''
+                                }`}
+                            >
+                                <a
+                                    className="nav-link fs-5 border-0"
+                                    onClick={() => setCreationType(SoftwareMethod.Keystore)}
+                                >
+                                    <img src={Assets.images.fileIcon} width="25" height="34" className="me-4" />
+                                    <span>{t('createWallet.keystoreTab')}</span>
+                                </a>
+                            </li>
+                            <li
+                                className={`col-6 nav-item pt-4 pb-2 ${
+                                    creationType === SoftwareMethod.Mnemonic ? 'active' : ''
+                                }`}
+                            >
+                                <a
+                                    className="nav-link fs-5 border-0"
+                                    onClick={() => setCreationType(SoftwareMethod.Mnemonic)}
+                                >
+                                    <img src={Assets.images.bubbleIcon} width="39" height="34" className="me-4" />
+                                    <span>{t('createWallet.mnemonicTab')}</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <div className="d-flex flex-column align-self-center text-center align-items-center py-4">
+                            {creationType === SoftwareMethod.Mnemonic && mnemonicContent}
+                            {creationType === SoftwareMethod.Keystore && keystoreContent}
+                        </div>
+                    </Card>
                 )}
             </div>
         </AuthLayout>

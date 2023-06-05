@@ -1,36 +1,9 @@
-import React, { PureComponent } from 'react';
-import { connect } from 'react-redux';
+import React from 'react';
+
 import RootNavigator from '../navigation';
-import { RootState } from '../redux/store';
 
-interface IProps {}
+const Core = (): JSX.Element => {
+    return <RootNavigator />;
+};
 
-const mapState = (state: RootState) => ({
-    loading: state.loading.global.loading,
-    transactions: state.wallet.transactions,
-    wallet: state.wallet.currentWallet,
-});
-
-type StateProps = ReturnType<typeof mapState>;
-
-type Props = IProps & StateProps;
-
-class Core extends PureComponent<Props> {
-    renderContent(): JSX.Element {
-        return <RootNavigator />;
-    }
-
-    renderLoading(): JSX.Element {
-        return (
-            <div className="spinner-grow" role="status">
-                <span className="visually-hidden">Loading...</span>
-            </div>
-        );
-    }
-
-    render(): JSX.Element {
-        return this.renderContent();
-    }
-}
-
-export default connect(mapState)(Core);
+export default Core;

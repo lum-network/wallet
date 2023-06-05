@@ -21,7 +21,7 @@ const BalanceCard = ({ balance, rewards }: Props): JSX.Element => {
         (rewards.total && rewards.total.length > 0
             ? NumbersUtils.convertUnitNumber(rewards.total[0].amount) / CLIENT_PRECISION
             : 0);
-    const fiatAmount = lumAmount * (WalletClient.lumInfos?.price || 0);
+    const fiatAmount = lumAmount * (WalletClient.getLumInfos()?.price || 0);
 
     return (
         <Card withoutPadding className="h-100 dashboard-card justify-content-start rewards-card p-4">

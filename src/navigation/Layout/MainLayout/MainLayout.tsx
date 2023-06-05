@@ -13,8 +13,9 @@ import { useRematchDispatch } from 'redux/hooks';
 
 import './MainLayout.scss';
 
-const MainLayout: React.FC = ({ children }) => {
+const MainLayout = ({ children }: { children?: React.ReactNode }): JSX.Element => {
     const wallet = useSelector((state: RootState) => state.wallet.currentWallet);
+    const currNode = useSelector((state: RootState) => state.wallet.currentNode);
     const proposals = useSelector((state: RootState) => state.governance.proposals);
     const reloadWalletInfos = useRematchDispatch((dispatch: RootDispatch) => dispatch.wallet.reloadWalletInfos);
 
@@ -54,6 +55,10 @@ const MainLayout: React.FC = ({ children }) => {
         }
     }, [location]);
 
+    useEffect(() => {
+        // Empty effect to force re-render when current node changes
+    }, [currNode]);
+
     const renderNavbar = (bottom?: boolean) => {
         if (!wallet) {
             return null;
@@ -91,8 +96,11 @@ const MainLayout: React.FC = ({ children }) => {
                         <li>
                             <NavLink
                                 to="/home"
-                                className="navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4"
-                                activeClassName="selected-navbar-item"
+                                className={({ isActive }) =>
+                                    `navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4 ${
+                                        isActive ? 'selected-navbar-item' : ''
+                                    }`
+                                }
                             >
                                 <img
                                     src={assets.images.navbarIcons.dashboard}
@@ -106,8 +114,11 @@ const MainLayout: React.FC = ({ children }) => {
                         <li>
                             <NavLink
                                 to="/operations"
-                                className="navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4"
-                                activeClassName="selected-navbar-item"
+                                className={({ isActive }) =>
+                                    `navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4 ${
+                                        isActive ? 'selected-navbar-item' : ''
+                                    }`
+                                }
                             >
                                 <img
                                     src={assets.images.navbarIcons.operations}
@@ -121,8 +132,11 @@ const MainLayout: React.FC = ({ children }) => {
                         <li>
                             <NavLink
                                 to="/staking"
-                                className="navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4"
-                                activeClassName="selected-navbar-item"
+                                className={({ isActive }) =>
+                                    `navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4 ${
+                                        isActive ? 'selected-navbar-item' : ''
+                                    }`
+                                }
                             >
                                 <img
                                     src={assets.images.navbarIcons.staking}
@@ -136,8 +150,11 @@ const MainLayout: React.FC = ({ children }) => {
                         <li>
                             <NavLink
                                 to="/message"
-                                className="navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4"
-                                activeClassName="selected-navbar-item"
+                                className={({ isActive }) =>
+                                    `navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4 ${
+                                        isActive ? 'selected-navbar-item' : ''
+                                    }`
+                                }
                             >
                                 <img
                                     src={assets.images.navbarIcons.messages}
@@ -151,8 +168,11 @@ const MainLayout: React.FC = ({ children }) => {
                         <li>
                             <NavLink
                                 to="/governance"
-                                className="navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4 position-relative"
-                                activeClassName="selected-navbar-item"
+                                className={({ isActive }) =>
+                                    `navbar-item d-flex flex-column flex-md-row align-items-center justify-content-center mx-md-4 position-relative ${
+                                        isActive ? 'selected-navbar-item' : ''
+                                    }`
+                                }
                             >
                                 <div className="me-md-2 nav-icon position-relative">
                                     <img

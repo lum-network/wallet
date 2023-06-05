@@ -73,7 +73,7 @@ const AvailableValidators = ({ validators, totalVotingPower, onDelegate }: Props
                             height={34}
                             githubUrl={LUM_ASSETS_GITHUB}
                             validatorAddress={validator.operatorAddress}
-                            chainId={WalletClient.chainId || ''}
+                            chainId={WalletClient.getChainId() || ''}
                             className="me-2 me-sm-3"
                         />
                         <span>

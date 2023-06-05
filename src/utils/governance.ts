@@ -16,13 +16,13 @@ export const isNoVoteYet = (results: VotesResult): boolean => {
 
 export const maxVote = (resultsPercent: VotesResult): [string, number, string] => {
     let max = 0;
-    let name = '';
+    let name: 'yes' | 'no' | 'noWithVeto' | 'abstain' = 'yes';
     let dotClass: string;
 
     for (const [key, value] of Object.entries(resultsPercent)) {
         if (value > max) {
             max = value;
-            name = key;
+            name = key as keyof typeof resultsPercent;
         }
     }
 
@@ -40,7 +40,7 @@ export const maxVote = (resultsPercent: VotesResult): [string, number, string] =
             dotClass = 'vote-option-grey';
     }
 
-    return [i18n.t(`governance.votes.${name}`), max, dotClass];
+    return [i18n.t(`governance.votes.${name}` as const) as string, max, dotClass];
 };
 
 export const getVoteName = (vote: VoteOption): string => {
