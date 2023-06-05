@@ -97,10 +97,9 @@ export const validateSignMessage = async (chainId: string, msg: LumTypes.SignMsg
 };
 
 class WalletClient {
-    lumInfos: LumInfo | null = null;
-    node: string = new URL(process.env.REACT_APP_RPC_URL).hostname;
-    chainId: string | null = null;
-
+    private lumInfos: LumInfo | null = null;
+    private node: string = new URL(process.env.REACT_APP_RPC_URL).hostname;
+    private chainId: string | null = null;
     private lumClient: LumClient | null = null;
     private static instance: WalletClient;
 
@@ -125,7 +124,7 @@ class WalletClient {
         }
 
         try {
-            const client = await LumClient.connect(getRpcFromNode(node || this.node));
+            const client = await LumClient.connect(getRpcFromNode(this.node));
             this.lumClient = client;
             this.chainId = await client.getChainId();
 
@@ -199,13 +198,17 @@ class WalletClient {
             };
         } catch (e) {}
     };
-    
-    getChainId = (): string | null => {
-        if (this.lumClient === null) {
-            return null;
-        }
 
+    getChainId = (): string | null => {
         return this.chainId;
+    };
+
+    getNode = (): string => {
+        return this.node;
+    };
+
+    getLumInfos = (): LumInfo | null => {
+        return this.lumInfos;
     };
 
     getValidatorsInfos = async (address: string) => {
@@ -397,7 +400,7 @@ class WalletClient {
                             description: data.details,
                         };
                     } catch {}
-                } else if (proposal.messages[0] && proposal.messages[0].typeUrl === MessageTypes.LEGACY_PROPOSAL) {
+                } else if (proposal.messages[0].typeUrl === MessageTypes.LEGACY_PROPOSAL) {
                     const messageData = LumRegistry.decode(proposal.messages[0]);
                     const data = LumRegistry.decode(messageData.content);
                     content = {

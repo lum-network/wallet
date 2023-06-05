@@ -1,7 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { Redirect } from 'react-router';
 import { LumConstants, LumUtils } from '@lum-network/sdk-javascript';
 
 import { Card } from 'frontend-elements';
@@ -33,7 +32,7 @@ const Dashboard = (): JSX.Element => {
     const { t } = useTranslation();
 
     if (!wallet) {
-        return <Redirect to="/welcome" />;
+        return <div />;
     }
 
     return (

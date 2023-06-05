@@ -29,6 +29,8 @@ jobs:
       - name: Build the test net bundle
         run: yarn build
         env:
+          SASS_PATH: "node_modules:src/styles"
+          GENERATE_SOURCEMAP: "false"
           REACT_APP_RPC_URL: "https://node0.testnet.lum.network/rpc"
 
       - name: Deploy on firebase testnet project
@@ -63,6 +65,8 @@ jobs:
       - name: Build the main net bundle
         run: yarn build
         env:
+          SASS_PATH: "node_modules:src/styles"
+          GENERATE_SOURCEMAP: "false"
           REACT_APP_RPC_URL: "https://node0.mainnet.lum.network/rpc"
 
       - name: Deploy on firebase main net project

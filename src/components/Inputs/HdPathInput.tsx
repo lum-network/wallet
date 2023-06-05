@@ -16,7 +16,7 @@ const validateDerivationPath = (values: string[]) => {
         }
 
         const valToNumber = Number(val);
-        if (valToNumber === NaN || valToNumber < 0) {
+        if (Number.isNaN(valToNumber) || valToNumber < 0) {
             return false;
         }
     }

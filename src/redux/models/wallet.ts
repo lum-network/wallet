@@ -10,9 +10,9 @@ import { DeviceModelId } from '@ledgerhq/devices';
 import { LUM_COINGECKO_ID } from 'constant';
 import i18n from 'locales';
 import { getRpcFromNode, getWalletLink, GuardaUtils, showErrorToast, showSuccessToast, WalletClient } from 'utils';
-import { LOGOUT } from 'redux/constants';
 
 import { Airdrop, HardwareMethod, Proposal, Rewards, RootModel, Transaction, Vestings, Wallet } from '../../models';
+import { LOGOUT } from 'redux/constants';
 
 interface SendPayload {
     to: string;
@@ -86,6 +86,7 @@ interface WalletState {
     rewards: Rewards;
     vestings: Vestings | null;
     airdrop: Airdrop | null;
+    currentNode: string;
 }
 
 export const wallet = createModel<RootModel>()({
@@ -103,6 +104,7 @@ export const wallet = createModel<RootModel>()({
         },
         vestings: null,
         airdrop: null,
+        currentNode: process.env.REACT_APP_RPC_URL || '',
     } as WalletState,
     reducers: {
         signIn(state, wallet: LumWallet, props?: { isExtensionImport?: boolean; isNanoS?: boolean }) {
@@ -129,6 +131,12 @@ export const wallet = createModel<RootModel>()({
                 transactions: data.transactions || state.transactions,
                 vestings: data.vestings || state.vestings,
                 airdrop: data.airdrop || state.airdrop,
+            };
+        },
+        setCurrentNode(state, node: string) {
+            return {
+                ...state,
+                currentNode: node,
             };
         },
     },
@@ -187,14 +195,14 @@ export const wallet = createModel<RootModel>()({
             } else if (!keplrWindow.keplr.experimentalSuggestChain) {
                 showErrorToast(i18n.t('wallet.errors.keplr.notLatest'));
             } else {
-                const { chainId } = WalletClient;
+                const chainId = WalletClient.getChainId();
 
                 if (!chainId) {
                     showErrorToast(i18n.t('wallet.errors.keplr.network'));
                     return;
                 }
 
-                const rpc = getRpcFromNode(WalletClient.node);
+                const rpc = getRpcFromNode(WalletClient.getNode());
 
                 try {
                     await keplrWindow.keplr.experimentalSuggestChain({
@@ -247,7 +255,6 @@ export const wallet = createModel<RootModel>()({
                                 },
                             },
                         ],
-                        coinType,
                         beta: chainId.includes('testnet'),
                     });
                 } catch {
@@ -292,10 +299,7 @@ export const wallet = createModel<RootModel>()({
                         const transport = await TransportWebUsb.create();
                         isNanoS = transport.deviceModel?.id === DeviceModelId.nanoS;
 
-                        //FIXME: Remove ts-ignore
                         wallet = await LumWalletFactory.fromLedgerTransport(
-                            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                            // @ts-ignore
                             transport,
                             HDPath,
                             LumConstants.LumBech32PrefixAccAddr,
@@ -362,7 +366,7 @@ export const wallet = createModel<RootModel>()({
                 LumWalletFactory.fromPrivateKey(cosmosPrivateKey)
                     .then((wallet) => {
                         dispatch.wallet.signIn(wallet);
-                        dispatch.wallet.reloadWalletInfos(wallet.getAddress());    
+                        dispatch.wallet.reloadWalletInfos(wallet.getAddress());
                     })
                     .catch((e) => showErrorToast(e.message));
             } catch (e) {
@@ -479,12 +483,13 @@ export const wallet = createModel<RootModel>()({
                 showErrorToast(i18n.t('wallet.errors.faucet.generic'));
             }
         },
-        async setCurrentNode(node: string, state) {
+        async updateNode(node: string, state) {
             if (state.wallet.currentWallet) {
                 dispatch({ type: LOGOUT });
             }
 
             await WalletClient.updateNode(node);
+            await dispatch.wallet.setCurrentNode(node);
         },
     }),
 });

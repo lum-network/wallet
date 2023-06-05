@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Redirect } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import ClipboardJS from 'clipboard';
 import { Modal as BSModal } from 'bootstrap';
@@ -96,7 +95,7 @@ const Message = (): JSX.Element => {
     });
 
     if (!wallet) {
-        return <Redirect to="/welcome" />;
+        return <div />;
     }
 
     // Methods

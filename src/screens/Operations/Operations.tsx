@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Redirect } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useFormik } from 'formik';
 import { LumConstants, LumMessages, LumUtils } from '@lum-network/sdk-javascript';
@@ -9,7 +8,6 @@ import * as yup from 'yup';
 
 import assets from 'assets';
 import { AddressCard, AvailableCard, Input, Modal, Button as CustomButton, AirdropCard } from 'components';
-import { Proposal } from 'models';
 import { RootDispatch, RootState } from 'redux/store';
 import { useRematchDispatch } from 'redux/hooks';
 import { showErrorToast } from 'utils';
@@ -206,15 +204,7 @@ const Operations = (): JSX.Element => {
                 .min(1, t('operations.errors.vote'))
                 .max(4, t('operations.errors.vote')),
         }),
-        onSubmit: (values) => {
-            const proposal = proposals.find((p) => p.id.eq(values.proposalId));
-
-            if (proposal) {
-                onSubmitVote(proposal, values.vote);
-            } else {
-                showErrorToast(`Proposal ${values.proposalId} not found, can't vote`);
-            }
-        },
+        onSubmit: (values) => onSubmitVote(values.proposalId, values.vote),
     });
 
     const setWithdrawAddressForm = useFormik({
@@ -283,7 +273,7 @@ const Operations = (): JSX.Element => {
     ]);
 
     if (!wallet) {
-        return <Redirect to="/welcome" />;
+        return <div />;
     }
 
     const onSubmitSend = async (toAddress: string, amount: string, memo: string) => {
@@ -373,8 +363,14 @@ const Operations = (): JSX.Element => {
         }
     };
 
-    const onSubmitVote = async (proposal: Proposal, voteOption: VoteOption) => {
+    const onSubmitVote = async (proposalId: string, voteOption: VoteOption) => {
         try {
+            const proposal = proposals.find((p) => p.id.equals(proposalId));
+
+            if (!proposal) {
+                throw new Error(`Proposal #${proposalId} not found`);
+            }
+
             const voteResult = await vote({ voter: wallet, proposal, vote: voteOption });
 
             if (voteResult) {

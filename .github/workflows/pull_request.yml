@@ -26,6 +26,8 @@ jobs:
       - name: Build
         run: yarn build
         env:
+          SASS_PATH: "node_modules:src/styles"
+          GENERATE_SOURCEMAP: "false"
           REACT_APP_RPC_URL: "https://node0.testnet.lum.network/rpc"
 
       - name: Test

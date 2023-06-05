@@ -1,8 +1,7 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { screen, within, render } from '@testing-library/react';
 import i18n from 'locales';
-
-import App from '../App';
+import App from 'App';
 
 describe('App', () => {
     it('Check if the app is correctly rendered', async () => {

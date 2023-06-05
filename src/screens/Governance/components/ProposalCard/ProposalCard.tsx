@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
-import { Namespace, TFunction, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
+import { Namespace, TFunction } from 'i18next';
 import { LumConstants } from '@lum-network/sdk-javascript';
 import { ProposalStatus } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
 import numeral from 'numeral';
@@ -71,7 +72,14 @@ const LargeProposalCard = ({
                         </p>
                     </div>
                 </div>
-                <VoteBar results={results} />
+                <VoteBar
+                    results={{
+                        yes: yesPercentage,
+                        no: noPercentage,
+                        noWithVeto: noWithVetoPercentage,
+                        abstain: abstainPercentage,
+                    }}
+                />
                 <div className="row mt-4 gy-2 ms-1">
                     <div className="col-12 col-md-6 col-xl-3 border-vote-green">
                         <h4>{t('governance.votes.yes')}</h4>
