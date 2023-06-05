@@ -2896,6 +2896,13 @@
   resolved "https://registry.yarnpkg.com/@types/cryptojs/-/cryptojs-3.1.30.tgz#1ce5d8342ba6225d365f3e7249f8c46106cfe7e6"
   integrity sha512-gcmkp7bdl8KumvNbDcPk9ir/rePkUPdvSMQVQdM7uN1PvUew7Ex2BV/CS4QfzX5Wt/wWToRa0uM/ICAtORpiWA==
 
+"@types/dompurify@^3.0.2":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@types/dompurify/-/dompurify-3.0.2.tgz#c1cd33a475bc49c43c2a7900e41028e2136a4553"
+  integrity sha512-YBL4ziFebbbfQfH5mlC+QTJsvh0oJUrWbmxKMyEdL7emlHJqGR2Qb34TEFKj+VCayBvjKy3xczMFNhugThUsfQ==
+  dependencies:
+    "@types/trusted-types" "*"
+
 "@types/eslint-scope@^3.7.3":
   version "3.7.4"
   resolved "https://registry.yarnpkg.com/@types/eslint-scope/-/eslint-scope-3.7.4.tgz#37fc1223f0786c39627068a12e94d6e6fc61de16"
@@ -3048,6 +3055,11 @@
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/@types/long/-/long-4.0.2.tgz#b74129719fc8d11c01868010082d483b7545591a"
   integrity sha512-MqTGEo5bj5t157U6fA/BiDynNkn0YknVdh48CMPkTSpFTVmvao5UQmm7uEF6xBEo7qIMAlY/JSleYaE6VOdpaA==
+
+"@types/marked@^4":
+  version "4.3.1"
+  resolved "https://registry.yarnpkg.com/@types/marked/-/marked-4.3.1.tgz#45fb6dfd47afb595766c71ed7749ead23f137de3"
+  integrity sha512-vSSbKZFbNktrQ15v7o1EaH78EbWV+sPQbPjHG+Cp8CaNcPFUEfjZ0Iml/V0bFDwsTlYe8o6XC5Hfdp91cqPV2g==
 
 "@types/mime@*":
   version "3.0.1"
@@ -3212,7 +3224,7 @@
   resolved "https://registry.yarnpkg.com/@types/tough-cookie/-/tough-cookie-4.0.2.tgz#6286b4c7228d58ab7866d19716f3696e03a09397"
   integrity sha512-Q5vtl1W5ue16D+nIaW8JWebSSraJVlK+EthKn7e7UcD4KWsaSJ8BqGPXNaPghgtcn/fhvrN17Tv8ksUsQpiplw==
 
-"@types/trusted-types@^2.0.2":
+"@types/trusted-types@*", "@types/trusted-types@^2.0.2":
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/@types/trusted-types/-/trusted-types-2.0.3.tgz#a136f83b0758698df454e328759dbd3d44555311"
   integrity sha512-NfQ4gyz38SL8sDNrSixxU2Os1a5xcdFxipAFxYEuLUlvU2uDwS4NUpsImcf1//SlWItCVMMLiylsxbmNMToV/g==
@@ -5288,6 +5300,11 @@ domhandler@^4.0.0, domhandler@^4.2.0, domhandler@^4.3.1:
   integrity sha512-GrwoxYN+uWlzO8uhUXRl0P+kHE4GtVPfYzVLcUxPL7KNdHKj66vvlhiweIHqYYXWlw+T8iLMp42Lm67ghw4WMQ==
   dependencies:
     domelementtype "^2.2.0"
+
+dompurify@^3.0.3:
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/dompurify/-/dompurify-3.0.3.tgz#4b115d15a091ddc96f232bcef668550a2f6f1430"
+  integrity sha512-axQ9zieHLnAnHh0sfAamKYiqXMJAVwu+LM/alQ7WDagoWessyWvMSFyW65CqF3owufNu8HBcE4cM2Vflu7YWcQ==
 
 domutils@^1.7.0:
   version "1.7.0"
@@ -8006,6 +8023,11 @@ makeerror@1.0.12:
   integrity sha512-JmqCvUhmt43madlpFzG4BQzG2Z3m6tvQDNKdClZnO3VbIudJYmxsT0FNJMeiB2+JTSlTQTSbU8QdesVmwJcmLg==
   dependencies:
     tmpl "1.0.5"
+
+marked@^4:
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/marked/-/marked-4.3.0.tgz#796362821b019f734054582038b116481b456cf3"
+  integrity sha512-PRsaiG84bK+AMvxziE/lCFss8juXjNaWzVbN5tXAm4XjeaS9NAHhop+PjQxz2A9h8Q4M/xGmzP8vqNwy6JeK0A==
 
 md5.js@^1.3.4:
   version "1.3.5"

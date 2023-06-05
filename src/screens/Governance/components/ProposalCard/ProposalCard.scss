@@ -1,5 +1,11 @@
 @import 'src/styles/main';
 
+.proposal-card {
+    ul {
+        list-style-position: inside;
+    }
+}
+
 .dot-size {
     font-size: 60px;
     line-height: 25px;

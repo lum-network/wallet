@@ -2,17 +2,16 @@ import axios from 'axios';
 import { createModel } from '@rematch/core';
 import { Window as KeplrWindow } from '@keplr-wallet/types';
 import { LumUtils, LumWalletFactory, LumWallet, LumConstants } from '@lum-network/sdk-javascript';
+import { VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
 
 import TransportWebUsb from '@ledgerhq/hw-transport-webusb';
 import { DeviceModelId } from '@ledgerhq/devices';
 
+import { LUM_COINGECKO_ID } from 'constant';
+import i18n from 'locales';
 import { getRpcFromNode, getWalletLink, GuardaUtils, showErrorToast, showSuccessToast, WalletClient } from 'utils';
 
-import i18n from 'locales';
-import { LUM_COINGECKO_ID } from 'constant';
-
 import { Airdrop, HardwareMethod, Proposal, Rewards, RootModel, Transaction, Vestings, Wallet } from '../../models';
-import { VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
 import { LOGOUT } from 'redux/constants';
 
 interface SendPayload {
