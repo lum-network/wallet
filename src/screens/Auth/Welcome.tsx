@@ -247,7 +247,7 @@ const Welcome = (): JSX.Element => {
                         </h3>
                         <p className="auth-paragraph">
                             {t('welcome.extensionModalLoading.description', {
-                                app: selectedMethod.method
+                                extension: selectedMethod.method
                                     ? selectedMethod.method[0].toUpperCase() + selectedMethod.method.slice(1)
                                     : 'Null',
                             })}
