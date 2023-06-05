@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { useFormik } from 'formik';
 import { LumConstants, LumMessages, LumUtils } from '@lum-network/sdk-javascript';
+import { VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
 import * as yup from 'yup';
 
 import assets from 'assets';
@@ -21,16 +22,16 @@ import Vote from './components/Forms/Vote';
 import SetWithdrawAddress from './components/Forms/SetWithdrawAddress';
 
 import './Operations.scss';
-import { VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
 
 type MsgType = { name: string; icon: string; iconClassName?: string; id: string; description: string };
 
 const Operations = (): JSX.Element => {
-    const { wallet, balance, vestings, airdrop } = useSelector((state: RootState) => ({
+    const { wallet, balance, vestings, airdrop, proposals } = useSelector((state: RootState) => ({
         wallet: state.wallet.currentWallet,
         balance: state.wallet.currentBalance,
         vestings: state.wallet.vestings,
         airdrop: state.wallet.airdrop,
+        proposals: state.governance.proposals,
     }));
 
     // Rematch effects
@@ -364,7 +365,13 @@ const Operations = (): JSX.Element => {
 
     const onSubmitVote = async (proposalId: string, voteOption: VoteOption) => {
         try {
-            const voteResult = await vote({ voter: wallet, proposalId, vote: voteOption });
+            const proposal = proposals.find((p) => p.id.equals(proposalId));
+
+            if (!proposal) {
+                throw new Error(`Proposal #${proposalId} not found`);
+            }
+
+            const voteResult = await vote({ voter: wallet, proposal, vote: voteOption });
 
             if (voteResult) {
                 setTxResult({ hash: LumUtils.toHex(voteResult.hash), error: voteResult.error });

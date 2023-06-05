@@ -11,7 +11,7 @@ import { getRpcFromNode, getWalletLink, GuardaUtils, showErrorToast, showSuccess
 import i18n from 'locales';
 import { LUM_COINGECKO_ID } from 'constant';
 
-import { Airdrop, HardwareMethod, Rewards, RootModel, Transaction, Vestings, Wallet } from '../../models';
+import { Airdrop, HardwareMethod, Proposal, Rewards, RootModel, Transaction, Vestings, Wallet } from '../../models';
 import { VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
 import { LOGOUT } from 'redux/constants';
 
@@ -73,7 +73,7 @@ interface SetWalletDataPayload {
 
 interface VotePayload {
     voter: Wallet;
-    proposalId: string;
+    proposal: Proposal;
     vote: VoteOption;
 }
 
@@ -452,7 +452,7 @@ export const wallet = createModel<RootModel>()({
             return result;
         },
         async vote(payload: VotePayload) {
-            const result = await WalletClient.vote(payload.voter, payload.proposalId, payload.vote);
+            const result = await WalletClient.vote(payload.voter, payload.proposal, payload.vote);
 
             if (!result) {
                 return null;
