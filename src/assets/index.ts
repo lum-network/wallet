@@ -19,6 +19,9 @@ import openBeam from './images/messageTypes/openBeam.svg';
 import updateBeam from './images/messageTypes/updateBeam.svg';
 import claimBeam from './images/messageTypes/claimBeam.svg';
 import depositDfract from './images/messageTypes/dfract.svg';
+import depositMillions from './images/messageTypes/millionsDeposit.svg';
+import withdrawMillions from './images/messageTypes/millionsWithdraw.svg';
+import claimMillions from './images/messageTypes/claimPrize.svg';
 import hardwareIcon from './images/hardware.svg';
 import softwareIcon from './images/software.png';
 import addIcon from './images/add.png';
@@ -57,6 +60,10 @@ import depositPeriod from './images/depositPeriod.svg';
 import warningIcon from './images/warningIcon.svg';
 import moreIcon from './images/more.svg';
 import guardaIcon from './images/guarda.svg';
+import atomIcon from './images/tokens/atom.svg';
+import osmoIcon from './images/tokens/osmo.svg';
+import usdcIcon from './images/tokens/usdc.svg';
+import dfrIcon from './images/tokens/dfr.svg';
 
 export default {
     images: {
@@ -114,6 +121,9 @@ export default {
             claimBeam,
             setWithdrawAddress,
             depositDfract,
+            depositMillions,
+            withdrawMillions,
+            claimMillions,
         },
         navbarIcons: {
             dashboard,
@@ -122,6 +132,12 @@ export default {
             messages,
             governance,
             logout,
+        },
+        tokens: {
+            atom: atomIcon,
+            dfr: dfrIcon,
+            osmo: osmoIcon,
+            usdc: usdcIcon,
         },
     },
 };

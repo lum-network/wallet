@@ -5,7 +5,15 @@ import { LumConstants, LumUtils } from '@lum-network/sdk-javascript';
 
 import { Card } from 'frontend-elements';
 import { LUM_TWITTER } from 'constant';
-import { TransactionsTable, AddressCard, AvailableCard, LumPriceCard, BalanceCard, AirdropCard } from 'components';
+import {
+    TransactionsTable,
+    AddressCard,
+    AvailableCard,
+    LumPriceCard,
+    BalanceCard,
+    AirdropCard,
+    OtherAssetsTable,
+} from 'components';
 import { RootState } from 'redux/store';
 
 import StakedCoinsCard from '../Staking/components/Cards/StakedCoinsCard';
@@ -15,11 +23,12 @@ import './styles/Dashboard.scss';
 
 const Dashboard = (): JSX.Element => {
     // Redux hooks
-    const { transactions, balance, wallet, vestings, airdrop, stakedCoins, rewards } = useSelector(
+    const { transactions, balance, otherBalances, wallet, vestings, airdrop, stakedCoins, rewards } = useSelector(
         (state: RootState) => ({
             loading: state.loading.global.loading,
             transactions: state.wallet.transactions,
             balance: state.wallet.currentBalance,
+            otherBalances: state.wallet.otherBalances,
             wallet: state.wallet.currentWallet,
             stakedCoins: state.staking.stakedCoins,
             vestings: state.wallet.vestings,
@@ -95,6 +104,18 @@ const Dashboard = (): JSX.Element => {
                         <LumPriceCard />
                     </div>
                 </div>
+                {otherBalances.length > 0 && (
+                    <div className="row mt-4">
+                        <div className="col">
+                            <Card withoutPadding>
+                                <div className="ps-4">
+                                    <h2 className="ps-2 pt-5 pb-1">{t('dashboard.otherBalancesTable.title')}</h2>
+                                </div>
+                                <OtherAssetsTable otherBalances={otherBalances} />
+                            </Card>
+                        </div>
+                    </div>
+                )}
                 <div className="row mt-4">
                     <div className="col">
                         <Card withoutPadding>

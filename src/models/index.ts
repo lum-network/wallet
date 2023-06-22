@@ -2,21 +2,29 @@ import { LumTypes, LumWallet } from '@lum-network/sdk-javascript';
 import { Proposal as BaseProposal } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1/gov';
 import { Validator } from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
 import { Models } from '@rematch/core';
+
 import { governance } from '../redux/models/governance';
 import { staking } from '../redux/models/staking';
 import { wallet } from '../redux/models/wallet';
+import { stats } from '../redux/models/stats';
 
 export interface RootModel extends Models<RootModel> {
     wallet: typeof wallet;
     staking: typeof staking;
     governance: typeof governance;
+    stats: typeof stats;
 }
 
-export const reduxModels: RootModel = { wallet, staking, governance };
+export const reduxModels: RootModel = { wallet, staking, governance, stats };
 
 export interface Wallet extends LumWallet {
     isExtensionImport?: boolean;
     isNanoS?: boolean;
+}
+
+export interface OtherBalance {
+    denom: string;
+    amount: number;
 }
 
 export interface CommonTransactionProps {
@@ -119,3 +127,6 @@ export interface LumInfo {
     name: number;
     previousDaysPrices: PreviousDayPrice[];
 }
+
+export { default as MetadataModel } from './Metadata';
+export { default as TokenModel } from './Token';

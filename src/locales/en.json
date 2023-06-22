@@ -74,6 +74,10 @@
         "latestTx": "Latest Transactions",
         "currentBalance": "Your balance",
         "availableBalance": "Available balance",
+        "otherBalancesTable": {
+            "title": "My Other Assets",
+            "headers": ["Asset", "Balance"]
+        },
         "followTwitter": "Follow us on Twitter",
         "noTx": "No transactions yet"
     },
@@ -230,9 +234,15 @@
             "ibcReceivePacket": "IBC Receive Packet",
             "exec": "Exec",
             "grant": "Grant",
-            "depositDfract": "DFract Deposit"
+            "depositDfract": "DFract Deposit",
+            "depositMillions": "Millions Deposit",
+            "claimMillions": "Millions Claim Prize",
+            "withdrawMillions": "Millions Leave Pool",
+            "depositRetryMillions": "Millions Deposit Retry",
+            "withdrawRetryMillions": "Millions Withdraw Retry"
         },
-        "proposal": "Proposal #"
+        "proposal": "Proposal #",
+        "pool": "Pool #"
     },
     "operations": {
         "types": {

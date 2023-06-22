@@ -10,9 +10,19 @@ import { DeviceModelId } from '@ledgerhq/devices';
 import { LUM_COINGECKO_ID } from 'constant';
 import i18n from 'locales';
 import { getRpcFromNode, getWalletLink, GuardaUtils, showErrorToast, showSuccessToast, WalletClient } from 'utils';
-
-import { Airdrop, HardwareMethod, Proposal, Rewards, RootModel, Transaction, Vestings, Wallet } from '../../models';
 import { LOGOUT } from 'redux/constants';
+
+import {
+    Airdrop,
+    HardwareMethod,
+    OtherBalance,
+    Proposal,
+    Rewards,
+    RootModel,
+    Transaction,
+    Vestings,
+    Wallet,
+} from '../../models';
 
 interface SendPayload {
     to: string;
@@ -65,6 +75,7 @@ interface SetWalletDataPayload {
         fiat: number;
         lum: number;
     };
+    otherBalances?: OtherBalance[];
     rewards?: Rewards;
     vestings?: Vestings;
     airdrop?: Airdrop;
@@ -82,6 +93,7 @@ interface WalletState {
         fiat: number;
         lum: number;
     };
+    otherBalances: OtherBalance[];
     transactions: Transaction[];
     rewards: Rewards;
     vestings: Vestings | null;
@@ -97,6 +109,7 @@ export const wallet = createModel<RootModel>()({
             fiat: 0,
             lum: 0,
         },
+        otherBalances: [],
         transactions: [],
         rewards: {
             rewards: [],
@@ -128,6 +141,7 @@ export const wallet = createModel<RootModel>()({
                 ...state,
                 rewards: data.rewards || state.rewards,
                 currentBalance: data.currentBalance || state.currentBalance,
+                otherBalances: data.otherBalances || state.otherBalances,
                 transactions: data.transactions || state.transactions,
                 vestings: data.vestings || state.vestings,
                 airdrop: data.airdrop || state.airdrop,
@@ -145,8 +159,8 @@ export const wallet = createModel<RootModel>()({
             const result = await WalletClient.getWalletBalance(address);
 
             if (result) {
-                const { currentBalance } = result;
-                dispatch.wallet.setWalletData({ currentBalance });
+                const { currentBalance, otherBalances } = result;
+                dispatch.wallet.setWalletData({ currentBalance, otherBalances });
             }
         },
         async getTransactions(address: string) {
@@ -179,6 +193,7 @@ export const wallet = createModel<RootModel>()({
         },
         async reloadWalletInfos(address: string) {
             await Promise.all([
+                dispatch.stats.getPrices(),
                 dispatch.wallet.getWalletBalance(address),
                 dispatch.wallet.getTransactions(address),
                 dispatch.wallet.getRewards(address),

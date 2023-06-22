@@ -13,6 +13,8 @@ export const LUM_EXPLORER = 'https://explorer.lum.network';
 export const LUM_WALLET = 'https://wallet.lum.network';
 export const LUM_EXPLORER_TESTNET = 'https://explorer.testnet.lum.network';
 export const LUM_WALLET_TESTNET = 'https://wallet.testnet.lum.network';
+export const LUM_MILLIONS = 'https://cosmosmillions.com';
+export const LUM_MILLIONS_TESTNET = 'https://testnet.cosmosmillions.com';
 export const LUM_COINGECKO_ID = 'lum-network';
 
 export const CLIENT_PRECISION = 1_000_000_000_000_000_000;

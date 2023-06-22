@@ -1,0 +1,13 @@
+@import 'src/styles/main';
+
+.denom {
+    font-weight: bold;
+}
+
+.usd-price {
+    color: #585858;
+    
+    @media (prefers-color-scheme: dark) {
+        color: $color-grey;
+    }
+}

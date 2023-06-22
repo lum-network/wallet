@@ -5,7 +5,7 @@ import { LumConstants } from '@lum-network/sdk-javascript';
 
 import { Table } from 'frontend-elements';
 import { Transaction, Wallet } from 'models';
-import { getExplorerLink, NumbersUtils, DenomsUtils, trunc } from 'utils';
+import { getExplorerLink, NumbersUtils, DenomsUtils, trunc, getMillionsLink } from 'utils';
 import { SmallerDecimal, TransactionTypeBadge } from 'components';
 import assets from 'assets';
 
@@ -70,6 +70,24 @@ const TransactionRow = (props: RowProps): JSX.Element => {
                     </a>
                 ) : row.messages.length > 1 ? (
                     '-'
+                ) : row.toAddress.startsWith(t('transactions.pool')) ? (
+                    <a
+                        href={`${getMillionsLink()}/pools/details/${DenomsUtils.computeDenom(
+                            row.amount[0].denom,
+                        )}/${row.toAddress.replace(t('transactions.pool'), '')}`}
+                        target="_blank"
+                        rel="noreferrer"
+                    >
+                        {row.toAddress}
+                    </a>
+                ) : row.toAddress.startsWith(t('transactions.proposal')) ? (
+                    <a
+                        href={`${getExplorerLink()}/proposals/${row.toAddress.replace(t('transactions.proposal'), '')}`}
+                        target="_blank"
+                        rel="noreferrer"
+                    >
+                        {row.toAddress}
+                    </a>
                 ) : (
                     trunc(row.toAddress || '-')
                 )}
