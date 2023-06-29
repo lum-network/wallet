@@ -39,7 +39,7 @@ const OtherStakingRewards = ({
         const amount = NumbersUtils.convertUnitNumber(rewards.total[0].amount);
 
         return (
-            <tr>
+            <tr key={`other-staking-reward-${index + 1}`}>
                 <td data-label={headers[0]}>{trunc(rewards.rewards[0].validatorAddress)}</td>
                 <td data-label={headers[1]}>
                     <div className="d-flex flex-row align-items-center">

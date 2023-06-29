@@ -3,6 +3,7 @@ import { createModel } from '@rematch/core';
 import { Window as KeplrWindow } from '@keplr-wallet/types';
 import { LumUtils, LumWalletFactory, LumWallet, LumConstants } from '@lum-network/sdk-javascript';
 import { VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
+import { DelegationDelegatorReward } from '@lum-network/sdk-javascript/build/codec/cosmos/distribution/v1beta1/distribution';
 
 import TransportWebUsb from '@ledgerhq/hw-transport-webusb';
 import { DeviceModelId } from '@ledgerhq/devices';
@@ -189,16 +190,16 @@ export const wallet = createModel<RootModel>()({
             if (res) {
                 const { rewards: r } = res;
 
-                const oRewards = [];
+                const oRewards: DelegationDelegatorReward[] = [];
 
-                for (let i = 0; i < r.length; i++) {
-                    if (r[i].reward.findIndex((reward) => reward.denom !== LumConstants.MicroLumDenom) > -1) {
-                        oRewards.push(r[i]);
-                        r.splice(i, 1);
+                const lumRewards = r.filter((reward) => {
+                    if (reward.reward.findIndex((reward) => reward.denom !== LumConstants.MicroLumDenom) > -1) {
+                        oRewards.push(reward);
+                        return false;
                     }
-                }
 
-                const lumRewards = [...r];
+                    return true;
+                });
 
                 const rewards = {
                     rewards: lumRewards,
@@ -232,13 +233,19 @@ export const wallet = createModel<RootModel>()({
 
                     if (oR.reward.length > 0) {
                         if (existsInArrayIndex > -1) {
+                            const oldTotal = NumbersUtils.convertUnitNumber(
+                                otherRewards[existsInArrayIndex].total[0].amount,
+                            );
+                            const rewardAmount = NumbersUtils.convertUnitNumber(
+                                parseFloat(oR.reward[0].amount) / CLIENT_PRECISION,
+                            );
+
                             otherRewards[existsInArrayIndex].rewards.push({
                                 ...oR,
                             });
+
                             otherRewards[existsInArrayIndex].total[0].amount = NumbersUtils.convertUnitNumber(
-                                NumbersUtils.convertUnitNumber(otherRewards[existsInArrayIndex].total[0].amount) /
-                                    CLIENT_PRECISION +
-                                    NumbersUtils.convertUnitNumber(oR.reward[0].amount) / CLIENT_PRECISION,
+                                oldTotal + rewardAmount,
                                 LumConstants.LumDenom,
                                 LumConstants.MicroLumDenom,
                             ).toFixed();
@@ -248,7 +255,7 @@ export const wallet = createModel<RootModel>()({
                                 total: [
                                     {
                                         denom: DenomsUtils.computeDenom(oR.reward[0].denom),
-                                        amount: oR.reward[0].amount,
+                                        amount: (parseFloat(oR.reward[0].amount) / CLIENT_PRECISION).toFixed(),
                                     },
                                 ],
                             });
