@@ -1,8 +1,8 @@
+import React, { useState } from 'react';
 import { Input, Button as CustomButton } from 'components';
 import { FormikContextType } from 'formik';
 import { Button } from 'frontend-elements';
 import { Rewards } from 'models';
-import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NumbersUtils } from 'utils';
 
@@ -10,11 +10,12 @@ interface Props {
     rewards: Rewards;
     isLoading: boolean;
     form: FormikContextType<{
+        addresses: string;
         memo: string;
     }>;
 }
 
-const GetAllRewards = ({ form, isLoading, rewards }: Props): JSX.Element => {
+const GetOtherRewards = ({ form, isLoading, rewards }: Props): JSX.Element => {
     const [confirming, setConfirming] = useState(false);
 
     const { t } = useTranslation();
@@ -25,11 +26,15 @@ const GetAllRewards = ({ form, isLoading, rewards }: Props): JSX.Element => {
             <form className="row w-100 align-items-start text-start mt-3">
                 <div className="col-12 mt-4">
                     <Input
-                        value={NumbersUtils.formatTo6digit(
-                            rewards.total && rewards.total.length > 0
-                                ? NumbersUtils.convertUnitNumber(rewards.total[0].amount)
-                                : 0,
-                        )}
+                        value={
+                            NumbersUtils.formatTo6digit(
+                                rewards.total && rewards.total.length > 0
+                                    ? NumbersUtils.convertUnitNumber(rewards.total[0].amount)
+                                    : 0,
+                            ) +
+                            ' ' +
+                            rewards.total[0].denom.toUpperCase()
+                        }
                         readOnly
                         label={t('operations.inputs.rewards.label')}
                     />
@@ -78,4 +83,4 @@ const GetAllRewards = ({ form, isLoading, rewards }: Props): JSX.Element => {
     );
 };
 
-export default GetAllRewards;
+export default GetOtherRewards;

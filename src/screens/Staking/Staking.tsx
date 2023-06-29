@@ -32,10 +32,13 @@ import Delegate from '../Operations/components/Forms/Delegate';
 import Undelegate from '../Operations/components/Forms/Undelegate';
 import GetReward from '../Operations/components/Forms/GetReward';
 import GetAllRewards from '../Operations/components/Forms/GetAllRewards';
-import Redelegate from 'screens/Operations/components/Forms/Redelegate';
+import GetOtherRewards from '../Operations/components/Forms/GetOtherRewards';
+import Redelegate from '../Operations/components/Forms/Redelegate';
+import OtherStakingRewards from './components/Lists/OtherStakingRewards';
 
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-const noop = () => {};
+const noop = () => {
+    //do nothing
+};
 
 const Staking = (): JSX.Element => {
     // State
@@ -44,20 +47,28 @@ const Staking = (): JSX.Element => {
     const [confirming, setConfirming] = useState(false);
     const [operationModal, setOperationModal] = useState<BSModal | null>(null);
     const [topValidatorConfirmationModal, setTopValidatorConfirmationModal] = useState<BSModal | null>(null);
-    const [onConfirmOperation, setOnConfirmOperation] = useState<() => void>(() => noop);
+    const [onConfirmOperation, setOnConfirmOperation] = useState<() => void>(noop);
     const [totalVotingPower, setTotalVotingPower] = useState(0);
+    const [otherRewardsToClaimIndex, setOtherRewardToClaimIndex] = useState<number | null>(null);
 
     // Dispatch methods
-    const { getValidatorsInfos, delegate, redelegate, undelegate, getWalletInfos, getAllRewards, getReward } =
-        useRematchDispatch((dispatch: RootDispatch) => ({
-            getValidatorsInfos: dispatch.staking.getValidatorsInfosAsync,
-            delegate: dispatch.wallet.delegate,
-            redelegate: dispatch.wallet.redelegate,
-            undelegate: dispatch.wallet.undelegate,
-            getWalletInfos: dispatch.wallet.reloadWalletInfos,
-            getReward: dispatch.wallet.getReward,
-            getAllRewards: dispatch.wallet.getAllRewards,
-        }));
+    const {
+        getValidatorsInfos,
+        delegate,
+        redelegate,
+        undelegate,
+        getWalletInfos,
+        getRewardsFromValidators,
+        getReward,
+    } = useRematchDispatch((dispatch: RootDispatch) => ({
+        getValidatorsInfos: dispatch.staking.getValidatorsInfosAsync,
+        delegate: dispatch.wallet.delegate,
+        redelegate: dispatch.wallet.redelegate,
+        undelegate: dispatch.wallet.undelegate,
+        getWalletInfos: dispatch.wallet.reloadWalletInfos,
+        getReward: dispatch.wallet.getReward,
+        getRewardsFromValidators: dispatch.wallet.getRewardsFromValidators,
+    }));
 
     // Redux state values
     const {
@@ -70,6 +81,7 @@ const Staking = (): JSX.Element => {
         wallet,
         vestings,
         rewards,
+        otherRewards,
         balance,
         delegations,
         unbondings,
@@ -84,6 +96,7 @@ const Staking = (): JSX.Element => {
         vestings: state.wallet.vestings,
         balance: state.wallet.currentBalance,
         rewards: state.wallet.rewards,
+        otherRewards: state.wallet.otherRewards,
         bondedValidators: state.staking.validators.bonded,
         unbondedValidators: state.staking.validators.unbonded,
         unbondingValidators: state.staking.validators.unbonding,
@@ -95,7 +108,7 @@ const Staking = (): JSX.Element => {
         loadingRedelegate: state.loading.effects.wallet.redelegate.loading,
         loadingUndelegate: state.loading.effects.wallet.undelegate.loading,
         loadingClaim: state.loading.effects.wallet.getReward.loading,
-        loadingClaimAll: state.loading.effects.wallet.getAllRewards.loading,
+        loadingClaimAll: state.loading.effects.wallet.getRewardsFromValidators.loading,
     }));
 
     const loadingAll = loadingDelegate || loadingUndelegate;
@@ -174,6 +187,15 @@ const Staking = (): JSX.Element => {
             memo: yup.string(),
         }),
         onSubmit: (values) => onSubmitGetAllRewards(values.memo),
+    });
+
+    const getOtherRewardsForm = useFormik({
+        initialValues: { memo: '', addresses: '' },
+        validationSchema: yup.object().shape({
+            memo: yup.string(),
+            addresses: yup.string().required(),
+        }),
+        onSubmit: (values) => onSubmitGetOtherRewards(values.addresses, values.memo),
     });
 
     // Effects
@@ -318,7 +340,25 @@ const Staking = (): JSX.Element => {
                 })
                 .map((val) => val.operatorAddress);
 
-            const getAllRewardsResult = await getAllRewards({
+            const getAllRewardsResult = await getRewardsFromValidators({
+                from: wallet,
+                validatorsAddresses,
+                memo,
+            });
+
+            if (getAllRewardsResult) {
+                setTxResult({ hash: LumUtils.toHex(getAllRewardsResult.hash), error: getAllRewardsResult.error });
+            }
+        } catch (e) {
+            showErrorToast((e as Error).message);
+        }
+    };
+
+    const onSubmitGetOtherRewards = async (addresses: string, memo: string) => {
+        try {
+            const validatorsAddresses = addresses.split(',');
+
+            const getAllRewardsResult = await getRewardsFromValidators({
                 from: wallet,
                 validatorsAddresses,
                 memo,
@@ -387,6 +427,19 @@ const Staking = (): JSX.Element => {
         }
     };
 
+    const onClaimOther = (addresses: string, index: number) => {
+        setOtherRewardToClaimIndex(index);
+        if (operationModal) {
+            getOtherRewardsForm.setFieldValue('addresses', addresses).then(() => {
+                setModalType({
+                    id: LumMessages.MsgWithdrawDelegatorRewardUrl + '/others',
+                    name: t('operations.types.getOtherRewards.name'),
+                });
+                operationModal.show();
+            });
+        }
+    };
+
     // Rendering
     const renderModal = (): JSX.Element | null => {
         if (!modalType) {
@@ -409,6 +462,15 @@ const Staking = (): JSX.Element => {
             case LumMessages.MsgWithdrawDelegatorRewardUrl + '/all':
                 return <GetAllRewards isLoading={!!loadingClaimAll} form={getAllRewardsForm} rewards={rewards} />;
 
+            case LumMessages.MsgWithdrawDelegatorRewardUrl + '/others':
+                return (
+                    <GetOtherRewards
+                        isLoading={!!loadingClaimAll}
+                        form={getOtherRewardsForm}
+                        rewards={otherRewards[otherRewardsToClaimIndex || 0]}
+                    />
+                );
+
             default:
                 return <div>Soon</div>;
         }
@@ -416,7 +478,7 @@ const Staking = (): JSX.Element => {
 
     return (
         <>
-            <div className="mt-4">
+            <div className="mt-4" id="staking">
                 <div className="container-xxl">
                     <div className="row gy-4">
                         {airdrop && airdrop.amount > 0 ? (
@@ -465,6 +527,13 @@ const Staking = (): JSX.Element => {
                                 <RewardsCard rewards={rewards} onClaim={onClaimAll} isLoading={!!loadingClaimAll} />
                             )}
                         </div>
+                        {otherRewards.length > 0 && (
+                            <div className="col-12">
+                                <Card withoutPadding className="pb-2">
+                                    <OtherStakingRewards otherRewards={otherRewards} onClaim={onClaimOther} />
+                                </Card>
+                            </div>
+                        )}
                         <div className="col-12">
                             <Card withoutPadding className="pb-2">
                                 <MyValidators
@@ -548,7 +617,7 @@ const Staking = (): JSX.Element => {
                         className="logout-modal-cancel-btn me-sm-4 mb-4 mb-sm-0"
                         data-bs-dismiss="modal"
                         onClick={() => {
-                            setOnConfirmOperation(() => noop);
+                            setOnConfirmOperation(noop);
                         }}
                     >
                         <div className="px-sm-2">{t('common.cancel')}</div>

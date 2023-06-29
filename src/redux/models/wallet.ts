@@ -7,9 +7,18 @@ import { VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v
 import TransportWebUsb from '@ledgerhq/hw-transport-webusb';
 import { DeviceModelId } from '@ledgerhq/devices';
 
-import { LUM_COINGECKO_ID } from 'constant';
+import { CLIENT_PRECISION, LUM_COINGECKO_ID } from 'constant';
 import i18n from 'locales';
-import { getRpcFromNode, getWalletLink, GuardaUtils, showErrorToast, showSuccessToast, WalletClient } from 'utils';
+import {
+    DenomsUtils,
+    getRpcFromNode,
+    getWalletLink,
+    GuardaUtils,
+    NumbersUtils,
+    showErrorToast,
+    showSuccessToast,
+    WalletClient,
+} from 'utils';
 import { LOGOUT } from 'redux/constants';
 
 import {
@@ -44,7 +53,7 @@ interface GetRewardPayload {
     memo: string;
 }
 
-interface GetAllRewardsPayload {
+interface GetRewardsFromValidatorsPayload {
     validatorsAddresses: string[];
     from: Wallet;
     memo: string;
@@ -77,6 +86,7 @@ interface SetWalletDataPayload {
     };
     otherBalances?: OtherBalance[];
     rewards?: Rewards;
+    otherRewards?: Rewards[];
     vestings?: Vestings;
     airdrop?: Airdrop;
 }
@@ -96,6 +106,7 @@ interface WalletState {
     otherBalances: OtherBalance[];
     transactions: Transaction[];
     rewards: Rewards;
+    otherRewards: Rewards[];
     vestings: Vestings | null;
     airdrop: Airdrop | null;
     currentNode: string;
@@ -115,6 +126,7 @@ export const wallet = createModel<RootModel>()({
             rewards: [],
             total: [],
         },
+        otherRewards: [],
         vestings: null,
         airdrop: null,
         currentNode: process.env.REACT_APP_RPC_URL || '',
@@ -140,6 +152,7 @@ export const wallet = createModel<RootModel>()({
             return {
                 ...state,
                 rewards: data.rewards || state.rewards,
+                otherRewards: data.otherRewards || state.otherRewards,
                 currentBalance: data.currentBalance || state.currentBalance,
                 otherBalances: data.otherBalances || state.otherBalances,
                 transactions: data.transactions || state.transactions,
@@ -171,10 +184,78 @@ export const wallet = createModel<RootModel>()({
             }
         },
         async getRewards(address: string) {
-            const rewards = await WalletClient.getRewards(address);
+            const res = await WalletClient.getRewards(address);
 
-            if (rewards) {
-                dispatch.wallet.setWalletData({ rewards });
+            if (res) {
+                const { rewards: r } = res;
+
+                const oRewards = [];
+
+                for (let i = 0; i < r.length; i++) {
+                    if (r[i].reward.findIndex((reward) => reward.denom !== LumConstants.MicroLumDenom) > -1) {
+                        oRewards.push(r[i]);
+                        r.splice(i, 1);
+                    }
+                }
+
+                const lumRewards = [...r];
+
+                const rewards = {
+                    rewards: lumRewards,
+                    total: [
+                        {
+                            denom: LumConstants.MicroLumDenom,
+                            amount: NumbersUtils.convertUnitNumber(
+                                lumRewards.reduce(
+                                    (acc, r) =>
+                                        NumbersUtils.convertUnitNumber(r.reward.length > 0 ? r.reward[0].amount : '0') /
+                                            CLIENT_PRECISION +
+                                        acc,
+                                    0,
+                                ),
+                                LumConstants.LumDenom,
+                                LumConstants.MicroLumDenom,
+                            ).toFixed(),
+                        },
+                    ],
+                };
+
+                const otherRewards: Rewards[] = [];
+
+                for (const oR of oRewards) {
+                    const existsInArrayIndex = otherRewards.findIndex(
+                        (item) =>
+                            item.rewards.length > 0 &&
+                            item.rewards[0].reward.length > 0 &&
+                            item.rewards[0].reward[0].denom === (oR.reward[0].denom || ''),
+                    );
+
+                    if (oR.reward.length > 0) {
+                        if (existsInArrayIndex > -1) {
+                            otherRewards[existsInArrayIndex].rewards.push({
+                                ...oR,
+                            });
+                            otherRewards[existsInArrayIndex].total[0].amount = NumbersUtils.convertUnitNumber(
+                                NumbersUtils.convertUnitNumber(otherRewards[existsInArrayIndex].total[0].amount) /
+                                    CLIENT_PRECISION +
+                                    NumbersUtils.convertUnitNumber(oR.reward[0].amount) / CLIENT_PRECISION,
+                                LumConstants.LumDenom,
+                                LumConstants.MicroLumDenom,
+                            ).toFixed();
+                        } else {
+                            otherRewards.push({
+                                rewards: [oR],
+                                total: [
+                                    {
+                                        denom: DenomsUtils.computeDenom(oR.reward[0].denom),
+                                        amount: oR.reward[0].amount,
+                                    },
+                                ],
+                            });
+                        }
+                    }
+                }
+                dispatch.wallet.setWalletData({ rewards, otherRewards });
             }
         },
         async getVestings(address: string) {
@@ -438,8 +519,12 @@ export const wallet = createModel<RootModel>()({
             dispatch.wallet.reloadWalletInfos(payload.from.getAddress());
             return result;
         },
-        async getAllRewards(payload: GetAllRewardsPayload) {
-            const result = await WalletClient.getAllRewards(payload.from, payload.validatorsAddresses, payload.memo);
+        async getRewardsFromValidators(payload: GetRewardsFromValidatorsPayload) {
+            const result = await WalletClient.getRewardsFromValidators(
+                payload.from,
+                payload.validatorsAddresses,
+                payload.memo,
+            );
 
             if (!result) {
                 return null;

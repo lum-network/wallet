@@ -269,6 +269,9 @@
             "getAllRewards": {
                 "name": "Get All Rewards"
             },
+            "getOtherRewards": {
+                "name": "Get Other Rewards"
+            },
             "vote": {
                 "name": "Vote",
                 "description": "Vote on a governance proposal"
@@ -337,6 +340,9 @@
         "unbondedTokens": "Unbonding Tokens",
         "vestedTokens": "Vesting Tokens",
         "rewards": "Rewards",
+        "otherStakingRewards": {
+            "title": "Other staking rewards"
+        },
         "myValidators": {
             "title": "My validators",
             "empty": "No delegations yet"
@@ -354,7 +360,8 @@
             "votingPower": "Voting Power",
             "commission": "Commission",
             "stakedCoins": "Staked Coins",
-            "rewards": "Rewards"
+            "rewards": "Rewards",
+            "token": "Token"
         },
         "status": ["Unspecified", "Unbonded", "Unbonding", "Bonded", "Jailed"],
         "claim": "Claim",

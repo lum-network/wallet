@@ -686,7 +686,7 @@ class WalletClient {
         };
     };
 
-    getAllRewards = async (fromWallet: Wallet, validatorsAddresses: string[], memo: string) => {
+    getRewardsFromValidators = async (fromWallet: Wallet, validatorsAddresses: string[], memo: string) => {
         if (this.lumClient === null) {
             return null;
         }
