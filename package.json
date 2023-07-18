@@ -4,7 +4,7 @@
     "private": true,
     "dependencies": {
         "@ledgerhq/hw-transport-webusb": "^6.7.0",
-        "@lum-network/sdk-javascript": "^0.8.4",
+        "@lum-network/sdk-javascript": "^0.8.6",
         "@popperjs/core": "^2.11.6",
         "@qognicafinance/react-lightweight-charts": "^1.0.5",
         "@rematch/core": "^2.2.0",
