@@ -527,13 +527,6 @@ const Staking = (): JSX.Element => {
                                 <RewardsCard rewards={rewards} onClaim={onClaimAll} isLoading={!!loadingClaimAll} />
                             )}
                         </div>
-                        {otherRewards.length > 0 && (
-                            <div className="col-12">
-                                <Card withoutPadding className="pb-2">
-                                    <OtherStakingRewards otherRewards={otherRewards} onClaim={onClaimOther} />
-                                </Card>
-                            </div>
-                        )}
                         <div className="col-12">
                             <Card withoutPadding className="pb-2">
                                 <MyValidators
@@ -549,6 +542,21 @@ const Staking = (): JSX.Element => {
                                 />
                             </Card>
                         </div>
+                        {otherRewards.length > 0 && (
+                            <div className="col-12">
+                                <Card withoutPadding className="pb-2">
+                                    <OtherStakingRewards
+                                        otherRewards={otherRewards}
+                                        validators={[
+                                            ...bondedValidators,
+                                            ...unbondedValidators,
+                                            ...unbondingValidators,
+                                        ]}
+                                        onClaim={onClaimOther}
+                                    />
+                                </Card>
+                            </div>
+                        )}
                         <div className="col-12">
                             <Card withoutPadding className="pb-2">
                                 <AvailableValidators

@@ -10,10 +10,10 @@ jobs:
   build_and_preview:
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Node version to 14
+      - name: Set up Node version to 16
         uses: actions/setup-node@v2
         with:
-          node-version: '14'
+          node-version: '16'
 
       - name: Checkout repository and submodules
         uses: actions/checkout@v2

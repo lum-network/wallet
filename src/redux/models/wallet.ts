@@ -11,7 +11,6 @@ import { DeviceModelId } from '@ledgerhq/devices';
 import { CLIENT_PRECISION, LUM_COINGECKO_ID } from 'constant';
 import i18n from 'locales';
 import {
-    DenomsUtils,
     getRpcFromNode,
     getWalletLink,
     GuardaUtils,
@@ -191,15 +190,31 @@ export const wallet = createModel<RootModel>()({
                 const { rewards: r } = res;
 
                 const oRewards: DelegationDelegatorReward[] = [];
+                const lumRewards: DelegationDelegatorReward[] = [];
 
-                const lumRewards = r.filter((reward) => {
-                    if (reward.reward.findIndex((reward) => reward.denom !== LumConstants.MicroLumDenom) > -1) {
-                        oRewards.push(reward);
-                        return false;
+                for (const delegatorReward of r) {
+                    const otherReward = delegatorReward.reward.filter(
+                        (reward) => reward.denom !== LumConstants.MicroLumDenom,
+                    );
+
+                    const lumReward = delegatorReward.reward.filter(
+                        (reward) => reward.denom === LumConstants.MicroLumDenom,
+                    );
+
+                    if (otherReward.length > 0) {
+                        oRewards.push({
+                            validatorAddress: delegatorReward.validatorAddress,
+                            reward: otherReward,
+                        });
                     }
 
-                    return true;
-                });
+                    if (lumReward.length > 0) {
+                        lumRewards.push({
+                            validatorAddress: delegatorReward.validatorAddress,
+                            reward: lumReward,
+                        });
+                    }
+                }
 
                 const rewards = {
                     rewards: lumRewards,
@@ -237,7 +252,7 @@ export const wallet = createModel<RootModel>()({
                                 otherRewards[existsInArrayIndex].total[0].amount,
                             );
                             const rewardAmount = NumbersUtils.convertUnitNumber(
-                                parseFloat(oR.reward[0].amount) / CLIENT_PRECISION,
+                                NumbersUtils.convertUnitNumber(oR.reward[0].amount) / CLIENT_PRECISION,
                             );
 
                             otherRewards[existsInArrayIndex].rewards.push({
@@ -254,8 +269,10 @@ export const wallet = createModel<RootModel>()({
                                 rewards: [oR],
                                 total: [
                                     {
-                                        denom: DenomsUtils.computeDenom(oR.reward[0].denom),
-                                        amount: (parseFloat(oR.reward[0].amount) / CLIENT_PRECISION).toFixed(),
+                                        denom: oR.reward[0].denom,
+                                        amount: (
+                                            NumbersUtils.convertUnitNumber(oR.reward[0].amount) / CLIENT_PRECISION
+                                        ).toFixed(),
                                     },
                                 ],
                             });
