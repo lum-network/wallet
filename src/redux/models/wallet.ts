@@ -251,8 +251,9 @@ export const wallet = createModel<RootModel>()({
                             const oldTotal = NumbersUtils.convertUnitNumber(
                                 otherRewards[existsInArrayIndex].total[0].amount,
                             );
+
                             const rewardAmount = NumbersUtils.convertUnitNumber(
-                                NumbersUtils.convertUnitNumber(oR.reward[0].amount) / CLIENT_PRECISION,
+                                parseFloat(oR.reward[0].amount) / CLIENT_PRECISION,
                             );
 
                             otherRewards[existsInArrayIndex].rewards.push({
@@ -270,9 +271,7 @@ export const wallet = createModel<RootModel>()({
                                 total: [
                                     {
                                         denom: oR.reward[0].denom,
-                                        amount: (
-                                            NumbersUtils.convertUnitNumber(oR.reward[0].amount) / CLIENT_PRECISION
-                                        ).toFixed(),
+                                        amount: (parseFloat(oR.reward[0].amount) / CLIENT_PRECISION).toFixed(),
                                     },
                                 ],
                             });

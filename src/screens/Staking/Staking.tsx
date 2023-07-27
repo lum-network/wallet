@@ -32,7 +32,6 @@ import Delegate from '../Operations/components/Forms/Delegate';
 import Undelegate from '../Operations/components/Forms/Undelegate';
 import GetReward from '../Operations/components/Forms/GetReward';
 import GetAllRewards from '../Operations/components/Forms/GetAllRewards';
-import GetOtherRewards from '../Operations/components/Forms/GetOtherRewards';
 import Redelegate from '../Operations/components/Forms/Redelegate';
 import OtherStakingRewards from './components/Lists/OtherStakingRewards';
 
@@ -49,7 +48,6 @@ const Staking = (): JSX.Element => {
     const [topValidatorConfirmationModal, setTopValidatorConfirmationModal] = useState<BSModal | null>(null);
     const [onConfirmOperation, setOnConfirmOperation] = useState<() => void>(noop);
     const [totalVotingPower, setTotalVotingPower] = useState(0);
-    const [otherRewardsToClaimIndex, setOtherRewardToClaimIndex] = useState<number | null>(null);
 
     // Dispatch methods
     const {
@@ -187,15 +185,6 @@ const Staking = (): JSX.Element => {
             memo: yup.string(),
         }),
         onSubmit: (values) => onSubmitGetAllRewards(values.memo),
-    });
-
-    const getOtherRewardsForm = useFormik({
-        initialValues: { memo: '', addresses: '' },
-        validationSchema: yup.object().shape({
-            memo: yup.string(),
-            addresses: yup.string().required(),
-        }),
-        onSubmit: (values) => onSubmitGetOtherRewards(values.addresses, values.memo),
     });
 
     // Effects
@@ -354,24 +343,6 @@ const Staking = (): JSX.Element => {
         }
     };
 
-    const onSubmitGetOtherRewards = async (addresses: string, memo: string) => {
-        try {
-            const validatorsAddresses = addresses.split(',');
-
-            const getAllRewardsResult = await getRewardsFromValidators({
-                from: wallet,
-                validatorsAddresses,
-                memo,
-            });
-
-            if (getAllRewardsResult) {
-                setTxResult({ hash: LumUtils.toHex(getAllRewardsResult.hash), error: getAllRewardsResult.error });
-            }
-        } catch (e) {
-            showErrorToast((e as Error).message);
-        }
-    };
-
     // Click methods
     const onDelegate = (validator: Validator, totalVotingPower: number, force = false) => {
         if (!force && NumbersUtils.convertUnitNumber(validator.tokens || 0) / totalVotingPower > 0.08) {
@@ -427,19 +398,6 @@ const Staking = (): JSX.Element => {
         }
     };
 
-    const onClaimOther = (addresses: string, index: number) => {
-        setOtherRewardToClaimIndex(index);
-        if (operationModal) {
-            getOtherRewardsForm.setFieldValue('addresses', addresses).then(() => {
-                setModalType({
-                    id: LumMessages.MsgWithdrawDelegatorRewardUrl + '/others',
-                    name: t('operations.types.getOtherRewards.name'),
-                });
-                operationModal.show();
-            });
-        }
-    };
-
     // Rendering
     const renderModal = (): JSX.Element | null => {
         if (!modalType) {
@@ -461,15 +419,6 @@ const Staking = (): JSX.Element => {
 
             case LumMessages.MsgWithdrawDelegatorRewardUrl + '/all':
                 return <GetAllRewards isLoading={!!loadingClaimAll} form={getAllRewardsForm} rewards={rewards} />;
-
-            case LumMessages.MsgWithdrawDelegatorRewardUrl + '/others':
-                return (
-                    <GetOtherRewards
-                        isLoading={!!loadingClaimAll}
-                        form={getOtherRewardsForm}
-                        rewards={otherRewards[otherRewardsToClaimIndex || 0]}
-                    />
-                );
 
             default:
                 return <div>Soon</div>;
@@ -527,6 +476,20 @@ const Staking = (): JSX.Element => {
                                 <RewardsCard rewards={rewards} onClaim={onClaimAll} isLoading={!!loadingClaimAll} />
                             )}
                         </div>
+                        {otherRewards.length > 0 && (
+                            <div className="col-12">
+                                <Card withoutPadding className="pb-4">
+                                    <OtherStakingRewards
+                                        otherRewards={otherRewards}
+                                        validators={[
+                                            ...bondedValidators,
+                                            ...unbondedValidators,
+                                            ...unbondingValidators,
+                                        ]}
+                                    />
+                                </Card>
+                            </div>
+                        )}
                         <div className="col-12">
                             <Card withoutPadding className="pb-2">
                                 <MyValidators
@@ -542,21 +505,6 @@ const Staking = (): JSX.Element => {
                                 />
                             </Card>
                         </div>
-                        {otherRewards.length > 0 && (
-                            <div className="col-12">
-                                <Card withoutPadding className="pb-2">
-                                    <OtherStakingRewards
-                                        otherRewards={otherRewards}
-                                        validators={[
-                                            ...bondedValidators,
-                                            ...unbondedValidators,
-                                            ...unbondingValidators,
-                                        ]}
-                                        onClaim={onClaimOther}
-                                    />
-                                </Card>
-                            </div>
-                        )}
                         <div className="col-12">
                             <Card withoutPadding className="pb-2">
                                 <AvailableValidators

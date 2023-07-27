@@ -64,9 +64,11 @@ import atomIcon from './images/tokens/atom.svg';
 import osmoIcon from './images/tokens/osmo.svg';
 import usdcIcon from './images/tokens/usdc.svg';
 import dfrIcon from './images/tokens/dfr.svg';
+import arrow from './images/arrow.svg';
 
 export default {
     images: {
+        arrow,
         airdropCoins,
         hardwareIcon,
         softwareIcon,

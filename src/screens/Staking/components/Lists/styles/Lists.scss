@@ -47,6 +47,11 @@
             border: 2px $color-grey solid;
         }
     }
+
+    .other-rewards-card {
+        box-shadow: none;
+        background-color: $color-striped;
+    }
 }
 
 @include media-breakpoint-down(lg) {
@@ -106,6 +111,10 @@
                 color: $color-grey;
                 border: 2px $color-grey solid;
             }
+        }
+
+        .other-rewards-card {
+            background-color: $color-dark-striped;
         }
     }
 }

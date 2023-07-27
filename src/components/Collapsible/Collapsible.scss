@@ -1,0 +1,83 @@
+@import 'src/styles/main';
+
+.collapsible {
+    padding: 20px 24px;
+
+    .collapsible-title {
+        width: 100%;
+        font-style: normal;
+        font-weight: 400;
+        font-size: 18px;
+        line-height: 22px;
+        color: $color-black;
+
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        position: relative;
+
+        @include media-breakpoint-down(md) {
+            align-items: stretch;
+            justify-content: flex-start;
+            flex-direction: column;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .collapsible-arrow {
+                filter: brightness(0) invert(1);
+            }
+        }
+    }
+
+    .collapsible-content {
+        margin-top: 24px;
+        color: $color-black;
+        font-style: normal;
+        font-weight: 300;
+        font-size: 16px;
+        line-height: 19px;
+    }
+
+    .collapsible-btn {
+        cursor: pointer;
+        width: 40px;
+        height: 40px;
+
+        position: absolute;
+        right: 0;
+
+        img {
+            width: 10px;
+            transition: all 0.25s ease-out;
+            transform-origin: center;
+            transform: rotate(90deg);
+        }
+
+        &.with-button-border {
+            border: 2px solid $color-primary;
+            padding: 8px 18px;
+            font-size: 14px;
+            line-height: 17px;
+            color: $color-primary;
+            width: unset;
+
+            @media (prefers-color-scheme: dark) {
+                color: $color-white;
+                border-color: $color-white;
+            }
+        }
+
+        @include media-breakpoint-down(md) {
+            bottom: 0;
+        }
+
+        &.is-showing img {
+            transform: rotate(270deg);
+        }
+    }
+
+    &.clickable {
+        cursor: pointer;
+    }
+}
