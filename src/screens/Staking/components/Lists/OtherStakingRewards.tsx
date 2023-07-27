@@ -9,19 +9,14 @@ import { CLIENT_PRECISION, LUM_ASSETS_GITHUB } from 'constant';
 import { Card, ValidatorLogo } from 'frontend-elements';
 import { Reward, Rewards } from 'models';
 import { RootState } from 'redux/store';
-import { DenomsUtils, NumbersUtils, WalletClient, getExplorerLink, trunc } from 'utils';
+import { DenomsUtils, NumbersUtils, WalletClient, getExplorerLink, trunc, useWindowSize } from 'utils';
 
 const OtherStakingRewards = ({ validators, otherRewards }: { validators: Validator[]; otherRewards: Rewards[] }) => {
     const prices = useSelector((state: RootState) => state.stats.prices);
 
     const { t } = useTranslation();
 
-    const headers = [
-        t('staking.tableLabels.validator'),
-        t('staking.tableLabels.token'),
-        t('staking.tableLabels.rewards'),
-        '',
-    ];
+    const winSizes = useWindowSize();
 
     const renderRow = (rewards: Reward, index: number) => {
         const normalDenom = DenomsUtils.computeDenom(rewards.reward[0].denom);
@@ -30,7 +25,10 @@ const OtherStakingRewards = ({ validators, otherRewards }: { validators: Validat
         const validator = validators.find((val) => val.operatorAddress === rewards.validatorAddress);
 
         return (
-            <div key={`other-staking-reward-${index + 1}`} className="d-flex flex-row justify-content-between mt-4">
+            <div
+                key={`other-staking-reward-${index + 1}`}
+                className="other-reward-collapse d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mt-4 pt-4"
+            >
                 <a
                     href={`${getExplorerLink()}/validators/${rewards.validatorAddress}`}
                     target="_blank"
@@ -50,16 +48,12 @@ const OtherStakingRewards = ({ validators, otherRewards }: { validators: Validat
                             trunc(rewards.validatorAddress)}
                     </span>
                 </a>
-                <div data-label={headers[2]} className="text-end">
-                    <div className="d-flex flex-column justify-content-center">
-                        <div>
-                            <SmallerDecimal nb={NumbersUtils.formatTo6digit(amount)} className="me-1" />
-                            <span className="denom">
-                                {DenomsUtils.computeDenom(rewards.reward[0].denom).toUpperCase()}
-                            </span>
-                        </div>
-                        <div className="usd-price">{price && numeral(amount * price.price).format('$0,0[.]00')}</div>
+                <div className="d-flex flex-column justify-content-center align-items-sm-end mt-3 mt-sm-0">
+                    <div>
+                        <SmallerDecimal nb={NumbersUtils.formatTo6digit(amount)} className="me-1" />
+                        <span className="denom">{DenomsUtils.computeDenom(rewards.reward[0].denom).toUpperCase()}</span>
                     </div>
+                    <div className="usd-price">{price && numeral(amount * price.price).format('$0,0[.]00')}</div>
                 </div>
             </div>
         );
@@ -75,15 +69,18 @@ const OtherStakingRewards = ({ validators, otherRewards }: { validators: Validat
                 <Collapsible
                     id={`collapsible-other-rewards-${index}`}
                     key={`other-reward-${rewards.total[0].denom}`}
-                    buttonBorder
+                    buttonBorder={winSizes.width > 575.98}
                     header={
                         <div className="d-flex flex-row align-items-center">
-                            <img
-                                src={DenomsUtils.getIconFromDenom(DenomsUtils.computeDenom(rewards.total[0].denom))}
-                                width="34"
-                                height="34"
-                            />
-                            <div className="d-flex flex-column justify-content-center ms-3">
+                            {winSizes.width > 575.98 && (
+                                <img
+                                    src={DenomsUtils.getIconFromDenom(DenomsUtils.computeDenom(rewards.total[0].denom))}
+                                    width="34"
+                                    height="34"
+                                    className="me-3"
+                                />
+                            )}
+                            <div className="d-flex flex-column justify-content-center">
                                 <div>
                                     <SmallerDecimal nb={NumbersUtils.formatTo6digit(amount)} className="me-1" />
                                     <span className="denom">

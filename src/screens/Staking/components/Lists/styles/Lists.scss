@@ -51,6 +51,10 @@
     .other-rewards-card {
         box-shadow: none;
         background-color: $color-striped;
+
+        .other-reward-collapse {
+            border-top: rgba(0, 0, 0, 0.2) 1px solid;
+        }
     }
 }
 
@@ -115,6 +119,10 @@
 
         .other-rewards-card {
             background-color: $color-dark-striped;
+
+            .other-reward-collapse {
+                border-top: rgba(255, 255, 255, 0.2) 1px solid;
+            }
         }
     }
 }
