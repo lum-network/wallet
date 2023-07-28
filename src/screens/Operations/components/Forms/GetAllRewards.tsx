@@ -1,5 +1,4 @@
 import { Input, Button as CustomButton } from 'components';
-import { CLIENT_PRECISION } from 'constant';
 import { FormikContextType } from 'formik';
 import { Button } from 'frontend-elements';
 import { Rewards } from 'models';
@@ -28,7 +27,7 @@ const GetAllRewards = ({ form, isLoading, rewards }: Props): JSX.Element => {
                     <Input
                         value={NumbersUtils.formatTo6digit(
                             rewards.total && rewards.total.length > 0
-                                ? NumbersUtils.convertUnitNumber(rewards.total[0].amount) / CLIENT_PRECISION
+                                ? NumbersUtils.convertUnitNumber(rewards.total[0].amount)
                                 : 0,
                         )}
                         readOnly

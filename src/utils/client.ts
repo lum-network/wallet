@@ -4,7 +4,7 @@ import { ProposalStatus, VoteOption } from '@lum-network/sdk-javascript/build/co
 import { Window as KeplrWindow } from '@keplr-wallet/types';
 
 import { PasswordStrengthType, PasswordStrength, Wallet, Proposal, LumInfo } from 'models';
-import { showErrorToast, showSuccessToast } from 'utils';
+import { DenomsUtils, NumbersUtils, showErrorToast, showSuccessToast } from 'utils';
 import i18n from 'locales';
 import { COINGECKO_API_URL, IPFS_GATEWAY, MessageTypes } from 'constant';
 
@@ -267,11 +267,22 @@ class WalletClient {
         let lum = 0;
         let fiat = 0;
 
+        const otherBalancesArr = [];
+
         const balances = await this.lumClient.getAllBalances(address);
+
         const ulumBalance = balances.find((balance) => balance.denom === LumConstants.MicroLumDenom);
+        const otherBalances = balances.filter((balance) => balance.denom !== LumConstants.MicroLumDenom);
 
         if (ulumBalance) {
             lum += Number(LumUtils.convertUnit(ulumBalance, LumConstants.LumDenom));
+        }
+
+        for (const oB of otherBalances) {
+            otherBalancesArr.push({
+                denom: DenomsUtils.computeDenom(oB.denom),
+                amount: NumbersUtils.convertUnitNumber(oB.amount),
+            });
         }
 
         if (this.lumInfos) {
@@ -283,6 +294,7 @@ class WalletClient {
                 lum,
                 fiat,
             },
+            otherBalances: otherBalancesArr,
         };
     };
 
@@ -674,7 +686,7 @@ class WalletClient {
         };
     };
 
-    getAllRewards = async (fromWallet: Wallet, validatorsAddresses: string[], memo: string) => {
+    getRewardsFromValidators = async (fromWallet: Wallet, validatorsAddresses: string[], memo: string) => {
         if (this.lumClient === null) {
             return null;
         }

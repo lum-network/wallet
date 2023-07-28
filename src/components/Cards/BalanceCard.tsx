@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next';
 import { NumbersUtils, WalletClient } from 'utils';
 import { SmallerDecimal } from 'components';
 import { Rewards } from 'models';
-import { CLIENT_PRECISION } from 'constant';
 
 interface Props {
     balance: number;
@@ -18,9 +17,7 @@ const BalanceCard = ({ balance, rewards }: Props): JSX.Element => {
 
     const lumAmount =
         balance +
-        (rewards.total && rewards.total.length > 0
-            ? NumbersUtils.convertUnitNumber(rewards.total[0].amount) / CLIENT_PRECISION
-            : 0);
+        (rewards.total && rewards.total.length > 0 ? NumbersUtils.convertUnitNumber(rewards.total[0].amount) : 0);
     const fiatAmount = lumAmount * (WalletClient.getLumInfos()?.price || 0);
 
     return (

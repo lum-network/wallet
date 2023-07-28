@@ -37,6 +37,21 @@ type DFractInfos = {
     amount: LumTypes.Coin;
 };
 
+type MillionsDepositInfos = {
+    depositorAddress: string;
+    poolId: Long;
+    amount: LumTypes.Coin;
+    isSponsor: boolean;
+    winnerAddress: string;
+};
+
+type MillionsLeavePoolInfo = {
+    depositId: Long;
+    poolId: Long;
+    toAddress: string;
+    depositorAddress: string;
+};
+
 export const isSendTxInfo = (
     info: {
         fromAddress?: string;
@@ -91,6 +106,36 @@ export const isDfractInfo = (
     return !!(info && info.depositorAddress && info.amount);
 };
 
+export const isMillionsDepositInfo = (
+    info: {
+        depositorAddress?: string;
+        poolId?: Long;
+        amount?: LumTypes.Coin;
+        isSponsor?: boolean;
+        winnerAddress?: string;
+    } | null,
+): info is MillionsDepositInfos => {
+    return !!(
+        info &&
+        info.depositorAddress &&
+        info.amount &&
+        info.poolId &&
+        info.winnerAddress &&
+        info.isSponsor !== undefined
+    );
+};
+
+export const isMillionsLeavePoolInfo = (
+    info: {
+        depositId?: Long;
+        poolId?: Long;
+        toAddress?: string;
+        depositorAddress?: string;
+    } | null,
+): info is MillionsLeavePoolInfo => {
+    return !!(info && info.depositorAddress && info.depositId && info.poolId && info.toAddress);
+};
+
 export const hashExists = (txs: Transaction[], hash: string): boolean => txs.findIndex((tx) => tx.hash === hash) > -1;
 
 export const formatTxs = (rawTxs: readonly TxResponse[] | TxResponse[]): Transaction[] => {
@@ -125,10 +170,7 @@ export const formatTxs = (rawTxs: readonly TxResponse[] | TxResponse[]): Transac
                     if (typeof txInfos === 'object') {
                         tx.messages.push(msg.typeUrl);
 
-                        if (isDfractInfo(txInfos)) {
-                            tx.fromAddress = txInfos.depositorAddress;
-                            tx.amount.push(txInfos.amount);
-                        } else if (isSendTxInfo(txInfos)) {
+                        if (isSendTxInfo(txInfos)) {
                             tx.fromAddress = txInfos.fromAddress;
                             tx.toAddress = txInfos.toAddress;
                             tx.amount = txInfos.amount;
@@ -148,6 +190,15 @@ export const formatTxs = (rawTxs: readonly TxResponse[] | TxResponse[]): Transac
                             tx.fromAddress = txInfos.sender;
                             tx.toAddress = txInfos.receiver;
                             tx.amount.push(txInfos.token);
+                        } else if (isMillionsDepositInfo(txInfos)) {
+                            tx.fromAddress = txInfos.depositorAddress;
+                            tx.toAddress = i18n.t('transactions.pool') + txInfos.poolId.toString();
+                            tx.amount.push(txInfos.amount);
+                        } else if (isMillionsLeavePoolInfo(txInfos)) {
+                            tx.fromAddress = i18n.t('transactions.pool') + txInfos.poolId.toString();
+                        } else if (isDfractInfo(txInfos)) {
+                            tx.fromAddress = txInfos.depositorAddress;
+                            tx.amount.push(txInfos.amount);
                         }
                     }
                 } catch {}
@@ -198,6 +249,31 @@ export const getTxTypeInfos = (
             return { name: i18n.t('transactions.types.vote'), icon: assets.images.messageTypes.vote };
         case LumMessages.MsgDepositDfractUrl:
             return { name: i18n.t('transactions.types.depositDfract'), icon: assets.images.messageTypes.depositDfract };
+        case LumMessages.MsgMillionsDepositUrl:
+            return {
+                name: i18n.t('transactions.types.depositMillions'),
+                icon: assets.images.messageTypes.depositMillions,
+            };
+        case LumMessages.MsgDepositRetryUrl:
+            return {
+                name: i18n.t('transactions.types.depositRetryMillions'),
+                icon: assets.images.messageTypes.depositMillions,
+            };
+        case LumMessages.MsgClaimPrizeUrl:
+            return {
+                name: i18n.t('transactions.types.claimMillions'),
+                icon: assets.images.messageTypes.claimMillions,
+            };
+        case LumMessages.MsgWithdrawDepositUrl:
+            return {
+                name: i18n.t('transactions.types.withdrawMillions'),
+                icon: assets.images.messageTypes.withdrawMillions,
+            };
+        case LumMessages.MsgWithdrawDepositRetryUrl:
+            return {
+                name: i18n.t('transactions.types.withdrawRetryMillions'),
+                icon: assets.images.messageTypes.withdrawMillions,
+            };
         case MessageTypes.IBC_TRANSFER:
             return { name: i18n.t('transactions.types.ibcTransfer'), icon: assets.images.messageTypes.beam };
         case MessageTypes.IBC_TIMEOUT:

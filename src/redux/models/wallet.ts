@@ -3,16 +3,35 @@ import { createModel } from '@rematch/core';
 import { Window as KeplrWindow } from '@keplr-wallet/types';
 import { LumUtils, LumWalletFactory, LumWallet, LumConstants } from '@lum-network/sdk-javascript';
 import { VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
+import { DelegationDelegatorReward } from '@lum-network/sdk-javascript/build/codec/cosmos/distribution/v1beta1/distribution';
 
 import TransportWebUsb from '@ledgerhq/hw-transport-webusb';
 import { DeviceModelId } from '@ledgerhq/devices';
 
-import { LUM_COINGECKO_ID } from 'constant';
+import { CLIENT_PRECISION, LUM_COINGECKO_ID } from 'constant';
 import i18n from 'locales';
-import { getRpcFromNode, getWalletLink, GuardaUtils, showErrorToast, showSuccessToast, WalletClient } from 'utils';
-
-import { Airdrop, HardwareMethod, Proposal, Rewards, RootModel, Transaction, Vestings, Wallet } from '../../models';
+import {
+    getRpcFromNode,
+    getWalletLink,
+    GuardaUtils,
+    NumbersUtils,
+    showErrorToast,
+    showSuccessToast,
+    WalletClient,
+} from 'utils';
 import { LOGOUT } from 'redux/constants';
+
+import {
+    Airdrop,
+    HardwareMethod,
+    OtherBalance,
+    Proposal,
+    Rewards,
+    RootModel,
+    Transaction,
+    Vestings,
+    Wallet,
+} from '../../models';
 
 interface SendPayload {
     to: string;
@@ -34,7 +53,7 @@ interface GetRewardPayload {
     memo: string;
 }
 
-interface GetAllRewardsPayload {
+interface GetRewardsFromValidatorsPayload {
     validatorsAddresses: string[];
     from: Wallet;
     memo: string;
@@ -65,7 +84,9 @@ interface SetWalletDataPayload {
         fiat: number;
         lum: number;
     };
+    otherBalances?: OtherBalance[];
     rewards?: Rewards;
+    otherRewards?: Rewards[];
     vestings?: Vestings;
     airdrop?: Airdrop;
 }
@@ -82,8 +103,10 @@ interface WalletState {
         fiat: number;
         lum: number;
     };
+    otherBalances: OtherBalance[];
     transactions: Transaction[];
     rewards: Rewards;
+    otherRewards: Rewards[];
     vestings: Vestings | null;
     airdrop: Airdrop | null;
     currentNode: string;
@@ -97,11 +120,13 @@ export const wallet = createModel<RootModel>()({
             fiat: 0,
             lum: 0,
         },
+        otherBalances: [],
         transactions: [],
         rewards: {
             rewards: [],
             total: [],
         },
+        otherRewards: [],
         vestings: null,
         airdrop: null,
         currentNode: process.env.REACT_APP_RPC_URL || '',
@@ -127,7 +152,9 @@ export const wallet = createModel<RootModel>()({
             return {
                 ...state,
                 rewards: data.rewards || state.rewards,
+                otherRewards: data.otherRewards || state.otherRewards,
                 currentBalance: data.currentBalance || state.currentBalance,
+                otherBalances: data.otherBalances || state.otherBalances,
                 transactions: data.transactions || state.transactions,
                 vestings: data.vestings || state.vestings,
                 airdrop: data.airdrop || state.airdrop,
@@ -145,8 +172,8 @@ export const wallet = createModel<RootModel>()({
             const result = await WalletClient.getWalletBalance(address);
 
             if (result) {
-                const { currentBalance } = result;
-                dispatch.wallet.setWalletData({ currentBalance });
+                const { currentBalance, otherBalances } = result;
+                dispatch.wallet.setWalletData({ currentBalance, otherBalances });
             }
         },
         async getTransactions(address: string) {
@@ -157,10 +184,101 @@ export const wallet = createModel<RootModel>()({
             }
         },
         async getRewards(address: string) {
-            const rewards = await WalletClient.getRewards(address);
+            const res = await WalletClient.getRewards(address);
 
-            if (rewards) {
-                dispatch.wallet.setWalletData({ rewards });
+            if (res) {
+                const { rewards: r } = res;
+
+                const oRewards: DelegationDelegatorReward[] = [];
+                const lumRewards: DelegationDelegatorReward[] = [];
+
+                for (const delegatorReward of r) {
+                    const otherReward = delegatorReward.reward.filter(
+                        (reward) => reward.denom !== LumConstants.MicroLumDenom,
+                    );
+
+                    const lumReward = delegatorReward.reward.filter(
+                        (reward) => reward.denom === LumConstants.MicroLumDenom,
+                    );
+
+                    if (otherReward.length > 0) {
+                        oRewards.push({
+                            validatorAddress: delegatorReward.validatorAddress,
+                            reward: otherReward,
+                        });
+                    }
+
+                    if (lumReward.length > 0) {
+                        lumRewards.push({
+                            validatorAddress: delegatorReward.validatorAddress,
+                            reward: lumReward,
+                        });
+                    }
+                }
+
+                const rewards = {
+                    rewards: lumRewards,
+                    total: [
+                        {
+                            denom: LumConstants.MicroLumDenom,
+                            amount: NumbersUtils.convertUnitNumber(
+                                lumRewards.reduce(
+                                    (acc, r) =>
+                                        NumbersUtils.convertUnitNumber(r.reward.length > 0 ? r.reward[0].amount : '0') /
+                                            CLIENT_PRECISION +
+                                        acc,
+                                    0,
+                                ),
+                                LumConstants.LumDenom,
+                                LumConstants.MicroLumDenom,
+                            ).toFixed(),
+                        },
+                    ],
+                };
+
+                const otherRewards: Rewards[] = [];
+
+                for (const oR of oRewards) {
+                    const existsInArrayIndex = otherRewards.findIndex(
+                        (item) =>
+                            item.rewards.length > 0 &&
+                            item.rewards[0].reward.length > 0 &&
+                            item.rewards[0].reward[0].denom === (oR.reward[0].denom || ''),
+                    );
+
+                    if (oR.reward.length > 0) {
+                        if (existsInArrayIndex > -1) {
+                            const oldTotal = NumbersUtils.convertUnitNumber(
+                                otherRewards[existsInArrayIndex].total[0].amount,
+                            );
+
+                            const rewardAmount = NumbersUtils.convertUnitNumber(
+                                parseFloat(oR.reward[0].amount) / CLIENT_PRECISION,
+                            );
+
+                            otherRewards[existsInArrayIndex].rewards.push({
+                                ...oR,
+                            });
+
+                            otherRewards[existsInArrayIndex].total[0].amount = NumbersUtils.convertUnitNumber(
+                                oldTotal + rewardAmount,
+                                LumConstants.LumDenom,
+                                LumConstants.MicroLumDenom,
+                            ).toFixed();
+                        } else {
+                            otherRewards.push({
+                                rewards: [oR],
+                                total: [
+                                    {
+                                        denom: oR.reward[0].denom,
+                                        amount: (parseFloat(oR.reward[0].amount) / CLIENT_PRECISION).toFixed(),
+                                    },
+                                ],
+                            });
+                        }
+                    }
+                }
+                dispatch.wallet.setWalletData({ rewards, otherRewards });
             }
         },
         async getVestings(address: string) {
@@ -179,6 +297,7 @@ export const wallet = createModel<RootModel>()({
         },
         async reloadWalletInfos(address: string) {
             await Promise.all([
+                dispatch.stats.getPrices(),
                 dispatch.wallet.getWalletBalance(address),
                 dispatch.wallet.getTransactions(address),
                 dispatch.wallet.getRewards(address),
@@ -423,8 +542,12 @@ export const wallet = createModel<RootModel>()({
             dispatch.wallet.reloadWalletInfos(payload.from.getAddress());
             return result;
         },
-        async getAllRewards(payload: GetAllRewardsPayload) {
-            const result = await WalletClient.getAllRewards(payload.from, payload.validatorsAddresses, payload.memo);
+        async getRewardsFromValidators(payload: GetRewardsFromValidatorsPayload) {
+            const result = await WalletClient.getRewardsFromValidators(
+                payload.from,
+                payload.validatorsAddresses,
+                payload.memo,
+            );
 
             if (!result) {
                 return null;

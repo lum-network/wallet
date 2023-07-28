@@ -1,7 +1,6 @@
 import React from 'react';
 
 import assets from 'assets';
-import { CLIENT_PRECISION } from 'constant';
 import { Button, Card } from 'frontend-elements';
 import { Rewards } from 'models';
 import { useTranslation } from 'react-i18next';
@@ -27,7 +26,7 @@ const RewardsCard = ({ rewards, onClaim, isLoading }: Props): JSX.Element => {
                             <SmallerDecimal
                                 nb={NumbersUtils.formatTo6digit(
                                     rewards.total && rewards.total.length > 0
-                                        ? NumbersUtils.convertUnitNumber(rewards.total[0].amount) / CLIENT_PRECISION
+                                        ? NumbersUtils.convertUnitNumber(rewards.total[0].amount)
                                         : 0,
                                 )}
                                 big

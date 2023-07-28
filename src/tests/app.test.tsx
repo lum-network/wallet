@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import React from 'react';
 import { screen, within, render } from '@testing-library/react';
 import i18n from 'locales';

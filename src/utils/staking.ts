@@ -53,21 +53,31 @@ export const getUserValidators = (
     const validators = [];
 
     for (const delegation of delegations) {
-        for (const reward of rewards.rewards) {
-            if (delegation.delegation && reward.validatorAddress === delegation.delegation.validatorAddress) {
-                const validator = validatorsList.find(
-                    (bondedVal) =>
-                        delegation.delegation && bondedVal.operatorAddress === delegation.delegation.validatorAddress,
-                );
-
-                if (validator) {
-                    validators.push({
-                        ...validator,
-                        reward: parseFloat(reward.reward.length > 0 ? reward.reward[0].amount : '0') / CLIENT_PRECISION,
-                        stakedCoins: NumbersUtils.formatTo6digit(
-                            NumbersUtils.convertUnitNumber(delegation.balance?.amount || '0'),
-                        ),
-                    });
+        const validator = validatorsList.find(
+            (bondedVal) =>
+                delegation.delegation && bondedVal.operatorAddress === delegation.delegation.validatorAddress,
+        );
+        if (validator) {
+            if (rewards.rewards.length === 0) {
+                validators.push({
+                    ...validator,
+                    reward: 0,
+                    stakedCoins: NumbersUtils.formatTo6digit(
+                        NumbersUtils.convertUnitNumber(delegation.balance?.amount || '0'),
+                    ),
+                });
+            } else {
+                for (const reward of rewards.rewards) {
+                    if (delegation.delegation && reward.validatorAddress === delegation.delegation.validatorAddress) {
+                        validators.push({
+                            ...validator,
+                            reward:
+                                parseFloat(reward.reward.length > 0 ? reward.reward[0].amount : '0') / CLIENT_PRECISION,
+                            stakedCoins: NumbersUtils.formatTo6digit(
+                                NumbersUtils.convertUnitNumber(delegation.balance?.amount || '0'),
+                            ),
+                        });
+                    }
                 }
             }
         }

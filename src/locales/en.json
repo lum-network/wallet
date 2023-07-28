@@ -24,7 +24,9 @@
         "reset": "Reset",
         "total": "Total",
         "day": "24h",
-        "more": "More"
+        "more": "More",
+        "openDetails": "Open&nbspdetails",
+        "closeDetails": "Close&nbspdetails"
     },
     "navbar": {
         "dashboard": "Dashboard",
@@ -74,6 +76,10 @@
         "latestTx": "Latest Transactions",
         "currentBalance": "Your balance",
         "availableBalance": "Available balance",
+        "otherBalancesTable": {
+            "title": "My Other Assets",
+            "headers": ["Asset", "Balance"]
+        },
         "followTwitter": "Follow us on Twitter",
         "noTx": "No transactions yet"
     },
@@ -230,9 +236,15 @@
             "ibcReceivePacket": "IBC Receive Packet",
             "exec": "Exec",
             "grant": "Grant",
-            "depositDfract": "DFract Deposit"
+            "depositDfract": "DFract Deposit",
+            "depositMillions": "Millions Deposit",
+            "claimMillions": "Millions Claim Prize",
+            "withdrawMillions": "Millions Leave Pool",
+            "depositRetryMillions": "Millions Deposit Retry",
+            "withdrawRetryMillions": "Millions Withdraw Retry"
         },
-        "proposal": "Proposal #"
+        "proposal": "Proposal #",
+        "pool": "Pool #"
     },
     "operations": {
         "types": {
@@ -258,6 +270,9 @@
             },
             "getAllRewards": {
                 "name": "Get All Rewards"
+            },
+            "getOtherRewards": {
+                "name": "Get Other Rewards"
             },
             "vote": {
                 "name": "Vote",
@@ -327,6 +342,9 @@
         "unbondedTokens": "Unbonding Tokens",
         "vestedTokens": "Vesting Tokens",
         "rewards": "Rewards",
+        "otherStakingRewards": {
+            "title": "Other staking rewards"
+        },
         "myValidators": {
             "title": "My validators",
             "empty": "No delegations yet"
@@ -344,7 +362,8 @@
             "votingPower": "Voting Power",
             "commission": "Commission",
             "stakedCoins": "Staked Coins",
-            "rewards": "Rewards"
+            "rewards": "Rewards",
+            "token": "Token"
         },
         "status": ["Unspecified", "Unbonded", "Unbonding", "Bonded", "Jailed"],
         "claim": "Claim",
