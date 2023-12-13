@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { FormikContextType } from 'formik';
 import numeral from 'numeral';
-import { Validator } from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
+import { Validator } from '@lum-network/sdk-javascript/build/codegen/cosmos/staking/v1beta1/staking';
 
 import { Input, Button as CustomButton } from 'components';
 import { Button } from 'frontend-elements';

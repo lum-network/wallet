@@ -1,13 +1,12 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { LumUtils } from '@lum-network/sdk-javascript';
 
 import { Card, Button } from 'components';
 import assets from 'assets';
 import { useRematchDispatch } from 'redux/hooks';
 import { RootDispatch } from 'redux/store';
 
-const KeystoreFileSave = (props: { data: LumUtils.KeyStore; password: string }): JSX.Element => {
+const KeystoreFileSave = (props: { data: any; password: string }): JSX.Element => {
     const { t } = useTranslation();
 
     const { signInWithKeystorefile } = useRematchDispatch((dispatch: RootDispatch) => ({

@@ -1,10 +1,9 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { LumConstants, LumUtils } from '@lum-network/sdk-javascript';
 
 import { Card } from 'frontend-elements';
-import { LUM_TWITTER } from 'constant';
+import { LUM_TWITTER, LumConstants } from 'constant';
 import {
     TransactionsTable,
     AddressCard,
@@ -20,6 +19,7 @@ import StakedCoinsCard from '../Staking/components/Cards/StakedCoinsCard';
 import VestingTokensCard from '../Staking/components/Cards/VestingTokensCard';
 
 import './styles/Dashboard.scss';
+import { NumbersUtils } from 'utils';
 
 const Dashboard = (): JSX.Element => {
     // Redux hooks
@@ -54,17 +54,17 @@ const Dashboard = (): JSX.Element => {
                         </div>
                     ) : null}
                     <div className="col-lg-5 col-md-6 col-12">
-                        <AddressCard address={wallet.getAddress()} />
+                        <AddressCard address={wallet.address} />
                     </div>
                     <div className="col-lg-5 col-md-6 col-12">
                         <AvailableCard
                             balance={
                                 vestings
                                     ? balance.lum -
-                                      Number(LumUtils.convertUnit(vestings.lockedBankCoins, LumConstants.LumDenom))
+                                      Number(NumbersUtils.convertUnit(vestings.lockedBankCoins, LumConstants.LumDenom))
                                     : balance.lum
                             }
-                            address={wallet.getAddress()}
+                            address={wallet.address}
                         />
                     </div>
                     <div className="col-lg-2 col-12 scale-animation">
@@ -83,7 +83,7 @@ const Dashboard = (): JSX.Element => {
                                     amountVesting={
                                         vestings
                                             ? Number(
-                                                  LumUtils.convertUnit(
+                                                  NumbersUtils.convertUnit(
                                                       vestings.lockedDelegatedCoins,
                                                       LumConstants.LumDenom,
                                                   ),

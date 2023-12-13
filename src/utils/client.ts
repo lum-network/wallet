@@ -1,15 +1,27 @@
 import axios from 'axios';
-import { LumClient, LumConstants, LumMessages, LumRegistry, LumTypes, LumUtils } from '@lum-network/sdk-javascript';
-import { ProposalStatus, VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
+//import { LumClient, LumConstants, LumMessages, LumRegistry, LumTypes, LumUtils } from '@lum-network/sdk-javascript';
+//import { ProposalStatus, VoteOption } from '@lum-network/sdk-javascript/build/codegen/cosmos/gov/v1beta1/gov';
 import { Window as KeplrWindow } from '@keplr-wallet/types';
 
-import { PasswordStrengthType, PasswordStrength, Wallet, Proposal, LumInfo } from 'models';
-import { DenomsUtils, NumbersUtils, showErrorToast, showSuccessToast } from 'utils';
+import { getSigningLumClient, getSigningCosmosClient, cosmos, lum } from '@lum-network/sdk-javascript';
+
+import { PasswordStrengthType, PasswordStrength, Wallet, Proposal, LumInfo, SignMsg } from 'models';
+import { DenomsUtils, LumUtils, NumbersUtils, showErrorToast, showSuccessToast } from 'utils';
 import i18n from 'locales';
-import { COINGECKO_API_URL, IPFS_GATEWAY, MessageTypes } from 'constant';
+import { COINGECKO_API_URL, IPFS_GATEWAY, LumConstants, MessageTypes } from 'constant';
 
 import { formatTxs } from './transactions';
 import { getRpcFromNode } from './links';
+import { OfflineAminoSigner, coins } from '@cosmjs/amino';
+import { SigningStargateClient, assertIsDeliverTxSuccess } from '@cosmjs/stargate';
+import { Dec, IntPretty } from '@keplr-wallet/unit';
+import { ProposalStatus, VoteOption } from '@lum-network/sdk-javascript/build/codegen/cosmos/gov/v1/gov';
+import { LumRegistry } from './lum/registry';
+
+const { send } = cosmos.bank.v1beta1.MessageComposer.withTypeUrl;
+const { delegate, beginRedelegate, undelegate } = cosmos.staking.v1beta1.MessageComposer.withTypeUrl;
+const { withdrawDelegatorReward, setWithdrawAddress } = cosmos.distribution.v1beta1.MessageComposer.withTypeUrl;
+const { vote } = cosmos.gov.v1.MessageComposer.withTypeUrl;
 
 export type MnemonicLength = 12 | 24;
 
@@ -19,19 +31,19 @@ export const checkMnemonicLength = (length: number): length is MnemonicLength =>
 
 export const generateMnemonic = (mnemonicLength: MnemonicLength): string[] => {
     const inputs: string[] = [];
-    const mnemonicKeys = LumUtils.generateMnemonic(mnemonicLength).split(' ');
+    /* const mnemonicKeys = LumUtils.generateMnemonic(mnemonicLength).split(' ');
 
     for (let i = 0; i < mnemonicLength; i++) {
         inputs.push(mnemonicKeys[i]);
-    }
+    } */
 
     return inputs;
 };
 
-export const generateKeystoreFile = (password: string): LumUtils.KeyStore => {
-    const privateKey = LumUtils.generatePrivateKey();
+export const generateKeystoreFile = (password: string) /* : LumUtils.KeyStore */ => {
+    /* const privateKey = LumUtils.generatePrivateKey();
 
-    return LumUtils.generateKeyStore(privateKey, password);
+    return LumUtils.generateKeyStore(privateKey, password); */
 };
 
 export const checkPwdStrength = (password: string): PasswordStrength => {
@@ -46,11 +58,7 @@ export const checkPwdStrength = (password: string): PasswordStrength => {
     return PasswordStrengthType.Weak;
 };
 
-export const generateSignedMessage = async (
-    chainId: string,
-    wallet: Wallet,
-    msg: string,
-): Promise<LumTypes.SignMsg> => {
+export const generateSignedMessage = async (chainId: string, wallet: Wallet, msg: string): Promise<SignMsg | null> => {
     if (wallet.isExtensionImport) {
         const keplrWindow = window as KeplrWindow;
 
@@ -58,11 +66,11 @@ export const generateSignedMessage = async (
             throw new Error('Keplr is not installed');
         }
 
-        const signMsg = await keplrWindow.keplr.signArbitrary(chainId, wallet.getAddress(), msg);
+        const signMsg = await keplrWindow.keplr.signArbitrary(chainId, wallet.address, msg);
         if (signMsg) {
             return {
                 msg,
-                address: wallet.getAddress(),
+                address: wallet.address,
                 publicKey: LumUtils.fromBase64(signMsg.pub_key.value),
                 sig: LumUtils.fromBase64(signMsg.signature),
                 version: LumConstants.LumWalletSigningVersion,
@@ -73,10 +81,10 @@ export const generateSignedMessage = async (
         }
     }
 
-    return await wallet.signMessage(encodeURI(msg));
+    return null;
 };
 
-export const validateSignMessage = async (chainId: string, msg: LumTypes.SignMsg): Promise<boolean> => {
+export const validateSignMessage = async (chainId: string, msg: SignMsg): Promise<boolean> => {
     if (msg.signer === LumConstants.LumMessageSigner.OFFLINE) {
         const keplrWindow = window as KeplrWindow;
 
@@ -93,14 +101,15 @@ export const validateSignMessage = async (chainId: string, msg: LumTypes.SignMsg
         });
     }
 
-    return await LumUtils.verifySignMsg(msg);
+    return false;
 };
 
 class WalletClient {
     private lumInfos: LumInfo | null = null;
     private node: string = new URL(process.env.REACT_APP_RPC_URL).hostname;
     private chainId: string | null = null;
-    private lumClient: LumClient | null = null;
+    private queryClient: Awaited<ReturnType<typeof lum.ClientFactory.createRPCQueryClient>> | null = null;
+    private cosmosSigningClient: SigningStargateClient | null = null;
     private static instance: WalletClient;
 
     private constructor() {
@@ -124,9 +133,12 @@ class WalletClient {
         }
 
         try {
-            const client = await LumClient.connect(getRpcFromNode(this.node));
-            this.lumClient = client;
-            this.chainId = await client.getChainId();
+            const queryClient = await lum.ClientFactory.createRPCQueryClient({
+                rpcEndpoint: getRpcFromNode(this.node),
+            });
+            this.queryClient = queryClient;
+            this.chainId =
+                (await queryClient.cosmos.base.tendermint.v1beta1.getNodeInfo()).nodeInfo?.network || 'lum-network-1';
 
             if (node) {
                 showSuccessToast(i18n.t('wallet.success.switchNode'));
@@ -134,6 +146,17 @@ class WalletClient {
         } catch {
             showErrorToast(i18n.t('wallet.errors.client'));
         }
+    };
+
+    connectSigner = async (offlineSigner: OfflineAminoSigner) => {
+        try {
+            const cosmosSigningClient = await getSigningCosmosClient({
+                rpcEndpoint: getRpcFromNode(this.node),
+                signer: offlineSigner,
+            });
+
+            this.cosmosSigningClient = cosmosSigningClient;
+        } catch {}
     };
 
     isTestnet = () => {
@@ -170,25 +193,25 @@ class WalletClient {
         }
     };
 
-    private getAccount = (fromWallet: Wallet) => {
-        if (this.lumClient === null) {
+    /* private getAccount = (fromWallet: Wallet) => {
+        if (this.queryClient === null) {
             return;
         }
 
-        return this.lumClient.getAccount(fromWallet.getAddress());
-    };
+        return this.queryClient.getAccount(fromWallet.address);
+    }; */
 
     private getValidators = async () => {
-        if (this.lumClient === null) {
+        if (this.queryClient === null) {
             return null;
         }
-        const { validators } = this.lumClient.queryClient.staking;
+        const { validators } = this.queryClient.cosmos.staking.v1beta1;
 
         try {
             const [bondedValidators, unbondedValidators, unbondingValidators] = await Promise.all([
-                validators('BOND_STATUS_BONDED'),
-                validators('BOND_STATUS_UNBONDED'),
-                validators('BOND_STATUS_UNBONDING'),
+                validators({ status: 'BOND_STATUS_BONDED' }),
+                validators({ status: 'BOND_STATUS_UNBONDED' }),
+                validators({ status: 'BOND_STATUS_UNBONDING' }),
             ]);
 
             return {
@@ -212,7 +235,7 @@ class WalletClient {
     };
 
     getValidatorsInfos = async (address: string) => {
-        if (!this.lumClient) {
+        if (!this.queryClient) {
             return null;
         }
 
@@ -220,8 +243,8 @@ class WalletClient {
             const validators = await this.getValidators();
 
             const [delegation, unbonding] = await Promise.all([
-                this.lumClient.queryClient.staking.delegatorDelegations(address),
-                this.lumClient.queryClient.staking.delegatorUnbondingDelegations(address),
+                this.queryClient.cosmos.staking.v1beta1.delegatorDelegations({ delegatorAddr: address }),
+                this.queryClient.cosmos.staking.v1beta1.delegatorUnbondingDelegations({ delegatorAddr: address }),
             ]);
 
             const delegations = delegation.delegationResponses;
@@ -232,14 +255,14 @@ class WalletClient {
 
             for (const delegation of delegations) {
                 if (delegation.balance) {
-                    stakedCoins += Number(LumUtils.convertUnit(delegation.balance, LumConstants.LumDenom));
+                    stakedCoins += Number(NumbersUtils.convertUnit(delegation.balance, LumConstants.LumDenom));
                 }
             }
 
             for (const unbonding of unbondings) {
                 for (const entry of unbonding.entries) {
                     unbondedTokens += Number(
-                        LumUtils.convertUnit(
+                        NumbersUtils.convertUnit(
                             { amount: entry.balance, denom: LumConstants.MicroLumDenom },
                             LumConstants.LumDenom,
                         ),
@@ -260,7 +283,7 @@ class WalletClient {
     };
 
     getWalletBalance = async (address: string) => {
-        if (this.lumClient === null) {
+        if (this.queryClient === null) {
             return null;
         }
 
@@ -269,13 +292,13 @@ class WalletClient {
 
         const otherBalancesArr = [];
 
-        const balances = await this.lumClient.getAllBalances(address);
+        const { balances } = await this.queryClient.cosmos.bank.v1beta1.allBalances({ address });
 
         const ulumBalance = balances.find((balance) => balance.denom === LumConstants.MicroLumDenom);
         const otherBalances = balances.filter((balance) => balance.denom !== LumConstants.MicroLumDenom);
 
         if (ulumBalance) {
-            lum += Number(LumUtils.convertUnit(ulumBalance, LumConstants.LumDenom));
+            lum += Number(NumbersUtils.convertUnit(ulumBalance, LumConstants.LumDenom));
         }
 
         for (const oB of otherBalances) {
@@ -299,19 +322,19 @@ class WalletClient {
     };
 
     getVestingsInfos = async (address: string) => {
-        if (this.lumClient === null) {
+        if (this.queryClient === null) {
             return null;
         }
 
         try {
-            const account = await this.lumClient.getAccount(address);
+            /* const account = await this.queryClient.getAccount(address);
 
             if (account) {
                 const { lockedBankCoins, lockedDelegatedCoins, lockedCoins, endsAt } =
                     LumUtils.estimatedVesting(account);
 
                 return { lockedBankCoins, lockedDelegatedCoins, lockedCoins, endsAt };
-            }
+            } */
 
             return null;
         } catch {
@@ -320,19 +343,19 @@ class WalletClient {
     };
 
     getAirdropInfos = async (address: string) => {
-        if (this.lumClient === null) {
+        if (this.queryClient === null) {
             return null;
         }
 
         try {
-            const airdrop = await this.lumClient.queryClient.airdrop.claimRecord(address);
+            const airdrop = await this.queryClient.lum.network.airdrop.claimRecord({ address });
 
             if (airdrop.claimRecord) {
                 const { initialClaimableAmount, actionCompleted } = airdrop.claimRecord;
                 const [vote, delegate] = actionCompleted;
 
                 let amount = initialClaimableAmount.reduce(
-                    (acc, coin) => acc + Number(LumUtils.convertUnit(coin, LumConstants.LumDenom)),
+                    (acc, coin) => acc + Number(NumbersUtils.convertUnit(coin, LumConstants.LumDenom)),
                     0,
                 );
 
@@ -356,46 +379,42 @@ class WalletClient {
     };
 
     getTransactions = async (address: string) => {
-        if (this.lumClient === null) {
+        if (this.cosmosSigningClient === null) {
             return null;
         }
 
-        const res = await this.lumClient.tmClient.txSearch({
-            query: `transfer.recipient='${address}'`,
-        });
+        const res = await this.cosmosSigningClient.searchTx(`transfer.recipient='${address}'`);
+        const res2 = await this.cosmosSigningClient.searchTx(`transfer.sender='${address}'`);
 
-        const res2 = await this.lumClient.tmClient.txSearch({
-            query: `transfer.sender='${address}'`,
-        });
-
-        return formatTxs([...res.txs, ...res2.txs]);
+        return formatTxs([...res, ...res2]);
     };
 
     getRewards = async (address: string) => {
-        if (this.lumClient === null) {
+        if (this.queryClient === null) {
             return null;
         }
 
-        return await this.lumClient.queryClient.distribution.delegationTotalRewards(address);
+        return await this.queryClient.cosmos.distribution.v1beta1.delegationTotalRewards({ delegatorAddress: address });
     };
 
     getProposals = async (): Promise<Proposal[] | null> => {
-        if (this.lumClient === null) {
+        if (this.queryClient === null) {
             return null;
         }
 
         const proposals: Proposal[] = [];
-        const result = await this.lumClient.queryClient.gov.proposals(
-            ProposalStatus.PROPOSAL_STATUS_UNSPECIFIED |
+        const result = await this.queryClient.cosmos.gov.v1.proposals({
+            proposalStatus:
+                ProposalStatus.PROPOSAL_STATUS_UNSPECIFIED |
                 ProposalStatus.PROPOSAL_STATUS_DEPOSIT_PERIOD |
                 ProposalStatus.PROPOSAL_STATUS_VOTING_PERIOD |
                 ProposalStatus.PROPOSAL_STATUS_PASSED |
                 ProposalStatus.PROPOSAL_STATUS_REJECTED |
                 ProposalStatus.PROPOSAL_STATUS_FAILED |
                 ProposalStatus.UNRECOGNIZED,
-            '',
-            '',
-        );
+            voter: '',
+            depositor: '',
+        });
 
         result.proposals.map(async (proposal) => {
             let content: {
@@ -438,11 +457,11 @@ class WalletClient {
     };
 
     getProposalTally = async (id: string) => {
-        if (this.lumClient === null) {
+        if (this.queryClient === null) {
             return null;
         }
 
-        const result = await this.lumClient.queryClient.gov.tally(id);
+        const result = await this.queryClient.cosmos.gov.v1.tallyResult({ proposalId: BigInt(id) });
 
         if (!result || !result.tally) {
             return null;
@@ -459,464 +478,363 @@ class WalletClient {
     // Operations
 
     sendTx = async (fromWallet: Wallet, toAddress: string, lumAmount: string, memo = '') => {
-        if (this.lumClient === null) {
+        if (this.cosmosSigningClient === null) {
             return null;
         }
 
         // Convert Lum to uLum
-        const amount = LumUtils.convertUnit(
+        const amount = NumbersUtils.convertUnit(
             { denom: LumConstants.LumDenom, amount: lumAmount },
             LumConstants.MicroLumDenom,
         );
 
         // Build transaction message
-        const sendMsg = LumMessages.BuildMsgSend(fromWallet.getAddress(), toAddress, [
-            { denom: LumConstants.MicroLumDenom, amount },
-        ]);
+        const sendMsg = send({
+            fromAddress: fromWallet.address,
+            toAddress,
+            amount: [{ denom: LumConstants.MicroLumDenom, amount }],
+        });
+
         // Define fees
+        const gasEstimated = await this.cosmosSigningClient.simulate(fromWallet.address, [sendMsg], memo);
         const fee = {
-            amount: [{ denom: LumConstants.MicroLumDenom, amount: '25000' }],
-            gas: '100000',
+            amount: coins(0, LumConstants.MicroLumDenom),
+            gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
         };
+
         // Fetch account number and sequence and chain id
-        const account = await this.getAccount(fromWallet);
         const chainId = this.getChainId();
 
-        if (!account || !chainId) {
+        if (!chainId) {
             return null;
         }
 
-        const { accountNumber, sequence } = account;
-        // Create the transaction document
-        const doc: LumTypes.Doc = {
-            chainId,
+        const broadcastResult = await this.cosmosSigningClient.signAndBroadcast(
+            fromWallet.address,
+            [sendMsg],
             fee,
             memo,
-            messages: [sendMsg],
-            signers: [
-                {
-                    accountNumber,
-                    sequence,
-                    publicKey: fromWallet.getPublicKey(),
-                },
-            ],
-        };
-        // Sign and broadcast the transaction using the client
-        const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, doc);
-        // Verify the transaction was successfully broadcasted and made it into a block
-        const broadcasted = LumUtils.broadcastTxCommitSuccess(broadcastResult);
+        );
 
         return {
-            hash: broadcastResult.hash,
-            error: !broadcasted
-                ? broadcastResult.deliverTx && broadcastResult.deliverTx.log
-                    ? broadcastResult.deliverTx.log
-                    : broadcastResult.checkTx.log
-                : null,
+            hash: broadcastResult.transactionHash,
+            error: broadcastResult.code !== 0 ? broadcastResult.rawLog : null,
         };
     };
 
     delegate = async (fromWallet: Wallet, validatorAddress: string, lumAmount: string, memo: string) => {
-        if (this.lumClient === null) {
+        if (this.cosmosSigningClient === null) {
             return null;
         }
 
         // Convert Lum to uLum
-        const amount = LumUtils.convertUnit(
+        const amount = NumbersUtils.convertUnit(
             { denom: LumConstants.LumDenom, amount: lumAmount },
             LumConstants.MicroLumDenom,
         );
 
-        const delegateMsg = LumMessages.BuildMsgDelegate(fromWallet.getAddress(), validatorAddress, {
-            denom: LumConstants.MicroLumDenom,
-            amount,
+        const delegateMsg = delegate({
+            delegatorAddress: fromWallet.address,
+            validatorAddress,
+            amount: {
+                denom: LumConstants.MicroLumDenom,
+                amount,
+            },
         });
 
         // Define fees
+        const gasEstimated = await this.cosmosSigningClient.simulate(fromWallet.address, [delegateMsg], memo);
         const fee = {
-            amount: [{ denom: LumConstants.MicroLumDenom, amount: '25000' }],
-            gas: '200000',
+            amount: coins(0, LumConstants.MicroLumDenom),
+            gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
         };
 
-        // Fetch account number and sequence and chain id
-        const account = await this.getAccount(fromWallet);
+        // Fetch chain id
         const chainId = this.getChainId();
 
-        if (!account || !chainId) {
+        if (!chainId) {
             return null;
         }
 
-        const { accountNumber, sequence } = account;
-
-        const doc: LumTypes.Doc = {
-            chainId,
+        const broadcastResult = await this.cosmosSigningClient.signAndBroadcast(
+            fromWallet.address,
+            [delegateMsg],
             fee,
             memo,
-            messages: [delegateMsg],
-            signers: [
-                {
-                    accountNumber,
-                    sequence,
-                    publicKey: fromWallet.getPublicKey(),
-                },
-            ],
-        };
+        );
 
-        const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, doc);
         // Verify the transaction was successfully broadcasted and made it into a block
-        const broadcasted = LumUtils.broadcastTxCommitSuccess(broadcastResult);
+        assertIsDeliverTxSuccess(broadcastResult);
 
         return {
-            hash: broadcastResult.hash,
-            error: !broadcasted
-                ? broadcastResult.deliverTx && broadcastResult.deliverTx.log
-                    ? broadcastResult.deliverTx.log
-                    : broadcastResult.checkTx.log
-                : null,
+            hash: broadcastResult.transactionHash,
+            error: broadcastResult.code !== 0 ? broadcastResult.rawLog : null,
         };
     };
 
     undelegate = async (fromWallet: Wallet, validatorAddress: string, lumAmount: string, memo: string) => {
-        if (this.lumClient === null) {
+        if (this.cosmosSigningClient === null) {
             return null;
         }
 
         // Convert Lum to uLum
-        const amount = LumUtils.convertUnit(
+        const amount = NumbersUtils.convertUnit(
             { denom: LumConstants.LumDenom, amount: lumAmount },
             LumConstants.MicroLumDenom,
         );
 
-        const undelegateMsg = LumMessages.BuildMsgUndelegate(fromWallet.getAddress(), validatorAddress, {
-            denom: LumConstants.MicroLumDenom,
-            amount,
+        const undelegateMsg = undelegate({
+            delegatorAddress: fromWallet.address,
+            validatorAddress,
+            amount: {
+                denom: LumConstants.MicroLumDenom,
+                amount,
+            },
         });
 
         // Define fees
+        const gasEstimated = await this.cosmosSigningClient.simulate(fromWallet.address, [undelegateMsg], memo);
         const fee = {
-            amount: [{ denom: LumConstants.MicroLumDenom, amount: '25000' }],
-            gas: '200000',
+            amount: coins(0, LumConstants.MicroLumDenom),
+            gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
         };
 
         // Fetch account number and sequence and chain id
-        const account = await this.getAccount(fromWallet);
         const chainId = this.getChainId();
 
-        if (!account || !chainId) {
+        if (!chainId) {
             return null;
         }
 
-        const { accountNumber, sequence } = account;
-        const doc: LumTypes.Doc = {
-            chainId,
+        const broadcastResult = await this.cosmosSigningClient.signAndBroadcast(
+            fromWallet.address,
+            [undelegateMsg],
             fee,
             memo,
-            messages: [undelegateMsg],
-            signers: [
-                {
-                    accountNumber,
-                    sequence,
-                    publicKey: fromWallet.getPublicKey(),
-                },
-            ],
-        };
+        );
 
-        const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, doc);
         // Verify the transaction was successfully broadcasted and made it into a block
-        const broadcasted = LumUtils.broadcastTxCommitSuccess(broadcastResult);
+        assertIsDeliverTxSuccess(broadcastResult);
 
         return {
-            hash: broadcastResult.hash,
-            error: !broadcasted
-                ? broadcastResult.deliverTx && broadcastResult.deliverTx.log
-                    ? broadcastResult.deliverTx.log
-                    : broadcastResult.checkTx.log
-                : null,
+            hash: broadcastResult.transactionHash,
+            error: broadcastResult.code !== 0 ? broadcastResult.rawLog : null,
         };
     };
 
     getReward = async (fromWallet: Wallet, validatorAddress: string, memo: string) => {
-        if (this.lumClient === null) {
+        if (this.cosmosSigningClient === null) {
             return null;
         }
 
-        const getRewardMsg = LumMessages.BuildMsgWithdrawDelegatorReward(fromWallet.getAddress(), validatorAddress);
+        const getRewardMsg = withdrawDelegatorReward({ delegatorAddress: fromWallet.address, validatorAddress });
 
         // Define fees
+        const gasEstimated = await this.cosmosSigningClient.simulate(fromWallet.address, [getRewardMsg], memo);
         const fee = {
-            amount: [{ denom: LumConstants.MicroLumDenom, amount: '25000' }],
-            gas: '200000',
+            amount: coins(0, LumConstants.MicroLumDenom),
+            gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
         };
 
         // Fetch account number and sequence and chain id
-        const account = await this.getAccount(fromWallet);
         const chainId = this.getChainId();
 
-        if (!account || !chainId) {
+        if (!chainId) {
             return null;
         }
 
-        const { accountNumber, sequence } = account;
-
-        const doc: LumTypes.Doc = {
-            chainId,
+        const broadcastResult = await this.cosmosSigningClient.signAndBroadcast(
+            fromWallet.address,
+            [getRewardMsg],
             fee,
             memo,
-            messages: [getRewardMsg],
-            signers: [
-                {
-                    accountNumber,
-                    sequence,
-                    publicKey: fromWallet.getPublicKey(),
-                },
-            ],
-        };
+        );
 
-        const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, doc);
         // Verify the transaction was successfully broadcasted and made it into a block
-        const broadcasted = LumUtils.broadcastTxCommitSuccess(broadcastResult);
+        assertIsDeliverTxSuccess(broadcastResult);
 
         return {
-            hash: broadcastResult.hash,
-            error: !broadcasted
-                ? broadcastResult.deliverTx && broadcastResult.deliverTx.log
-                    ? broadcastResult.deliverTx.log
-                    : broadcastResult.checkTx.log
-                : null,
+            hash: broadcastResult.transactionHash,
+            error: broadcastResult.code !== 0 ? broadcastResult.rawLog : null,
         };
     };
 
     getRewardsFromValidators = async (fromWallet: Wallet, validatorsAddresses: string[], memo: string) => {
-        if (this.lumClient === null) {
+        if (this.cosmosSigningClient === null) {
             return null;
         }
 
         const messages = [];
         const limit = fromWallet.isNanoS ? 6 : undefined;
-        let gas = 200000;
 
-        for (const [index, valAdd] of validatorsAddresses.entries()) {
-            messages.push(LumMessages.BuildMsgWithdrawDelegatorReward(fromWallet.getAddress(), valAdd));
-            if (index > 0) {
-                gas += 100000;
-            }
+        for (const [index, validatorAddress] of validatorsAddresses.entries()) {
+            messages.push(withdrawDelegatorReward({ delegatorAddress: fromWallet.address, validatorAddress }));
             if (limit && index + 1 === limit) break;
         }
 
         // Define fees
+        const gasEstimated = await this.cosmosSigningClient.simulate(fromWallet.address, messages, memo);
         const fee = {
-            amount: [{ denom: LumConstants.MicroLumDenom, amount: '25000' }],
-            gas: gas.toString(),
+            amount: coins(0, LumConstants.MicroLumDenom),
+            gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
         };
 
         // Fetch account number and sequence and chain id
-        const account = await this.getAccount(fromWallet);
         const chainId = this.getChainId();
 
-        if (!account || !chainId) {
+        if (!chainId) {
             return null;
         }
 
-        const { accountNumber, sequence } = account;
-
-        const doc: LumTypes.Doc = {
-            chainId,
+        const broadcastResult = await this.cosmosSigningClient.signAndBroadcast(
+            fromWallet.address,
+            messages,
             fee,
             memo,
-            messages,
-            signers: [
-                {
-                    accountNumber,
-                    sequence,
-                    publicKey: fromWallet.getPublicKey(),
-                },
-            ],
-        };
+        );
 
-        const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, doc);
         // Verify the transaction was successfully broadcasted and made it into a block
-        const broadcasted = LumUtils.broadcastTxCommitSuccess(broadcastResult);
+        assertIsDeliverTxSuccess(broadcastResult);
 
         return {
-            hash: broadcastResult.hash,
-            error: !broadcasted
-                ? broadcastResult.deliverTx && broadcastResult.deliverTx.log
-                    ? broadcastResult.deliverTx.log
-                    : broadcastResult.checkTx.log
-                : null,
+            hash: broadcastResult.transactionHash,
+            error: broadcastResult.code !== 0 ? broadcastResult.rawLog : null,
         };
     };
 
     redelegate = async (
         fromWallet: Wallet,
-        validatorScrAddress: string,
-        validatorDestAddress: string,
+        validatorSrcAddress: string,
+        validatorDstAddress: string,
         lumAmount: string,
         memo: string,
     ) => {
-        if (this.lumClient === null) {
+        if (this.cosmosSigningClient === null) {
             return null;
         }
 
         // Convert Lum to uLum
-        const amount = LumUtils.convertUnit(
+        const amount = NumbersUtils.convertUnit(
             { denom: LumConstants.LumDenom, amount: lumAmount },
             LumConstants.MicroLumDenom,
         );
 
-        const redelegateMsg = LumMessages.BuildMsgBeginRedelegate(
-            fromWallet.getAddress(),
-            validatorScrAddress,
-            validatorDestAddress,
-            {
+        const redelegateMsg = beginRedelegate({
+            delegatorAddress: fromWallet.address,
+            validatorSrcAddress,
+            validatorDstAddress,
+            amount: {
                 amount,
                 denom: LumConstants.MicroLumDenom,
             },
-        );
+        });
 
         // Define fees
+        const gasEstimated = await this.cosmosSigningClient.simulate(fromWallet.address, [redelegateMsg], memo);
         const fee = {
-            amount: [{ denom: LumConstants.MicroLumDenom, amount: '25000' }],
-            gas: '300000',
+            amount: coins(0, LumConstants.MicroLumDenom),
+            gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
         };
 
         // Fetch account number and sequence and chain id
-        const account = await this.getAccount(fromWallet);
         const chainId = this.getChainId();
 
-        if (!account || !chainId) {
+        if (!chainId) {
             return null;
         }
 
-        const { accountNumber, sequence } = account;
-
-        const doc: LumTypes.Doc = {
-            chainId,
+        const broadcastResult = await this.cosmosSigningClient.signAndBroadcast(
+            fromWallet.address,
+            [redelegateMsg],
             fee,
             memo,
-            messages: [redelegateMsg],
-            signers: [
-                {
-                    accountNumber,
-                    sequence,
-                    publicKey: fromWallet.getPublicKey(),
-                },
-            ],
-        };
+        );
 
-        const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, doc);
         // Verify the transaction was successfully broadcasted and made it into a block
-        const broadcasted = LumUtils.broadcastTxCommitSuccess(broadcastResult);
+        assertIsDeliverTxSuccess(broadcastResult);
 
         return {
-            hash: broadcastResult.hash,
-            error: !broadcasted
-                ? broadcastResult.deliverTx && broadcastResult.deliverTx.log
-                    ? broadcastResult.deliverTx.log
-                    : broadcastResult.checkTx.log
-                : null,
+            hash: broadcastResult.transactionHash,
+            error: broadcastResult.code !== 0 ? broadcastResult.rawLog : null,
         };
     };
 
-    vote = async (fromWallet: Wallet, proposal: Proposal, vote: VoteOption) => {
-        if (this.lumClient === null) {
+    vote = async (fromWallet: Wallet, proposal: Proposal, voteOption: VoteOption) => {
+        if (this.cosmosSigningClient === null) {
             return null;
         }
 
-        const voteMsg = LumMessages.BuildMsgVote(proposal.id, fromWallet.getAddress(), Number(vote), proposal.metadata);
+        const voteMsg = vote({
+            proposalId: proposal.id,
+            voter: fromWallet.address,
+            option: Number(voteOption),
+            metadata: proposal.metadata,
+        });
 
         // Define fees
+        const gasEstimated = await this.cosmosSigningClient.simulate(fromWallet.address, [voteMsg], undefined);
         const fee = {
-            amount: [{ denom: LumConstants.MicroLumDenom, amount: '25000' }],
-            gas: '100000',
+            amount: coins(0, LumConstants.MicroLumDenom),
+            gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
         };
 
         // Fetch account number and sequence and chain id
-        const account = await this.getAccount(fromWallet);
         const chainId = this.getChainId();
 
-        if (!account || !chainId) {
+        if (!chainId) {
             return null;
         }
 
-        const { accountNumber, sequence } = account;
-
-        const doc: LumTypes.Doc = {
-            chainId,
+        const broadcastResult = await this.cosmosSigningClient.signAndBroadcast(
+            fromWallet.address,
+            [voteMsg],
             fee,
-            messages: [voteMsg],
-            memo: '',
-            signers: [
-                {
-                    accountNumber,
-                    sequence,
-                    publicKey: fromWallet.getPublicKey(),
-                },
-            ],
-        };
+            undefined,
+        );
 
-        const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, doc);
         // Verify the transaction was successfully broadcasted and made it into a block
-        const broadcasted = LumUtils.broadcastTxCommitSuccess(broadcastResult);
+        assertIsDeliverTxSuccess(broadcastResult);
 
         return {
-            hash: broadcastResult.hash,
-            error: !broadcasted
-                ? broadcastResult.deliverTx && broadcastResult.deliverTx.log
-                    ? broadcastResult.deliverTx.log
-                    : broadcastResult.checkTx.log
-                : null,
+            hash: broadcastResult.transactionHash,
+            error: broadcastResult.code !== 0 ? broadcastResult.rawLog : null,
         };
     };
 
     setWithdrawAddress = async (fromWallet: Wallet, withdrawAddress = '', memo = '') => {
-        if (this.lumClient === null) {
+        if (this.cosmosSigningClient === null) {
             return null;
         }
 
-        const setWithdrawAddressMsg = LumMessages.BuildMsgSetWithdrawAddress(fromWallet.getAddress(), withdrawAddress);
+        const setWithdrawAddressMsg = setWithdrawAddress({ delegatorAddress: fromWallet.address, withdrawAddress });
 
         // Define fees
+        const gasEstimated = await this.cosmosSigningClient.simulate(fromWallet.address, [setWithdrawAddressMsg], memo);
         const fee = {
-            amount: [{ denom: LumConstants.MicroLumDenom, amount: '25000' }],
-            gas: '100000',
+            amount: coins(0, LumConstants.MicroLumDenom),
+            gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
         };
 
         // Fetch account number and sequence and chain id
-        const account = await this.getAccount(fromWallet);
         const chainId = this.getChainId();
 
-        if (!account || !chainId) {
+        if (!chainId) {
             return null;
         }
 
-        const { accountNumber, sequence } = account;
-
-        const doc: LumTypes.Doc = {
-            chainId,
+        const broadcastResult = await this.cosmosSigningClient.signAndBroadcast(
+            fromWallet.address,
+            [setWithdrawAddressMsg],
             fee,
-            messages: [setWithdrawAddressMsg],
             memo,
-            signers: [
-                {
-                    accountNumber,
-                    sequence,
-                    publicKey: fromWallet.getPublicKey(),
-                },
-            ],
-        };
+        );
 
-        const broadcastResult = await this.lumClient.signAndBroadcastTx(fromWallet, doc);
         // Verify the transaction was successfully broadcasted and made it into a block
-        const broadcasted = LumUtils.broadcastTxCommitSuccess(broadcastResult);
+        assertIsDeliverTxSuccess(broadcastResult);
 
         return {
-            hash: broadcastResult.hash,
-            error: !broadcasted
-                ? broadcastResult.deliverTx && broadcastResult.deliverTx.log
-                    ? broadcastResult.deliverTx.log
-                    : broadcastResult.checkTx.log
-                : null,
+            hash: broadcastResult.transactionHash,
+            error: broadcastResult.code !== 0 ? broadcastResult.rawLog : null,
         };
     };
 

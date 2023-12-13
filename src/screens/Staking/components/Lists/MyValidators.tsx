@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
-import { LumConstants } from '@lum-network/sdk-javascript';
 import numeral from 'numeral';
 import { Table, ValidatorLogo } from 'frontend-elements';
 
-import { CLIENT_PRECISION, LUM_ASSETS_GITHUB } from 'constant';
+import { CLIENT_PRECISION, LUM_ASSETS_GITHUB, LumConstants } from 'constant';
 import { getExplorerLink, getUserValidators, NumbersUtils, sortByVotingPower, trunc, WalletClient } from 'utils';
 import { Rewards, UserValidator } from 'models';
 import { Badge, DropdownButton, SmallerDecimal } from 'components';
@@ -16,7 +15,7 @@ import {
     DelegationResponse,
     UnbondingDelegation,
     Validator,
-} from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
+} from '@lum-network/sdk-javascript/build/codegen/cosmos/staking/v1beta1/staking';
 
 interface Props {
     validators: Validator[];

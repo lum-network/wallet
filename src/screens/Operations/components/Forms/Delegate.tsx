@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { LumUtils, LumConstants } from '@lum-network/sdk-javascript';
 import { Input, Button as CustomButton } from 'components';
 import { FormikContextType } from 'formik';
 import { Button } from 'frontend-elements';
@@ -9,6 +8,7 @@ import { RootState } from 'redux/store';
 import { calculateTotalVotingPower, NumbersUtils, sortByVotingPower, trunc } from 'utils';
 import CustomSelect from '../CustomSelect/CustomSelect';
 import numeral from 'numeral';
+import { LumConstants } from 'constant';
 
 interface Props {
     isLoading: boolean;
@@ -36,7 +36,7 @@ const Delegate = ({ form, isLoading }: Props): JSX.Element => {
 
     const onMax = () => {
         let max = vestings
-            ? balance.lum - Number(LumUtils.convertUnit(vestings.lockedBankCoins, LumConstants.LumDenom))
+            ? balance.lum - Number(NumbersUtils.convertUnit(vestings.lockedBankCoins, LumConstants.LumDenom))
             : balance.lum;
 
         // Max balance minus avg fees

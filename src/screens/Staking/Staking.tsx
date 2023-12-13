@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { Validator } from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
-import { LumConstants, LumMessages, LumUtils } from '@lum-network/sdk-javascript';
+import { cosmos } from '@lum-network/sdk-javascript';
+import { Validator } from '@lum-network/sdk-javascript/build/codegen/cosmos/staking/v1beta1/staking';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 
@@ -11,6 +11,7 @@ import { Card } from 'frontend-elements';
 import { RootDispatch, RootState } from 'redux/store';
 import { useRematchDispatch } from 'redux/hooks';
 import { AirdropCard, AvailableCard, Button, Input, Modal } from 'components';
+import { LumConstants } from 'constant';
 import {
     calculateTotalVotingPower,
     getUserValidators,
@@ -34,6 +35,10 @@ import GetReward from '../Operations/components/Forms/GetReward';
 import GetAllRewards from '../Operations/components/Forms/GetAllRewards';
 import Redelegate from '../Operations/components/Forms/Redelegate';
 import OtherStakingRewards from './components/Lists/OtherStakingRewards';
+
+const { MsgUndelegate, MsgBeginRedelegate, MsgDelegate } = cosmos.staking.v1beta1;
+
+const { MsgWithdrawDelegatorReward } = cosmos.distribution.v1beta1;
 
 const noop = () => {
     //do nothing
@@ -190,7 +195,7 @@ const Staking = (): JSX.Element => {
     // Effects
     useEffect(() => {
         if (wallet) {
-            getValidatorsInfos(wallet.getAddress());
+            getValidatorsInfos(wallet.address);
         }
     }, [getValidatorsInfos, wallet]);
 
@@ -258,7 +263,7 @@ const Staking = (): JSX.Element => {
             const delegateResult = await delegate({ validatorAddress, amount, memo, from: wallet });
 
             if (delegateResult) {
-                setTxResult({ hash: LumUtils.toHex(delegateResult.hash), error: delegateResult.error });
+                setTxResult({ hash: delegateResult.hash, error: delegateResult.error });
             }
         } catch (e) {
             showErrorToast((e as Error).message);
@@ -281,7 +286,7 @@ const Staking = (): JSX.Element => {
             });
 
             if (redelegateResult) {
-                setTxResult({ hash: LumUtils.toHex(redelegateResult.hash), error: redelegateResult.error });
+                setTxResult({ hash: redelegateResult.hash, error: redelegateResult.error });
             }
         } catch (e) {
             showErrorToast((e as Error).message);
@@ -293,7 +298,7 @@ const Staking = (): JSX.Element => {
             const undelegateResult = await undelegate({ validatorAddress, amount, memo, from: wallet });
 
             if (undelegateResult) {
-                setTxResult({ hash: LumUtils.toHex(undelegateResult.hash), error: undelegateResult.error });
+                setTxResult({ hash: undelegateResult.hash, error: undelegateResult.error });
             }
         } catch (e) {
             showErrorToast((e as Error).message);
@@ -309,7 +314,7 @@ const Staking = (): JSX.Element => {
             });
 
             if (claimResult) {
-                setTxResult({ hash: LumUtils.toHex(claimResult.hash), error: claimResult.error });
+                setTxResult({ hash: claimResult.hash, error: claimResult.error });
             }
         } catch (e) {
             showErrorToast((e as Error).message);
@@ -336,7 +341,7 @@ const Staking = (): JSX.Element => {
             });
 
             if (getAllRewardsResult) {
-                setTxResult({ hash: LumUtils.toHex(getAllRewardsResult.hash), error: getAllRewardsResult.error });
+                setTxResult({ hash: getAllRewardsResult.hash, error: getAllRewardsResult.error });
             }
         } catch (e) {
             showErrorToast((e as Error).message);
@@ -352,7 +357,7 @@ const Staking = (): JSX.Element => {
             }
         } else if (operationModal) {
             delegateForm.setFieldValue('address', validator.operatorAddress).then(() => {
-                setModalType({ id: LumMessages.MsgDelegateUrl, name: t('operations.types.delegate.name') });
+                setModalType({ id: MsgDelegate.typeUrl, name: t('operations.types.delegate.name') });
                 operationModal.show();
             });
         }
@@ -361,7 +366,7 @@ const Staking = (): JSX.Element => {
     const onUndelegate = (validator: Validator) => {
         if (operationModal) {
             undelegateForm.setFieldValue('address', validator.operatorAddress).then(() => {
-                setModalType({ id: LumMessages.MsgUndelegateUrl, name: t('operations.types.undelegate.name') });
+                setModalType({ id: MsgUndelegate.typeUrl, name: t('operations.types.undelegate.name') });
                 operationModal.show();
             });
         }
@@ -370,7 +375,7 @@ const Staking = (): JSX.Element => {
     const onRedelegate = (validator: Validator) => {
         if (operationModal) {
             redelegateForm.setFieldValue('fromAddress', validator.operatorAddress).then(() => {
-                setModalType({ id: LumMessages.MsgBeginRedelegateUrl, name: t('operations.types.redelegate.name') });
+                setModalType({ id: MsgBeginRedelegate.typeUrl, name: t('operations.types.redelegate.name') });
                 operationModal.show();
             });
         }
@@ -380,7 +385,7 @@ const Staking = (): JSX.Element => {
         if (operationModal) {
             claimForm.setFieldValue('address', validator.operatorAddress).then(() => {
                 setModalType({
-                    id: LumMessages.MsgWithdrawDelegatorRewardUrl,
+                    id: MsgWithdrawDelegatorReward.typeUrl,
                     name: t('operations.types.getRewards.name'),
                 });
                 operationModal.show();
@@ -391,7 +396,7 @@ const Staking = (): JSX.Element => {
     const onClaimAll = () => {
         if (operationModal) {
             setModalType({
-                id: LumMessages.MsgWithdrawDelegatorRewardUrl + '/all',
+                id: MsgWithdrawDelegatorReward.typeUrl + '/all',
                 name: t('operations.types.getAllRewards.name'),
             });
             operationModal.show();
@@ -405,19 +410,19 @@ const Staking = (): JSX.Element => {
         }
 
         switch (modalType.id) {
-            case LumMessages.MsgDelegateUrl:
+            case MsgDelegate.typeUrl:
                 return <Delegate isLoading={!!loadingDelegate} form={delegateForm} />;
 
-            case LumMessages.MsgBeginRedelegateUrl:
+            case MsgBeginRedelegate.typeUrl:
                 return <Redelegate isLoading={!!loadingRedelegate} form={redelegateForm} />;
 
-            case LumMessages.MsgUndelegateUrl:
+            case MsgUndelegate.typeUrl:
                 return <Undelegate isLoading={!!loadingUndelegate} form={undelegateForm} />;
 
-            case LumMessages.MsgWithdrawDelegatorRewardUrl:
+            case MsgWithdrawDelegatorReward.typeUrl:
                 return <GetReward isLoading={!!loadingClaim} form={claimForm} />;
 
-            case LumMessages.MsgWithdrawDelegatorRewardUrl + '/all':
+            case MsgWithdrawDelegatorReward.typeUrl + '/all':
                 return <GetAllRewards isLoading={!!loadingClaimAll} form={getAllRewardsForm} rewards={rewards} />;
 
             default:
@@ -446,7 +451,7 @@ const Staking = (): JSX.Element => {
                                 amountVesting={
                                     vestings
                                         ? Number(
-                                              LumUtils.convertUnit(
+                                              NumbersUtils.convertUnit(
                                                   vestings.lockedDelegatedCoins,
                                                   LumConstants.LumDenom,
                                               ),
@@ -460,10 +465,12 @@ const Staking = (): JSX.Element => {
                                 balance={
                                     vestings
                                         ? balance.lum -
-                                          Number(LumUtils.convertUnit(vestings.lockedBankCoins, LumConstants.LumDenom))
+                                          Number(
+                                              NumbersUtils.convertUnit(vestings.lockedBankCoins, LumConstants.LumDenom),
+                                          )
                                         : balance.lum
                                 }
-                                address={wallet.getAddress()}
+                                address={wallet.address}
                             />
                         </div>
                         <div className="col-lg-6">
@@ -552,7 +559,7 @@ const Staking = (): JSX.Element => {
                                 <Button
                                     className="mt-5"
                                     data-bs-dismiss="modal"
-                                    onClick={() => getWalletInfos(wallet.getAddress())}
+                                    onClick={() => getWalletInfos(wallet.address)}
                                 >
                                     {t('common.close')}
                                 </Button>

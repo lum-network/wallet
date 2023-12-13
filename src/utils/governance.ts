@@ -1,6 +1,6 @@
 import { Proposal, VotesResult } from 'models';
 import i18n from 'locales';
-import { ProposalStatus, VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
+import { ProposalStatus, VoteOption } from '@lum-network/sdk-javascript/build/codegen/cosmos/gov/v1beta1/gov';
 
 export const sumOfVotes = (results: VotesResult | null): number => {
     if (!results) {

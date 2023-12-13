@@ -1,26 +1,27 @@
 import React, { useEffect, useState } from 'react';
 
+import { ProposalStatus } from '@lum-network/sdk-javascript/build/codegen/cosmos/gov/v1beta1/gov';
+import { Validator } from '@lum-network/sdk-javascript/build/codegen/cosmos/staking/v1beta1/staking';
+import dayjs from 'dayjs';
+import DOMPurify from 'dompurify';
+import { marked } from 'marked';
+import numeral from 'numeral';
+import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { Namespace, TFunction } from 'i18next';
-import { LumConstants } from '@lum-network/sdk-javascript';
-import { ProposalStatus } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
-import numeral from 'numeral';
-import dayjs from 'dayjs';
-import { marked } from 'marked';
-import DOMPurify from 'dompurify';
+
 import { Badge, SmallerDecimal } from 'components';
+import { LumConstants } from 'constant';
 import { Button, Card } from 'frontend-elements';
 import { Proposal, VotesResult } from 'models';
-import { calculateTotalVotingPower, dateFromNow, GovernanceUtils, NumbersUtils } from 'utils';
 import { useRematchDispatch } from 'redux/hooks';
 import { RootDispatch, RootState } from 'redux/store';
+import { calculateTotalVotingPower, dateFromNow, GovernanceUtils, NumbersUtils } from 'utils';
 
 import VoteBar from '../VoteBar/VoteBar';
+import VoteButton from '../VoteButton/VoteButton';
 
 import './ProposalCard.scss';
-import VoteButton from '../VoteButton/VoteButton';
-import { useSelector } from 'react-redux';
-import { Validator } from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
 
 interface Props {
     proposal: Proposal;

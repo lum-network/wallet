@@ -4,12 +4,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Trans, useTranslation } from 'react-i18next';
 import { Modal as BSModal } from 'bootstrap';
 import { Window as KeplrWindow } from '@keplr-wallet/types';
-import { LumConstants } from '@lum-network/sdk-javascript';
 import { Button as FEButton } from 'frontend-elements';
 import { RootDispatch, RootState } from 'redux/store';
 
 import Assets from 'assets';
-import { COSMOS_LEDGER_APP_INSTALL_LINK, KEPLR_DEFAULT_COIN_TYPE, KEPLR_INSTALL_LINK } from 'constant';
+import { COSMOS_LEDGER_APP_INSTALL_LINK, KEPLR_DEFAULT_COIN_TYPE, KEPLR_INSTALL_LINK, LumConstants } from 'constant';
 import { Modal, Button, SwitchInput, Input, HdPathInput, HoverTooltip } from 'components';
 import { ExtensionMethod, HardwareMethod, SoftwareMethod } from 'models';
 import { useRematchDispatch } from 'redux/hooks';
@@ -41,15 +40,15 @@ const Welcome = (): JSX.Element => {
     const [modalShowed, setModalShowed] = useState(false);
 
     // Redux hooks
-    const { wallet, keplrState, ledgerState } = useSelector((state: RootState) => ({
+    const { wallet, keplrState /* ledgerState */ } = useSelector((state: RootState) => ({
         wallet: state.wallet.currentWallet,
         keplrState: state.loading.effects.wallet.signInWithKeplrAsync,
-        ledgerState: state.loading.effects.wallet.signInWithLedgerAsync,
+        //ledgerState: state.loading.effects.wallet.signInWithLedgerAsync,
     }));
 
-    const { signInWithKeplr, signInWithLedger } = useRematchDispatch((dispatch: RootDispatch) => ({
+    const { signInWithKeplr /* , signInWithLedger */ } = useRematchDispatch((dispatch: RootDispatch) => ({
         signInWithKeplr: dispatch.wallet.signInWithKeplrAsync,
-        signInWithLedger: dispatch.wallet.signInWithLedgerAsync,
+        //signInWithLedger: dispatch.wallet.signInWithLedgerAsync,
     }));
 
     // Refs
@@ -357,7 +356,7 @@ const Welcome = (): JSX.Element => {
                         </Button>
                     </>
                 );
-            case 'hardware':
+            /* case 'hardware':
                 return !ledgerState.loading ? (
                     <>
                         <h3 className="mt-4">{t('welcome.hardwareModal.title')}</h3>
@@ -402,7 +401,7 @@ const Welcome = (): JSX.Element => {
                                     {t('welcome.hardwareModal.types.lum')} (Coming soon)
                                 </p>
                             </button>
-                            {/* 
+                            {
                                 DEACTIVATED -> Waiting for Lum ledger app release
                             <a
                                 className="align-self-center mt-2"
@@ -417,7 +416,7 @@ const Welcome = (): JSX.Element => {
                                         })}
                                     </u>
                                 </small>
-                            </a> */}
+                            </a>}
                             <div className="d-flex flex-row justify-content-between align-self-stretch align-items-center my-4">
                                 <p className="p-0 m-0">
                                     {t('common.advanced')}
@@ -491,7 +490,7 @@ const Welcome = (): JSX.Element => {
                             <span className="visually-hidden">Loading...</span>
                         </div>
                     </>
-                );
+                ); */
             default:
                 return <h2>Coming Soon...</h2>;
         }
@@ -530,7 +529,7 @@ const Welcome = (): JSX.Element => {
                             <div className="col-12 col-lg-3">
                                 <ImportButton
                                     method="extension"
-                                    disabled={keplrState.loading || ledgerState.loading}
+                                    disabled={keplrState.loading}
                                     title={t('welcome.extension.title')}
                                     description={t('welcome.extension.description')}
                                     note={t('welcome.extensionModal.info')}
@@ -541,7 +540,7 @@ const Welcome = (): JSX.Element => {
                                     }}
                                 />
                             </div>
-                            <div className="col-12 col-lg-3">
+                            {/* <div className="col-12 col-lg-3">
                                 <ImportButton
                                     method="hardware"
                                     disabled={keplrState.loading || ledgerState.loading}
@@ -570,7 +569,7 @@ const Welcome = (): JSX.Element => {
                                         setSelectedMethod({ type: 'software', method: null });
                                     }}
                                 />
-                            </div>
+                                </div> */}
                             <div className="col-12 col-lg-3">
                                 <Link role="button" to="/create" className="text-reset text-decoration-none">
                                     <div className="scale-anim btn-padding h-100 w-100 text-center d-flex align-items-center flex-column justify-content-evenly">
@@ -593,7 +592,7 @@ const Welcome = (): JSX.Element => {
             <Modal
                 id="importSoftwareModal"
                 ref={importSoftwareModalRef}
-                withCloseButton={!ledgerState.loading && !keplrState.loading}
+                withCloseButton={!keplrState.loading}
                 onCloseButtonPress={() => setTimeout(() => setSelectedMethod(null), 150)}
                 bodyClassName="px-3"
                 contentClassName="px-2 import-modal-content"

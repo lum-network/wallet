@@ -1,7 +1,7 @@
 import { PBKDF2, AES, enc } from 'crypto-js';
 import base58 from 'bs58';
-import { LumUtils } from '@lum-network/sdk-javascript';
 import i18n from 'locales';
+import { LumUtils } from 'utils';
 
 const salt = 'XB7sHH26Hn&FmPLxnjGccKTfPV(yk';
 const patchMasterPassword = (pass: string) => `${PBKDF2(pass, salt)}(tXntTbJFzh]4EuQVmjzM9GXHCth8`;

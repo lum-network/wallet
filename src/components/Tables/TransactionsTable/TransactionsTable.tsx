@@ -1,13 +1,13 @@
 import React from 'react';
 
 import { useTranslation } from 'react-i18next';
-import { LumConstants } from '@lum-network/sdk-javascript';
 
 import { Table } from 'frontend-elements';
 import { Transaction, Wallet } from 'models';
 import { getExplorerLink, NumbersUtils, DenomsUtils, trunc, getMillionsLink } from 'utils';
 import { SmallerDecimal, TransactionTypeBadge } from 'components';
 import assets from 'assets';
+import { LumConstants } from 'constant';
 
 interface TransactionsTableProps {
     transactions: Transaction[];
@@ -33,11 +33,7 @@ const TransactionRow = (props: RowProps): JSX.Element => {
                 </a>
             </td>
             <td data-label={headers[1]}>
-                <TransactionTypeBadge
-                    type={row.messages[0]}
-                    userAddress={wallet.getAddress()}
-                    toAddress={row.toAddress}
-                />
+                <TransactionTypeBadge type={row.messages[0]} userAddress={wallet.address} toAddress={row.toAddress} />
                 {row.messages.length > 1 && (
                     <span className="ms-2 color-type round-tags">+{row.messages.length - 1}</span>
                 )}

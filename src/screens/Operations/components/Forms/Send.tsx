@@ -1,5 +1,5 @@
-import { LumConstants, LumUtils } from '@lum-network/sdk-javascript';
 import { Input, Button as CustomButton } from 'components';
+import { LumConstants } from 'constant';
 import { FormikContextType } from 'formik';
 import { Button } from 'frontend-elements';
 import numeral from 'numeral';
@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { RootState } from 'redux/store';
+import { NumbersUtils } from 'utils';
 
 interface Props {
     isLoading: boolean;
@@ -26,7 +27,7 @@ const Send = ({ form, isLoading }: Props): JSX.Element => {
 
     const onMax = () => {
         let max = vestings
-            ? balance.lum - Number(LumUtils.convertUnit(vestings.lockedBankCoins, LumConstants.LumDenom))
+            ? balance.lum - Number(NumbersUtils.convertUnit(vestings.lockedBankCoins, LumConstants.LumDenom))
             : balance.lum;
 
         // Max balance minus avg fees

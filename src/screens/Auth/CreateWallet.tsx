@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
-import { LumUtils } from '@lum-network/sdk-javascript';
+//import { LumUtils } from '@lum-network/sdk-javascript';
 import printJS from 'print-js';
 
 import { Card, Button } from 'frontend-elements';
@@ -24,7 +24,7 @@ const CreateWallet = (): JSX.Element => {
     const [mnemonicLength, setMnemonicLength] = useState<MnemonicLength>(12);
     const [inputsValues, setInputsValues] = useState<string[]>([]);
     const [passwordStrength, setPasswordStrength] = useState<PasswordStrength>(PasswordStrengthType.Weak);
-    const [keystoreFileData, setKeystoreFileData] = useState<LumUtils.KeyStore | null>(null);
+    const [keystoreFileData, setKeystoreFileData] = useState(/* <LumUtils.KeyStore | null> */ null);
     const [keystoreFilePassword, setKeystoreFilePassword] = useState('');
 
     /* CODE RELATED TO EXTRA WORD FOR FUTURE IMPLEMENTATION
@@ -63,13 +63,13 @@ const CreateWallet = (): JSX.Element => {
 
     const onSubmitPassword = (password: string) => {
         setKeystoreFilePassword(password);
-        setKeystoreFileData(WalletUtils.generateKeystoreFile(password));
+        //setKeystoreFileData(WalletUtils.generateKeystoreFile(password));
     };
 
     const continueWithMnemonic = () => {
         const mnemonic = inputsValues.join(' ');
 
-        signInWithMnemonic({ mnemonic });
+        //signInWithMnemonic({ mnemonic });
     };
 
     const printMnemonic = () => {

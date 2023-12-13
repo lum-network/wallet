@@ -2,15 +2,15 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { useFormik } from 'formik';
-import { LumConstants, LumMessages, LumUtils } from '@lum-network/sdk-javascript';
-import { VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
+import { cosmos } from '@lum-network/sdk-javascript';
+import { VoteOption } from '@lum-network/sdk-javascript/build/codegen/cosmos/gov/v1/gov';
 import * as yup from 'yup';
 
 import assets from 'assets';
 import { AddressCard, AvailableCard, Input, Modal, Button as CustomButton, AirdropCard } from 'components';
 import { RootDispatch, RootState } from 'redux/store';
 import { useRematchDispatch } from 'redux/hooks';
-import { showErrorToast } from 'utils';
+import { NumbersUtils, showErrorToast } from 'utils';
 
 import MessageButton from './components/MessageButton/MessageButton';
 import Delegate from './components/Forms/Delegate';
@@ -22,6 +22,15 @@ import Vote from './components/Forms/Vote';
 import SetWithdrawAddress from './components/Forms/SetWithdrawAddress';
 
 import './Operations.scss';
+import { LumConstants } from 'constant';
+
+const { MsgUndelegate, MsgBeginRedelegate, MsgDelegate } = cosmos.staking.v1beta1;
+
+const { MsgVote } = cosmos.gov.v1;
+
+const { MsgWithdrawDelegatorReward, MsgSetWithdrawAddress } = cosmos.distribution.v1beta1;
+
+const { MsgSend } = cosmos.bank.v1beta1;
 
 type MsgType = { name: string; icon: string; iconClassName?: string; id: string; description: string };
 
@@ -70,44 +79,44 @@ const Operations = (): JSX.Element => {
 
     const buttons: MsgType[] = [
         {
-            id: LumMessages.MsgSendUrl,
+            id: MsgSend.typeUrl,
             name: t('operations.types.send.name'),
             icon: assets.images.messageTypes.send,
             iconClassName: 'send-icon',
             description: t('operations.types.send.description'),
         },
         {
-            id: LumMessages.MsgDelegateUrl,
+            id: MsgDelegate.typeUrl,
             name: t('operations.types.delegate.name'),
             icon: assets.images.messageTypes.delegate,
             description: t('operations.types.delegate.description'),
         },
         {
-            id: LumMessages.MsgUndelegateUrl,
+            id: MsgUndelegate.typeUrl,
             name: t('operations.types.undelegate.name'),
             icon: assets.images.messageTypes.undelegate,
             description: t('operations.types.undelegate.description'),
         },
         {
-            id: LumMessages.MsgBeginRedelegateUrl,
+            id: MsgBeginRedelegate.typeUrl,
             name: t('operations.types.redelegate.name'),
             icon: assets.images.messageTypes.redelegate,
             description: t('operations.types.redelegate.description'),
         },
         {
-            id: LumMessages.MsgWithdrawDelegatorRewardUrl,
+            id: MsgWithdrawDelegatorReward.typeUrl,
             name: t('operations.types.getRewards.name'),
             icon: assets.images.messageTypes.getReward,
             description: t('operations.types.getRewards.description'),
         },
         {
-            id: LumMessages.MsgVoteUrl,
+            id: MsgVote.typeUrl,
             name: t('operations.types.vote.name'),
             description: t('operations.types.vote.description'),
             icon: assets.images.messageTypes.vote,
         },
         {
-            id: LumMessages.MsgSetWithdrawAddressUrl,
+            id: MsgSetWithdrawAddress.typeUrl,
             name: t('operations.types.setWithdrawAddress.name'),
             description: t('operations.types.setWithdrawAddress.description'),
             icon: assets.images.messageTypes.setWithdrawAddress,
@@ -277,12 +286,13 @@ const Operations = (): JSX.Element => {
     }
 
     const onSubmitSend = async (toAddress: string, amount: string, memo: string) => {
+        console.log('send');
         try {
             const sendResult = await sendTx({ from: wallet, to: toAddress, amount, memo });
-
+            console.log(sendResult);
             if (sendResult) {
                 setConfirming(false);
-                setTxResult({ hash: LumUtils.toHex(sendResult.hash), error: sendResult.error });
+                setTxResult({ hash: sendResult.hash, error: sendResult.error });
             }
         } catch (e) {
             showErrorToast((e as Error).message);
@@ -294,7 +304,7 @@ const Operations = (): JSX.Element => {
             const delegateResult = await delegate({ validatorAddress, amount, memo, from: wallet });
 
             if (delegateResult) {
-                setTxResult({ hash: LumUtils.toHex(delegateResult.hash), error: delegateResult.error });
+                setTxResult({ hash: delegateResult.hash, error: delegateResult.error });
             }
         } catch (e) {
             showErrorToast((e as Error).message);
@@ -306,7 +316,7 @@ const Operations = (): JSX.Element => {
             const undelegateResult = await undelegate({ validatorAddress, amount, memo, from: wallet });
 
             if (undelegateResult) {
-                setTxResult({ hash: LumUtils.toHex(undelegateResult.hash), error: undelegateResult.error });
+                setTxResult({ hash: undelegateResult.hash, error: undelegateResult.error });
             }
         } catch (e) {
             showErrorToast((e as Error).message);
@@ -319,7 +329,7 @@ const Operations = (): JSX.Element => {
 
             if (setWithdrawAddressResult) {
                 setTxResult({
-                    hash: LumUtils.toHex(setWithdrawAddressResult.hash),
+                    hash: setWithdrawAddressResult.hash,
                     error: setWithdrawAddressResult.error,
                 });
             }
@@ -344,7 +354,7 @@ const Operations = (): JSX.Element => {
             });
 
             if (redelegateResult) {
-                setTxResult({ hash: LumUtils.toHex(redelegateResult.hash), error: redelegateResult.error });
+                setTxResult({ hash: redelegateResult.hash, error: redelegateResult.error });
             }
         } catch (e) {
             showErrorToast((e as Error).message);
@@ -356,7 +366,7 @@ const Operations = (): JSX.Element => {
             const getRewardResult = await getReward({ validatorAddress, memo, from: wallet });
 
             if (getRewardResult) {
-                setTxResult({ hash: LumUtils.toHex(getRewardResult.hash), error: getRewardResult.error });
+                setTxResult({ hash: getRewardResult.hash, error: getRewardResult.error });
             }
         } catch (e) {
             showErrorToast((e as Error).message);
@@ -365,7 +375,7 @@ const Operations = (): JSX.Element => {
 
     const onSubmitVote = async (proposalId: string, voteOption: VoteOption) => {
         try {
-            const proposal = proposals.find((p) => p.id.equals(proposalId));
+            const proposal = proposals.find((p) => p.id === BigInt(proposalId));
 
             if (!proposal) {
                 throw new Error(`Proposal #${proposalId} not found`);
@@ -374,7 +384,7 @@ const Operations = (): JSX.Element => {
             const voteResult = await vote({ voter: wallet, proposal, vote: voteOption });
 
             if (voteResult) {
-                setTxResult({ hash: LumUtils.toHex(voteResult.hash), error: voteResult.error });
+                setTxResult({ hash: voteResult.hash, error: voteResult.error });
             }
         } catch (e) {
             showErrorToast((e as Error).message);
@@ -391,25 +401,25 @@ const Operations = (): JSX.Element => {
         }
 
         switch (modal.id) {
-            case LumMessages.MsgSendUrl:
+            case MsgSend.typeUrl:
                 return <Send isLoading={!!loadingSend.loading} form={sendForm} />;
 
-            case LumMessages.MsgDelegateUrl:
+            case MsgDelegate.typeUrl:
                 return <Delegate isLoading={!!loadingDelegate.loading} form={delegateForm} />;
 
-            case LumMessages.MsgUndelegateUrl:
+            case MsgUndelegate.typeUrl:
                 return <Undelegate isLoading={!!loadingUndelegate.loading} form={undelegateForm} />;
 
-            case LumMessages.MsgBeginRedelegateUrl:
+            case MsgBeginRedelegate.typeUrl:
                 return <Redelegate isLoading={!!loadingRedelegate.loading} form={redelegateForm} />;
 
-            case LumMessages.MsgWithdrawDelegatorRewardUrl:
+            case MsgWithdrawDelegatorReward.typeUrl:
                 return <GetRewards isLoading={!!loadingGetReward.loading} form={getRewardForm} />;
 
-            case LumMessages.MsgVoteUrl:
+            case MsgVote.typeUrl:
                 return <Vote isLoading={!!loadingVote.loading} form={voteForm} />;
 
-            case LumMessages.MsgSetWithdrawAddressUrl:
+            case MsgSetWithdrawAddress.typeUrl:
                 return (
                     <SetWithdrawAddress isLoading={!!loadingSetWithdrawAddress.loading} form={setWithdrawAddressForm} />
                 );
@@ -447,17 +457,19 @@ const Operations = (): JSX.Element => {
                             </div>
                         ) : null}
                         <div className="col-md-6">
-                            <AddressCard address={wallet.getAddress()} />
+                            <AddressCard address={wallet.address} />
                         </div>
                         <div className="col-md-6">
                             <AvailableCard
                                 balance={
                                     vestings
                                         ? balance.lum -
-                                          Number(LumUtils.convertUnit(vestings.lockedBankCoins, LumConstants.LumDenom))
+                                          Number(
+                                              NumbersUtils.convertUnit(vestings.lockedBankCoins, LumConstants.LumDenom),
+                                          )
                                         : balance.lum
                                 }
-                                address={wallet.getAddress()}
+                                address={wallet.address}
                             />
                         </div>
                     </div>
@@ -500,7 +512,7 @@ const Operations = (): JSX.Element => {
                                     className="mt-5"
                                     data-bs-target="modalSendTxs"
                                     data-bs-dismiss="modal"
-                                    onClick={() => getWalletInfos(wallet.getAddress())}
+                                    onClick={() => getWalletInfos(wallet.address)}
                                 >
                                     {t('common.close')}
                                 </CustomButton>

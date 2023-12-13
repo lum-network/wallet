@@ -32,7 +32,7 @@ const ImportPrivateKeyModal = (): JSX.Element => {
 
     // Methods
     const onSubmitPassword = (privateKey: string) => {
-        signInWithPrivateKey(privateKey);
+        //signInWithPrivateKey(privateKey);
     };
 
     return (

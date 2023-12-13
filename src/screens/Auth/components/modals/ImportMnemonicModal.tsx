@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LumConstants } from '@lum-network/sdk-javascript';
 
 import { useRematchDispatch } from 'redux/hooks';
 import { RootDispatch } from 'redux/store';
@@ -9,6 +8,7 @@ import { Input, SwitchInput, Button, HdPathInput, HoverTooltip } from 'component
 
 import { MnemonicLength, WalletUtils } from 'utils';
 import assets from 'assets';
+import { LumConstants } from 'constant';
 
 const defaultMnemonicState: { length: MnemonicLength; values: string[] } = {
     length: 12,

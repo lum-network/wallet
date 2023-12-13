@@ -1,7 +1,7 @@
-import { LumTypes, LumWallet } from '@lum-network/sdk-javascript';
-import { Proposal as BaseProposal } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1/gov';
-import { Validator } from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
 import { Models } from '@rematch/core';
+import { Validator } from '@lum-network/sdk-javascript/build/codegen/cosmos/staking/v1beta1/staking';
+import { Proposal as BaseProposal } from '@lum-network/sdk-javascript/build/codegen/cosmos/gov/v1/gov';
+import { Coin } from '@lum-network/sdk-javascript/build/codegen/cosmos/base/v1beta1/coin';
 
 import { governance } from '../redux/models/governance';
 import { staking } from '../redux/models/staking';
@@ -17,7 +17,8 @@ export interface RootModel extends Models<RootModel> {
 
 export const reduxModels: RootModel = { wallet, staking, governance, stats };
 
-export interface Wallet extends LumWallet {
+export interface Wallet {
+    address: string;
     isExtensionImport?: boolean;
     isNanoS?: boolean;
 }
@@ -31,10 +32,10 @@ export interface CommonTransactionProps {
     messages: string[];
     hash: string;
     height: number;
-    amount: LumTypes.Coin[];
+    amount: Coin[];
     memo?: string;
     success?: boolean;
-    [key: string]: string | LumTypes.Coin[] | number | boolean | string[] | undefined;
+    [key: string]: string | Coin[] | number | boolean | string[] | undefined;
 }
 
 export interface Transaction extends CommonTransactionProps {
@@ -49,12 +50,12 @@ export interface StakingTransaction extends CommonTransactionProps {
 
 export interface Reward {
     validatorAddress: string;
-    reward: LumTypes.Coin[];
+    reward: Coin[];
 }
 
 export interface Rewards {
     rewards: Reward[];
-    total: LumTypes.Coin[];
+    total: Coin[];
 }
 
 export interface UserValidator extends Validator {
@@ -88,9 +89,9 @@ export enum HardwareMethod {
 
 export interface Vestings {
     endsAt: Date;
-    lockedCoins: LumTypes.Coin;
-    lockedBankCoins: LumTypes.Coin;
-    lockedDelegatedCoins: LumTypes.Coin;
+    lockedCoins: Coin;
+    lockedBankCoins: Coin;
+    lockedDelegatedCoins: Coin;
 }
 
 export interface Airdrop {
@@ -127,6 +128,15 @@ export interface LumInfo {
     name: number;
     previousDaysPrices: PreviousDayPrice[];
 }
+
+export type SignMsg = {
+    msg: string;
+    address: string;
+    sig: Uint8Array;
+    publicKey: Uint8Array;
+    signer: string;
+    version: string;
+};
 
 export { default as MetadataModel } from './Metadata';
 export { default as TokenModel } from './Token';

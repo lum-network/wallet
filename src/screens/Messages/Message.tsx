@@ -3,13 +3,13 @@ import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import ClipboardJS from 'clipboard';
 import { Modal as BSModal } from 'bootstrap';
-import { LumUtils, LumTypes, LumConstants } from '@lum-network/sdk-javascript';
 
-import { AddressCard, AvailableCard, Input, Modal, Tooltip } from 'components';
+import { Button as CustomButton, AddressCard, AvailableCard, Input, Modal, Tooltip } from 'components';
+import { LumConstants } from 'constant';
 import { RootState } from 'redux/store';
 import { Button, Card } from 'frontend-elements';
-import { Button as CustomButton } from 'components';
-import { showErrorToast, showSuccessToast, WalletClient, WalletUtils } from 'utils';
+import { SignMsg } from 'models';
+import { LumUtils, NumbersUtils, showErrorToast, showSuccessToast, WalletClient, WalletUtils } from 'utils';
 
 import './styles/Messages.scss';
 
@@ -26,7 +26,7 @@ const isMessageToVerify = (msg: {
     publicKey?: Uint8Array;
     signer?: string;
     version?: string;
-}): msg is LumTypes.SignMsg => {
+}): msg is SignMsg => {
     return !!(msg.address && msg.msg && msg.publicKey && msg.sig && msg.signer && msg.version);
 };
 
@@ -44,7 +44,7 @@ const Message = (): JSX.Element => {
     const [message, setMessage] = useState('');
     const [messageToVerify, setMessageToVerify] = useState('');
     const [showTooltip, setShowTooltip] = useState(false);
-    const [signMessage, setSignMessage] = useState<LumTypes.SignMsg | null>(null);
+    const [signMessage, setSignMessage] = useState<SignMsg | null>(null);
     const [verifyMessage, setVerifyMessage] = useState<VerifyMessageResult | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -168,17 +168,19 @@ const Message = (): JSX.Element => {
                 <div className="container-xxl">
                     <div className="row gy-4">
                         <div className="col-md-6 col-12">
-                            <AddressCard address={wallet.getAddress()} />
+                            <AddressCard address={wallet.address} />
                         </div>
                         <div className="col-md-6 col-12">
                             <AvailableCard
                                 balance={
                                     vestings
                                         ? currentBalance.lum -
-                                          Number(LumUtils.convertUnit(vestings.lockedBankCoins, LumConstants.LumDenom))
+                                          Number(
+                                              NumbersUtils.convertUnit(vestings.lockedBankCoins, LumConstants.LumDenom),
+                                          )
                                         : currentBalance.lum
                                 }
-                                address={wallet.getAddress()}
+                                address={wallet.address}
                             />
                         </div>
                         <div className="col-lg-6 col-12">
@@ -291,7 +293,7 @@ const Message = (): JSX.Element => {
                 <h3 className="my-4 text-center fw-bolder">{t('messages.confirmationModal.title')}</h3>
                 <Input
                     disabled
-                    value={wallet.getAddress()}
+                    value={wallet.address}
                     label={t('messages.confirmationModal.addressLabel')}
                     className="mb-4"
                 />

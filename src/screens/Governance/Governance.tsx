@@ -3,7 +3,7 @@ import { CSSTransition, SwitchTransition } from 'react-transition-group';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import { ProposalStatus, VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
+import { ProposalStatus, VoteOption } from '@lum-network/sdk-javascript/build/codegen/cosmos/gov/v1beta1/gov';
 
 import { Proposal } from 'models';
 import { RootDispatch, RootState } from 'redux/store';

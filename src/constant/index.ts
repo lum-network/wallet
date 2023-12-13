@@ -33,3 +33,4 @@ export const IPFS_GATEWAY = 'https://ipfs.io/ipfs';
 
 export * from './messages';
 export * from './ibcDenoms';
+export * as LumConstants from './lum';

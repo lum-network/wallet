@@ -1,42 +1,28 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const webpack = require('webpack');
-const path = require('path');
 
-module.exports = {
-    webpack: function (config) {
-        //do stuff with the webpack config...
-        config.resolve.fallback = {
-            ...config.resolve.fallback,
-            path: require.resolve('path-browserify'),
-            stream: require.resolve('stream-browserify'),
-            crypto: require.resolve('crypto-browserify'),
-            querystring: require.resolve('querystring-es3'),
-            buffer: require.resolve('buffer'),
-        };
-        config.resolve.modules = [path.resolve(__dirname, 'src'), 'node_modules'];
-        config.plugins = [
-            ...config.plugins,
-            new webpack.ProvidePlugin({
-                Buffer: ['buffer', 'Buffer'],
-            }),
-        ];
+module.exports = function override(config) {
+    const fallback = config.resolve.fallback || {};
+    Object.assign(fallback, {
+        buffer: false,
+        crypto: false,
+        events: false,
+        path: false,
+        stream: false,
+        string_decoder: false,
+    });
+    config.resolve.fallback = fallback;
+    config.plugins = (config.plugins || []).concat([
+        new webpack.ProvidePlugin({
+            Buffer: ['buffer', 'Buffer'],
+        }),
+    ]);
 
-        return config;
-    },
-    jest: function (config) {
-        config.transform = {
-            ...config.transform,
-            '^.+\\.(ts|tsx)$': 'ts-jest',
-        };
-
-        config.transformIgnorePatterns = ['node_modules/(?!(axios))'];
-
-        config.moduleNameMapper = {
-            ...config.moduleNameMapper,
-            '\\.(css|scss)$': 'identity-obj-proxy',
-            '@ledgerhq/devices': '@ledgerhq/devices/lib',
-        };
-
-        return config;
-    },
+    config.module.rules.push({
+        test: /\.m?js$/,
+        resolve: {
+            fullySpecified: false,
+        },
+    });
+    return config;
 };
