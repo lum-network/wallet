@@ -86,7 +86,7 @@ const Governance = (): JSX.Element => {
     }, [proposalId, proposals]);
 
     const onDetails = (proposal: Proposal) => {
-        navigate(`/governance/proposal/${proposal.id}`);
+        navigate(`/governance/proposal/${proposal.id.toString()}`);
     };
 
     const onVote = (proposal: Proposal) => {

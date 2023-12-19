@@ -13,6 +13,7 @@ import { decodeTxRaw } from '@cosmjs/proto-signing';
 const { MsgUndelegate, MsgBeginRedelegate, MsgDelegate, MsgCreateValidator, MsgEditValidator } = cosmos.staking.v1beta1;
 
 const { MsgVote } = cosmos.gov.v1;
+const { MsgVote: MsgVoteLegacy } = cosmos.gov.v1beta1;
 
 const { MsgWithdrawDelegatorReward } = cosmos.distribution.v1beta1;
 
@@ -269,6 +270,7 @@ export const getTxTypeInfos = (
         case MsgClaimBeam.typeUrl:
             return { name: i18n.t('transactions.types.claimBeam'), icon: assets.images.messageTypes.claimBeam };
         case MsgVote.typeUrl:
+        case MsgVoteLegacy.typeUrl:
             return { name: i18n.t('transactions.types.vote'), icon: assets.images.messageTypes.vote };
         case MsgDepositDfract.typeUrl:
             return { name: i18n.t('transactions.types.depositDfract'), icon: assets.images.messageTypes.depositDfract };

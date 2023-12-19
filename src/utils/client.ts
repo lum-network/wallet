@@ -18,7 +18,7 @@ import { LumRegistry } from './lum/registry';
 const { send } = cosmos.bank.v1beta1.MessageComposer.withTypeUrl;
 const { delegate, beginRedelegate, undelegate } = cosmos.staking.v1beta1.MessageComposer.withTypeUrl;
 const { withdrawDelegatorReward, setWithdrawAddress } = cosmos.distribution.v1beta1.MessageComposer.withTypeUrl;
-const { vote } = cosmos.gov.v1.MessageComposer.withTypeUrl;
+const { vote } = cosmos.gov.v1beta1.MessageComposer.withTypeUrl;
 
 class WalletClient {
     private lumInfos: LumInfo | null = null;
@@ -412,7 +412,7 @@ class WalletClient {
             gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
         };
 
-        // Fetch account number and sequence and chain id
+        // Fetch chain id
         const chainId = this.getChainId();
 
         if (!chainId) {
@@ -512,7 +512,7 @@ class WalletClient {
             gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
         };
 
-        // Fetch account number and sequence and chain id
+        // Fetch chain id
         const chainId = this.getChainId();
 
         if (!chainId) {
@@ -549,7 +549,7 @@ class WalletClient {
             gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
         };
 
-        // Fetch account number and sequence and chain id
+        // Fetch chain id
         const chainId = this.getChainId();
 
         if (!chainId) {
@@ -592,7 +592,7 @@ class WalletClient {
             gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
         };
 
-        // Fetch account number and sequence and chain id
+        // Fetch chain id
         const chainId = this.getChainId();
 
         if (!chainId) {
@@ -649,7 +649,7 @@ class WalletClient {
             gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
         };
 
-        // Fetch account number and sequence and chain id
+        // Fetch chain id
         const chainId = this.getChainId();
 
         if (!chainId) {
@@ -680,8 +680,7 @@ class WalletClient {
         const voteMsg = vote({
             proposalId: proposal.id,
             voter: fromWallet.address,
-            option: Number(voteOption),
-            metadata: proposal.metadata,
+            option: voteOption,
         });
 
         // Define fees
@@ -691,7 +690,7 @@ class WalletClient {
             gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
         };
 
-        // Fetch account number and sequence and chain id
+        // Fetch chain id
         const chainId = this.getChainId();
 
         if (!chainId) {
@@ -728,7 +727,7 @@ class WalletClient {
             gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
         };
 
-        // Fetch account number and sequence and chain id
+        // Fetch chain id
         const chainId = this.getChainId();
 
         if (!chainId) {

@@ -6,6 +6,13 @@ import { sha3, toHex, keyToHex } from './encoding';
 import { KeyStore } from 'models';
 
 /**
+ * Generates a cryptographically secure random private key
+ */
+export const generatePrivateKey = (): Uint8Array => {
+    return Random.getBytes(32);
+};
+
+/**
  * Generate a KeyStore using a privateKey and a password
  *
  * @param privateKey private key to encrypt in the keystore

@@ -350,7 +350,7 @@ const ProposalCard = ({ proposal, full, onVote, onDetails }: Props): JSX.Element
     return (
         <Card className="mb-4">
             <div className="d-flex flex-row align-items-center">
-                <h3 className="me-4">{`#${proposal.id}`}</h3>
+                <h3 className="me-4">{`#${proposal.id.toString()}`}</h3>
                 <Badge proposalStatus={proposal.status} />
             </div>
             <p className="proposal-title mb-4 mt-2">{proposal.content ? proposal.content.title : ''}</p>
