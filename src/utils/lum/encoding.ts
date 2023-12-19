@@ -15,8 +15,7 @@ import {
 } from '@cosmjs/encoding';
 import { sha256 } from '@cosmjs/crypto';
 import SHA3 from 'crypto-js/sha3';
-
-import { isUint8Array } from './commons';
+import { isUint8Array } from '@cosmjs/utils';
 
 /**
  * Sha3 hash

@@ -1,13 +1,11 @@
 import axios from 'axios';
 import { createModel } from '@rematch/core';
 import { Window as KeplrWindow } from '@keplr-wallet/types';
-//import { LumUtils, LumWalletFactory, LumWallet, LumConstants } from '@lum-network/sdk-javascript';
-//import { VoteOption } from '@lum-network/sdk-javascript/build/codegen/cosmos/gov/v1beta1/gov';
-//import { DelegationDelegatorReward } from '@lum-network/sdk-javascript/build/codegen/cosmos/distribution/v1beta1/distribution';
+import { DelegationDelegatorReward } from '@lum-network/sdk-javascript/build/codegen/cosmos/distribution/v1beta1/distribution';
+import { VoteOption } from '@lum-network/sdk-javascript/build/codegen/cosmos/gov/v1/gov';
+import { stringToPath } from '@cosmjs/crypto';
 
-import { lum } from '@lum-network/sdk-javascript';
-import { getOfflineSignerAmino as getOfflineSigner } from 'cosmjs-utils';
-import { Secp256k1HdWallet } from '@cosmjs/amino';
+import { Secp256k1HdWallet, Secp256k1Wallet } from '@cosmjs/amino';
 
 import TransportWebUsb from '@ledgerhq/hw-transport-webusb';
 import { DeviceModelId } from '@ledgerhq/devices';
@@ -18,6 +16,7 @@ import {
     getRpcFromNode,
     getWalletLink,
     GuardaUtils,
+    LumUtils,
     NumbersUtils,
     showErrorToast,
     showSuccessToast,
@@ -36,8 +35,6 @@ import {
     Vestings,
     Wallet,
 } from '../../models';
-import { DelegationDelegatorReward } from '@lum-network/sdk-javascript/build/codegen/cosmos/distribution/v1beta1/distribution';
-import { VoteOption } from '@lum-network/sdk-javascript/build/codegen/cosmos/gov/v1/gov';
 
 interface SendPayload {
     to: string;
@@ -451,59 +448,86 @@ export const wallet = createModel<RootModel>()({
                 throw e;
             } */
         },
-        signInWithMnemonicAsync(payload: { mnemonic: string; customHdPath?: string }) {
-            /* const { mnemonic, customHdPath } = payload;
+        async signInWithMnemonicAsync(payload: { mnemonic: string; customHdPath?: string }) {
+            const { mnemonic, customHdPath } = payload;
 
-            getOfflineSigner({
-                mnemonic,
-                chain: {
-                    bech32_prefix: LumConstants.LumBech32PrefixAccAddr,
-                    slip44: 118,
-                },
-            })
-                .then(async (offlineSigner) => {
-                    if (payload.customHdPath) {
-                        await offlineSigner.useAccount(payload.customHdPath, LumConstants.LumBech32PrefixAccAddr);
-                    }
-                    const accounts = await offlineSigner.getAccounts();
-                    dispatch.wallet.signIn(offlineSigner);
-                    dispatch.wallet.reloadWalletInfos(accounts[0].address);
-                })
-                .catch((e) => showErrorToast(e.message)); */
-        },
-        signInWithPrivateKeyAsync(payload: string) {
-            /* LumWalletFactory.fromPrivateKey(LumUtils.keyFromHex(payload))
-                .then((wallet) => {
-                    dispatch.wallet.signIn(wallet);
-                    dispatch.wallet.reloadWalletInfos(wallet.address);
-                })
-                .catch((e) => showErrorToast(e.message)); */
-        },
-        signInWithKeystoreAsync(payload: any) {
-            /* const { data, password } = payload;
+            try {
+                const hdPaths = [stringToPath(customHdPath ? customHdPath : LumConstants.getLumHdPath())];
 
-            LumWalletFactory.fromKeyStore(data, password)
-                .then((wallet) => {
-                    dispatch.wallet.signIn(wallet);
-                    dispatch.wallet.reloadWalletInfos(wallet.address);
-                })
-                .catch((e) => showErrorToast(e.message)); */
+                const wallet = await Secp256k1HdWallet.fromMnemonic(mnemonic, {
+                    hdPaths,
+                    prefix: LumConstants.LumBech32PrefixAccAddr,
+                });
+
+                await WalletClient.connectSigner(wallet);
+
+                const accounts = await wallet.getAccounts();
+                const address = accounts[0].address;
+
+                dispatch.wallet.signIn({ address });
+                dispatch.wallet.reloadWalletInfos(address);
+            } catch (e) {
+                showErrorToast(e instanceof Error ? e.message : i18n.t('wallet.errors.generic'));
+                throw e;
+            }
         },
-        signInWithGuardaAsync(paylaod: { guardaBackup: string; password: string }) {
-            /* const { guardaBackup, password } = paylaod;
+        async signInWithPrivateKeyAsync(payload: string) {
+            try {
+                const wallet = await Secp256k1Wallet.fromKey(
+                    LumUtils.fromHex(payload),
+                    LumConstants.LumBech32PrefixAccAddr,
+                );
+
+                await WalletClient.connectSigner(wallet);
+
+                const accounts = await wallet.getAccounts();
+                const address = accounts[0].address;
+
+                dispatch.wallet.signIn({ address });
+                dispatch.wallet.reloadWalletInfos(address);
+            } catch (e) {
+                showErrorToast(e instanceof Error ? e.message : i18n.t('wallet.errors.generic'));
+                throw e;
+            }
+        },
+        async signInWithKeystoreAsync(payload: { data: string; password: string }) {
+            const { data, password } = payload;
+
+            try {
+                const privateKey = LumUtils.getPrivateKeyFromKeystore(data, password);
+
+                const wallet = await Secp256k1Wallet.fromKey(privateKey, LumConstants.LumBech32PrefixAccAddr);
+
+                await WalletClient.connectSigner(wallet);
+
+                const accounts = await wallet.getAccounts();
+                const address = accounts[0].address;
+
+                dispatch.wallet.signIn({ address });
+                dispatch.wallet.reloadWalletInfos(address);
+            } catch (e) {
+                showErrorToast(e instanceof Error ? e.message : i18n.t('wallet.errors.generic'));
+                throw e;
+            }
+        },
+        async signInWithGuardaAsync(paylaod: { guardaBackup: string; password: string }) {
+            const { guardaBackup, password } = paylaod;
 
             try {
                 const cosmosPrivateKey = GuardaUtils.getCosmosPrivateKey(guardaBackup, password);
 
-                LumWalletFactory.fromPrivateKey(cosmosPrivateKey)
-                    .then((wallet) => {
-                        dispatch.wallet.signIn(wallet);
-                        dispatch.wallet.reloadWalletInfos(wallet.address);
-                    })
-                    .catch((e) => showErrorToast(e.message));
+                const wallet = await Secp256k1Wallet.fromKey(cosmosPrivateKey, LumConstants.LumBech32PrefixAccAddr);
+
+                await WalletClient.connectSigner(wallet);
+
+                const accounts = await wallet.getAccounts();
+                const address = accounts[0].address;
+
+                dispatch.wallet.signIn({ address });
+                dispatch.wallet.reloadWalletInfos(address);
             } catch (e) {
                 showErrorToast((e as Error).message);
-            } */
+            }
         },
         async sendTx(payload: SendPayload) {
             const result = await WalletClient.sendTx(payload.from, payload.to, payload.amount, payload.memo);

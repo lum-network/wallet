@@ -153,7 +153,9 @@ const ImportMnemonicModal = (): JSX.Element => {
                     </div>
                     <HdPathInput
                         value={customHdPath}
-                        onChange={(value) => setCustomHdPath(value)}
+                        onChange={(value) => {
+                            setCustomHdPath(value);
+                        }}
                         onCheck={(valid) => setIsCustomPathValid(valid)}
                     />
                 </div>
@@ -185,7 +187,7 @@ const ImportMnemonicModal = (): JSX.Element => {
                 </div>
             )} */}
             <Button
-                type="submit"
+                type="button"
                 onClick={onSubmit}
                 data-bs-dismiss="modal"
                 disabled={isEmptyField() || (showAdvanced && !isCustomPathValid)}

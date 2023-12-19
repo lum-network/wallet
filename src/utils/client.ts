@@ -1,11 +1,8 @@
 import axios from 'axios';
-//import { LumClient, LumConstants, LumMessages, LumRegistry, LumTypes, LumUtils } from '@lum-network/sdk-javascript';
-//import { ProposalStatus, VoteOption } from '@lum-network/sdk-javascript/build/codegen/cosmos/gov/v1beta1/gov';
-import { Window as KeplrWindow } from '@keplr-wallet/types';
 
-import { getSigningLumClient, getSigningCosmosClient, cosmos, lum } from '@lum-network/sdk-javascript';
+import { getSigningCosmosClient, cosmos, lum } from '@lum-network/sdk-javascript';
 
-import { PasswordStrengthType, PasswordStrength, Wallet, Proposal, LumInfo, SignMsg } from 'models';
+import { Wallet, Proposal, LumInfo } from 'models';
 import { DenomsUtils, LumUtils, NumbersUtils, showErrorToast, showSuccessToast } from 'utils';
 import i18n from 'locales';
 import { COINGECKO_API_URL, IPFS_GATEWAY, LumConstants, MessageTypes } from 'constant';
@@ -22,87 +19,6 @@ const { send } = cosmos.bank.v1beta1.MessageComposer.withTypeUrl;
 const { delegate, beginRedelegate, undelegate } = cosmos.staking.v1beta1.MessageComposer.withTypeUrl;
 const { withdrawDelegatorReward, setWithdrawAddress } = cosmos.distribution.v1beta1.MessageComposer.withTypeUrl;
 const { vote } = cosmos.gov.v1.MessageComposer.withTypeUrl;
-
-export type MnemonicLength = 12 | 24;
-
-export const checkMnemonicLength = (length: number): length is MnemonicLength => {
-    return length === 12 || length === 24;
-};
-
-export const generateMnemonic = (mnemonicLength: MnemonicLength): string[] => {
-    const inputs: string[] = [];
-    /* const mnemonicKeys = LumUtils.generateMnemonic(mnemonicLength).split(' ');
-
-    for (let i = 0; i < mnemonicLength; i++) {
-        inputs.push(mnemonicKeys[i]);
-    } */
-
-    return inputs;
-};
-
-export const generateKeystoreFile = (password: string) /* : LumUtils.KeyStore */ => {
-    /* const privateKey = LumUtils.generatePrivateKey();
-
-    return LumUtils.generateKeyStore(privateKey, password); */
-};
-
-export const checkPwdStrength = (password: string): PasswordStrength => {
-    const strongPassword = new RegExp('(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{9,})');
-    const mediumPassword = new RegExp('(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{9,})');
-
-    if (strongPassword.test(password)) {
-        return PasswordStrengthType.Strong;
-    } else if (mediumPassword.test(password)) {
-        return PasswordStrengthType.Medium;
-    }
-    return PasswordStrengthType.Weak;
-};
-
-export const generateSignedMessage = async (chainId: string, wallet: Wallet, msg: string): Promise<SignMsg | null> => {
-    if (wallet.isExtensionImport) {
-        const keplrWindow = window as KeplrWindow;
-
-        if (!keplrWindow.keplr) {
-            throw new Error('Keplr is not installed');
-        }
-
-        const signMsg = await keplrWindow.keplr.signArbitrary(chainId, wallet.address, msg);
-        if (signMsg) {
-            return {
-                msg,
-                address: wallet.address,
-                publicKey: LumUtils.fromBase64(signMsg.pub_key.value),
-                sig: LumUtils.fromBase64(signMsg.signature),
-                version: LumConstants.LumWalletSigningVersion,
-                signer: LumConstants.LumMessageSigner.OFFLINE,
-            };
-        } else {
-            throw new Error('Unable to sign message');
-        }
-    }
-
-    return null;
-};
-
-export const validateSignMessage = async (chainId: string, msg: SignMsg): Promise<boolean> => {
-    if (msg.signer === LumConstants.LumMessageSigner.OFFLINE) {
-        const keplrWindow = window as KeplrWindow;
-
-        if (!keplrWindow.keplr) {
-            throw new Error('Keplr is needed to verify a message signed with keplr');
-        }
-
-        return await keplrWindow.keplr.verifyArbitrary(chainId, msg.address, msg.msg, {
-            signature: LumUtils.toBase64(msg.sig),
-            pub_key: {
-                type: 'tendermint/PubKeySecp256k1',
-                value: LumUtils.toBase64(msg.publicKey),
-            },
-        });
-    }
-
-    return false;
-};
 
 class WalletClient {
     private lumInfos: LumInfo | null = null;
@@ -192,14 +108,6 @@ class WalletClient {
             return null;
         }
     };
-
-    /* private getAccount = (fromWallet: Wallet) => {
-        if (this.queryClient === null) {
-            return;
-        }
-
-        return this.queryClient.getAccount(fromWallet.address);
-    }; */
 
     private getValidators = async () => {
         if (this.queryClient === null) {
@@ -327,14 +235,16 @@ class WalletClient {
         }
 
         try {
-            /* const account = await this.queryClient.getAccount(address);
+            const { account } = await this.queryClient.cosmos.auth.v1beta1.account({ address });
 
             if (account) {
+                const typedAccount = LumUtils.accountFromAny(account);
+
                 const { lockedBankCoins, lockedDelegatedCoins, lockedCoins, endsAt } =
-                    LumUtils.estimatedVesting(account);
+                    LumUtils.estimatedVesting(typedAccount);
 
                 return { lockedBankCoins, lockedDelegatedCoins, lockedCoins, endsAt };
-            } */
+            }
 
             return null;
         } catch {
@@ -515,6 +425,9 @@ class WalletClient {
             fee,
             memo,
         );
+
+        // Verify the transaction was successfully broadcasted and made it into a block
+        assertIsDeliverTxSuccess(broadcastResult);
 
         return {
             hash: broadcastResult.transactionHash,

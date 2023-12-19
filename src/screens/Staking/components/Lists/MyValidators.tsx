@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import numeral from 'numeral';
 import { Table, ValidatorLogo } from 'frontend-elements';
 
-import { CLIENT_PRECISION, LUM_ASSETS_GITHUB, LumConstants } from 'constant';
+import { LUM_ASSETS_GITHUB, LumConstants } from 'constant';
 import { getExplorerLink, getUserValidators, NumbersUtils, sortByVotingPower, trunc, WalletClient } from 'utils';
 import { Rewards, UserValidator } from 'models';
 import { Badge, DropdownButton, SmallerDecimal } from 'components';
@@ -114,11 +114,7 @@ const MyValidators = ({
                     </div>
                 </td>
                 <td data-label={headers[3]}>
-                    <p>
-                        {numeral(
-                            parseFloat(validator.commission?.commissionRates?.rate || '') / CLIENT_PRECISION,
-                        ).format('0.00%')}
-                    </p>
+                    <p>{numeral(validator.commission?.commissionRates?.rate || '').format('0.00%')}</p>
                 </td>
                 <td data-label={headers[4]} className="text-end">
                     <SmallerDecimal nb={validator.stakedCoins} />

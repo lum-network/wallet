@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 import Input from './Input';
 
@@ -13,6 +13,10 @@ const validateDerivationPath = (values: string[]) => {
     for (const val of values) {
         if (!val) {
             return false;
+        }
+
+        if (val === 'm') {
+            continue;
         }
 
         const valToNumber = Number(val);
@@ -49,10 +53,6 @@ const HdPathInput = ({ className, value, onChange, onCheck }: Props): JSX.Elemen
             onCheck(isValid);
         }, 100);
     };
-
-    useEffect(() => {
-        setInputsValues(value.split('/').map((val) => val.replace(`\'`, '')));
-    }, [value]);
 
     return (
         <>

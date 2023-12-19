@@ -1,8 +1,8 @@
 export { default as HttpClient } from './http';
 export { default as StatsApi } from './statsApi';
 export { default as WalletClient } from './client';
-export type { MnemonicLength } from './client';
-export * as WalletUtils from './client';
+export type { MnemonicLength } from './wallets';
+export * as WalletUtils from './wallets';
 export * as NumbersUtils from './numbers';
 export * as TransactionsUtils from './transactions';
 export * as GovernanceUtils from './governance';

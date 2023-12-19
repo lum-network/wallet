@@ -17,9 +17,9 @@ import {
     getUserValidators,
     NumbersUtils,
     showErrorToast,
+    sortByVotingPower,
     unbondingsTimeRemaining,
 } from 'utils';
-import { Modal as BSModal } from 'bootstrap';
 
 import StakedCoinsCard from './components/Cards/StakedCoinsCard';
 import UnbondingTokensCard from './components/Cards/UnbondingTokensCard';
@@ -49,8 +49,10 @@ const Staking = (): JSX.Element => {
     const [txResult, setTxResult] = useState<{ hash: string; error?: string | null } | null>(null);
     const [modalType, setModalType] = useState<{ id: string; name: string } | null>(null);
     const [confirming, setConfirming] = useState(false);
-    const [operationModal, setOperationModal] = useState<BSModal | null>(null);
-    const [topValidatorConfirmationModal, setTopValidatorConfirmationModal] = useState<BSModal | null>(null);
+    const [operationModal, setOperationModal] = useState<React.ElementRef<typeof Modal> | null>(null);
+    const [topValidatorConfirmationModal, setTopValidatorConfirmationModal] = useState<React.ElementRef<
+        typeof Modal
+    > | null>(null);
     const [onConfirmOperation, setOnConfirmOperation] = useState<() => void>(noop);
     const [totalVotingPower, setTotalVotingPower] = useState(0);
 
@@ -117,8 +119,8 @@ const Staking = (): JSX.Element => {
     const loadingAll = loadingDelegate || loadingUndelegate;
 
     // Utils
-    const modalRef = useRef<HTMLDivElement>(null);
-    const topValidatorConfirmationModalRef = useRef<HTMLDivElement>(null);
+    const modalRef = useRef<React.ElementRef<typeof Modal>>(null);
+    const topValidatorConfirmationModalRef = useRef<React.ElementRef<typeof Modal>>(null);
 
     const { t } = useTranslation();
 
@@ -200,19 +202,15 @@ const Staking = (): JSX.Element => {
     }, [getValidatorsInfos, wallet]);
 
     useEffect(() => {
-        setTotalVotingPower(
-            NumbersUtils.convertUnitNumber(
-                calculateTotalVotingPower([...bondedValidators, ...unbondedValidators, ...unbondingValidators]),
-            ),
-        );
+        setTotalVotingPower(NumbersUtils.convertUnitNumber(calculateTotalVotingPower([...bondedValidators])));
     }, [bondedValidators, unbondedValidators]);
 
     useEffect(() => {
         if (modalRef && modalRef.current) {
-            setOperationModal(BSModal.getOrCreateInstance(modalRef.current, { backdrop: 'static', keyboard: false }));
+            setOperationModal(modalRef.current);
         }
         if (topValidatorConfirmationModalRef && topValidatorConfirmationModalRef.current) {
-            setTopValidatorConfirmationModal(BSModal.getOrCreateInstance(topValidatorConfirmationModalRef.current));
+            setTopValidatorConfirmationModal(topValidatorConfirmationModalRef.current);
         }
     }, []);
 
@@ -516,7 +514,7 @@ const Staking = (): JSX.Element => {
                             <Card withoutPadding className="pb-2">
                                 <AvailableValidators
                                     onDelegate={onDelegate}
-                                    validators={bondedValidators}
+                                    validators={sortByVotingPower(bondedValidators, totalVotingPower)}
                                     totalVotingPower={totalVotingPower}
                                 />
                             </Card>

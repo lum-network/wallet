@@ -44,9 +44,7 @@ const Redelegate = ({ form, isLoading }: Props): JSX.Element => {
     const [destValidatorsList, setDestValidatorsList] = useState<Validator[]>(
         sortByVotingPower(
             bondedValidators,
-            NumbersUtils.convertUnitNumber(
-                calculateTotalVotingPower([...bondedValidators, ...unbondedValidators, ...unbondingValidators]),
-            ),
+            NumbersUtils.convertUnitNumber(calculateTotalVotingPower([...bondedValidators])),
         ),
     );
 
@@ -69,18 +67,14 @@ const Redelegate = ({ form, isLoading }: Props): JSX.Element => {
             setDestValidatorsList(
                 sortByVotingPower(
                     bondedValidators,
-                    NumbersUtils.convertUnitNumber(
-                        calculateTotalVotingPower([...bondedValidators, ...unbondedValidators, ...unbondingValidators]),
-                    ),
+                    NumbersUtils.convertUnitNumber(calculateTotalVotingPower([...bondedValidators])),
                 ).filter((val) => val.operatorAddress !== form.values.fromAddress),
             );
         } else {
             setDestValidatorsList(
                 sortByVotingPower(
                     bondedValidators,
-                    NumbersUtils.convertUnitNumber(
-                        calculateTotalVotingPower([...bondedValidators, ...unbondedValidators, ...unbondingValidators]),
-                    ),
+                    NumbersUtils.convertUnitNumber(calculateTotalVotingPower([...bondedValidators])),
                 ),
             );
         }

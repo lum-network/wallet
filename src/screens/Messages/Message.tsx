@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import ClipboardJS from 'clipboard';
-import { Modal as BSModal } from 'bootstrap';
 
 import { Button as CustomButton, AddressCard, AvailableCard, Input, Modal, Tooltip } from 'components';
 import { LumConstants } from 'constant';
@@ -59,8 +58,8 @@ const Message = (): JSX.Element => {
     const { t } = useTranslation();
 
     // Refs
-    const confirmModalRef = useRef<HTMLDivElement>(null);
-    const signatureModalRef = useRef<HTMLDivElement>(null);
+    const confirmModalRef = useRef<React.ElementRef<typeof Modal>>(null);
+    const signatureModalRef = useRef<React.ElementRef<typeof Modal>>(null);
 
     // Effects
     useEffect(() => {
@@ -154,10 +153,10 @@ const Message = (): JSX.Element => {
 
     const showModal = (id: 'signature' | 'confirmation', toggle: boolean) => {
         if (id === 'confirmation' && confirmModalRef.current) {
-            const modal = BSModal.getOrCreateInstance(confirmModalRef.current);
+            const modal = confirmModalRef.current;
             return toggle ? modal.show() : modal.hide();
         } else if (id === 'signature' && signatureModalRef.current) {
-            const modal = BSModal.getOrCreateInstance(signatureModalRef.current);
+            const modal = signatureModalRef.current;
             return toggle ? modal.show() : modal.hide();
         }
     };

@@ -8,6 +8,7 @@ import { Coin } from '@keplr-wallet/types';
 import { LumRegistry } from './lum/registry';
 import { cosmos, lum } from '@lum-network/sdk-javascript';
 import { LumUtils } from 'utils';
+import { decodeTxRaw } from '@cosmjs/proto-signing';
 
 const { MsgUndelegate, MsgBeginRedelegate, MsgDelegate, MsgCreateValidator, MsgEditValidator } = cosmos.staking.v1beta1;
 
@@ -165,7 +166,7 @@ export const formatTxs = (rawTxs: IndexedTx[]): Transaction[] => {
 
     for (const rawTx of rawTxs) {
         // Decode TX to human readable format
-        const txBody = LumRegistry.decodeTxBody(rawTx.tx);
+        const decodedTxBody = decodeTxRaw(rawTx.tx).body;
 
         const hash = rawTx.hash.toUpperCase();
 
@@ -184,8 +185,8 @@ export const formatTxs = (rawTxs: IndexedTx[]): Transaction[] => {
             toAddress: '',
         };
 
-        if (txBody.messages) {
-            for (const msg of txBody.messages) {
+        if (decodedTxBody.messages) {
+            for (const msg of decodedTxBody.messages) {
                 try {
                     const txInfos = LumUtils.toJSON(LumRegistry.decode(msg));
 

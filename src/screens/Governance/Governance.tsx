@@ -27,7 +27,7 @@ const Governance = (): JSX.Element => {
 
     const nodeRef1 = useRef<HTMLDivElement>(null);
     const nodeRef2 = useRef<HTMLDivElement>(null);
-    const modalRef = useRef<HTMLDivElement>(null);
+    const modalRef = useRef<React.ElementRef<typeof Modal>>(null);
 
     const { wallet, proposals } = useSelector((state: RootState) => ({
         wallet: state.wallet.currentWallet,

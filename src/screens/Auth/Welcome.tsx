@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { Trans, useTranslation } from 'react-i18next';
-import { Modal as BSModal } from 'bootstrap';
 import { Window as KeplrWindow } from '@keplr-wallet/types';
 import { Button as FEButton } from 'frontend-elements';
 import { RootDispatch, RootState } from 'redux/store';
@@ -31,7 +30,7 @@ const Welcome = (): JSX.Element => {
     // State
     const [selectedMethod, setSelectedMethod] = useState<ImportType | null>(null);
     const [keystoreFileData, setKeystoreFileData] = useState<string | null>(null);
-    const [softwareMethodModal, setSoftwareMethodModal] = useState<BSModal | null>(null);
+    const [softwareMethodModal, setSoftwareMethodModal] = useState<React.ElementRef<typeof Modal> | null>(null);
     const [showAdvanced, setShowAdvanced] = useState(false);
     const [customHdPath, setCustomHdPath] = useState(LumConstants.getLumHdPath());
     const [isCustomPathValid, setIsCustomPathValid] = useState(true);
@@ -52,8 +51,8 @@ const Welcome = (): JSX.Element => {
     }));
 
     // Refs
-    const importSoftwareModalRef = useRef<HTMLDivElement>(null);
-    const softwareMethodModalRef = useRef<HTMLDivElement>(null);
+    const importSoftwareModalRef = useRef<React.ElementRef<typeof Modal>>(null);
+    const softwareMethodModalRef = useRef<React.ElementRef<typeof Modal>>(null);
     const keystoreInputRef = useRef<HTMLInputElement>(null);
 
     // Utils hooks
@@ -65,8 +64,7 @@ const Welcome = (): JSX.Element => {
         const modalElement = importSoftwareModalRef.current;
 
         if (modalElement) {
-            const bsModal = BSModal.getOrCreateInstance(modalElement, { backdrop: 'static', keyboard: false });
-            bsModal.show();
+            modalElement.show();
             setModalShowed(true);
         }
     }, [importSoftwareModalRef]);
@@ -75,8 +73,7 @@ const Welcome = (): JSX.Element => {
         const modalElement = importSoftwareModalRef.current;
 
         if (modalElement) {
-            const bsModal = BSModal.getOrCreateInstance(modalElement, { backdrop: 'static', keyboard: false });
-            bsModal.hide();
+            modalElement.hide();
             setModalShowed(false);
         }
     }, [importSoftwareModalRef]);
@@ -96,7 +93,7 @@ const Welcome = (): JSX.Element => {
 
     useEffect(() => {
         if (softwareMethodModalRef.current) {
-            setSoftwareMethodModal(BSModal.getOrCreateInstance(softwareMethodModalRef.current));
+            setSoftwareMethodModal(softwareMethodModalRef.current);
         }
     }, [softwareMethodModalRef]);
 
@@ -156,28 +153,28 @@ const Welcome = (): JSX.Element => {
                             </button>
                             <button
                                 type="button"
-                                onClick={() => setSelectedMethod({ type: 'software', method: SoftwareMethod.Mnemonic })}
-                                className={`import-software-btn my-4 ${
-                                    selectedMethod?.method === SoftwareMethod.Mnemonic && 'selected'
-                                }`}
-                            >
-                                <p className="d-flex align-items-center justify-content-center fw-normal">
-                                    <img src={Assets.images.navbarIcons.messages} height="28" className="me-3" />
-                                    {t('welcome.softwareModal.types.mnemonic')}
-                                </p>
-                            </button>
-                            <button
-                                type="button"
                                 onClick={() =>
                                     setSelectedMethod({ type: 'software', method: SoftwareMethod.PrivateKey })
                                 }
-                                className={`import-software-btn ${
+                                className={`import-software-btn my-4 ${
                                     selectedMethod?.method === SoftwareMethod.PrivateKey && 'selected'
                                 }`}
                             >
                                 <p className="d-flex align-items-center justify-content-center fw-normal">
                                     <img src={Assets.images.keyIcon} height="28" className="me-3" />
                                     {t('welcome.softwareModal.types.privateKey')}
+                                </p>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setSelectedMethod({ type: 'software', method: SoftwareMethod.Mnemonic })}
+                                className={`import-software-btn ${
+                                    selectedMethod?.method === SoftwareMethod.Mnemonic && 'selected'
+                                }`}
+                            >
+                                <p className="d-flex align-items-center justify-content-center fw-normal">
+                                    <img src={Assets.images.navbarIcons.messages} height="28" className="me-3" />
+                                    {t('welcome.softwareModal.types.mnemonic')}
                                 </p>
                             </button>
                             <button
@@ -505,7 +502,7 @@ const Welcome = (): JSX.Element => {
             case SoftwareMethod.Mnemonic:
                 return <ImportMnemonicModal />;
             case SoftwareMethod.PrivateKey:
-                return <ImportPrivateKeyModal />;
+                return <ImportPrivateKeyModal onSubmit={() => softwareMethodModal?.hide()} />;
             case SoftwareMethod.Guarda:
                 return <ImportGuardaModal onSubmit={() => softwareMethodModal?.hide()} />;
             case SoftwareMethod.Keystore:
@@ -553,11 +550,11 @@ const Welcome = (): JSX.Element => {
                                         setSelectedMethod({ type: 'hardware', method: null });
                                     }}
                                 />
-                            </div>
+                            </div> */}
                             <div className="col-12 col-lg-3">
                                 <ImportButton
                                     method="software"
-                                    disabled={keplrState.loading || ledgerState.loading}
+                                    disabled={keplrState.loading}
                                     title={t('welcome.software.title')}
                                     description={t('welcome.software.description')}
                                     note={t('welcome.softwareModal.notRecommended')}
@@ -569,7 +566,7 @@ const Welcome = (): JSX.Element => {
                                         setSelectedMethod({ type: 'software', method: null });
                                     }}
                                 />
-                                </div> */}
+                            </div>
                             <div className="col-12 col-lg-3">
                                 <Link role="button" to="/create" className="text-reset text-decoration-none">
                                     <div className="scale-anim btn-padding h-100 w-100 text-center d-flex align-items-center flex-column justify-content-evenly">

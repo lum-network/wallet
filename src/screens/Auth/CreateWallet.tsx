@@ -7,10 +7,10 @@ import * as yup from 'yup';
 //import { LumUtils } from '@lum-network/sdk-javascript';
 import printJS from 'print-js';
 
-import { Card, Button } from 'frontend-elements';
+import { Card, Button as FEButton } from 'frontend-elements';
 import Assets from 'assets';
-import { Input, SwitchInput } from 'components';
-import { PasswordStrength, PasswordStrengthType, SoftwareMethod } from 'models';
+import { Input, SwitchInput, Button } from 'components';
+import { KeyStore, PasswordStrength, PasswordStrengthType, SoftwareMethod } from 'models';
 import { useRematchDispatch } from 'redux/hooks';
 import { RootDispatch, RootState } from 'redux/store';
 import { MnemonicLength, WalletUtils } from 'utils';
@@ -24,7 +24,7 @@ const CreateWallet = (): JSX.Element => {
     const [mnemonicLength, setMnemonicLength] = useState<MnemonicLength>(12);
     const [inputsValues, setInputsValues] = useState<string[]>([]);
     const [passwordStrength, setPasswordStrength] = useState<PasswordStrength>(PasswordStrengthType.Weak);
-    const [keystoreFileData, setKeystoreFileData] = useState(/* <LumUtils.KeyStore | null> */ null);
+    const [keystoreFileData, setKeystoreFileData] = useState<KeyStore | null>(null);
     const [keystoreFilePassword, setKeystoreFilePassword] = useState('');
 
     /* CODE RELATED TO EXTRA WORD FOR FUTURE IMPLEMENTATION
@@ -63,13 +63,13 @@ const CreateWallet = (): JSX.Element => {
 
     const onSubmitPassword = (password: string) => {
         setKeystoreFilePassword(password);
-        //setKeystoreFileData(WalletUtils.generateKeystoreFile(password));
+        setKeystoreFileData(WalletUtils.generateKeystoreFile(password));
     };
 
     const continueWithMnemonic = () => {
         const mnemonic = inputsValues.join(' ');
 
-        //signInWithMnemonic({ mnemonic });
+        signInWithMnemonic({ mnemonic });
     };
 
     const printMnemonic = () => {
@@ -114,13 +114,13 @@ const CreateWallet = (): JSX.Element => {
                     />
                     <h6>{t('createWallet.mnemonic.values')}</h6>
                 </div>
-                <Button
+                <FEButton
                     className="d-flex flex-row align-items-center bg-transparent text-btn"
                     onPress={generateNewMnemonic}
                 >
                     <img src={Assets.images.syncIcon} height="16" width="16" className="me-2" />
                     <h5>{t('createWallet.mnemonic.random')}</h5>
-                </Button>
+                </FEButton>
             </div>
             <div className="container-fluid py-4 mb-4">
                 <div className="row gy-4" id="mnemonicInputsToPrint">
@@ -162,12 +162,12 @@ const CreateWallet = (): JSX.Element => {
                 </div>
             )} */}
             <div className="d-flex align-items-center justify-content-center">
-                <Button className="justify-self-stretch me-4 py-4 rounded-pill" onPress={continueWithMnemonic}>
+                <FEButton className="justify-self-stretch me-4 py-4 rounded-pill" onPress={continueWithMnemonic}>
                     {t('createWallet.mnemonic.button')}
-                </Button>
-                <Button onPress={printMnemonic} className="scale-anim bg-transparent">
+                </FEButton>
+                <FEButton onPress={printMnemonic} className="scale-anim bg-transparent">
                     <img src={Assets.images.printIcon} height="34" width="34" />
-                </Button>
+                </FEButton>
             </div>
             <div className="mt-4rem">
                 <span className="fw-bold danger-text">{t('createWallet.doNotForget')}</span>
@@ -182,40 +182,52 @@ const CreateWallet = (): JSX.Element => {
                 <p className="not-recommended">{t('welcome.softwareModal.notRecommended')}</p>
                 <p className="auth-paragraph">{t('welcome.softwareModal.notRecommendedDescription')}</p>
             </div>
-            <div className="mb-4rem text-start">
-                <h3 className="text-center">{t('createWallet.keystore.title')}</h3>
-                <Input
-                    {...formik.getFieldProps('password')}
-                    type="password"
-                    onChange={(event) => {
-                        const newValue = event.target.value;
-                        formik.handleChange(event);
-                        setPasswordStrength(WalletUtils.checkPwdStrength(newValue));
-                    }}
-                    placeholder="•••••••••"
-                    className="mt-4"
-                />
-                <p className="auth-paragraph">
-                    {t('createWallet.keystore.pwdStrength')}
-                    <span
-                        className={`text-capitalize fw-bold ${
-                            passwordStrength === PasswordStrengthType.Strong
-                                ? 'success'
-                                : passwordStrength === PasswordStrengthType.Medium
-                                ? 'warning'
-                                : 'danger'
-                        }-text`}
-                    >
-                        {passwordStrength}
-                    </span>
-                </p>
-                {formik.touched.password && formik.errors.password && (
-                    <p className="auth-paragraph">{formik.errors.password}</p>
-                )}
-            </div>
-            <Button onPress={formik.handleSubmit} className="mt-4 py-4 rounded-pill">
-                {t('createWallet.keystore.button')}
-            </Button>
+            <form onSubmit={formik.handleSubmit}>
+                <div className="mb-4rem text-start">
+                    <h3 className="text-center">{t('createWallet.keystore.title')}</h3>
+                    {/* Hidden input for accessibility */}
+                    <input
+                        readOnly
+                        id="username"
+                        autoComplete="username"
+                        type="email"
+                        value=""
+                        style={{ display: 'none' }}
+                    />
+                    <Input
+                        {...formik.getFieldProps('password')}
+                        type="password"
+                        onChange={(event) => {
+                            const newValue = event.target.value;
+                            formik.handleChange(event);
+                            setPasswordStrength(WalletUtils.checkPwdStrength(newValue));
+                        }}
+                        autoComplete="new-password"
+                        placeholder="•••••••••"
+                        className="mt-4"
+                    />
+                    <p className="auth-paragraph">
+                        {t('createWallet.keystore.pwdStrength')}
+                        <span
+                            className={`text-capitalize fw-bold ${
+                                passwordStrength === PasswordStrengthType.Strong
+                                    ? 'success'
+                                    : passwordStrength === PasswordStrengthType.Medium
+                                    ? 'warning'
+                                    : 'danger'
+                            }-text`}
+                        >
+                            {passwordStrength}
+                        </span>
+                    </p>
+                    {formik.touched.password && formik.errors.password && (
+                        <p className="auth-paragraph">{formik.errors.password}</p>
+                    )}
+                </div>
+                <Button type="submit" className="mt-4 w-100">
+                    {t('createWallet.keystore.button')}
+                </Button>
+            </form>
             <div className="mt-4rem">
                 <span className="fw-bold danger-text">{t('createWallet.doNotForget')}</span>
                 {t('createWallet.keystore.warningDescription1')}

@@ -71,7 +71,7 @@ const Operations = (): JSX.Element => {
         loadingSend.loading || loadingDelegate.loading || loadingUndelegate.loading || loadingGetReward.loading;
 
     const { t } = useTranslation();
-    const modalRef = useRef<HTMLDivElement>(null);
+    const modalRef = useRef<React.ElementRef<typeof Modal>>(null);
 
     const [modal, setModal] = useState<MsgType | null>(null);
     const [txResult, setTxResult] = useState<{ hash: string; error?: string | null } | null>(null);
@@ -286,10 +286,9 @@ const Operations = (): JSX.Element => {
     }
 
     const onSubmitSend = async (toAddress: string, amount: string, memo: string) => {
-        console.log('send');
         try {
             const sendResult = await sendTx({ from: wallet, to: toAddress, amount, memo });
-            console.log(sendResult);
+
             if (sendResult) {
                 setConfirming(false);
                 setTxResult({ hash: sendResult.hash, error: sendResult.error });
