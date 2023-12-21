@@ -408,7 +408,7 @@ class WalletClient {
         // Define fees
         const gasEstimated = await this.cosmosSigningClient.simulate(fromWallet.address, [sendMsg], memo);
         const fee = {
-            amount: coins(0, LumConstants.MicroLumDenom),
+            amount: coins('25000', LumConstants.MicroLumDenom),
             gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
         };
 
@@ -458,7 +458,7 @@ class WalletClient {
         // Define fees
         const gasEstimated = await this.cosmosSigningClient.simulate(fromWallet.address, [delegateMsg], memo);
         const fee = {
-            amount: coins(0, LumConstants.MicroLumDenom),
+            amount: coins('25000', LumConstants.MicroLumDenom),
             gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
         };
 
@@ -508,7 +508,7 @@ class WalletClient {
         // Define fees
         const gasEstimated = await this.cosmosSigningClient.simulate(fromWallet.address, [undelegateMsg], memo);
         const fee = {
-            amount: coins(0, LumConstants.MicroLumDenom),
+            amount: coins('25000', LumConstants.MicroLumDenom),
             gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
         };
 
@@ -545,7 +545,7 @@ class WalletClient {
         // Define fees
         const gasEstimated = await this.cosmosSigningClient.simulate(fromWallet.address, [getRewardMsg], memo);
         const fee = {
-            amount: coins(0, LumConstants.MicroLumDenom),
+            amount: coins('25000', LumConstants.MicroLumDenom),
             gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
         };
 
@@ -588,7 +588,7 @@ class WalletClient {
         // Define fees
         const gasEstimated = await this.cosmosSigningClient.simulate(fromWallet.address, messages, memo);
         const fee = {
-            amount: coins(0, LumConstants.MicroLumDenom),
+            amount: coins('25000', LumConstants.MicroLumDenom),
             gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
         };
 
@@ -645,7 +645,7 @@ class WalletClient {
         // Define fees
         const gasEstimated = await this.cosmosSigningClient.simulate(fromWallet.address, [redelegateMsg], memo);
         const fee = {
-            amount: coins(0, LumConstants.MicroLumDenom),
+            amount: coins('25000', LumConstants.MicroLumDenom),
             gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
         };
 
@@ -686,7 +686,7 @@ class WalletClient {
         // Define fees
         const gasEstimated = await this.cosmosSigningClient.simulate(fromWallet.address, [voteMsg], undefined);
         const fee = {
-            amount: coins(0, LumConstants.MicroLumDenom),
+            amount: coins('25000', LumConstants.MicroLumDenom),
             gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
         };
 
@@ -723,7 +723,7 @@ class WalletClient {
         // Define fees
         const gasEstimated = await this.cosmosSigningClient.simulate(fromWallet.address, [setWithdrawAddressMsg], memo);
         const fee = {
-            amount: coins(0, LumConstants.MicroLumDenom),
+            amount: coins('25000', LumConstants.MicroLumDenom),
             gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
         };
 

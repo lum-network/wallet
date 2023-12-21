@@ -39,15 +39,15 @@ const Welcome = (): JSX.Element => {
     const [modalShowed, setModalShowed] = useState(false);
 
     // Redux hooks
-    const { wallet, keplrState /* ledgerState */ } = useSelector((state: RootState) => ({
+    const { wallet, keplrState, ledgerState } = useSelector((state: RootState) => ({
         wallet: state.wallet.currentWallet,
         keplrState: state.loading.effects.wallet.signInWithKeplrAsync,
-        //ledgerState: state.loading.effects.wallet.signInWithLedgerAsync,
+        ledgerState: state.loading.effects.wallet.signInWithLedgerAsync,
     }));
 
-    const { signInWithKeplr /* , signInWithLedger */ } = useRematchDispatch((dispatch: RootDispatch) => ({
+    const { signInWithKeplr, signInWithLedger } = useRematchDispatch((dispatch: RootDispatch) => ({
         signInWithKeplr: dispatch.wallet.signInWithKeplrAsync,
-        //signInWithLedger: dispatch.wallet.signInWithLedgerAsync,
+        signInWithLedger: dispatch.wallet.signInWithLedgerAsync,
     }));
 
     // Refs
@@ -353,7 +353,7 @@ const Welcome = (): JSX.Element => {
                         </Button>
                     </>
                 );
-            /* case 'hardware':
+            case 'hardware':
                 return !ledgerState.loading ? (
                     <>
                         <h3 className="mt-4">{t('welcome.hardwareModal.title')}</h3>
@@ -398,7 +398,7 @@ const Welcome = (): JSX.Element => {
                                     {t('welcome.hardwareModal.types.lum')} (Coming soon)
                                 </p>
                             </button>
-                            {
+                            {/* 
                                 DEACTIVATED -> Waiting for Lum ledger app release
                             <a
                                 className="align-self-center mt-2"
@@ -413,7 +413,7 @@ const Welcome = (): JSX.Element => {
                                         })}
                                     </u>
                                 </small>
-                            </a>}
+                            </a> */}
                             <div className="d-flex flex-row justify-content-between align-self-stretch align-items-center my-4">
                                 <p className="p-0 m-0">
                                     {t('common.advanced')}
@@ -487,7 +487,7 @@ const Welcome = (): JSX.Element => {
                             <span className="visually-hidden">Loading...</span>
                         </div>
                     </>
-                ); */
+                );
             default:
                 return <h2>Coming Soon...</h2>;
         }
@@ -537,7 +537,7 @@ const Welcome = (): JSX.Element => {
                                     }}
                                 />
                             </div>
-                            {/* <div className="col-12 col-lg-3">
+                            <div className="col-12 col-lg-3">
                                 <ImportButton
                                     method="hardware"
                                     disabled={keplrState.loading || ledgerState.loading}
@@ -550,7 +550,7 @@ const Welcome = (): JSX.Element => {
                                         setSelectedMethod({ type: 'hardware', method: null });
                                     }}
                                 />
-                            </div> */}
+                            </div>
                             <div className="col-12 col-lg-3">
                                 <ImportButton
                                     method="software"

@@ -3,11 +3,13 @@ import { createModel } from '@rematch/core';
 import { Window as KeplrWindow } from '@keplr-wallet/types';
 import { DelegationDelegatorReward } from '@lum-network/sdk-javascript/build/codegen/cosmos/distribution/v1beta1/distribution';
 import { VoteOption } from '@lum-network/sdk-javascript/build/codegen/cosmos/gov/v1/gov';
+
 import { stringToPath } from '@cosmjs/crypto';
+import { LedgerSigner } from '@cosmjs/ledger-amino';
 
 import { Secp256k1HdWallet, Secp256k1Wallet } from '@cosmjs/amino';
 
-import TransportWebUsb from '@ledgerhq/hw-transport-webusb';
+import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
 import { DeviceModelId } from '@ledgerhq/devices';
 
 import { CLIENT_PRECISION, LUM_COINGECKO_ID, LumConstants } from 'constant';
@@ -27,6 +29,7 @@ import { LOGOUT } from 'redux/constants';
 import {
     Airdrop,
     HardwareMethod,
+    KeyStore,
     OtherBalance,
     Proposal,
     Rewards,
@@ -76,10 +79,10 @@ interface SetWithdrawAddressPayload {
     memo: string;
 }
 
-/* interface SignInKeystorePayload {
-    data: LumUtils.KeyStore | string;
+interface SignInKeystorePayload {
+    data: KeyStore | string;
     password: string;
-} */
+}
 
 interface SetWalletDataPayload {
     transactions?: Transaction[];
@@ -401,8 +404,8 @@ export const wallet = createModel<RootModel>()({
             }
         },
         async signInWithLedgerAsync(payload: { app: string; customHdPath?: string }) {
-            /* try {
-                let wallet: null | LumWallet = null;
+            try {
+                let ledgerSigner: LedgerSigner | null = null;
                 let breakLoop = false;
                 let userCancelled = false;
                 let isNanoS = false;
@@ -410,20 +413,25 @@ export const wallet = createModel<RootModel>()({
                 // 10 sec timeout to let the user unlock his hardware
                 const to = setTimeout(() => (breakLoop = true), 10000);
 
-                const HDPath =
-                    payload.customHdPath ||
-                    (payload.app === HardwareMethod.Cosmos ? `44'/118'/0'/0/0` : LumConstants.getLumHdPath());
+                const hdPaths = [
+                    stringToPath(
+                        payload.customHdPath
+                            ? payload.customHdPath
+                            : payload.app === HardwareMethod.Cosmos
+                            ? `m/44'/118'/0'/0/0`
+                            : LumConstants.getLumHdPath(),
+                    ),
+                ];
 
-                while (!wallet && !breakLoop) {
+                while (!ledgerSigner && !breakLoop) {
                     try {
-                        const transport = await TransportWebUsb.create();
+                        const transport = await TransportWebUSB.create();
                         isNanoS = transport.deviceModel?.id === DeviceModelId.nanoS;
 
-                        wallet = await LumWalletFactory.fromLedgerTransport(
-                            transport,
-                            HDPath,
-                            LumConstants.LumBech32PrefixAccAddr,
-                        );
+                        ledgerSigner = new LedgerSigner(transport, {
+                            hdPaths,
+                            prefix: LumConstants.LumBech32PrefixAccAddr,
+                        });
                     } catch (e) {
                         if ((e as Error).name === 'TransportOpenUserCancelled') {
                             breakLoop = true;
@@ -434,19 +442,27 @@ export const wallet = createModel<RootModel>()({
 
                 clearTimeout(to);
 
-                if (wallet) {
-                    dispatch.wallet.signIn(wallet, { isNanoS });
-                    dispatch.wallet.reloadWalletInfos(wallet.address);
+                if (ledgerSigner) {
+                    const accounts = await ledgerSigner.getAccounts();
+                    const address = accounts[0].address;
+
+                    await WalletClient.connectSigner(ledgerSigner);
+
+                    dispatch.wallet.signIn({ address, isNanoS });
+                    dispatch.wallet.reloadWalletInfos(address);
                     return;
                 } else {
                     if (!userCancelled) {
-                        showErrorToast(i18n.t('wallet.errors.ledger'));
+                        throw new Error(i18n.t('wallet.errors.ledger'));
                     }
-                    throw new Error('Ledger wallet importation');
                 }
             } catch (e) {
+                if (e instanceof Error) {
+                    showErrorToast(e.message);
+                }
+
                 throw e;
-            } */
+            }
         },
         async signInWithMnemonicAsync(payload: { mnemonic: string; customHdPath?: string }) {
             const { mnemonic, customHdPath } = payload;
@@ -490,7 +506,7 @@ export const wallet = createModel<RootModel>()({
                 throw e;
             }
         },
-        async signInWithKeystoreAsync(payload: { data: string; password: string }) {
+        async signInWithKeystoreAsync(payload: SignInKeystorePayload) {
             const { data, password } = payload;
 
             try {

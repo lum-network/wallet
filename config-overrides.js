@@ -14,6 +14,7 @@ module.exports = {
             buffer: require.resolve('buffer'),
         };
         config.resolve.modules = [path.resolve(__dirname, 'src'), 'node_modules'];
+
         config.plugins = [
             ...config.plugins,
             new webpack.ProvidePlugin({
@@ -39,7 +40,7 @@ module.exports = {
         config.moduleNameMapper = {
             ...config.moduleNameMapper,
             '\\.(css|scss)$': 'identity-obj-proxy',
-            '@ledgerhq/devices': '@ledgerhq/devices/lib',
+            '@ledgerhq/devices': '@ledgerhq/devices/lib-es',
             axios: 'axios/dist/node/axios.cjs',
         };
 
