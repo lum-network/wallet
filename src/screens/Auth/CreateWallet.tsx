@@ -4,7 +4,6 @@ import { useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
-//import { LumUtils } from '@lum-network/sdk-javascript';
 import printJS from 'print-js';
 
 import { Card, Button as FEButton } from 'frontend-elements';
