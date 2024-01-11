@@ -1,19 +1,29 @@
 import axios from 'axios';
 
-import { getSigningCosmosClient, cosmos, lum } from '@lum-network/sdk-javascript';
+import { OfflineAminoSigner, StdSignDoc, coins, isSinglePubkey } from '@cosmjs/amino';
+import { SigningStargateClient, assertIsDeliverTxSuccess } from '@cosmjs/stargate';
+import { Window as KeplrWindow } from '@keplr-wallet/types';
+import { Dec, IntPretty } from '@keplr-wallet/unit';
+import {
+    getSigningCosmosClient,
+    cosmos,
+    lum,
+    LumRegistry,
+    LUM_DENOM,
+    MICRO_LUM_DENOM,
+    estimatedVesting,
+    accountFromAny,
+    convertUnit,
+} from '@lum-network/sdk-javascript';
+import { ProposalStatus, VoteOption } from '@lum-network/sdk-javascript/build/codegen/cosmos/gov/v1/gov';
 
-import { Wallet, Proposal, LumInfo } from 'models';
-import { DenomsUtils, LumUtils, NumbersUtils, showErrorToast, showSuccessToast } from 'utils';
+import { COINGECKO_API_URL, IPFS_GATEWAY, MessageTypes } from 'constant';
 import i18n from 'locales';
-import { COINGECKO_API_URL, IPFS_GATEWAY, LumConstants, MessageTypes } from 'constant';
+import { Wallet, Proposal, LumInfo } from 'models';
+import { DenomsUtils, NumbersUtils, showErrorToast, showSuccessToast } from 'utils';
 
 import { formatTxs } from './transactions';
 import { getRpcFromNode } from './links';
-import { OfflineAminoSigner, coins } from '@cosmjs/amino';
-import { SigningStargateClient, assertIsDeliverTxSuccess } from '@cosmjs/stargate';
-import { Dec, IntPretty } from '@keplr-wallet/unit';
-import { ProposalStatus, VoteOption } from '@lum-network/sdk-javascript/build/codegen/cosmos/gov/v1/gov';
-import { LumRegistry } from './lum/registry';
 
 const { send } = cosmos.bank.v1beta1.MessageComposer.withTypeUrl;
 const { delegate, beginRedelegate, undelegate } = cosmos.staking.v1beta1.MessageComposer.withTypeUrl;
@@ -26,6 +36,15 @@ class WalletClient {
     private chainId: string | null = null;
     private queryClient: Awaited<ReturnType<typeof lum.ClientFactory.createRPCQueryClient>> | null = null;
     private cosmosSigningClient: SigningStargateClient | null = null;
+    private signArbitraryMessage:
+        | ((
+              message: string,
+              fromExtension: boolean,
+          ) => Promise<{
+              pubkey: string;
+              signature: string;
+          } | null>)
+        | null = null;
     private static instance: WalletClient;
 
     private constructor() {
@@ -72,6 +91,58 @@ class WalletClient {
             });
 
             this.cosmosSigningClient = cosmosSigningClient;
+
+            this.signArbitraryMessage = async (message, fromExtension) => {
+                const accounts = await offlineSigner.getAccounts();
+
+                if (!accounts.length || !this.chainId) {
+                    return null;
+                }
+
+                const address = accounts[0].address;
+
+                if (fromExtension) {
+                    const keplrWindow = window as KeplrWindow;
+
+                    if (!keplrWindow.keplr) {
+                        throw new Error('Keplr is not installed');
+                    }
+
+                    const signMsg = await keplrWindow.keplr.signArbitrary(this.chainId, address, encodeURI(message));
+
+                    if (signMsg) {
+                        return {
+                            pubkey: signMsg.pub_key.value,
+                            signature: signMsg.signature,
+                        };
+                    } else {
+                        throw new Error('Unable to sign message');
+                    }
+                }
+
+                const doc: StdSignDoc = {
+                    chain_id: '',
+                    account_number: '0',
+                    sequence: '0',
+                    fee: {
+                        amount: [{ amount: '', denom: '' }],
+                        gas: '',
+                    },
+                    msgs: [],
+                    memo: encodeURI(message),
+                };
+
+                const res = await offlineSigner.signAmino(address, doc);
+
+                if (!isSinglePubkey(res.signature.pub_key)) {
+                    return null;
+                }
+
+                return {
+                    pubkey: res.signature.pub_key.value,
+                    signature: res.signature.signature,
+                };
+            };
         } catch {}
     };
 
@@ -163,18 +234,13 @@ class WalletClient {
 
             for (const delegation of delegations) {
                 if (delegation.balance) {
-                    stakedCoins += Number(NumbersUtils.convertUnit(delegation.balance, LumConstants.LumDenom));
+                    stakedCoins += Number(convertUnit(delegation.balance, LUM_DENOM));
                 }
             }
 
             for (const unbonding of unbondings) {
                 for (const entry of unbonding.entries) {
-                    unbondedTokens += Number(
-                        NumbersUtils.convertUnit(
-                            { amount: entry.balance, denom: LumConstants.MicroLumDenom },
-                            LumConstants.LumDenom,
-                        ),
-                    );
+                    unbondedTokens += Number(convertUnit({ amount: entry.balance, denom: MICRO_LUM_DENOM }, LUM_DENOM));
                 }
             }
 
@@ -202,11 +268,11 @@ class WalletClient {
 
         const { balances } = await this.queryClient.cosmos.bank.v1beta1.allBalances({ address });
 
-        const ulumBalance = balances.find((balance) => balance.denom === LumConstants.MicroLumDenom);
-        const otherBalances = balances.filter((balance) => balance.denom !== LumConstants.MicroLumDenom);
+        const ulumBalance = balances.find((balance) => balance.denom === MICRO_LUM_DENOM);
+        const otherBalances = balances.filter((balance) => balance.denom !== MICRO_LUM_DENOM);
 
         if (ulumBalance) {
-            lum += Number(NumbersUtils.convertUnit(ulumBalance, LumConstants.LumDenom));
+            lum += Number(convertUnit(ulumBalance, LUM_DENOM));
         }
 
         for (const oB of otherBalances) {
@@ -238,10 +304,9 @@ class WalletClient {
             const { account } = await this.queryClient.cosmos.auth.v1beta1.account({ address });
 
             if (account) {
-                const typedAccount = LumUtils.accountFromAny(account);
+                const typedAccount = accountFromAny(account);
 
-                const { lockedBankCoins, lockedDelegatedCoins, lockedCoins, endsAt } =
-                    LumUtils.estimatedVesting(typedAccount);
+                const { lockedBankCoins, lockedDelegatedCoins, lockedCoins, endsAt } = estimatedVesting(typedAccount);
 
                 return { lockedBankCoins, lockedDelegatedCoins, lockedCoins, endsAt };
             }
@@ -265,7 +330,7 @@ class WalletClient {
                 const [vote, delegate] = actionCompleted;
 
                 let amount = initialClaimableAmount.reduce(
-                    (acc, coin) => acc + Number(NumbersUtils.convertUnit(coin, LumConstants.LumDenom)),
+                    (acc, coin) => acc + Number(convertUnit(coin, LUM_DENOM)),
                     0,
                 );
 
@@ -393,22 +458,19 @@ class WalletClient {
         }
 
         // Convert Lum to uLum
-        const amount = NumbersUtils.convertUnit(
-            { denom: LumConstants.LumDenom, amount: lumAmount },
-            LumConstants.MicroLumDenom,
-        );
+        const amount = convertUnit({ denom: LUM_DENOM, amount: lumAmount }, MICRO_LUM_DENOM);
 
         // Build transaction message
         const sendMsg = send({
             fromAddress: fromWallet.address,
             toAddress,
-            amount: [{ denom: LumConstants.MicroLumDenom, amount }],
+            amount: [{ denom: MICRO_LUM_DENOM, amount }],
         });
 
         // Define fees
         const gasEstimated = await this.cosmosSigningClient.simulate(fromWallet.address, [sendMsg], memo);
         const fee = {
-            amount: coins('25000', LumConstants.MicroLumDenom),
+            amount: coins('25000', MICRO_LUM_DENOM),
             gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
         };
 
@@ -441,16 +503,13 @@ class WalletClient {
         }
 
         // Convert Lum to uLum
-        const amount = NumbersUtils.convertUnit(
-            { denom: LumConstants.LumDenom, amount: lumAmount },
-            LumConstants.MicroLumDenom,
-        );
+        const amount = convertUnit({ denom: LUM_DENOM, amount: lumAmount }, MICRO_LUM_DENOM);
 
         const delegateMsg = delegate({
             delegatorAddress: fromWallet.address,
             validatorAddress,
             amount: {
-                denom: LumConstants.MicroLumDenom,
+                denom: MICRO_LUM_DENOM,
                 amount,
             },
         });
@@ -458,7 +517,7 @@ class WalletClient {
         // Define fees
         const gasEstimated = await this.cosmosSigningClient.simulate(fromWallet.address, [delegateMsg], memo);
         const fee = {
-            amount: coins('25000', LumConstants.MicroLumDenom),
+            amount: coins('25000', MICRO_LUM_DENOM),
             gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
         };
 
@@ -491,16 +550,13 @@ class WalletClient {
         }
 
         // Convert Lum to uLum
-        const amount = NumbersUtils.convertUnit(
-            { denom: LumConstants.LumDenom, amount: lumAmount },
-            LumConstants.MicroLumDenom,
-        );
+        const amount = convertUnit({ denom: LUM_DENOM, amount: lumAmount }, MICRO_LUM_DENOM);
 
         const undelegateMsg = undelegate({
             delegatorAddress: fromWallet.address,
             validatorAddress,
             amount: {
-                denom: LumConstants.MicroLumDenom,
+                denom: MICRO_LUM_DENOM,
                 amount,
             },
         });
@@ -508,7 +564,7 @@ class WalletClient {
         // Define fees
         const gasEstimated = await this.cosmosSigningClient.simulate(fromWallet.address, [undelegateMsg], memo);
         const fee = {
-            amount: coins('25000', LumConstants.MicroLumDenom),
+            amount: coins('25000', MICRO_LUM_DENOM),
             gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
         };
 
@@ -545,7 +601,7 @@ class WalletClient {
         // Define fees
         const gasEstimated = await this.cosmosSigningClient.simulate(fromWallet.address, [getRewardMsg], memo);
         const fee = {
-            amount: coins('25000', LumConstants.MicroLumDenom),
+            amount: coins('25000', MICRO_LUM_DENOM),
             gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
         };
 
@@ -578,7 +634,7 @@ class WalletClient {
         }
 
         const messages = [];
-        const limit = fromWallet.isNanoS ? 6 : undefined;
+        const limit = fromWallet.isLedger ? 6 : undefined;
 
         for (const [index, validatorAddress] of validatorsAddresses.entries()) {
             messages.push(withdrawDelegatorReward({ delegatorAddress: fromWallet.address, validatorAddress }));
@@ -588,7 +644,7 @@ class WalletClient {
         // Define fees
         const gasEstimated = await this.cosmosSigningClient.simulate(fromWallet.address, messages, memo);
         const fee = {
-            amount: coins('25000', LumConstants.MicroLumDenom),
+            amount: coins('25000', MICRO_LUM_DENOM),
             gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
         };
 
@@ -627,10 +683,7 @@ class WalletClient {
         }
 
         // Convert Lum to uLum
-        const amount = NumbersUtils.convertUnit(
-            { denom: LumConstants.LumDenom, amount: lumAmount },
-            LumConstants.MicroLumDenom,
-        );
+        const amount = convertUnit({ denom: LUM_DENOM, amount: lumAmount }, MICRO_LUM_DENOM);
 
         const redelegateMsg = beginRedelegate({
             delegatorAddress: fromWallet.address,
@@ -638,14 +691,14 @@ class WalletClient {
             validatorDstAddress,
             amount: {
                 amount,
-                denom: LumConstants.MicroLumDenom,
+                denom: MICRO_LUM_DENOM,
             },
         });
 
         // Define fees
         const gasEstimated = await this.cosmosSigningClient.simulate(fromWallet.address, [redelegateMsg], memo);
         const fee = {
-            amount: coins('25000', LumConstants.MicroLumDenom),
+            amount: coins('25000', MICRO_LUM_DENOM),
             gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
         };
 
@@ -686,7 +739,7 @@ class WalletClient {
         // Define fees
         const gasEstimated = await this.cosmosSigningClient.simulate(fromWallet.address, [voteMsg], undefined);
         const fee = {
-            amount: coins('25000', LumConstants.MicroLumDenom),
+            amount: coins('25000', MICRO_LUM_DENOM),
             gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
         };
 
@@ -723,7 +776,7 @@ class WalletClient {
         // Define fees
         const gasEstimated = await this.cosmosSigningClient.simulate(fromWallet.address, [setWithdrawAddressMsg], memo);
         const fee = {
-            amount: coins('25000', LumConstants.MicroLumDenom),
+            amount: coins('25000', MICRO_LUM_DENOM),
             gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
         };
 
@@ -748,6 +801,14 @@ class WalletClient {
             hash: broadcastResult.transactionHash,
             error: broadcastResult.code !== 0 ? broadcastResult.rawLog : null,
         };
+    };
+
+    signMessage = async (wallet: Wallet, message: string) => {
+        if (!this.signArbitraryMessage) {
+            return null;
+        }
+
+        return this.signArbitraryMessage(message, !!wallet.isExtensionImport);
     };
 
     updateNode = (node: string) => this.connect(node);

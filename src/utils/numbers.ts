@@ -1,45 +1,9 @@
-import { Coin } from '@lum-network/sdk-javascript/build/codegen/cosmos/base/v1beta1/coin';
-import { LumConstants } from 'constant';
 import numeral from 'numeral';
 
-export const convertUnit = (coin: Coin, toDenom: string): string => {
-    const parts = coin.amount.split('.');
-    if (parts.length > 2) {
-        throw new Error('More than one separator found');
-    }
+import { LUM_DENOM, MICRO_LUM_DENOM, convertUnit } from '@lum-network/sdk-javascript';
+import { Coin } from '@lum-network/sdk-javascript/build/codegen/cosmos/base/v1beta1/coin';
 
-    if (coin.denom === toDenom) {
-        return coin.amount;
-    } else if (coin.denom.startsWith('u') && coin.denom.endsWith(toDenom)) {
-        // from micro to base
-        if (parts.length !== 1) {
-            throw new Error('Micro units cannot have floating precision');
-        }
-        let res = parts[0];
-        for (let i = res.length; res.length <= LumConstants.LumExponent; i++) {
-            res = '0' + res;
-        }
-        const floatIdx = res.length - LumConstants.LumExponent;
-        return (res.substring(0, floatIdx) + '.' + res.substring(floatIdx)).replace(/0+$/, '');
-    } else if (toDenom.startsWith('u') && toDenom.endsWith(coin.denom)) {
-        // form base to micro
-        if (parts.length === 2 && parts[1].length > LumConstants.LumExponent) {
-            throw new Error(`Floating precision cannot exceed ${LumConstants.LumExponent} digits`);
-        }
-        let res = parts[0] + (parts[1] || '');
-        for (let i = parts.length === 2 ? parts[1].length : 0; i < LumConstants.LumExponent; i++) {
-            res += '0';
-        }
-        return res.replace(/^0+/, '');
-    }
-    return coin.amount;
-};
-
-export const convertUnitNumber = (
-    nb: number | string,
-    fromDenom = LumConstants.MicroLumDenom,
-    toDenom = LumConstants.LumDenom,
-): number => {
+export const convertUnitNumber = (nb: number | string, fromDenom = MICRO_LUM_DENOM, toDenom = LUM_DENOM): number => {
     let amount: string;
 
     if (!nb) {
@@ -63,7 +27,7 @@ export const convertUnitNumber = (
 };
 
 export const formatUnit = (coin: Coin, moreDecimal?: boolean): string => {
-    return numeral(convertUnit(coin, LumConstants.LumDenom)).format(moreDecimal ? '0,0.000000' : '0,0.000');
+    return numeral(convertUnit(coin, LUM_DENOM)).format(moreDecimal ? '0,0.000000' : '0,0.000');
 };
 
 export const formatTo6digit = (number: number): string => (number > 0 ? numeral(number).format('0,0.000000') : '0');

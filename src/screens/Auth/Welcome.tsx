@@ -2,14 +2,16 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { Trans, useTranslation } from 'react-i18next';
+
 import { Window as KeplrWindow } from '@keplr-wallet/types';
-import { Button as FEButton } from 'frontend-elements';
-import { RootDispatch, RootState } from 'redux/store';
+import { getLumHdPath } from '@lum-network/sdk-javascript';
 
 import Assets from 'assets';
-import { COSMOS_LEDGER_APP_INSTALL_LINK, KEPLR_DEFAULT_COIN_TYPE, KEPLR_INSTALL_LINK, LumConstants } from 'constant';
+import { COSMOS_LEDGER_APP_INSTALL_LINK, KEPLR_DEFAULT_COIN_TYPE, KEPLR_INSTALL_LINK } from 'constant';
 import { Modal, Button, SwitchInput, Input, HdPathInput, HoverTooltip } from 'components';
+import { Button as FEButton } from 'frontend-elements';
 import { ExtensionMethod, HardwareMethod, SoftwareMethod } from 'models';
+import { RootDispatch, RootState } from 'redux/store';
 import { useRematchDispatch } from 'redux/hooks';
 
 import AuthLayout from './components/AuthLayout';
@@ -32,7 +34,7 @@ const Welcome = (): JSX.Element => {
     const [keystoreFileData, setKeystoreFileData] = useState<string | null>(null);
     const [softwareMethodModal, setSoftwareMethodModal] = useState<React.ElementRef<typeof Modal> | null>(null);
     const [showAdvanced, setShowAdvanced] = useState(false);
-    const [customHdPath, setCustomHdPath] = useState(LumConstants.getLumHdPath());
+    const [customHdPath, setCustomHdPath] = useState(getLumHdPath());
     const [isCustomPathValid, setIsCustomPathValid] = useState(true);
     const [isCustomCoinTypeValid, setIsCustomCoinTypeValid] = useState(true);
     const [keplrCoinType, setKeplrCoinType] = useState(KEPLR_DEFAULT_COIN_TYPE);
@@ -434,7 +436,7 @@ const Welcome = (): JSX.Element => {
                                         <h4>{t('welcome.hardwareModal.advanced.title')}</h4>
                                         <FEButton
                                             onPress={() => {
-                                                setCustomHdPath(LumConstants.getLumHdPath());
+                                                setCustomHdPath(getLumHdPath());
                                             }}
                                             className="bg-transparent text-btn p-0 me-2 h-auto"
                                         >

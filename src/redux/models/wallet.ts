@@ -1,24 +1,29 @@
 import axios from 'axios';
-import { createModel } from '@rematch/core';
-import { Window as KeplrWindow } from '@keplr-wallet/types';
-import { DelegationDelegatorReward } from '@lum-network/sdk-javascript/build/codegen/cosmos/distribution/v1beta1/distribution';
-import { VoteOption } from '@lum-network/sdk-javascript/build/codegen/cosmos/gov/v1/gov';
 
 import { stringToPath } from '@cosmjs/crypto';
 import { LedgerSigner } from '@cosmjs/ledger-amino';
-
 import { Secp256k1HdWallet, Secp256k1Wallet } from '@cosmjs/amino';
-
+import { Window as KeplrWindow } from '@keplr-wallet/types';
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb';
-import { DeviceModelId } from '@ledgerhq/devices';
+import {
+    LUM_DENOM,
+    LUM_EXPONENT,
+    LumBech32Prefixes,
+    MICRO_LUM_DENOM,
+    fromHex,
+    getLumHdPath,
+    getPrivateKeyFromKeystore,
+} from '@lum-network/sdk-javascript';
+import { DelegationDelegatorReward } from '@lum-network/sdk-javascript/build/codegen/cosmos/distribution/v1beta1/distribution';
+import { VoteOption } from '@lum-network/sdk-javascript/build/codegen/cosmos/gov/v1/gov';
+import { createModel } from '@rematch/core';
 
-import { CLIENT_PRECISION, LUM_COINGECKO_ID, LumConstants } from 'constant';
+import { CLIENT_PRECISION, LUM_COINGECKO_ID } from 'constant';
 import i18n from 'locales';
 import {
     getRpcFromNode,
     getWalletLink,
     GuardaUtils,
-    LumUtils,
     NumbersUtils,
     showErrorToast,
     showSuccessToast,
@@ -191,13 +196,9 @@ export const wallet = createModel<RootModel>()({
                 const lumRewards: DelegationDelegatorReward[] = [];
 
                 for (const delegatorReward of r) {
-                    const otherReward = delegatorReward.reward.filter(
-                        (reward) => reward.denom !== LumConstants.MicroLumDenom,
-                    );
+                    const otherReward = delegatorReward.reward.filter((reward) => reward.denom !== MICRO_LUM_DENOM);
 
-                    const lumReward = delegatorReward.reward.filter(
-                        (reward) => reward.denom === LumConstants.MicroLumDenom,
-                    );
+                    const lumReward = delegatorReward.reward.filter((reward) => reward.denom === MICRO_LUM_DENOM);
 
                     if (otherReward.length > 0) {
                         oRewards.push({
@@ -218,7 +219,7 @@ export const wallet = createModel<RootModel>()({
                     rewards: lumRewards,
                     total: [
                         {
-                            denom: LumConstants.MicroLumDenom,
+                            denom: MICRO_LUM_DENOM,
                             amount: NumbersUtils.convertUnitNumber(
                                 lumRewards.reduce(
                                     (acc, r) =>
@@ -227,8 +228,8 @@ export const wallet = createModel<RootModel>()({
                                         acc,
                                     0,
                                 ),
-                                LumConstants.LumDenom,
-                                LumConstants.MicroLumDenom,
+                                LUM_DENOM,
+                                MICRO_LUM_DENOM,
                             ).toFixed(),
                         },
                     ],
@@ -260,8 +261,8 @@ export const wallet = createModel<RootModel>()({
 
                             otherRewards[existsInArrayIndex].total[0].amount = NumbersUtils.convertUnitNumber(
                                 oldTotal + rewardAmount,
-                                LumConstants.LumDenom,
-                                LumConstants.MicroLumDenom,
+                                LUM_DENOM,
+                                MICRO_LUM_DENOM,
                             ).toFixed();
                         } else {
                             otherRewards.push({
@@ -328,9 +329,9 @@ export const wallet = createModel<RootModel>()({
                         rpc,
                         rest: rpc.replace('rpc', 'rest'),
                         stakeCurrency: {
-                            coinDenom: LumConstants.LumDenom,
-                            coinMinimalDenom: LumConstants.MicroLumDenom,
-                            coinDecimals: LumConstants.LumExponent,
+                            coinDenom: LUM_DENOM,
+                            coinMinimalDenom: MICRO_LUM_DENOM,
+                            coinDecimals: LUM_EXPONENT,
                             coinGeckoId: LUM_COINGECKO_ID,
                         },
                         walletUrlForStaking: getWalletLink(),
@@ -338,18 +339,18 @@ export const wallet = createModel<RootModel>()({
                             coinType,
                         },
                         bech32Config: {
-                            bech32PrefixAccAddr: LumConstants.LumBech32PrefixAccAddr,
-                            bech32PrefixAccPub: LumConstants.LumBech32PrefixAccPub,
-                            bech32PrefixValAddr: LumConstants.LumBech32PrefixValAddr,
-                            bech32PrefixValPub: LumConstants.LumBech32PrefixValPub,
-                            bech32PrefixConsAddr: LumConstants.LumBech32PrefixConsAddr,
-                            bech32PrefixConsPub: LumConstants.LumBech32PrefixConsPub,
+                            bech32PrefixAccAddr: LumBech32Prefixes.ACC_ADDR,
+                            bech32PrefixAccPub: LumBech32Prefixes.ACC_PUB,
+                            bech32PrefixValAddr: LumBech32Prefixes.VAL_ADDR,
+                            bech32PrefixValPub: LumBech32Prefixes.VAL_PUB,
+                            bech32PrefixConsAddr: LumBech32Prefixes.CONS_ADDR,
+                            bech32PrefixConsPub: LumBech32Prefixes.CONS_PUB,
                         },
                         currencies: [
                             {
-                                coinDenom: LumConstants.LumDenom,
-                                coinMinimalDenom: LumConstants.MicroLumDenom,
-                                coinDecimals: LumConstants.LumExponent,
+                                coinDenom: LUM_DENOM,
+                                coinMinimalDenom: MICRO_LUM_DENOM,
+                                coinDecimals: LUM_EXPONENT,
                                 coinGeckoId: LUM_COINGECKO_ID,
                             },
                             {
@@ -361,9 +362,9 @@ export const wallet = createModel<RootModel>()({
                         // List of coin/tokens used as a fee token in this chain.
                         feeCurrencies: [
                             {
-                                coinDenom: LumConstants.LumDenom,
-                                coinMinimalDenom: LumConstants.MicroLumDenom,
-                                coinDecimals: LumConstants.LumExponent,
+                                coinDenom: LUM_DENOM,
+                                coinMinimalDenom: MICRO_LUM_DENOM,
+                                coinDecimals: LUM_EXPONENT,
                                 coinGeckoId: LUM_COINGECKO_ID,
                                 gasPriceStep: {
                                     low: 0.01,
@@ -391,9 +392,9 @@ export const wallet = createModel<RootModel>()({
 
                         const accounts = await offlineSigner.getAccounts();
                         const address = accounts[0].address;
-                        const isNanoS = (await keplrWindow.keplr.getKey(chainId)).isNanoLedger;
+                        const isLedger = (await keplrWindow.keplr.getKey(chainId)).isNanoLedger;
 
-                        dispatch.wallet.signIn({ address, isExtensionImport: true, isNanoS });
+                        dispatch.wallet.signIn({ address, isExtensionImport: true, isLedger });
                         dispatch.wallet.reloadWalletInfos(address);
                     }
                     return;
@@ -408,7 +409,6 @@ export const wallet = createModel<RootModel>()({
                 let ledgerSigner: LedgerSigner | null = null;
                 let breakLoop = false;
                 let userCancelled = false;
-                let isNanoS = false;
 
                 // 10 sec timeout to let the user unlock his hardware
                 const to = setTimeout(() => (breakLoop = true), 10000);
@@ -419,18 +419,17 @@ export const wallet = createModel<RootModel>()({
                             ? payload.customHdPath
                             : payload.app === HardwareMethod.Cosmos
                             ? `m/44'/118'/0'/0/0`
-                            : LumConstants.getLumHdPath(),
+                            : getLumHdPath(),
                     ),
                 ];
 
                 while (!ledgerSigner && !breakLoop) {
                     try {
                         const transport = await TransportWebUSB.create();
-                        isNanoS = transport.deviceModel?.id === DeviceModelId.nanoS;
 
                         ledgerSigner = new LedgerSigner(transport, {
                             hdPaths,
-                            prefix: LumConstants.LumBech32PrefixAccAddr,
+                            prefix: LumBech32Prefixes.ACC_ADDR,
                         });
                     } catch (e) {
                         if ((e as Error).name === 'TransportOpenUserCancelled') {
@@ -445,10 +444,9 @@ export const wallet = createModel<RootModel>()({
                 if (ledgerSigner) {
                     const accounts = await ledgerSigner.getAccounts();
                     const address = accounts[0].address;
-
                     await WalletClient.connectSigner(ledgerSigner);
 
-                    dispatch.wallet.signIn({ address, isNanoS });
+                    dispatch.wallet.signIn({ address, isLedger: true });
                     dispatch.wallet.reloadWalletInfos(address);
                     return;
                 } else {
@@ -468,11 +466,11 @@ export const wallet = createModel<RootModel>()({
             const { mnemonic, customHdPath } = payload;
 
             try {
-                const hdPaths = [stringToPath(customHdPath ? customHdPath : LumConstants.getLumHdPath())];
+                const hdPaths = [stringToPath(customHdPath ? customHdPath : getLumHdPath())];
 
                 const wallet = await Secp256k1HdWallet.fromMnemonic(mnemonic, {
                     hdPaths,
-                    prefix: LumConstants.LumBech32PrefixAccAddr,
+                    prefix: LumBech32Prefixes.ACC_ADDR,
                 });
 
                 await WalletClient.connectSigner(wallet);
@@ -489,10 +487,7 @@ export const wallet = createModel<RootModel>()({
         },
         async signInWithPrivateKeyAsync(payload: string) {
             try {
-                const wallet = await Secp256k1Wallet.fromKey(
-                    LumUtils.fromHex(payload),
-                    LumConstants.LumBech32PrefixAccAddr,
-                );
+                const wallet = await Secp256k1Wallet.fromKey(fromHex(payload), LumBech32Prefixes.ACC_ADDR);
 
                 await WalletClient.connectSigner(wallet);
 
@@ -510,9 +505,9 @@ export const wallet = createModel<RootModel>()({
             const { data, password } = payload;
 
             try {
-                const privateKey = LumUtils.getPrivateKeyFromKeystore(data, password);
+                const privateKey = getPrivateKeyFromKeystore(data, password);
 
-                const wallet = await Secp256k1Wallet.fromKey(privateKey, LumConstants.LumBech32PrefixAccAddr);
+                const wallet = await Secp256k1Wallet.fromKey(privateKey, LumBech32Prefixes.ACC_ADDR);
 
                 await WalletClient.connectSigner(wallet);
 
@@ -532,7 +527,7 @@ export const wallet = createModel<RootModel>()({
             try {
                 const cosmosPrivateKey = GuardaUtils.getCosmosPrivateKey(guardaBackup, password);
 
-                const wallet = await Secp256k1Wallet.fromKey(cosmosPrivateKey, LumConstants.LumBech32PrefixAccAddr);
+                const wallet = await Secp256k1Wallet.fromKey(cosmosPrivateKey, LumBech32Prefixes.ACC_ADDR);
 
                 await WalletClient.connectSigner(wallet);
 

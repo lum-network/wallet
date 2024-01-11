@@ -2,8 +2,8 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 
-import { Card } from 'frontend-elements';
-import { LUM_TWITTER, LumConstants } from 'constant';
+import { LUM_DENOM, convertUnit } from '@lum-network/sdk-javascript';
+
 import {
     TransactionsTable,
     AddressCard,
@@ -13,13 +13,14 @@ import {
     AirdropCard,
     OtherAssetsTable,
 } from 'components';
+import { LUM_TWITTER } from 'constant';
+import { Card } from 'frontend-elements';
 import { RootState } from 'redux/store';
 
 import StakedCoinsCard from '../Staking/components/Cards/StakedCoinsCard';
 import VestingTokensCard from '../Staking/components/Cards/VestingTokensCard';
 
 import './styles/Dashboard.scss';
-import { NumbersUtils } from 'utils';
 
 const Dashboard = (): JSX.Element => {
     // Redux hooks
@@ -60,8 +61,7 @@ const Dashboard = (): JSX.Element => {
                         <AvailableCard
                             balance={
                                 vestings
-                                    ? balance.lum -
-                                      Number(NumbersUtils.convertUnit(vestings.lockedBankCoins, LumConstants.LumDenom))
+                                    ? balance.lum - Number(convertUnit(vestings.lockedBankCoins, LUM_DENOM))
                                     : balance.lum
                             }
                             address={wallet.address}
@@ -81,14 +81,7 @@ const Dashboard = (): JSX.Element => {
                                 <StakedCoinsCard
                                     amount={stakedCoins}
                                     amountVesting={
-                                        vestings
-                                            ? Number(
-                                                  NumbersUtils.convertUnit(
-                                                      vestings.lockedDelegatedCoins,
-                                                      LumConstants.LumDenom,
-                                                  ),
-                                              )
-                                            : 0
+                                        vestings ? Number(convertUnit(vestings.lockedDelegatedCoins, LUM_DENOM)) : 0
                                     }
                                 />
                             </div>

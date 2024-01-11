@@ -1,21 +1,22 @@
 import React, { useEffect, useState } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import numeral from 'numeral';
-import { Table, ValidatorLogo } from 'frontend-elements';
-
-import { LUM_ASSETS_GITHUB, LumConstants } from 'constant';
-import { getExplorerLink, getUserValidators, NumbersUtils, sortByVotingPower, trunc, WalletClient } from 'utils';
-import { Rewards, UserValidator } from 'models';
-import { Badge, DropdownButton, SmallerDecimal } from 'components';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import { RootState } from 'redux/store';
+import { LUM_DENOM } from '@lum-network/sdk-javascript';
 import {
     BondStatus,
     DelegationResponse,
     UnbondingDelegation,
     Validator,
 } from '@lum-network/sdk-javascript/build/codegen/cosmos/staking/v1beta1/staking';
+
+import { Badge, DropdownButton, SmallerDecimal } from 'components';
+import { LUM_ASSETS_GITHUB } from 'constant';
+import { Table, ValidatorLogo } from 'frontend-elements';
+import { Rewards, UserValidator } from 'models';
+import { RootState } from 'redux/store';
+import { getExplorerLink, getUserValidators, NumbersUtils, sortByVotingPower, trunc, WalletClient } from 'utils';
 
 interface Props {
     validators: Validator[];
@@ -118,13 +119,13 @@ const MyValidators = ({
                 </td>
                 <td data-label={headers[4]} className="text-end">
                     <SmallerDecimal nb={validator.stakedCoins} />
-                    <span className="ms-2">{LumConstants.LumDenom}</span>
+                    <span className="ms-2">{LUM_DENOM}</span>
                 </td>
                 <td data-label={headers[5]} className="text-end">
                     <SmallerDecimal
                         nb={NumbersUtils.formatTo6digit(NumbersUtils.convertUnitNumber(validator.reward))}
                     />
-                    <span className="ms-2">{LumConstants.LumDenom}</span>
+                    <span className="ms-2">{LUM_DENOM}</span>
                 </td>
                 <td data-label={headers[6]} className="text-end">
                     <DropdownButton

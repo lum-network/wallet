@@ -1,14 +1,12 @@
-import assets from 'assets';
-
-import i18n from 'locales';
-import { Transaction } from 'models';
-import { MessageTypes } from 'constant';
+import { decodeTxRaw } from '@cosmjs/proto-signing';
 import { IndexedTx } from '@cosmjs/stargate';
 import { Coin } from '@keplr-wallet/types';
-import { LumRegistry } from './lum/registry';
-import { cosmos, lum } from '@lum-network/sdk-javascript';
-import { LumUtils } from 'utils';
-import { decodeTxRaw } from '@cosmjs/proto-signing';
+import { LumRegistry, cosmos, lum, toJSON } from '@lum-network/sdk-javascript';
+
+import assets from 'assets';
+import { MessageTypes } from 'constant';
+import i18n from 'locales';
+import { Transaction } from 'models';
 
 const { MsgUndelegate, MsgBeginRedelegate, MsgDelegate, MsgCreateValidator, MsgEditValidator } = cosmos.staking.v1beta1;
 
@@ -189,7 +187,7 @@ export const formatTxs = (rawTxs: IndexedTx[]): Transaction[] => {
         if (decodedTxBody.messages) {
             for (const msg of decodedTxBody.messages) {
                 try {
-                    const txInfos = LumUtils.toJSON(LumRegistry.decode(msg));
+                    const txInfos = toJSON(LumRegistry.decode(msg));
 
                     if (typeof txInfos === 'object') {
                         tx.messages.push(msg.typeUrl);

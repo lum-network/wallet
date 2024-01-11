@@ -1,7 +1,7 @@
-import { Models } from '@rematch/core';
 import { Validator } from '@lum-network/sdk-javascript/build/codegen/cosmos/staking/v1beta1/staking';
 import { Proposal as BaseProposal } from '@lum-network/sdk-javascript/build/codegen/cosmos/gov/v1/gov';
 import { Coin } from '@lum-network/sdk-javascript/build/codegen/cosmos/base/v1beta1/coin';
+import { Models } from '@rematch/core';
 
 import { governance } from '../redux/models/governance';
 import { staking } from '../redux/models/staking';
@@ -20,7 +20,7 @@ export const reduxModels: RootModel = { wallet, staking, governance, stats };
 export interface Wallet {
     address: string;
     isExtensionImport?: boolean;
-    isNanoS?: boolean;
+    isLedger?: boolean;
 }
 
 export interface OtherBalance {

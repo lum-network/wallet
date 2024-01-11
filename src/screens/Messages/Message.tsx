@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
+import ClipboardJS from 'clipboard';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import ClipboardJS from 'clipboard';
+import { LUM_DENOM, convertUnit, keyFromHex, keyToHex, toUtf8 } from '@lum-network/sdk-javascript';
 
 import { Button as CustomButton, AddressCard, AvailableCard, Input, Modal, Tooltip } from 'components';
-import { LumConstants } from 'constant';
-import { RootState } from 'redux/store';
 import { Button, Card } from 'frontend-elements';
 import { SignMsg } from 'models';
-import { LumUtils, NumbersUtils, showErrorToast, showSuccessToast, WalletClient, WalletUtils } from 'utils';
+import { RootState } from 'redux/store';
+import { showErrorToast, showSuccessToast, WalletUtils } from 'utils';
 
 import './styles/Messages.scss';
 
@@ -101,13 +101,7 @@ const Message = (): JSX.Element => {
     const handleSign = async () => {
         setIsLoading(true);
         try {
-            const chainId = WalletClient.getChainId();
-
-            if (!chainId) {
-                throw new Error('Chain ID not found');
-            }
-
-            const json = await WalletUtils.generateSignedMessage(chainId, wallet, message);
+            const json = await WalletUtils.generateSignedMessage(wallet, message);
             setSignMessage(json);
             showModal('confirmation', false);
             showModal('signature', true);
@@ -120,23 +114,19 @@ const Message = (): JSX.Element => {
     const handleVerify = async () => {
         const msg = JSON.parse(messageToVerify, (key, value) => {
             if (key === 'sig' || key === 'publicKey') {
-                value = LumUtils.keyFromHex(value);
+                value = keyFromHex(value);
             }
             return value;
         });
 
         if (isMessageToVerify(msg)) {
-            const chainId = WalletClient.getChainId();
-
-            if (!chainId) {
-                throw new Error('Chain ID not found');
-            }
-
-            WalletUtils.validateSignMessage(chainId, msg)
+            WalletUtils.validateSignMessage(msg)
                 .then((result) => {
                     setVerifyMessage({ result, message: msg.msg, address: msg.address });
                 })
-                .catch((error) => showErrorToast(error.message));
+                .catch((error) => {
+                    showErrorToast(error.message);
+                });
         } else {
             showErrorToast(t('messages.invalidMessage'));
         }
@@ -173,10 +163,7 @@ const Message = (): JSX.Element => {
                             <AvailableCard
                                 balance={
                                     vestings
-                                        ? currentBalance.lum -
-                                          Number(
-                                              NumbersUtils.convertUnit(vestings.lockedBankCoins, LumConstants.LumDenom),
-                                          )
+                                        ? currentBalance.lum - Number(convertUnit(vestings.lockedBankCoins, LUM_DENOM))
                                         : currentBalance.lum
                                 }
                                 address={wallet.address}
@@ -299,7 +286,7 @@ const Message = (): JSX.Element => {
                 <Input disabled value={message} label={t('messages.confirmationModal.messageLabel')} className="mb-4" />
                 <Input
                     disabled
-                    value={LumUtils.keyToHex(LumUtils.toUtf8(encodeURI(message)), true)}
+                    value={keyToHex(toUtf8(encodeURI(message)), true)}
                     label={t('messages.confirmationModal.messageInHexLabel')}
                     className="mb-4"
                 />
@@ -317,8 +304,8 @@ const Message = (): JSX.Element => {
                             value={JSON.stringify(
                                 {
                                     ...signMessage,
-                                    sig: LumUtils.keyToHex(signMessage.sig),
-                                    publicKey: LumUtils.keyToHex(signMessage.publicKey),
+                                    sig: keyToHex(signMessage.sig),
+                                    publicKey: keyToHex(signMessage.publicKey),
                                 },
                                 null,
                                 2,
@@ -335,8 +322,8 @@ const Message = (): JSX.Element => {
                                 'data-clipboard-text': JSON.stringify(
                                     {
                                         ...signMessage,
-                                        sig: LumUtils.keyToHex(signMessage.sig),
-                                        publicKey: LumUtils.keyToHex(signMessage.publicKey),
+                                        sig: keyToHex(signMessage.sig),
+                                        publicKey: keyToHex(signMessage.publicKey),
                                     },
                                     null,
                                     2,

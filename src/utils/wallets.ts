@@ -1,10 +1,27 @@
-import { Window as KeplrWindow } from '@keplr-wallet/types';
+import { StdSignDoc } from '@cosmjs/amino';
+import { Secp256k1, Secp256k1Signature, ripemd160 } from '@cosmjs/crypto';
+import { verifyADR36AminoSignDoc } from '@keplr-wallet/cosmos';
 
-import { LumConstants } from 'constant';
+import {
+    sha256,
+    generateKeyStore,
+    generatePrivateKey,
+    generateMnemonic as genMnemonic,
+    LumBech32Prefixes,
+    toBech32,
+    fromBase64,
+    LUM_WALLET_SIGNING_VERSION,
+    LumMessageSigner,
+    fromBech32,
+    toAscii,
+    sortJSON,
+    toBase64,
+} from '@lum-network/sdk-javascript';
+import { PubKey } from '@lum-network/sdk-javascript/build/codegen/cosmos/crypto/secp256k1/keys';
+import { Any } from '@lum-network/sdk-javascript/build/codegen/google/protobuf/any';
 
 import { KeyStore, PasswordStrength, PasswordStrengthType, SignMsg, Wallet } from 'models';
-
-import * as LumUtils from './lum';
+import { WalletClient } from 'utils';
 
 export type MnemonicLength = 12 | 24;
 
@@ -14,7 +31,7 @@ export const checkMnemonicLength = (length: number): length is MnemonicLength =>
 
 export const generateMnemonic = (mnemonicLength: MnemonicLength): string[] => {
     const inputs: string[] = [];
-    const mnemonicKeys = LumUtils.generateMnemonic(mnemonicLength).split(' ');
+    const mnemonicKeys = genMnemonic(mnemonicLength).split(' ');
 
     for (let i = 0; i < mnemonicLength; i++) {
         inputs.push(mnemonicKeys[i]);
@@ -24,9 +41,9 @@ export const generateMnemonic = (mnemonicLength: MnemonicLength): string[] => {
 };
 
 export const generateKeystoreFile = (password: string): KeyStore => {
-    const privateKey = LumUtils.generatePrivateKey();
+    const privateKey = generatePrivateKey();
 
-    return LumUtils.generateKeyStore(privateKey, password);
+    return generateKeyStore(privateKey, password);
 };
 
 export const checkPwdStrength = (password: string): PasswordStrength => {
@@ -41,48 +58,116 @@ export const checkPwdStrength = (password: string): PasswordStrength => {
     return PasswordStrengthType.Weak;
 };
 
-export const generateSignedMessage = async (chainId: string, wallet: Wallet, msg: string): Promise<SignMsg | null> => {
-    if (wallet.isExtensionImport) {
-        const keplrWindow = window as KeplrWindow;
-
-        if (!keplrWindow.keplr) {
-            throw new Error('Keplr is not installed');
-        }
-
-        const signMsg = await keplrWindow.keplr.signArbitrary(chainId, wallet.address, msg);
-        if (signMsg) {
-            return {
-                msg,
-                address: wallet.address,
-                publicKey: LumUtils.fromBase64(signMsg.pub_key.value),
-                sig: LumUtils.fromBase64(signMsg.signature),
-                version: LumConstants.LumWalletSigningVersion,
-                signer: LumConstants.LumMessageSigner.OFFLINE,
-            };
-        } else {
-            throw new Error('Unable to sign message');
-        }
-    }
-
-    return null;
+/**
+ * Converts a public key into its protorpc version
+ *
+ * @param publicKey public key to convert into proto
+ */
+export const publicKeyToProto = (publicKey: Uint8Array): Any => {
+    const pubkeyProto = PubKey.fromPartial({ key: publicKey });
+    return Any.fromPartial({
+        typeUrl: '/cosmos.crypto.secp256k1.PubKey',
+        value: Uint8Array.from(PubKey.encode(pubkeyProto).finish()),
+    });
 };
 
-export const validateSignMessage = async (chainId: string, msg: SignMsg): Promise<boolean> => {
-    if (msg.signer === LumConstants.LumMessageSigner.OFFLINE) {
-        const keplrWindow = window as KeplrWindow;
+/**
+ * Derives a bech32 wallet address from a public key (secp256k1)
+ *
+ * @param publicKey public key to derive the address from
+ * @param prefix address prefix to use (ex: lum)
+ */
+export const getAddressFromPublicKey = (publicKey: Uint8Array, prefix: string = LumBech32Prefixes.ACC_ADDR) => {
+    if (publicKey.length !== 33) {
+        throw new Error(`Invalid Secp256k1 pubkey length (compressed): ${publicKey.length}`);
+    }
+    const hash1 = sha256(publicKey);
+    const hash2 = ripemd160(hash1);
+    return toBech32(prefix, hash2);
+};
 
-        if (!keplrWindow.keplr) {
-            throw new Error('Keplr is needed to verify a message signed with keplr');
-        }
+export const generateSignedMessage = async (wallet: Wallet, msg: string): Promise<SignMsg | null> => {
+    const signMsg = await WalletClient.signMessage(wallet, msg);
 
-        return await keplrWindow.keplr.verifyArbitrary(chainId, msg.address, msg.msg, {
-            signature: LumUtils.toBase64(msg.sig),
-            pub_key: {
-                type: 'tendermint/PubKeySecp256k1',
-                value: LumUtils.toBase64(msg.publicKey),
-            },
-        });
+    if (!signMsg) {
+        throw new Error('Unable to sign message');
     }
 
-    return false;
+    return {
+        msg,
+        address: wallet.address,
+        publicKey: fromBase64(signMsg.pubkey),
+        sig: fromBase64(signMsg.signature),
+        version: LUM_WALLET_SIGNING_VERSION,
+        signer: wallet.isExtensionImport
+            ? LumMessageSigner.OFFLINE
+            : wallet.isLedger
+            ? LumMessageSigner.LEDGER
+            : LumMessageSigner.PAPER,
+    };
+};
+
+/**
+ * Verify that a signature is valid
+ *
+ * @param signature signature (as generated by the generateSignature function)
+ * @param signedBytes signed bytes (as generated by the generateSignDocBytes function or by the signMessage function)
+ * @param publicKey public key of the signing key pair (secp256k1)
+ */
+export const verifySignature = async (
+    signature: Uint8Array,
+    signedBytes: Uint8Array,
+    publicKey: Uint8Array,
+): Promise<boolean> => {
+    return Secp256k1.verifySignature(Secp256k1Signature.fromFixedLength(signature), sha256(signedBytes), publicKey);
+};
+
+export const validateSignMessage = async (msg: SignMsg): Promise<boolean> => {
+    const { prefix } = fromBech32(msg.address);
+
+    if (getAddressFromPublicKey(msg.publicKey, prefix) !== msg.address) {
+        return false;
+    }
+
+    if (msg.signer === LumMessageSigner.PAPER || msg.signer === LumMessageSigner.LEDGER) {
+        // Re-create the signDoc used to generate the message to sign
+        const msgToSign: StdSignDoc = {
+            account_number: '0',
+            chain_id: '',
+            fee: {
+                amount: [{ amount: '', denom: '' }],
+                gas: '',
+            },
+            memo: encodeURI(msg.msg),
+            msgs: [],
+            sequence: '0',
+        };
+
+        return verifySignature(msg.sig, toAscii(JSON.stringify(sortJSON(msgToSign))), msg.publicKey);
+    } else if (msg.signer === LumMessageSigner.OFFLINE) {
+        // Re-create the signDoc similar to the one keplr has generated
+        const msgToSign: StdSignDoc = {
+            chain_id: '',
+            account_number: '0',
+            sequence: '0',
+            fee: {
+                amount: [],
+                gas: '0',
+            },
+            msgs: [
+                {
+                    type: 'sign/MsgSignData',
+                    value: {
+                        signer: msg.address,
+                        data: toBase64(toAscii(encodeURI(msg.msg))),
+                    },
+                },
+            ],
+            memo: '',
+        };
+
+        return verifyADR36AminoSignDoc(LumBech32Prefixes.ACC_ADDR, msgToSign, msg.publicKey, msg.sig);
+    }
+
+    throw new Error('unknown message signer');
 };

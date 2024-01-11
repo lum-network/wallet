@@ -2,15 +2,15 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { useFormik } from 'formik';
-import { cosmos } from '@lum-network/sdk-javascript';
-import { VoteOption } from '@lum-network/sdk-javascript/build/codegen/cosmos/gov/v1/gov';
 import * as yup from 'yup';
+import { LUM_DENOM, LumBech32Prefixes, convertUnit, cosmos } from '@lum-network/sdk-javascript';
+import { VoteOption } from '@lum-network/sdk-javascript/build/codegen/cosmos/gov/v1/gov';
 
 import assets from 'assets';
 import { AddressCard, AvailableCard, Input, Modal, Button as CustomButton, AirdropCard } from 'components';
 import { RootDispatch, RootState } from 'redux/store';
 import { useRematchDispatch } from 'redux/hooks';
-import { NumbersUtils, showErrorToast } from 'utils';
+import { showErrorToast } from 'utils';
 
 import MessageButton from './components/MessageButton/MessageButton';
 import Delegate from './components/Forms/Delegate';
@@ -22,7 +22,6 @@ import Vote from './components/Forms/Vote';
 import SetWithdrawAddress from './components/Forms/SetWithdrawAddress';
 
 import './Operations.scss';
-import { LumConstants } from 'constant';
 
 const { MsgUndelegate, MsgBeginRedelegate, MsgDelegate } = cosmos.staking.v1beta1;
 
@@ -129,7 +128,7 @@ const Operations = (): JSX.Element => {
             address: yup
                 .string()
                 .required(t('common.required'))
-                .matches(new RegExp(`^${LumConstants.LumBech32PrefixAccAddr}`), {
+                .matches(new RegExp(`^${LumBech32Prefixes.ACC_ADDR}`), {
                     message: t('operations.errors.address'),
                 }),
             amount: yup.string().required(t('common.required')),
@@ -144,7 +143,7 @@ const Operations = (): JSX.Element => {
             address: yup
                 .string()
                 .required(t('common.required'))
-                .matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`), {
+                .matches(new RegExp(`^${LumBech32Prefixes.VAL_ADDR}`), {
                     message: t('operations.errors.address'),
                 }),
             amount: yup.string().required(t('common.required')),
@@ -159,7 +158,7 @@ const Operations = (): JSX.Element => {
             address: yup
                 .string()
                 .required(t('common.required'))
-                .matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`), {
+                .matches(new RegExp(`^${LumBech32Prefixes.VAL_ADDR}`), {
                     message: t('operations.errors.address'),
                 }),
             amount: yup.string().required(t('common.required')),
@@ -174,13 +173,13 @@ const Operations = (): JSX.Element => {
             fromAddress: yup
                 .string()
                 .required(t('common.required'))
-                .matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`), {
+                .matches(new RegExp(`^${LumBech32Prefixes.VAL_ADDR}`), {
                     message: t('operations.errors.address'),
                 }),
             toAddress: yup
                 .string()
                 .required(t('common.required'))
-                .matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`), {
+                .matches(new RegExp(`^${LumBech32Prefixes.VAL_ADDR}`), {
                     message: t('operations.errors.address'),
                 }),
             amount: yup.string().required(t('common.required')),
@@ -195,7 +194,7 @@ const Operations = (): JSX.Element => {
             address: yup
                 .string()
                 .required(t('common.required'))
-                .matches(new RegExp(`^${LumConstants.LumBech32PrefixValAddr}`), {
+                .matches(new RegExp(`^${LumBech32Prefixes.VAL_ADDR}`), {
                     message: t('operations.errors.address'),
                 }),
             memo: yup.string(),
@@ -462,10 +461,7 @@ const Operations = (): JSX.Element => {
                             <AvailableCard
                                 balance={
                                     vestings
-                                        ? balance.lum -
-                                          Number(
-                                              NumbersUtils.convertUnit(vestings.lockedBankCoins, LumConstants.LumDenom),
-                                          )
+                                        ? balance.lum - Number(convertUnit(vestings.lockedBankCoins, LUM_DENOM))
                                         : balance.lum
                                 }
                                 address={wallet.address}

@@ -8,7 +8,6 @@ export * as TransactionsUtils from './transactions';
 export * as GovernanceUtils from './governance';
 export * as GuardaUtils from './guarda';
 export * as DenomsUtils from './denoms';
-export * as LumUtils from './lum';
 export * from './toasts';
 export * from './date';
 export * from './strings';
