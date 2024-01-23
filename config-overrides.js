@@ -37,6 +37,8 @@ module.exports = {
             '^.+\\.(ts|tsx)$': 'ts-jest',
         };
 
+        config.transformIgnorePatterns = ['/node_modules/(?!(@ledgerhq))'];
+
         config.moduleNameMapper = {
             ...config.moduleNameMapper,
             '\\.(css|scss)$': 'identity-obj-proxy',
