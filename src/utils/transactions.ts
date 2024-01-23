@@ -45,7 +45,7 @@ type StakingTxInfos = {
 
 type VoteTxInfos = {
     voter: string;
-    proposalId: Long;
+    proposalId: bigint;
 };
 
 type IBCTransferInfos = {
@@ -61,15 +61,15 @@ type DFractInfos = {
 
 type MillionsDepositInfos = {
     depositorAddress: string;
-    poolId: Long;
+    poolId: bigint;
     amount: Coin;
     isSponsor: boolean;
     winnerAddress: string;
 };
 
 type MillionsLeavePoolInfo = {
-    depositId: Long;
-    poolId: Long;
+    depositId: bigint;
+    poolId: bigint;
     toAddress: string;
     depositorAddress: string;
 };
@@ -103,9 +103,10 @@ export const isStakingTxInfo = (
 export const isVoteInfo = (
     info: {
         voter?: string;
-        proposalId?: Long;
+        proposalId?: bigint;
     } | null,
 ): info is VoteTxInfos => {
+    console.log(typeof info?.proposalId);
     return !!(info && info.proposalId && info.voter);
 };
 
@@ -131,7 +132,7 @@ export const isDfractInfo = (
 export const isMillionsDepositInfo = (
     info: {
         depositorAddress?: string;
-        poolId?: Long;
+        poolId?: bigint;
         amount?: Coin;
         isSponsor?: boolean;
         winnerAddress?: string;
@@ -149,8 +150,8 @@ export const isMillionsDepositInfo = (
 
 export const isMillionsLeavePoolInfo = (
     info: {
-        depositId?: Long;
-        poolId?: Long;
+        depositId?: bigint;
+        poolId?: bigint;
         toAddress?: string;
         depositorAddress?: string;
     } | null,
