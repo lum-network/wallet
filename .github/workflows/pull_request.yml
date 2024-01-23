@@ -43,24 +43,3 @@ jobs:
           target: lum-network-wallet
         env:
           FIREBASE_CLI_PREVIEWS: hostingchannels
-      
-      - name: Build for Testnet
-        run: yarn build
-        env:
-          SASS_PATH: "node_modules:src/styles"
-          GENERATE_SOURCEMAP: "false"
-          REACT_APP_RPC_URL: "https://node0.testnet.lum.network/rpc"
-
-      - name: Test
-        run: yarn test
-
-      - name: Deploy Testnet Preview
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
-          expires: 7d
-          projectId: lum-network
-          target: lum-network-wallet-testnet
-        env:
-          FIREBASE_CLI_PREVIEWS: hostingchannels
