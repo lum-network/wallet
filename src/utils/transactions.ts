@@ -106,7 +106,6 @@ export const isVoteInfo = (
         proposalId?: bigint;
     } | null,
 ): info is VoteTxInfos => {
-    console.log(typeof info?.proposalId);
     return !!(info && info.proposalId && info.voter);
 };
 
