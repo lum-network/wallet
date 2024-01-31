@@ -67,18 +67,19 @@ export const getUserValidators = (
                     ),
                 });
             } else {
-                for (const reward of rewards.rewards) {
-                    if (delegation.delegation && reward.validatorAddress === delegation.delegation.validatorAddress) {
-                        validators.push({
-                            ...validator,
-                            reward:
-                                parseFloat(reward.reward.length > 0 ? reward.reward[0].amount : '0') / CLIENT_PRECISION,
-                            stakedCoins: NumbersUtils.formatTo6digit(
-                                NumbersUtils.convertUnitNumber(delegation.balance?.amount || '0'),
-                            ),
-                        });
-                    }
-                }
+                const valReward = rewards.rewards.find(
+                    (r) => delegation.delegation && r.validatorAddress === delegation.delegation.validatorAddress,
+                );
+
+                validators.push({
+                    ...validator,
+                    reward:
+                        parseFloat(valReward && valReward.reward.length > 0 ? valReward.reward[0].amount : '0') /
+                        CLIENT_PRECISION,
+                    stakedCoins: NumbersUtils.formatTo6digit(
+                        NumbersUtils.convertUnitNumber(delegation.balance?.amount || '0'),
+                    ),
+                });
             }
         }
     }
