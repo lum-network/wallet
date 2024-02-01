@@ -13,10 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     environment: testnet
     steps:
-      - name: Set up Node version to 16
+      - name: Set up Node version to 18
         uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: '18'
 
       - name: Checkout repository and submodules
         uses: actions/checkout@v2
@@ -49,10 +49,10 @@ jobs:
     runs-on: ubuntu-latest
     environment: mainnet
     steps:
-      - name: Set up Node version to 16
+      - name: Set up Node version to 18
         uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: '18'
 
       - name: Checkout repository and submodules
         uses: actions/checkout@v2
