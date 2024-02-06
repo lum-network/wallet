@@ -9,9 +9,7 @@ export const LUM_LEDGER_APP_INSTALL_LINK =
 export const COSMOS_LEDGER_APP_INSTALL_LINK =
     'https://support.ledger.com/hc/en-us/articles/360013713840-Cosmos-ATOM-?docs=true';
 export const KEPLR_INSTALL_LINK = 'https://keplr.app';
-export const LUM_EXPLORER = 'https://explorer.lum.network';
 export const LUM_WALLET = 'https://wallet.lum.network';
-export const LUM_EXPLORER_TESTNET = 'https://explorer.testnet.lum.network';
 export const LUM_WALLET_TESTNET = 'https://wallet.testnet.lum.network';
 export const LUM_MILLIONS = 'https://cosmosmillions.com';
 export const LUM_MILLIONS_TESTNET = 'https://testnet.cosmosmillions.com';
@@ -23,6 +21,8 @@ export const MEDIUM_AIRDROP_ARTICLE =
     'https://medium.com/lum-network/lum-airdrop-for-atom-stakers-osmo-lps-120d3e472f38';
 
 export const KEPLR_DEFAULT_COIN_TYPE = 118;
+
+export const LUM_MINTSCAN_URL = 'https://mintscan.io/lum';
 
 export const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3';
 

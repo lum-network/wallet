@@ -5,8 +5,8 @@ import numeral from 'numeral';
 import { Table, ValidatorLogo } from 'frontend-elements';
 
 import { Button, Input } from 'components';
-import { LUM_ASSETS_GITHUB } from 'constant';
-import { trunc, NumbersUtils, sortByVotingPower, WalletClient, getExplorerLink } from 'utils';
+import { LUM_ASSETS_GITHUB, LUM_MINTSCAN_URL } from 'constant';
+import { trunc, NumbersUtils, sortByVotingPower, WalletClient } from 'utils';
 
 import searchIcon from 'assets/images/search.svg';
 
@@ -66,7 +66,7 @@ const AvailableValidators = ({ validators, totalVotingPower, onDelegate }: Props
                 </td>
                 <td data-label={headers[1]}>
                     <a
-                        href={`${getExplorerLink()}/validators/${validator.operatorAddress}`}
+                        href={`${LUM_MINTSCAN_URL}/validators/${validator.operatorAddress}`}
                         target="_blank"
                         rel="noreferrer"
                     >

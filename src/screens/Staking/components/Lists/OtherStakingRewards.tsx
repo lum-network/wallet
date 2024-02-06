@@ -5,11 +5,11 @@ import numeral from 'numeral';
 import { Validator } from '@lum-network/sdk-javascript/build/codegen/cosmos/staking/v1beta1/staking';
 
 import { Collapsible, SmallerDecimal } from 'components';
-import { CLIENT_PRECISION, LUM_ASSETS_GITHUB } from 'constant';
+import { CLIENT_PRECISION, LUM_ASSETS_GITHUB, LUM_MINTSCAN_URL } from 'constant';
 import { Card, ValidatorLogo } from 'frontend-elements';
 import { Reward, Rewards } from 'models';
 import { RootState } from 'redux/store';
-import { DenomsUtils, NumbersUtils, WalletClient, getExplorerLink, trunc, useWindowSize } from 'utils';
+import { DenomsUtils, NumbersUtils, WalletClient, trunc, useWindowSize } from 'utils';
 
 const OtherStakingRewards = ({ validators, otherRewards }: { validators: Validator[]; otherRewards: Rewards[] }) => {
     const prices = useSelector((state: RootState) => state.stats.prices);
@@ -29,11 +29,7 @@ const OtherStakingRewards = ({ validators, otherRewards }: { validators: Validat
                 key={`other-staking-reward-${index + 1}`}
                 className="other-reward-collapse d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mt-4 pt-4"
             >
-                <a
-                    href={`${getExplorerLink()}/validators/${rewards.validatorAddress}`}
-                    target="_blank"
-                    rel="noreferrer"
-                >
+                <a href={`${LUM_MINTSCAN_URL}/validators/${rewards.validatorAddress}`} target="_blank" rel="noreferrer">
                     <ValidatorLogo
                         width={34}
                         height={34}

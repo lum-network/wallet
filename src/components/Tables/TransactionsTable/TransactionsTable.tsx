@@ -7,7 +7,8 @@ import assets from 'assets';
 import { SmallerDecimal, TransactionTypeBadge } from 'components';
 import { Table } from 'frontend-elements';
 import { Transaction, Wallet } from 'models';
-import { getExplorerLink, NumbersUtils, DenomsUtils, trunc, getMillionsLink } from 'utils';
+import { NumbersUtils, DenomsUtils, trunc, getMillionsLink } from 'utils';
+import { LUM_MINTSCAN_URL } from 'constant';
 
 interface TransactionsTableProps {
     transactions: Transaction[];
@@ -28,7 +29,7 @@ const TransactionRow = (props: RowProps): JSX.Element => {
     return (
         <tr>
             <td data-label={headers[0]}>
-                <a href={`${getExplorerLink()}/txs/${row.hash}`} target="_blank" rel="noreferrer">
+                <a href={`${LUM_MINTSCAN_URL}/tx/${row.hash}`} target="_blank" rel="noreferrer">
                     {trunc(row.hash)}
                 </a>
             </td>
@@ -41,8 +42,8 @@ const TransactionRow = (props: RowProps): JSX.Element => {
             <td data-label={headers[2]}>
                 {row.fromAddress && row.fromAddress.startsWith('lum') ? (
                     <a
-                        href={`${getExplorerLink()}/${
-                            row.fromAddress.includes(LumBech32Prefixes.VAL_ADDR) ? 'validators' : 'account'
+                        href={`${LUM_MINTSCAN_URL}/${
+                            row.fromAddress.includes(LumBech32Prefixes.VAL_ADDR) ? 'validators' : 'address'
                         }/${row.fromAddress}`}
                         target="_blank"
                         rel="noreferrer"
@@ -56,8 +57,8 @@ const TransactionRow = (props: RowProps): JSX.Element => {
             <td data-label={headers[3]} className="text-end">
                 {row.toAddress && row.toAddress.startsWith('lum') && row.messages.length === 1 ? (
                     <a
-                        href={`${getExplorerLink()}/${
-                            row.toAddress.includes(LumBech32Prefixes.VAL_ADDR) ? 'validators' : 'account'
+                        href={`${LUM_MINTSCAN_URL}/${
+                            row.toAddress.includes(LumBech32Prefixes.VAL_ADDR) ? 'validators' : 'address'
                         }/${row.toAddress}`}
                         target="_blank"
                         rel="noreferrer"
@@ -78,7 +79,7 @@ const TransactionRow = (props: RowProps): JSX.Element => {
                     </a>
                 ) : row.toAddress.startsWith(t('transactions.proposal')) ? (
                     <a
-                        href={`${getExplorerLink()}/proposals/${row.toAddress.replace(t('transactions.proposal'), '')}`}
+                        href={`${LUM_MINTSCAN_URL}/proposals/${row.toAddress.replace(t('transactions.proposal'), '')}`}
                         target="_blank"
                         rel="noreferrer"
                     >
@@ -110,7 +111,7 @@ const TransactionRow = (props: RowProps): JSX.Element => {
                         <span className="ms-2">{DenomsUtils.computeDenom(row.amount[0].denom)}</span>
                     </>
                 ) : (
-                    <a href={`${getExplorerLink()}/txs/${row.hash}`} rel="noreferrer" target="_blank">
+                    <a href={`${LUM_MINTSCAN_URL}/tx/${row.hash}`} rel="noreferrer" target="_blank">
                         <span className="color-type me-1">{t('common.more')}</span>
                         <img src={assets.images.moreIcon} alt="more" />
                     </a>
