@@ -1,26 +1,28 @@
 import React, { useEffect, useState } from 'react';
 
-import { useTranslation } from 'react-i18next';
-import { Namespace, TFunction } from 'i18next';
-import { LumConstants } from '@lum-network/sdk-javascript';
-import { ProposalStatus } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
-import numeral from 'numeral';
 import dayjs from 'dayjs';
-import { marked } from 'marked';
 import DOMPurify from 'dompurify';
+import { Namespace, TFunction } from 'i18next';
+import { marked } from 'marked';
+import numeral from 'numeral';
+import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+
+import { LUM_DENOM } from '@lum-network/sdk-javascript';
+import { ProposalStatus } from '@lum-network/sdk-javascript/build/codegen/cosmos/gov/v1beta1/gov';
+import { Validator } from '@lum-network/sdk-javascript/build/codegen/cosmos/staking/v1beta1/staking';
+
 import { Badge, SmallerDecimal } from 'components';
 import { Button, Card } from 'frontend-elements';
 import { Proposal, VotesResult } from 'models';
-import { calculateTotalVotingPower, dateFromNow, GovernanceUtils, NumbersUtils } from 'utils';
 import { useRematchDispatch } from 'redux/hooks';
 import { RootDispatch, RootState } from 'redux/store';
+import { calculateTotalVotingPower, dateFromNow, GovernanceUtils, NumbersUtils } from 'utils';
 
 import VoteBar from '../VoteBar/VoteBar';
+import VoteButton from '../VoteButton/VoteButton';
 
 import './ProposalCard.scss';
-import VoteButton from '../VoteButton/VoteButton';
-import { useSelector } from 'react-redux';
-import { Validator } from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
 
 interface Props {
     proposal: Proposal;
@@ -59,7 +61,7 @@ const LargeProposalCard = ({
                     <div className="d-flex flex-row">
                         <h4 className="me-2">{t('common.total')}:</h4>
                         <SmallerDecimal nb={numeral(NumbersUtils.convertUnitNumber(total)).format('0,0.000000')} />
-                        <span className="ms-2 color-type">{LumConstants.LumDenom}</span>
+                        <span className="ms-2 color-type">{LUM_DENOM}</span>
                     </div>
                     <div className="d-flex flex-row">
                         <h4 className="me-2">{t('governance.proposalCard.turnout')}:</h4>
@@ -88,14 +90,14 @@ const LargeProposalCard = ({
                         <SmallerDecimal
                             nb={numeral(NumbersUtils.convertUnitNumber(results.yes)).format('0,0.000000')}
                         />
-                        <span className="ms-2 color-type">{LumConstants.LumDenom}</span>
+                        <span className="ms-2 color-type">{LUM_DENOM}</span>
                     </div>
                     <div className="col-12 col-md-6 col-xl-3 border-vote-red">
                         <h4>{t('governance.votes.no')}</h4>
                         <small>{numeral(noPercentage).format('0.00')}%</small>
                         <br />
                         <SmallerDecimal nb={numeral(NumbersUtils.convertUnitNumber(results.no)).format('0,0.000000')} />
-                        <span className="ms-2 color-type">{LumConstants.LumDenom}</span>
+                        <span className="ms-2 color-type">{LUM_DENOM}</span>
                     </div>
                     <div className="col-12 col-md-6 col-xl-3 border-vote-yellow">
                         <h4>{t('governance.votes.noWithVeto')}</h4>
@@ -104,7 +106,7 @@ const LargeProposalCard = ({
                         <SmallerDecimal
                             nb={numeral(NumbersUtils.convertUnitNumber(results.noWithVeto)).format('0,0.000000')}
                         />
-                        <span className="ms-2 color-type">{LumConstants.LumDenom}</span>
+                        <span className="ms-2 color-type">{LUM_DENOM}</span>
                     </div>
                     <div className="col-12 col-md-6 col-xl-3 border-vote-grey">
                         <h4>{t('governance.votes.abstain')}</h4>
@@ -113,7 +115,7 @@ const LargeProposalCard = ({
                         <SmallerDecimal
                             nb={numeral(NumbersUtils.convertUnitNumber(results.abstain)).format('0,0.000000')}
                         />
-                        <span className="ms-2 color-type">{LumConstants.LumDenom}</span>
+                        <span className="ms-2 color-type">{LUM_DENOM}</span>
                     </div>
                 </div>
             </Card>
@@ -349,7 +351,7 @@ const ProposalCard = ({ proposal, full, onVote, onDetails }: Props): JSX.Element
     return (
         <Card className="mb-4">
             <div className="d-flex flex-row align-items-center">
-                <h3 className="me-4">{`#${proposal.id}`}</h3>
+                <h3 className="me-4">{`#${proposal.id.toString()}`}</h3>
                 <Badge proposalStatus={proposal.status} />
             </div>
             <p className="proposal-title mb-4 mt-2">{proposal.content ? proposal.content.title : ''}</p>

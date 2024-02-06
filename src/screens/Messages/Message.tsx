@@ -1,15 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
+import ClipboardJS from 'clipboard';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import ClipboardJS from 'clipboard';
-import { Modal as BSModal } from 'bootstrap';
-import { LumUtils, LumTypes, LumConstants } from '@lum-network/sdk-javascript';
+import { LUM_DENOM, convertUnit, keyFromHex, keyToHex, toUtf8 } from '@lum-network/sdk-javascript';
 
-import { AddressCard, AvailableCard, Input, Modal, Tooltip } from 'components';
-import { RootState } from 'redux/store';
+import { Button as CustomButton, AddressCard, AvailableCard, Input, Modal, Tooltip } from 'components';
 import { Button, Card } from 'frontend-elements';
-import { Button as CustomButton } from 'components';
-import { showErrorToast, showSuccessToast, WalletClient, WalletUtils } from 'utils';
+import { SignMsg } from 'models';
+import { RootState } from 'redux/store';
+import { showErrorToast, showSuccessToast, WalletUtils } from 'utils';
 
 import './styles/Messages.scss';
 
@@ -26,7 +25,7 @@ const isMessageToVerify = (msg: {
     publicKey?: Uint8Array;
     signer?: string;
     version?: string;
-}): msg is LumTypes.SignMsg => {
+}): msg is SignMsg => {
     return !!(msg.address && msg.msg && msg.publicKey && msg.sig && msg.signer && msg.version);
 };
 
@@ -44,7 +43,7 @@ const Message = (): JSX.Element => {
     const [message, setMessage] = useState('');
     const [messageToVerify, setMessageToVerify] = useState('');
     const [showTooltip, setShowTooltip] = useState(false);
-    const [signMessage, setSignMessage] = useState<LumTypes.SignMsg | null>(null);
+    const [signMessage, setSignMessage] = useState<SignMsg | null>(null);
     const [verifyMessage, setVerifyMessage] = useState<VerifyMessageResult | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -59,8 +58,8 @@ const Message = (): JSX.Element => {
     const { t } = useTranslation();
 
     // Refs
-    const confirmModalRef = useRef<HTMLDivElement>(null);
-    const signatureModalRef = useRef<HTMLDivElement>(null);
+    const confirmModalRef = useRef<React.ElementRef<typeof Modal>>(null);
+    const signatureModalRef = useRef<React.ElementRef<typeof Modal>>(null);
 
     // Effects
     useEffect(() => {
@@ -102,13 +101,7 @@ const Message = (): JSX.Element => {
     const handleSign = async () => {
         setIsLoading(true);
         try {
-            const chainId = WalletClient.getChainId();
-
-            if (!chainId) {
-                throw new Error('Chain ID not found');
-            }
-
-            const json = await WalletUtils.generateSignedMessage(chainId, wallet, message);
+            const json = await WalletUtils.generateSignedMessage(wallet, message);
             setSignMessage(json);
             showModal('confirmation', false);
             showModal('signature', true);
@@ -121,23 +114,19 @@ const Message = (): JSX.Element => {
     const handleVerify = async () => {
         const msg = JSON.parse(messageToVerify, (key, value) => {
             if (key === 'sig' || key === 'publicKey') {
-                value = LumUtils.keyFromHex(value);
+                value = keyFromHex(value);
             }
             return value;
         });
 
         if (isMessageToVerify(msg)) {
-            const chainId = WalletClient.getChainId();
-
-            if (!chainId) {
-                throw new Error('Chain ID not found');
-            }
-
-            WalletUtils.validateSignMessage(chainId, msg)
+            WalletUtils.validateSignMessage(msg)
                 .then((result) => {
                     setVerifyMessage({ result, message: msg.msg, address: msg.address });
                 })
-                .catch((error) => showErrorToast(error.message));
+                .catch((error) => {
+                    showErrorToast(error.message);
+                });
         } else {
             showErrorToast(t('messages.invalidMessage'));
         }
@@ -154,10 +143,10 @@ const Message = (): JSX.Element => {
 
     const showModal = (id: 'signature' | 'confirmation', toggle: boolean) => {
         if (id === 'confirmation' && confirmModalRef.current) {
-            const modal = BSModal.getOrCreateInstance(confirmModalRef.current);
+            const modal = confirmModalRef.current;
             return toggle ? modal.show() : modal.hide();
         } else if (id === 'signature' && signatureModalRef.current) {
-            const modal = BSModal.getOrCreateInstance(signatureModalRef.current);
+            const modal = signatureModalRef.current;
             return toggle ? modal.show() : modal.hide();
         }
     };
@@ -168,17 +157,16 @@ const Message = (): JSX.Element => {
                 <div className="container-xxl">
                     <div className="row gy-4">
                         <div className="col-md-6 col-12">
-                            <AddressCard address={wallet.getAddress()} />
+                            <AddressCard address={wallet.address} />
                         </div>
                         <div className="col-md-6 col-12">
                             <AvailableCard
                                 balance={
                                     vestings
-                                        ? currentBalance.lum -
-                                          Number(LumUtils.convertUnit(vestings.lockedBankCoins, LumConstants.LumDenom))
+                                        ? currentBalance.lum - Number(convertUnit(vestings.lockedBankCoins, LUM_DENOM))
                                         : currentBalance.lum
                                 }
-                                address={wallet.getAddress()}
+                                address={wallet.address}
                             />
                         </div>
                         <div className="col-lg-6 col-12">
@@ -291,14 +279,14 @@ const Message = (): JSX.Element => {
                 <h3 className="my-4 text-center fw-bolder">{t('messages.confirmationModal.title')}</h3>
                 <Input
                     disabled
-                    value={wallet.getAddress()}
+                    value={wallet.address}
                     label={t('messages.confirmationModal.addressLabel')}
                     className="mb-4"
                 />
                 <Input disabled value={message} label={t('messages.confirmationModal.messageLabel')} className="mb-4" />
                 <Input
                     disabled
-                    value={LumUtils.keyToHex(LumUtils.toUtf8(encodeURI(message)), true)}
+                    value={keyToHex(toUtf8(encodeURI(message)), true)}
                     label={t('messages.confirmationModal.messageInHexLabel')}
                     className="mb-4"
                 />
@@ -316,8 +304,8 @@ const Message = (): JSX.Element => {
                             value={JSON.stringify(
                                 {
                                     ...signMessage,
-                                    sig: LumUtils.keyToHex(signMessage.sig),
-                                    publicKey: LumUtils.keyToHex(signMessage.publicKey),
+                                    sig: keyToHex(signMessage.sig),
+                                    publicKey: keyToHex(signMessage.publicKey),
                                 },
                                 null,
                                 2,
@@ -334,8 +322,8 @@ const Message = (): JSX.Element => {
                                 'data-clipboard-text': JSON.stringify(
                                     {
                                         ...signMessage,
-                                        sig: LumUtils.keyToHex(signMessage.sig),
-                                        publicKey: LumUtils.keyToHex(signMessage.publicKey),
+                                        sig: keyToHex(signMessage.sig),
+                                        publicKey: keyToHex(signMessage.publicKey),
                                     },
                                     null,
                                     2,

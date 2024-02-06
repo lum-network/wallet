@@ -1,11 +1,9 @@
-import { LumConstants, LumTypes, LumUtils } from '@lum-network/sdk-javascript';
 import numeral from 'numeral';
 
-export const convertUnitNumber = (
-    nb: number | string,
-    fromDenom = LumConstants.MicroLumDenom,
-    toDenom = LumConstants.LumDenom,
-): number => {
+import { LUM_DENOM, MICRO_LUM_DENOM, convertUnit } from '@lum-network/sdk-javascript';
+import { Coin } from '@lum-network/sdk-javascript/build/codegen/cosmos/base/v1beta1/coin';
+
+export const convertUnitNumber = (nb: number | string, fromDenom = MICRO_LUM_DENOM, toDenom = LUM_DENOM): number => {
     let amount: string;
 
     if (!nb) {
@@ -25,11 +23,11 @@ export const convertUnitNumber = (
         denom: fromDenom,
     };
 
-    return parseFloat(LumUtils.convertUnit(coin, toDenom));
+    return parseFloat(convertUnit(coin, toDenom));
 };
 
-export const formatUnit = (coin: LumTypes.Coin, moreDecimal?: boolean): string => {
-    return numeral(LumUtils.convertUnit(coin, LumConstants.LumDenom)).format(moreDecimal ? '0,0.000000' : '0,0.000');
+export const formatUnit = (coin: Coin, moreDecimal?: boolean): string => {
+    return numeral(convertUnit(coin, LUM_DENOM)).format(moreDecimal ? '0,0.000000' : '0,0.000');
 };
 
 export const formatTo6digit = (number: number): string => (number > 0 ? numeral(number).format('0,0.000000') : '0');

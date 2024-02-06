@@ -2,7 +2,7 @@ import {
     DelegationResponse,
     UnbondingDelegation,
     Validator,
-} from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
+} from '@lum-network/sdk-javascript/build/codegen/cosmos/staking/v1beta1/staking';
 import { CLIENT_PRECISION } from 'constant';
 import { Rewards, UserValidator } from 'models';
 import { NumbersUtils } from '.';

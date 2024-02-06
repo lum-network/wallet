@@ -50,6 +50,15 @@ const ImportGuardaModal = (props: { onSubmit: () => void }): JSX.Element => {
                 <p className="auth-paragraph">{t('welcome.softwareModal.notRecommendedDescription')}</p>
             </div>
             <form onSubmit={formik.handleSubmit}>
+                {/* Hidden input for accessibility */}
+                <input
+                    readOnly
+                    id="username"
+                    autoComplete="username"
+                    type="email"
+                    value=""
+                    style={{ display: 'none' }}
+                />
                 <FileInput
                     className="text-start my-4"
                     onChange={(event) => {
@@ -65,6 +74,7 @@ const ImportGuardaModal = (props: { onSubmit: () => void }): JSX.Element => {
                 <Input
                     {...formik.getFieldProps('password')}
                     type="password"
+                    autoComplete="current-password"
                     label={t('welcome.softwareModal.guardaBackup.pwdInputLabel')}
                     className="text-start mt-4 mb-4rem"
                     placeholder={t('welcome.softwareModal.guardaBackup.placeholder')}

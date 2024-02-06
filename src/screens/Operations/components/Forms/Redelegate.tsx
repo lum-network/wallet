@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { FormikContextType } from 'formik';
 import numeral from 'numeral';
-import { Validator } from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
+import { Validator } from '@lum-network/sdk-javascript/build/codegen/cosmos/staking/v1beta1/staking';
 
 import { Input, Button as CustomButton } from 'components';
 import { Button } from 'frontend-elements';
@@ -44,9 +44,7 @@ const Redelegate = ({ form, isLoading }: Props): JSX.Element => {
     const [destValidatorsList, setDestValidatorsList] = useState<Validator[]>(
         sortByVotingPower(
             bondedValidators,
-            NumbersUtils.convertUnitNumber(
-                calculateTotalVotingPower([...bondedValidators, ...unbondedValidators, ...unbondingValidators]),
-            ),
+            NumbersUtils.convertUnitNumber(calculateTotalVotingPower([...bondedValidators])),
         ),
     );
 
@@ -69,18 +67,14 @@ const Redelegate = ({ form, isLoading }: Props): JSX.Element => {
             setDestValidatorsList(
                 sortByVotingPower(
                     bondedValidators,
-                    NumbersUtils.convertUnitNumber(
-                        calculateTotalVotingPower([...bondedValidators, ...unbondedValidators, ...unbondingValidators]),
-                    ),
+                    NumbersUtils.convertUnitNumber(calculateTotalVotingPower([...bondedValidators])),
                 ).filter((val) => val.operatorAddress !== form.values.fromAddress),
             );
         } else {
             setDestValidatorsList(
                 sortByVotingPower(
                     bondedValidators,
-                    NumbersUtils.convertUnitNumber(
-                        calculateTotalVotingPower([...bondedValidators, ...unbondedValidators, ...unbondingValidators]),
-                    ),
+                    NumbersUtils.convertUnitNumber(calculateTotalVotingPower([...bondedValidators])),
                 ),
             );
         }

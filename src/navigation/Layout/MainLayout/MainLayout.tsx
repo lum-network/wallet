@@ -51,7 +51,7 @@ const MainLayout = ({ children }: { children?: React.ReactNode }): JSX.Element =
 
     useEffect(() => {
         if (wallet && prevLocation && location.pathname !== prevLocation.pathname && location.pathname === '/home') {
-            reloadWalletInfos(wallet.getAddress());
+            reloadWalletInfos(wallet.address);
         }
     }, [location]);
 

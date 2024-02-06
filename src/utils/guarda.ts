@@ -1,6 +1,7 @@
-import { PBKDF2, AES, enc } from 'crypto-js';
 import base58 from 'bs58';
-import { LumUtils } from '@lum-network/sdk-javascript';
+import { PBKDF2, AES, enc } from 'crypto-js';
+import { keyFromHex } from '@lum-network/sdk-javascript';
+
 import i18n from 'locales';
 
 const salt = 'XB7sHH26Hn&FmPLxnjGccKTfPV(yk';
@@ -42,7 +43,7 @@ export const getCosmosPrivateKey = (backup: string, pwd: string): Uint8Array => 
         }
 
         cosmosPrivateKey = cosmosPrivateKey.slice(2, 66);
-        return LumUtils.keyFromHex(cosmosPrivateKey);
+        return keyFromHex(cosmosPrivateKey);
     } catch {
         throw new Error(i18n.t('welcome.softwareModal.guardaBackup.errors.import'));
     }

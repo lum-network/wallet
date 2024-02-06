@@ -1,13 +1,13 @@
 import React from 'react';
 
 import { useTranslation } from 'react-i18next';
-import { LumConstants } from '@lum-network/sdk-javascript';
+import { LUM_DENOM, LumBech32Prefixes, MICRO_LUM_DENOM } from '@lum-network/sdk-javascript';
 
+import assets from 'assets';
+import { SmallerDecimal, TransactionTypeBadge } from 'components';
 import { Table } from 'frontend-elements';
 import { Transaction, Wallet } from 'models';
 import { getExplorerLink, NumbersUtils, DenomsUtils, trunc, getMillionsLink } from 'utils';
-import { SmallerDecimal, TransactionTypeBadge } from 'components';
-import assets from 'assets';
 
 interface TransactionsTableProps {
     transactions: Transaction[];
@@ -33,11 +33,7 @@ const TransactionRow = (props: RowProps): JSX.Element => {
                 </a>
             </td>
             <td data-label={headers[1]}>
-                <TransactionTypeBadge
-                    type={row.messages[0]}
-                    userAddress={wallet.getAddress()}
-                    toAddress={row.toAddress}
-                />
+                <TransactionTypeBadge type={row.messages[0]} userAddress={wallet.address} toAddress={row.toAddress} />
                 {row.messages.length > 1 && (
                     <span className="ms-2 color-type round-tags">+{row.messages.length - 1}</span>
                 )}
@@ -46,7 +42,7 @@ const TransactionRow = (props: RowProps): JSX.Element => {
                 {row.fromAddress && row.fromAddress.startsWith('lum') ? (
                     <a
                         href={`${getExplorerLink()}/${
-                            row.fromAddress.includes(LumConstants.LumBech32PrefixValAddr) ? 'validators' : 'account'
+                            row.fromAddress.includes(LumBech32Prefixes.VAL_ADDR) ? 'validators' : 'account'
                         }/${row.fromAddress}`}
                         target="_blank"
                         rel="noreferrer"
@@ -61,7 +57,7 @@ const TransactionRow = (props: RowProps): JSX.Element => {
                 {row.toAddress && row.toAddress.startsWith('lum') && row.messages.length === 1 ? (
                     <a
                         href={`${getExplorerLink()}/${
-                            row.toAddress.includes(LumConstants.LumBech32PrefixValAddr) ? 'validators' : 'account'
+                            row.toAddress.includes(LumBech32Prefixes.VAL_ADDR) ? 'validators' : 'account'
                         }/${row.toAddress}`}
                         target="_blank"
                         rel="noreferrer"
@@ -101,12 +97,12 @@ const TransactionRow = (props: RowProps): JSX.Element => {
                                     ? {
                                           amount: row.amount[0].amount,
                                           denom: row.amount[0].denom.startsWith('ibc')
-                                              ? LumConstants.MicroLumDenom
+                                              ? MICRO_LUM_DENOM
                                               : row.amount[0].denom,
                                       }
                                     : {
                                           amount: '0',
-                                          denom: LumConstants.LumDenom,
+                                          denom: LUM_DENOM,
                                       },
                                 true,
                             )}

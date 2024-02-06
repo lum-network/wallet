@@ -3,11 +3,10 @@ import { useTranslation } from 'react-i18next';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 
-import { Input } from 'components';
+import { Button, Input } from 'components';
 import { useRematchDispatch } from 'redux/hooks';
 import { RootDispatch, RootState } from 'redux/store';
 import { useSelector } from 'react-redux';
-import { Button } from 'frontend-elements';
 
 const ImportKeystoreModal = (props: { fileData: string; onSubmit: () => void }): JSX.Element => {
     // Redux hooks
@@ -49,18 +48,32 @@ const ImportKeystoreModal = (props: { fileData: string; onSubmit: () => void }):
                 <h3 className="text-center">{t('welcome.softwareModal.importKeystore')}</h3>
                 <p className="auth-paragraph">{t('welcome.softwareModal.notRecommendedDescription')}</p>
             </div>
-            <div className="mb-4rem text-start">
-                <Input
-                    {...formik.getFieldProps('password')}
-                    type="password"
-                    placeholder="Enter your keystore password"
-                    className="mt-4"
-                />
-                {formik.touched.password && formik.errors.password && <p>{formik.errors.password}</p>}
-            </div>
-            <Button onPress={formik.handleSubmit} loading={isLoading} className="mt-4 py-4 rounded-pill">
-                {t('common.continue')}
-            </Button>
+            <form onSubmit={formik.handleSubmit}>
+                <div className="mb-4rem text-start">
+                    {/* Hidden input for accessibility */}
+                    <input
+                        readOnly
+                        id="username"
+                        autoComplete="username"
+                        type="email"
+                        value=""
+                        style={{ display: 'none' }}
+                    />
+                    <Input
+                        {...formik.getFieldProps('password')}
+                        type="password"
+                        autoComplete="current-password"
+                        placeholder="Enter your keystore password"
+                        className="mt-4"
+                    />
+                    {formik.touched.password && formik.errors.password && (
+                        <p className="color-error">{formik.errors.password}</p>
+                    )}
+                </div>
+                <Button type="submit" isLoading={isLoading} className="mt-4 w-100">
+                    {t('common.continue')}
+                </Button>
+            </form>
             <p className="auth-paragraph mt-5 mb-3">
                 <span className="fw-bold danger-text">{t('createWallet.doNotForget')}</span>
                 {t('createWallet.keystore.warningDescription1')}

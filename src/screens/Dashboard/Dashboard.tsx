@@ -1,10 +1,9 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { LumConstants, LumUtils } from '@lum-network/sdk-javascript';
 
-import { Card } from 'frontend-elements';
-import { LUM_TWITTER } from 'constant';
+import { LUM_DENOM, convertUnit } from '@lum-network/sdk-javascript';
+
 import {
     TransactionsTable,
     AddressCard,
@@ -14,6 +13,8 @@ import {
     AirdropCard,
     OtherAssetsTable,
 } from 'components';
+import { LUM_TWITTER } from 'constant';
+import { Card } from 'frontend-elements';
 import { RootState } from 'redux/store';
 
 import StakedCoinsCard from '../Staking/components/Cards/StakedCoinsCard';
@@ -54,17 +55,16 @@ const Dashboard = (): JSX.Element => {
                         </div>
                     ) : null}
                     <div className="col-lg-5 col-md-6 col-12">
-                        <AddressCard address={wallet.getAddress()} />
+                        <AddressCard address={wallet.address} />
                     </div>
                     <div className="col-lg-5 col-md-6 col-12">
                         <AvailableCard
                             balance={
                                 vestings
-                                    ? balance.lum -
-                                      Number(LumUtils.convertUnit(vestings.lockedBankCoins, LumConstants.LumDenom))
+                                    ? balance.lum - Number(convertUnit(vestings.lockedBankCoins, LUM_DENOM))
                                     : balance.lum
                             }
-                            address={wallet.getAddress()}
+                            address={wallet.address}
                         />
                     </div>
                     <div className="col-lg-2 col-12 scale-animation">
@@ -81,14 +81,7 @@ const Dashboard = (): JSX.Element => {
                                 <StakedCoinsCard
                                     amount={stakedCoins}
                                     amountVesting={
-                                        vestings
-                                            ? Number(
-                                                  LumUtils.convertUnit(
-                                                      vestings.lockedDelegatedCoins,
-                                                      LumConstants.LumDenom,
-                                                  ),
-                                              )
-                                            : 0
+                                        vestings ? Number(convertUnit(vestings.lockedDelegatedCoins, LUM_DENOM)) : 0
                                     }
                                 />
                             </div>

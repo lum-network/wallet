@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LumConstants } from '@lum-network/sdk-javascript';
+import { getLumHdPath } from '@lum-network/sdk-javascript';
 
+import assets from 'assets';
+import { Input, SwitchInput, Button, HdPathInput, HoverTooltip } from 'components';
+import { Button as FEButton } from 'frontend-elements';
 import { useRematchDispatch } from 'redux/hooks';
 import { RootDispatch } from 'redux/store';
-import { Button as FEButton } from 'frontend-elements';
-import { Input, SwitchInput, Button, HdPathInput, HoverTooltip } from 'components';
-
 import { MnemonicLength, WalletUtils } from 'utils';
-import assets from 'assets';
 
 const defaultMnemonicState: { length: MnemonicLength; values: string[] } = {
     length: 12,
@@ -21,7 +20,7 @@ const ImportMnemonicModal = (): JSX.Element => {
     const [pasteHandled, setPasteHandled] = useState(false);
     const [showAdvanced, setShowAdvanced] = useState(false);
 
-    const [customHdPath, setCustomHdPath] = useState(LumConstants.getLumHdPath());
+    const [customHdPath, setCustomHdPath] = useState(getLumHdPath());
     const [isCustomPathValid, setIsCustomPathValid] = useState(true);
 
     /* CODE RELATED TO EXTRA WORD FOR FUTURE IMPLEMENTATION
@@ -144,7 +143,7 @@ const ImportMnemonicModal = (): JSX.Element => {
                         <h4>{t('welcome.hardwareModal.advanced.title')}</h4>
                         <FEButton
                             onPress={() => {
-                                setCustomHdPath(LumConstants.getLumHdPath());
+                                setCustomHdPath(getLumHdPath());
                             }}
                             className="bg-transparent text-btn p-0 me-2 h-auto"
                         >
@@ -153,7 +152,9 @@ const ImportMnemonicModal = (): JSX.Element => {
                     </div>
                     <HdPathInput
                         value={customHdPath}
-                        onChange={(value) => setCustomHdPath(value)}
+                        onChange={(value) => {
+                            setCustomHdPath(value);
+                        }}
                         onCheck={(valid) => setIsCustomPathValid(valid)}
                     />
                 </div>
@@ -185,7 +186,7 @@ const ImportMnemonicModal = (): JSX.Element => {
                 </div>
             )} */}
             <Button
-                type="submit"
+                type="button"
                 onClick={onSubmit}
                 data-bs-dismiss="modal"
                 disabled={isEmptyField() || (showAdvanced && !isCustomPathValid)}

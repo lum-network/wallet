@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Validator } from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
+import { Validator } from '@lum-network/sdk-javascript/build/codegen/cosmos/staking/v1beta1/staking';
 import numeral from 'numeral';
 import { Table, ValidatorLogo } from 'frontend-elements';
 
 import { Button, Input } from 'components';
-import { CLIENT_PRECISION, LUM_ASSETS_GITHUB } from 'constant';
+import { LUM_ASSETS_GITHUB } from 'constant';
 import { trunc, NumbersUtils, sortByVotingPower, WalletClient, getExplorerLink } from 'utils';
 
 import searchIcon from 'assets/images/search.svg';
@@ -37,12 +37,14 @@ const AvailableValidators = ({ validators, totalVotingPower, onDelegate }: Props
 
     useEffect(() => {
         if (searchText) {
+            const lowercaseSearchText = searchText.toLowerCase();
+
             setVals(
                 validators.filter(
                     (validator) =>
-                        validator.operatorAddress.includes(searchText) ||
-                        validator.description?.moniker.includes(searchText) ||
-                        validator.description?.identity.includes(searchText),
+                        validator.operatorAddress.toLowerCase().includes(lowercaseSearchText) ||
+                        validator.description?.moniker.toLowerCase().includes(lowercaseSearchText) ||
+                        validator.description?.identity.toLowerCase().includes(lowercaseSearchText),
                 ),
             );
         } else {
@@ -55,7 +57,7 @@ const AvailableValidators = ({ validators, totalVotingPower, onDelegate }: Props
     };
 
     const renderRow = (validator: Validator, index: number) => {
-        const rank = vals.findIndex((val) => val.operatorAddress === validator.operatorAddress);
+        const rank = validators.findIndex((val) => val.operatorAddress === validator.operatorAddress);
 
         return (
             <tr key={index} className="validators-table-row">
@@ -98,11 +100,7 @@ const AvailableValidators = ({ validators, totalVotingPower, onDelegate }: Props
                 </td>
                 {/* TO RE-ENABLE WHEN UPTIME IS AVAILABLE <td data-label={headers[3]}>{validator.}</td> */}
                 <td data-label={headers[5]} className="text-end">
-                    <p>
-                        {numeral(
-                            parseFloat(validator.commission?.commissionRates?.rate || '0') / CLIENT_PRECISION,
-                        ).format('0.00%')}
-                    </p>
+                    <p>{numeral(validator.commission?.commissionRates?.rate || '0').format('0.00%')}</p>
                 </td>
                 <td data-label={headers[6]} className="text-end">
                     <Button

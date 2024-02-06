@@ -2,16 +2,16 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { Trans, useTranslation } from 'react-i18next';
-import { Modal as BSModal } from 'bootstrap';
+
 import { Window as KeplrWindow } from '@keplr-wallet/types';
-import { LumConstants } from '@lum-network/sdk-javascript';
-import { Button as FEButton } from 'frontend-elements';
-import { RootDispatch, RootState } from 'redux/store';
+import { getLumHdPath } from '@lum-network/sdk-javascript';
 
 import Assets from 'assets';
 import { COSMOS_LEDGER_APP_INSTALL_LINK, KEPLR_DEFAULT_COIN_TYPE, KEPLR_INSTALL_LINK } from 'constant';
 import { Modal, Button, SwitchInput, Input, HdPathInput, HoverTooltip } from 'components';
+import { Button as FEButton } from 'frontend-elements';
 import { ExtensionMethod, HardwareMethod, SoftwareMethod } from 'models';
+import { RootDispatch, RootState } from 'redux/store';
 import { useRematchDispatch } from 'redux/hooks';
 
 import AuthLayout from './components/AuthLayout';
@@ -32,9 +32,9 @@ const Welcome = (): JSX.Element => {
     // State
     const [selectedMethod, setSelectedMethod] = useState<ImportType | null>(null);
     const [keystoreFileData, setKeystoreFileData] = useState<string | null>(null);
-    const [softwareMethodModal, setSoftwareMethodModal] = useState<BSModal | null>(null);
+    const [softwareMethodModal, setSoftwareMethodModal] = useState<React.ElementRef<typeof Modal> | null>(null);
     const [showAdvanced, setShowAdvanced] = useState(false);
-    const [customHdPath, setCustomHdPath] = useState(LumConstants.getLumHdPath());
+    const [customHdPath, setCustomHdPath] = useState(getLumHdPath());
     const [isCustomPathValid, setIsCustomPathValid] = useState(true);
     const [isCustomCoinTypeValid, setIsCustomCoinTypeValid] = useState(true);
     const [keplrCoinType, setKeplrCoinType] = useState(KEPLR_DEFAULT_COIN_TYPE);
@@ -53,8 +53,8 @@ const Welcome = (): JSX.Element => {
     }));
 
     // Refs
-    const importSoftwareModalRef = useRef<HTMLDivElement>(null);
-    const softwareMethodModalRef = useRef<HTMLDivElement>(null);
+    const importSoftwareModalRef = useRef<React.ElementRef<typeof Modal>>(null);
+    const softwareMethodModalRef = useRef<React.ElementRef<typeof Modal>>(null);
     const keystoreInputRef = useRef<HTMLInputElement>(null);
 
     // Utils hooks
@@ -66,8 +66,7 @@ const Welcome = (): JSX.Element => {
         const modalElement = importSoftwareModalRef.current;
 
         if (modalElement) {
-            const bsModal = BSModal.getOrCreateInstance(modalElement, { backdrop: 'static', keyboard: false });
-            bsModal.show();
+            modalElement.show();
             setModalShowed(true);
         }
     }, [importSoftwareModalRef]);
@@ -76,8 +75,7 @@ const Welcome = (): JSX.Element => {
         const modalElement = importSoftwareModalRef.current;
 
         if (modalElement) {
-            const bsModal = BSModal.getOrCreateInstance(modalElement, { backdrop: 'static', keyboard: false });
-            bsModal.hide();
+            modalElement.hide();
             setModalShowed(false);
         }
     }, [importSoftwareModalRef]);
@@ -97,7 +95,7 @@ const Welcome = (): JSX.Element => {
 
     useEffect(() => {
         if (softwareMethodModalRef.current) {
-            setSoftwareMethodModal(BSModal.getOrCreateInstance(softwareMethodModalRef.current));
+            setSoftwareMethodModal(softwareMethodModalRef.current);
         }
     }, [softwareMethodModalRef]);
 
@@ -157,28 +155,28 @@ const Welcome = (): JSX.Element => {
                             </button>
                             <button
                                 type="button"
-                                onClick={() => setSelectedMethod({ type: 'software', method: SoftwareMethod.Mnemonic })}
-                                className={`import-software-btn my-4 ${
-                                    selectedMethod?.method === SoftwareMethod.Mnemonic && 'selected'
-                                }`}
-                            >
-                                <p className="d-flex align-items-center justify-content-center fw-normal">
-                                    <img src={Assets.images.navbarIcons.messages} height="28" className="me-3" />
-                                    {t('welcome.softwareModal.types.mnemonic')}
-                                </p>
-                            </button>
-                            <button
-                                type="button"
                                 onClick={() =>
                                     setSelectedMethod({ type: 'software', method: SoftwareMethod.PrivateKey })
                                 }
-                                className={`import-software-btn ${
+                                className={`import-software-btn my-4 ${
                                     selectedMethod?.method === SoftwareMethod.PrivateKey && 'selected'
                                 }`}
                             >
                                 <p className="d-flex align-items-center justify-content-center fw-normal">
                                     <img src={Assets.images.keyIcon} height="28" className="me-3" />
                                     {t('welcome.softwareModal.types.privateKey')}
+                                </p>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setSelectedMethod({ type: 'software', method: SoftwareMethod.Mnemonic })}
+                                className={`import-software-btn ${
+                                    selectedMethod?.method === SoftwareMethod.Mnemonic && 'selected'
+                                }`}
+                            >
+                                <p className="d-flex align-items-center justify-content-center fw-normal">
+                                    <img src={Assets.images.navbarIcons.messages} height="28" className="me-3" />
+                                    {t('welcome.softwareModal.types.mnemonic')}
                                 </p>
                             </button>
                             <button
@@ -438,7 +436,7 @@ const Welcome = (): JSX.Element => {
                                         <h4>{t('welcome.hardwareModal.advanced.title')}</h4>
                                         <FEButton
                                             onPress={() => {
-                                                setCustomHdPath(LumConstants.getLumHdPath());
+                                                setCustomHdPath(getLumHdPath());
                                             }}
                                             className="bg-transparent text-btn p-0 me-2 h-auto"
                                         >
@@ -506,7 +504,7 @@ const Welcome = (): JSX.Element => {
             case SoftwareMethod.Mnemonic:
                 return <ImportMnemonicModal />;
             case SoftwareMethod.PrivateKey:
-                return <ImportPrivateKeyModal />;
+                return <ImportPrivateKeyModal onSubmit={() => softwareMethodModal?.hide()} />;
             case SoftwareMethod.Guarda:
                 return <ImportGuardaModal onSubmit={() => softwareMethodModal?.hide()} />;
             case SoftwareMethod.Keystore:
@@ -530,7 +528,7 @@ const Welcome = (): JSX.Element => {
                             <div className="col-12 col-lg-3">
                                 <ImportButton
                                     method="extension"
-                                    disabled={keplrState.loading || ledgerState.loading}
+                                    disabled={keplrState.loading}
                                     title={t('welcome.extension.title')}
                                     description={t('welcome.extension.description')}
                                     note={t('welcome.extensionModal.info')}
@@ -558,7 +556,7 @@ const Welcome = (): JSX.Element => {
                             <div className="col-12 col-lg-3">
                                 <ImportButton
                                     method="software"
-                                    disabled={keplrState.loading || ledgerState.loading}
+                                    disabled={keplrState.loading}
                                     title={t('welcome.software.title')}
                                     description={t('welcome.software.description')}
                                     note={t('welcome.softwareModal.notRecommended')}
@@ -593,7 +591,7 @@ const Welcome = (): JSX.Element => {
             <Modal
                 id="importSoftwareModal"
                 ref={importSoftwareModalRef}
-                withCloseButton={!ledgerState.loading && !keplrState.loading}
+                withCloseButton={!keplrState.loading}
                 onCloseButtonPress={() => setTimeout(() => setSelectedMethod(null), 150)}
                 bodyClassName="px-3"
                 contentClassName="px-2 import-modal-content"

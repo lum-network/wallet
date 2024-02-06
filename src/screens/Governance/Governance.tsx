@@ -3,7 +3,7 @@ import { CSSTransition, SwitchTransition } from 'react-transition-group';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import { ProposalStatus, VoteOption } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
+import { ProposalStatus, VoteOption } from '@lum-network/sdk-javascript/build/codegen/cosmos/gov/v1beta1/gov';
 
 import { Proposal } from 'models';
 import { RootDispatch, RootState } from 'redux/store';
@@ -27,7 +27,7 @@ const Governance = (): JSX.Element => {
 
     const nodeRef1 = useRef<HTMLDivElement>(null);
     const nodeRef2 = useRef<HTMLDivElement>(null);
-    const modalRef = useRef<HTMLDivElement>(null);
+    const modalRef = useRef<React.ElementRef<typeof Modal>>(null);
 
     const { wallet, proposals } = useSelector((state: RootState) => ({
         wallet: state.wallet.currentWallet,
@@ -86,7 +86,7 @@ const Governance = (): JSX.Element => {
     }, [proposalId, proposals]);
 
     const onDetails = (proposal: Proposal) => {
-        navigate(`/governance/proposal/${proposal.id}`);
+        navigate(`/governance/proposal/${proposal.id.toString()}`);
     };
 
     const onVote = (proposal: Proposal) => {

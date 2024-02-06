@@ -14,12 +14,20 @@ module.exports = {
             buffer: require.resolve('buffer'),
         };
         config.resolve.modules = [path.resolve(__dirname, 'src'), 'node_modules'];
+
         config.plugins = [
             ...config.plugins,
             new webpack.ProvidePlugin({
                 Buffer: ['buffer', 'Buffer'],
             }),
         ];
+
+        config.module.rules.push({
+            test: /\.m?js$/,
+            resolve: {
+                fullySpecified: false,
+            },
+        });
 
         return config;
     },
@@ -29,12 +37,13 @@ module.exports = {
             '^.+\\.(ts|tsx)$': 'ts-jest',
         };
 
-        config.transformIgnorePatterns = ['node_modules/(?!(axios))'];
+        config.transformIgnorePatterns = ['/node_modules/(?!(@ledgerhq))'];
 
         config.moduleNameMapper = {
             ...config.moduleNameMapper,
             '\\.(css|scss)$': 'identity-obj-proxy',
-            '@ledgerhq/devices': '@ledgerhq/devices/lib',
+            '@ledgerhq/devices': '@ledgerhq/devices/lib-es',
+            axios: 'axios/dist/node/axios.cjs',
         };
 
         return config;

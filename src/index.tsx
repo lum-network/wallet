@@ -11,6 +11,8 @@ import '@popperjs/core';
 import 'bootstrap';
 import './styles/_main.scss';
 
+import './utils/polyfills';
+
 const container = document.getElementById('root');
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const root = createRoot(container!);

@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { ProposalStatus } from '@lum-network/sdk-javascript/build/codec/cosmos/gov/v1beta1/gov';
-import { BondStatus } from '@lum-network/sdk-javascript/build/codec/cosmos/staking/v1beta1/staking';
+import { ProposalStatus } from '@lum-network/sdk-javascript/build/codegen/cosmos/gov/v1beta1/gov';
+import { BondStatus } from '@lum-network/sdk-javascript/build/codegen/cosmos/staking/v1beta1/staking';
 
 import { useTranslation } from 'react-i18next';
 import assets from 'assets';

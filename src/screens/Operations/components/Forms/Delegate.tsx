@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { LumUtils, LumConstants } from '@lum-network/sdk-javascript';
-import { Input, Button as CustomButton } from 'components';
 import { FormikContextType } from 'formik';
-import { Button } from 'frontend-elements';
+import numeral from 'numeral';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
+import { LUM_DENOM, convertUnit } from '@lum-network/sdk-javascript';
+
+import { Input, Button as CustomButton } from 'components';
+import { Button } from 'frontend-elements';
 import { RootState } from 'redux/store';
 import { calculateTotalVotingPower, NumbersUtils, sortByVotingPower, trunc } from 'utils';
+
 import CustomSelect from '../CustomSelect/CustomSelect';
-import numeral from 'numeral';
 
 interface Props {
     isLoading: boolean;
@@ -24,20 +26,14 @@ const Delegate = ({ form, isLoading }: Props): JSX.Element => {
 
     const { t } = useTranslation();
 
-    const { balance, vestings, bondedValidators, unbondedValidators, unbondingValidators } = useSelector(
-        (state: RootState) => ({
-            balance: state.wallet.currentBalance,
-            vestings: state.wallet.vestings,
-            bondedValidators: state.staking.validators.bonded,
-            unbondedValidators: state.staking.validators.unbonded,
-            unbondingValidators: state.staking.validators.unbonding,
-        }),
-    );
+    const { balance, vestings, bondedValidators } = useSelector((state: RootState) => ({
+        balance: state.wallet.currentBalance,
+        vestings: state.wallet.vestings,
+        bondedValidators: state.staking.validators.bonded,
+    }));
 
     const onMax = () => {
-        let max = vestings
-            ? balance.lum - Number(LumUtils.convertUnit(vestings.lockedBankCoins, LumConstants.LumDenom))
-            : balance.lum;
+        let max = vestings ? balance.lum - Number(convertUnit(vestings.lockedBankCoins, LUM_DENOM)) : balance.lum;
 
         // Max balance minus avg fees
         max -= 0.005;
@@ -70,13 +66,7 @@ const Delegate = ({ form, isLoading }: Props): JSX.Element => {
                     <CustomSelect
                         options={sortByVotingPower(
                             bondedValidators,
-                            NumbersUtils.convertUnitNumber(
-                                calculateTotalVotingPower([
-                                    ...bondedValidators,
-                                    ...unbondedValidators,
-                                    ...unbondingValidators,
-                                ]),
-                            ),
+                            NumbersUtils.convertUnitNumber(calculateTotalVotingPower([...bondedValidators])),
                         ).map((val) => ({
                             value: val.operatorAddress,
                             label: val.description?.moniker || val.description?.identity || trunc(val.operatorAddress),
