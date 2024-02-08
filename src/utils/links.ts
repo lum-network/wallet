@@ -1,12 +1,5 @@
 import WalletClient from './client';
-import {
-    LUM_EXPLORER,
-    LUM_EXPLORER_TESTNET,
-    LUM_MILLIONS,
-    LUM_MILLIONS_TESTNET,
-    LUM_WALLET,
-    LUM_WALLET_TESTNET,
-} from 'constant';
+import { LUM_MILLIONS, LUM_MILLIONS_TESTNET, LUM_WALLET, LUM_WALLET_TESTNET } from 'constant';
 
 const CUSTOM_NODE_KEY = 'custom-nodes';
 
@@ -29,6 +22,5 @@ export const getCustomNodes = (): string[] => {
 
 export const getRpcFromNode = (node: string): string => `https://${node}/rpc`;
 
-export const getExplorerLink = (): string => (WalletClient.isTestnet() ? LUM_EXPLORER_TESTNET : LUM_EXPLORER);
 export const getWalletLink = (): string => (WalletClient.isTestnet() ? LUM_WALLET_TESTNET : LUM_WALLET);
 export const getMillionsLink = (): string => (WalletClient.isTestnet() ? LUM_MILLIONS_TESTNET : LUM_MILLIONS);

@@ -4,11 +4,12 @@ import ClipboardJS from 'clipboard';
 import printJS from 'print-js';
 
 import assets from 'assets';
+import { HoverTooltip } from 'components';
+import { LUM_MINTSCAN_URL } from 'constant';
 import { Card, CodeQr } from 'frontend-elements';
+import { showErrorToast, showSuccessToast } from 'utils';
 
 import Modal from '../Modals/Modal';
-import { getExplorerLink, showErrorToast, showSuccessToast } from 'utils';
-import { HoverTooltip } from 'components';
 
 const AddressCard = ({ address }: { address: string }): JSX.Element => {
     const { t } = useTranslation();
@@ -42,7 +43,7 @@ const AddressCard = ({ address }: { address: string }): JSX.Element => {
                 <h2 className="ps-2 pt-3 text-white">{t('common.address')}</h2>
                 <a
                     className="wallet-address"
-                    href={`${getExplorerLink()}/account/${address}`}
+                    href={`${LUM_MINTSCAN_URL}/address/${address}`}
                     target="_blank"
                     rel="noreferrer"
                 >

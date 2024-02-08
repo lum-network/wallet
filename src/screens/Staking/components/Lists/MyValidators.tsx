@@ -12,11 +12,11 @@ import {
 } from '@lum-network/sdk-javascript/build/codegen/cosmos/staking/v1beta1/staking';
 
 import { Badge, DropdownButton, SmallerDecimal } from 'components';
-import { LUM_ASSETS_GITHUB } from 'constant';
+import { LUM_ASSETS_GITHUB, LUM_MINTSCAN_URL } from 'constant';
 import { Table, ValidatorLogo } from 'frontend-elements';
 import { Rewards, UserValidator } from 'models';
 import { RootState } from 'redux/store';
-import { getExplorerLink, getUserValidators, NumbersUtils, sortByVotingPower, trunc, WalletClient } from 'utils';
+import { getUserValidators, NumbersUtils, sortByVotingPower, trunc, WalletClient } from 'utils';
 
 interface Props {
     validators: Validator[];
@@ -79,7 +79,7 @@ const MyValidators = ({
             <tr key={index} className="validators-table-row">
                 <td data-label={headers[0]}>
                     <a
-                        href={`${getExplorerLink()}/validators/${validator.operatorAddress}`}
+                        href={`${LUM_MINTSCAN_URL}/validators/${validator.operatorAddress}`}
                         target="_blank"
                         rel="noreferrer"
                     >
