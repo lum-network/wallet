@@ -8,6 +8,8 @@ export const computeDenom = (denom: string): string => {
         case IBCDenoms.ATOM_TESTNET:
         case IBCDenoms.ATOM:
             return 'atom';
+        case IBCDenoms.HUAHUA:
+            return 'huahua';
         case IBCDenoms.OSMO:
             return 'osmo';
         case 'udfr':
@@ -27,5 +29,7 @@ export const getIconFromDenom = (denom: string) => {
             return assets.images.tokens.dfr;
         case 'usdc':
             return assets.images.tokens.usdc;
+        case 'huahua':
+            return assets.images.tokens.huahua;
     }
 };
