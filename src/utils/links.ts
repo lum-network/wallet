@@ -20,7 +20,7 @@ export const getCustomNodes = (): string[] => {
     return nodes;
 };
 
-export const getRpcFromNode = (node: string): string => `https://${node}/rpc`;
+export const getRpcFromNode = (node: string): string => `https://${node}`;
 
 export const getWalletLink = (): string => (WalletClient.isTestnet() ? LUM_WALLET_TESTNET : LUM_WALLET);
 export const getMillionsLink = (): string => (WalletClient.isTestnet() ? LUM_MILLIONS_TESTNET : LUM_MILLIONS);

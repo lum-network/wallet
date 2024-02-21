@@ -28,7 +28,7 @@ jobs:
         env:
           SASS_PATH: "node_modules:src/styles"
           GENERATE_SOURCEMAP: "false"
-          REACT_APP_RPC_URL: "https://node0.mainnet.lum.network/rpc"
+          REACT_APP_RPC_URL: "https://private-rpc-cm-lum.imperator.co"
 
       - name: Test
         run: yarn test

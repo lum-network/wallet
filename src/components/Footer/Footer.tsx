@@ -29,35 +29,36 @@ const Footer = (): JSX.Element => {
             <footer className="mt-auto">
                 <div className="d-flex w-100 justify-content-sm-end justify-content-center align-items-center flex-column flex-sm-row p-4">
                     <div className="d-flex flex-column flex-sm-row align-items-center justify-content-center">
-                        <DropdownButton
-                            plainButton
-                            withSeparator={false}
-                            title={WalletClient.getNode()}
-                            selectedItem={WalletClient.getNode()}
-                            direction="up"
-                            listClassName="node-selection-list pt-3 w-100"
-                            items={[
-                                ...[...userNodes, ...NODES].map((node) => ({
-                                    title: node,
-                                    onPress: () => {
-                                        setCurrentNode(node);
-                                    },
-                                })),
-                                {
-                                    component: (
-                                        <Button
-                                            outline
-                                            buttonType="custom"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#customNodeModal"
-                                            className="custom-node-btn d-flex align-items-center justify-content-center mx-auto my-2"
-                                        >
-                                            {t('footer.customNodeBtn')}
-                                        </Button>
-                                    ),
-                                },
-                            ]}
-                        />
+                        {/*FIXME: We temporarily disabled the node selection feature. */}
+                        {/*<DropdownButton*/}
+                        {/*    plainButton*/}
+                        {/*    withSeparator={false}*/}
+                        {/*    title={WalletClient.getNode()}*/}
+                        {/*    selectedItem={WalletClient.getNode()}*/}
+                        {/*    direction="up"*/}
+                        {/*    listClassName="node-selection-list pt-3 w-100"*/}
+                        {/*    items={[*/}
+                        {/*        ...[...userNodes, ...NODES].map((node) => ({*/}
+                        {/*            title: node,*/}
+                        {/*            onPress: () => {*/}
+                        {/*                setCurrentNode(node);*/}
+                        {/*            },*/}
+                        {/*        })),*/}
+                        {/*        {*/}
+                        {/*            component: (*/}
+                        {/*                <Button*/}
+                        {/*                    outline*/}
+                        {/*                    buttonType="custom"*/}
+                        {/*                    data-bs-toggle="modal"*/}
+                        {/*                    data-bs-target="#customNodeModal"*/}
+                        {/*                    className="custom-node-btn d-flex align-items-center justify-content-center mx-auto my-2"*/}
+                        {/*                >*/}
+                        {/*                    {t('footer.customNodeBtn')}*/}
+                        {/*                </Button>*/}
+                        {/*            ),*/}
+                        {/*        },*/}
+                        {/*    ]}*/}
+                        {/*/>*/}
                         <div className="d-flex flex-row align-items-center mt-4 mt-sm-0">
                             <a href={LUM_WALLET_GITHUB} target="_blank" rel="noreferrer" className="ms-sm-4">
                                 <img src={Assets.images.githubIcon} className="footer-icon" />
