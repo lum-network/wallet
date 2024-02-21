@@ -5,10 +5,10 @@ import { RootDispatch } from 'redux/store';
 import { useRematchDispatch } from 'redux/hooks';
 
 import Assets from 'assets';
-import { LUM_WALLET_GITHUB, LUM_DISCORD /* LUM_MAIL, LUM_TELEGRAM */, NODES } from 'constant';
-import { WalletClient, saveCustomNode, getCustomNodes } from 'utils';
+import { LUM_WALLET_GITHUB, LUM_DISCORD /* LUM_MAIL, LUM_TELEGRAM, NODES */ } from 'constant';
+import { /* WalletClient, */ saveCustomNode /*, getCustomNodes */ } from 'utils';
 
-import { DropdownButton, Button, Modal, Input } from '../';
+import { /* DropdownButton, */ Button, Modal, Input } from '../';
 import './Footer.scss';
 
 const Footer = (): JSX.Element => {
@@ -16,7 +16,7 @@ const Footer = (): JSX.Element => {
     const setCurrentNode = useRematchDispatch((dispatch: RootDispatch) => dispatch.wallet.updateNode);
     const { t } = useTranslation();
 
-    const userNodes = getCustomNodes();
+    // const userNodes = getCustomNodes();
 
     const onAddNode = () => {
         saveCustomNode(customNode);
