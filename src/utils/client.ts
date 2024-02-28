@@ -30,9 +30,11 @@ const { delegate, beginRedelegate, undelegate } = cosmos.staking.v1beta1.Message
 const { withdrawDelegatorReward, setWithdrawAddress } = cosmos.distribution.v1beta1.MessageComposer.withTypeUrl;
 const { vote } = cosmos.gov.v1beta1.MessageComposer.withTypeUrl;
 
+const rpcUrl = new URL(process.env.REACT_APP_RPC_URL ?? 'rpc.cosmos.directory/lumnetwork');
+
 class WalletClient {
     private lumInfos: LumInfo | null = null;
-    private node: string = new URL(process.env.REACT_APP_RPC_URL).hostname;
+    private node: string = rpcUrl.hostname + rpcUrl.pathname;
     private chainId: string | null = null;
     private queryClient: Awaited<ReturnType<typeof lum.ClientFactory.createRPCQueryClient>> | null = null;
     private cosmosSigningClient: SigningStargateClient | null = null;
@@ -471,7 +473,7 @@ class WalletClient {
         const gasEstimated = await this.cosmosSigningClient.simulate(fromWallet.address, [sendMsg], memo);
         const fee = {
             amount: coins('25000', MICRO_LUM_DENOM),
-            gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
+            gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(2))).maxDecimals(0).locale(false).toString(),
         };
 
         // Fetch chain id
@@ -518,7 +520,7 @@ class WalletClient {
         const gasEstimated = await this.cosmosSigningClient.simulate(fromWallet.address, [delegateMsg], memo);
         const fee = {
             amount: coins('25000', MICRO_LUM_DENOM),
-            gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
+            gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(2))).maxDecimals(0).locale(false).toString(),
         };
 
         // Fetch chain id
@@ -565,7 +567,7 @@ class WalletClient {
         const gasEstimated = await this.cosmosSigningClient.simulate(fromWallet.address, [undelegateMsg], memo);
         const fee = {
             amount: coins('25000', MICRO_LUM_DENOM),
-            gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
+            gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(2))).maxDecimals(0).locale(false).toString(),
         };
 
         // Fetch chain id
@@ -602,7 +604,7 @@ class WalletClient {
         const gasEstimated = await this.cosmosSigningClient.simulate(fromWallet.address, [getRewardMsg], memo);
         const fee = {
             amount: coins('25000', MICRO_LUM_DENOM),
-            gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
+            gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(2))).maxDecimals(0).locale(false).toString(),
         };
 
         // Fetch chain id
@@ -645,7 +647,7 @@ class WalletClient {
         const gasEstimated = await this.cosmosSigningClient.simulate(fromWallet.address, messages, memo);
         const fee = {
             amount: coins('25000', MICRO_LUM_DENOM),
-            gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
+            gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(2))).maxDecimals(0).locale(false).toString(),
         };
 
         // Fetch chain id
@@ -699,7 +701,7 @@ class WalletClient {
         const gasEstimated = await this.cosmosSigningClient.simulate(fromWallet.address, [redelegateMsg], memo);
         const fee = {
             amount: coins('25000', MICRO_LUM_DENOM),
-            gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
+            gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(2))).maxDecimals(0).locale(false).toString(),
         };
 
         // Fetch chain id
@@ -740,7 +742,7 @@ class WalletClient {
         const gasEstimated = await this.cosmosSigningClient.simulate(fromWallet.address, [voteMsg], undefined);
         const fee = {
             amount: coins('25000', MICRO_LUM_DENOM),
-            gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
+            gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(2))).maxDecimals(0).locale(false).toString(),
         };
 
         // Fetch chain id
@@ -777,7 +779,7 @@ class WalletClient {
         const gasEstimated = await this.cosmosSigningClient.simulate(fromWallet.address, [setWithdrawAddressMsg], memo);
         const fee = {
             amount: coins('25000', MICRO_LUM_DENOM),
-            gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(1.3))).maxDecimals(0).locale(false).toString(),
+            gas: new IntPretty(new Dec(gasEstimated).mul(new Dec(2))).maxDecimals(0).locale(false).toString(),
         };
 
         // Fetch chain id
